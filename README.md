@@ -98,3 +98,8 @@ flutter analyze
 ```bash
 flutter test
 ```
+
+
+```bash
+flutter run -d 521FF68C-98F0-4EE5-B3AA-917C014AFD11
+```

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../theme/app_tokens.dart';
 
@@ -54,7 +55,7 @@ class MateyaHeader extends StatelessWidget {
           if (variant == MateyaHeaderVariant.chatDetail)
             _ChatDetailTitle(title: title!, subtitle: subtitle!)
           else
-            const _MateyaWordmark(fontSize: 24),
+            const _MateyaTextLogo(),
           Positioned(
             right: 12,
             child: IconButton(
@@ -108,6 +109,20 @@ class _ChatDetailTitle extends StatelessWidget {
   }
 }
 
+class _MateyaTextLogo extends StatelessWidget {
+  const _MateyaTextLogo();
+
+  @override
+  Widget build(BuildContext context) {
+    return SvgPicture.asset(
+      'assets/images/textlogo.svg',
+      height: 22,
+      fit: BoxFit.contain,
+      semanticsLabel: 'MateYa',
+    );
+  }
+}
+
 class MateyaLogoMark extends StatelessWidget {
   const MateyaLogoMark({super.key, this.size = 168});
 
@@ -115,78 +130,12 @@ class MateyaLogoMark extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final strokeWidth = size * 0.18;
-
-    return SizedBox(
+    return SvgPicture.asset(
+      'assets/images/logo.svg',
       width: size,
       height: size * 0.9,
-      child: Stack(
-        alignment: Alignment.center,
-        children: <Widget>[
-          Positioned(
-            left: size * 0.12,
-            bottom: 0,
-            child: Container(
-              width: strokeWidth,
-              height: size * 0.75,
-              decoration: BoxDecoration(
-                color: const Color(0xFF171A22),
-                borderRadius: BorderRadius.circular(size * 0.08),
-              ),
-            ),
-          ),
-          Positioned(
-            left: size * 0.22,
-            bottom: size * 0.18,
-            child: Transform.rotate(
-              angle: -0.58,
-              child: Container(
-                width: size * 0.18,
-                height: size * 0.58,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF171A22),
-                  borderRadius: BorderRadius.circular(size * 0.08),
-                ),
-              ),
-            ),
-          ),
-          Positioned(
-            right: size * 0.14,
-            bottom: 0,
-            child: Container(
-              width: strokeWidth,
-              height: size * 0.78,
-              decoration: BoxDecoration(
-                color: const Color(0xFF49D64E),
-                borderRadius: BorderRadius.circular(size * 0.08),
-              ),
-            ),
-          ),
-          Positioned(
-            right: size * 0.24,
-            bottom: size * 0.19,
-            child: Transform.rotate(
-              angle: 0.72,
-              child: Container(
-                width: size * 0.18,
-                height: size * 0.56,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF49D64E),
-                  borderRadius: BorderRadius.circular(size * 0.08),
-                ),
-              ),
-            ),
-          ),
-          Positioned(
-            top: size * 0.23,
-            child: Icon(
-              Icons.accessibility_new_rounded,
-              color: Colors.white,
-              size: size * 0.34,
-            ),
-          ),
-        ],
-      ),
+      fit: BoxFit.contain,
+      semanticsLabel: 'MateYa logo',
     );
   }
 }
