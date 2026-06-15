@@ -20,6 +20,8 @@ class MateyaTextField extends StatefulWidget {
     this.inputFormatters,
     this.suffixIcon,
     this.textInputAction,
+    this.maxLines = 1,
+    this.minLines,
   });
 
   final TextEditingController controller;
@@ -36,6 +38,8 @@ class MateyaTextField extends StatefulWidget {
   final List<TextInputFormatter>? inputFormatters;
   final Widget? suffixIcon;
   final TextInputAction? textInputAction;
+  final int maxLines;
+  final int? minLines;
 
   @override
   State<MateyaTextField> createState() => _MateyaTextFieldState();
@@ -100,6 +104,8 @@ class _MateyaTextFieldState extends State<MateyaTextField> {
           keyboardType: widget.keyboardType,
           inputFormatters: widget.inputFormatters,
           textInputAction: widget.textInputAction,
+          maxLines: widget.maxLines,
+          minLines: widget.minLines,
           onTap: widget.onTap,
           onChanged: widget.onChanged,
           onSubmitted: widget.onSubmitted,

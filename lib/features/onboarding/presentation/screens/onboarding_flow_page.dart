@@ -3,10 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 
 import '../../../../shared/theme/app_tokens.dart';
-import '../../../../shared/widgets/mateya_bottom_navigation.dart';
 import '../../../../shared/widgets/mateya_button.dart';
 import '../../../../shared/widgets/mateya_header.dart';
 import '../../../../shared/widgets/mateya_text_field.dart';
+import '../../../home/presentation/screens/home_flow_page.dart';
 import '../../application/onboarding_controller.dart';
 import '../../domain/onboarding_flow.dart';
 
@@ -1112,190 +1112,10 @@ class HomePlaceholderStepView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final currentTab = switch (controller.homePreviewSection) {
-      HomePreviewSection.home => MateyaBottomTab.home,
-      HomePreviewSection.explore => MateyaBottomTab.explore,
-      HomePreviewSection.chat => MateyaBottomTab.chat,
-      HomePreviewSection.profile => MateyaBottomTab.profile,
-      HomePreviewSection.groupCreation ||
-      HomePreviewSection.classRegistration => null,
-    };
-    final content = _HomePreviewContent.fromSection(
-      controller.homePreviewSection,
-      controller.flowKind,
+    return HomeFlowPage(
+      flowKind: controller.flowKind,
+      onBack: controller.goBack,
     );
-
-    return Column(
-      children: <Widget>[
-        const MateyaHeader.noBackArrow(),
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    color: AppColors.subtleBackground,
-                    borderRadius: BorderRadius.circular(24),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Text(
-                        content.eyebrow,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppColors.brandGreen,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        content.title,
-                        style: Theme.of(context).textTheme.headlineMedium,
-                      ),
-                      const SizedBox(height: 14),
-                      Text(
-                        content.description,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 20),
-                _PreviewInfoCard(
-                  title: content.cardTitle,
-                  description: content.cardDescription,
-                ),
-                const Spacer(),
-                MateyaButton(
-                  label: '온보딩 다시 시작하기',
-                  tone: MateyaButtonTone.dark,
-                  onPressed: controller.restart,
-                ),
-              ],
-            ),
-          ),
-        ),
-        MateyaBottomNavigation(
-          currentTab: currentTab,
-          onHomeTap: () =>
-              controller.openHomePreviewSection(HomePreviewSection.home),
-          onExploreTap: () =>
-              controller.openHomePreviewSection(HomePreviewSection.explore),
-          onPlusTap: controller.openPlusDestination,
-          onChatTap: () =>
-              controller.openHomePreviewSection(HomePreviewSection.chat),
-          onProfileTap: () =>
-              controller.openHomePreviewSection(HomePreviewSection.profile),
-        ),
-      ],
-    );
-  }
-}
-
-class _PreviewInfoCard extends StatelessWidget {
-  const _PreviewInfoCard({required this.title, required this.description});
-
-  final String title;
-  final String description;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.disabledButton),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text(title, style: Theme.of(context).textTheme.titleLarge),
-          const SizedBox(height: 10),
-          Text(
-            description,
-            style: Theme.of(
-              context,
-            ).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _HomePreviewContent {
-  const _HomePreviewContent({
-    required this.eyebrow,
-    required this.title,
-    required this.description,
-    required this.cardTitle,
-    required this.cardDescription,
-  });
-
-  final String eyebrow;
-  final String title;
-  final String description;
-  final String cardTitle;
-  final String cardDescription;
-
-  factory _HomePreviewContent.fromSection(
-    HomePreviewSection section,
-    FlowKind? flowKind,
-  ) {
-    return switch (section) {
-      HomePreviewSection.home => const _HomePreviewContent(
-        eyebrow: 'HOME',
-        title: '메인 홈 임시 화면',
-        description: '공통 헤더와 하단 네비게이션이 연결된 홈 기본 상태입니다.',
-        cardTitle: '현재 상태',
-        cardDescription: '온보딩 완료 후 진입하는 첫 화면을 이 영역에 구체화하면 됩니다.',
-      ),
-      HomePreviewSection.explore => const _HomePreviewContent(
-        eyebrow: 'EXPLORE',
-        title: '둘러보기 임시 화면',
-        description: '카테고리 탐색, 추천 섹션, 지역 필터가 들어갈 화면 자리입니다.',
-        cardTitle: '다음 개발 포인트',
-        cardDescription: '탐색 목록 카드, 필터 칩, 정렬 UI를 이 구조 위에 쌓으면 됩니다.',
-      ),
-      HomePreviewSection.groupCreation => const _HomePreviewContent(
-        eyebrow: 'PLUS',
-        title: '모임 생성 임시 화면',
-        description: '일반 유저가 plus 버튼으로 진입하는 목적지입니다.',
-        cardTitle: '예정 입력 항목',
-        cardDescription: '모임명, 소개, 일정, 장소, 모집 인원 입력 플로우를 연결할 예정입니다.',
-      ),
-      HomePreviewSection.classRegistration => const _HomePreviewContent(
-        eyebrow: 'PLUS',
-        title: '클래스 등록 임시 화면',
-        description: '사업자 유저가 plus 버튼으로 진입하는 목적지입니다.',
-        cardTitle: '예정 입력 항목',
-        cardDescription: '수업 소개, 가격, 운영 시간, 정원, 사업 정보 입력을 연결할 예정입니다.',
-      ),
-      HomePreviewSection.chat => const _HomePreviewContent(
-        eyebrow: 'CHAT',
-        title: '채팅방 목록 임시 화면',
-        description: '참여 중인 모임과 클래스 대화방을 모아보는 자리입니다.',
-        cardTitle: '다음 개발 포인트',
-        cardDescription: '채팅방 카드와 읽지 않은 메시지 수, 최근 메시지 미리보기를 배치할 수 있습니다.',
-      ),
-      HomePreviewSection.profile => _HomePreviewContent(
-        eyebrow: 'PROFILE',
-        title: '마이페이지 임시 화면',
-        description: '프로필, 계정 설정, 활동 기록을 보여주는 자리입니다.',
-        cardTitle: '현재 유저 타입',
-        cardDescription: flowKind == FlowKind.host
-            ? '현재 온보딩 기준 사업자 유저로 진입한 상태입니다.'
-            : '현재 온보딩 기준 일반 유저로 진입한 상태입니다.',
-      ),
-    };
   }
 }
 
