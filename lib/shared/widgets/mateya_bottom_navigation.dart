@@ -1,0 +1,138 @@
+import 'package:flutter/material.dart';
+
+import '../theme/app_tokens.dart';
+
+enum MateyaBottomTab { home, explore, chat, profile }
+
+class MateyaBottomNavigation extends StatelessWidget {
+  const MateyaBottomNavigation({
+    super.key,
+    required this.onHomeTap,
+    required this.onExploreTap,
+    required this.onPlusTap,
+    required this.onChatTap,
+    required this.onProfileTap,
+    this.currentTab,
+  });
+
+  final MateyaBottomTab? currentTab;
+  final VoidCallback onHomeTap;
+  final VoidCallback onExploreTap;
+  final VoidCallback onPlusTap;
+  final VoidCallback onChatTap;
+  final VoidCallback onProfileTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border(
+          top: BorderSide(
+            color: AppColors.disabledButton.withValues(alpha: 0.9),
+          ),
+        ),
+      ),
+      child: SafeArea(
+        top: false,
+        child: Row(
+          children: <Widget>[
+            Expanded(
+              child: _BottomItem(
+                label: 'home',
+                icon: Icons.home_rounded,
+                active: currentTab == MateyaBottomTab.home,
+                onTap: onHomeTap,
+              ),
+            ),
+            Expanded(
+              child: _BottomItem(
+                label: 'explore',
+                icon: Icons.explore_rounded,
+                active: currentTab == MateyaBottomTab.explore,
+                onTap: onExploreTap,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: GestureDetector(
+                onTap: onPlusTap,
+                child: Container(
+                  width: 56,
+                  height: 56,
+                  decoration: const BoxDecoration(
+                    color: AppColors.brandGreen,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.add_rounded,
+                    color: Colors.white,
+                    size: 30,
+                  ),
+                ),
+              ),
+            ),
+            Expanded(
+              child: _BottomItem(
+                label: 'chat',
+                icon: Icons.chat_bubble_rounded,
+                active: currentTab == MateyaBottomTab.chat,
+                onTap: onChatTap,
+              ),
+            ),
+            Expanded(
+              child: _BottomItem(
+                label: 'profile',
+                icon: Icons.person_rounded,
+                active: currentTab == MateyaBottomTab.profile,
+                onTap: onProfileTap,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _BottomItem extends StatelessWidget {
+  const _BottomItem({
+    required this.label,
+    required this.icon,
+    required this.active,
+    required this.onTap,
+  });
+
+  final String label;
+  final IconData icon;
+  final bool active;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = active ? AppColors.brandGreen : AppColors.textSecondary;
+
+    return InkWell(
+      borderRadius: BorderRadius.circular(14),
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Icon(icon, size: 24, color: color),
+            const SizedBox(height: 6),
+            Text(
+              label,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: color,
+                fontWeight: active ? FontWeight.w700 : FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
