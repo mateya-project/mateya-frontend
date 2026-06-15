@@ -28,11 +28,7 @@ class MateyaBottomNavigation extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border(
-          top: BorderSide(
-            color: AppColors.disabledButton.withValues(alpha: 0.9),
-          ),
-        ),
+        border: Border(top: BorderSide(color: AppColors.divider)),
       ),
       child: SafeArea(
         top: false,
@@ -40,7 +36,7 @@ class MateyaBottomNavigation extends StatelessWidget {
           children: <Widget>[
             Expanded(
               child: _BottomItem(
-                label: 'home',
+                label: 'Home',
                 icon: Icons.home_rounded,
                 active: currentTab == MateyaBottomTab.home,
                 onTap: onHomeTap,
@@ -48,7 +44,7 @@ class MateyaBottomNavigation extends StatelessWidget {
             ),
             Expanded(
               child: _BottomItem(
-                label: 'explore',
+                label: 'Explore',
                 icon: Icons.explore_rounded,
                 active: currentTab == MateyaBottomTab.explore,
                 onTap: onExploreTap,
@@ -62,8 +58,20 @@ class MateyaBottomNavigation extends StatelessWidget {
                   width: 56,
                   height: 56,
                   decoration: const BoxDecoration(
-                    color: AppColors.brandGreen,
+                    color: AppColors.brandGreenLight,
                     shape: BoxShape.circle,
+                    boxShadow: <BoxShadow>[
+                      BoxShadow(
+                        color: Color(0x14000000),
+                        blurRadius: 2,
+                        offset: Offset(0, 0),
+                      ),
+                      BoxShadow(
+                        color: Color(0x1F000000),
+                        blurRadius: 8,
+                        offset: Offset(0, 8),
+                      ),
+                    ],
                   ),
                   child: const Icon(
                     Icons.add_rounded,
@@ -75,7 +83,7 @@ class MateyaBottomNavigation extends StatelessWidget {
             ),
             Expanded(
               child: _BottomItem(
-                label: 'chat',
+                label: 'Chat',
                 icon: Icons.chat_bubble_rounded,
                 active: currentTab == MateyaBottomTab.chat,
                 onTap: onChatTap,
@@ -83,7 +91,7 @@ class MateyaBottomNavigation extends StatelessWidget {
             ),
             Expanded(
               child: _BottomItem(
-                label: 'profile',
+                label: 'Profile',
                 icon: Icons.person_rounded,
                 active: currentTab == MateyaBottomTab.profile,
                 onTap: onProfileTap,
@@ -111,7 +119,7 @@ class _BottomItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = active ? AppColors.brandGreen : AppColors.textSecondary;
+    final color = active ? AppColors.brandGreenLight : AppColors.navInactive;
 
     return InkWell(
       borderRadius: BorderRadius.circular(14),
