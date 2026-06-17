@@ -1,0 +1,393 @@
+import 'package:flutter/material.dart';
+
+import '../../../../shared/theme/app_tokens.dart';
+import '../../../../shared/widgets/mateya_button.dart';
+import '../../application/activity_detail_controller.dart';
+import '../../domain/activity_detail_models.dart';
+import 'activity_detail_formatters.dart';
+import 'activity_detail_primitives.dart';
+import 'activity_detail_review_widgets.dart';
+
+class DetailHeroSection extends StatelessWidget {
+  const DetailHeroSection({
+    super.key,
+    required this.detail,
+    required this.pageController,
+    required this.currentPage,
+    required this.onPageChanged,
+    required this.onBack,
+  });
+
+  final ActivityDetail detail;
+  final PageController pageController;
+  final int currentPage;
+  final ValueChanged<int> onPageChanged;
+  final VoidCallback onBack;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 360,
+      child: Stack(
+        children: <Widget>[
+          PageView.builder(
+            controller: pageController,
+            itemCount: detail.imageUrls.length,
+            onPageChanged: onPageChanged,
+            itemBuilder: (context, index) {
+              return NetworkOrFileImage(
+                imageUrl: detail.imageUrls[index],
+                fit: BoxFit.cover,
+              );
+            },
+          ),
+          const Positioned.fill(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: <Color>[
+                    Color(0x50000000),
+                    Color(0x00000000),
+                    Color(0x38000000),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          SafeArea(
+            bottom: false,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+              child: Row(
+                children: <Widget>[
+                  HeroCircleButton(
+                    icon: Icons.arrow_back_rounded,
+                    onTap: onBack,
+                  ),
+                  const Spacer(),
+                  CategoryPill(
+                    label: detail.activity.categoryLabel,
+                    filled: true,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Positioned(
+            left: 20,
+            bottom: 20,
+            child: Row(
+              children: List<Widget>.generate(
+                detail.imageUrls.length,
+                (index) => AnimatedContainer(
+                  duration: const Duration(milliseconds: 180),
+                  margin: EdgeInsets.only(
+                    right: index == detail.imageUrls.length - 1 ? 0 : 6,
+                  ),
+                  width: currentPage == index ? 22 : 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    color: currentPage == index
+                        ? Colors.white
+                        : Colors.white.withValues(alpha: 0.45),
+                    borderRadius: BorderRadius.circular(100),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class DetailBody extends StatelessWidget {
+  const DetailBody({
+    super.key,
+    required this.detail,
+    required this.controller,
+    required this.onOpenReviews,
+    required this.onHelpfulTap,
+    required this.onOpenOtherProfile,
+  });
+
+  final ActivityDetail detail;
+  final ActivityDetailController controller;
+  final VoidCallback onOpenReviews;
+  final Future<void> Function(String reviewId)? onHelpfulTap;
+  final Future<void> Function(String userId) onOpenOtherProfile;
+
+  @override
+  Widget build(BuildContext context) {
+    final remaining =
+        detail.activity.participantCapacity - detail.activity.participantCount;
+    final summary = controller.reviewSummary;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 132),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(
+            detail.activity.title,
+            style: Theme.of(
+              context,
+            ).textTheme.headlineMedium?.copyWith(fontSize: 28),
+          ),
+          const SizedBox(height: 20),
+          InfoLine(
+            icon: Icons.calendar_today_rounded,
+            text: formatLongDate(detail.activity.startAt),
+          ),
+          const SizedBox(height: 10),
+          InfoLine(
+            icon: Icons.schedule_rounded,
+            text: formatTimeRange(
+              detail.activity.startAt,
+              detail.activity.endAt,
+            ),
+          ),
+          const SizedBox(height: 10),
+          InfoLine(
+            icon: Icons.star_rounded,
+            text:
+                '${summary.averageRating.toStringAsFixed(2)} (리뷰 ${summary.totalCount}개)',
+          ),
+          const SizedBox(height: 10),
+          InfoLine(
+            icon: Icons.groups_2_outlined,
+            text:
+                '${detail.activity.participantCount}/${detail.activity.participantCapacity} 참여',
+          ),
+          const SizedBox(height: 10),
+          InfoLine(icon: Icons.place_outlined, text: detail.locationLabel),
+          const SizedBox(height: 28),
+          SectionCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Row(
+                  children: <Widget>[
+                    Text(
+                      '${detail.activity.participantCount}명 참여중',
+                      style: Theme.of(
+                        context,
+                      ).textTheme.titleLarge?.copyWith(fontSize: 18),
+                    ),
+                    const Spacer(),
+                    Text(
+                      remaining > 0 ? '$remaining명 남았어요' : '모집 마감',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: remaining > 0
+                            ? AppColors.brandGreen
+                            : AppColors.error,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 14),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(999),
+                  child: LinearProgressIndicator(
+                    value: detail.activity.participantCapacity == 0
+                        ? 0
+                        : detail.activity.participantCount /
+                              detail.activity.participantCapacity,
+                    minHeight: 10,
+                    backgroundColor: AppColors.subtleBackground,
+                    valueColor: const AlwaysStoppedAnimation<Color>(
+                      AppColors.brandGreen,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                ParticipantAvatarRow(
+                  participants: detail.participants,
+                  onParticipantTap: onOpenOtherProfile,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+          SectionCard(
+            child: InkWell(
+              onTap: () => onOpenOtherProfile(detail.host.userId),
+              borderRadius: BorderRadius.circular(18),
+              child: Row(
+                children: <Widget>[
+                  AvatarCircle(
+                    imageUrl: detail.host.avatarUrl,
+                    size: 54,
+                    initials: 'H',
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(
+                          '${detail.host.name} ${detail.host.localizedName}',
+                          style: Theme.of(
+                            context,
+                          ).textTheme.titleLarge?.copyWith(fontSize: 18),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          detail.host.locationLabel,
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(color: AppColors.textSecondary),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Icon(
+                    Icons.chevron_right_rounded,
+                    color: AppColors.textSecondary,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+          const SectionHeader(title: '활동 소개'),
+          const SizedBox(height: 10),
+          Text(
+            detail.description,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: AppColors.textMuted,
+              height: 1.7,
+            ),
+          ),
+          const SizedBox(height: 28),
+          Row(
+            children: <Widget>[
+              Expanded(
+                child: SectionHeader(
+                  title: '후기 ${summary.totalCount}개',
+                  compact: true,
+                ),
+              ),
+              TextButton(onPressed: onOpenReviews, child: const Text('전체보기')),
+            ],
+          ),
+          const SizedBox(height: 8),
+          if (controller.previewReviews.isEmpty)
+            SectionCard(
+              child: Text(
+                '아직 등록된 후기가 없어요. 첫 후기를 남겨보세요.',
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+            )
+          else
+            for (
+              var index = 0;
+              index < controller.previewReviews.length;
+              index += 1
+            ) ...<Widget>[
+              ReviewCard(
+                review: controller.previewReviews[index],
+                onHelpfulTap: () {
+                  onHelpfulTap?.call(controller.previewReviews[index].id);
+                },
+                onTranslationTap:
+                    controller.previewReviews[index].supportsTranslation
+                    ? () => controller.toggleTranslation(
+                        controller.previewReviews[index].id,
+                      )
+                    : null,
+              ),
+              if (index != controller.previewReviews.length - 1)
+                const SizedBox(height: 16),
+            ],
+        ],
+      ),
+    );
+  }
+}
+
+class DetailBottomBar extends StatelessWidget {
+  const DetailBottomBar({
+    super.key,
+    required this.detail,
+    required this.onFavoriteTap,
+    required this.onShareTap,
+    required this.onJoinTap,
+  });
+
+  final ActivityDetail detail;
+  final Future<void> Function() onFavoriteTap;
+  final VoidCallback onShareTap;
+  final VoidCallback onJoinTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: <BoxShadow>[
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.06),
+            blurRadius: 24,
+            offset: const Offset(0, -4),
+          ),
+        ],
+      ),
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 14),
+          child: Row(
+            children: <Widget>[
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Text(
+                      '체험료',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      formatPrice(detail.activity.price),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.titleLarge?.copyWith(fontSize: 18),
+                    ),
+                  ],
+                ),
+              ),
+              BottomGlyphButton(
+                icon: detail.isFavorite
+                    ? Icons.favorite_rounded
+                    : Icons.favorite_border_rounded,
+                onTap: () {
+                  onFavoriteTap();
+                },
+              ),
+              const SizedBox(width: 10),
+              BottomGlyphButton(icon: Icons.share_outlined, onTap: onShareTap),
+              const SizedBox(width: 12),
+              SizedBox(
+                width: 146,
+                child: MateyaButton(
+                  label: detail.isJoined ? '참가중' : '참가하기',
+                  onPressed: onJoinTap,
+                  tone: detail.isJoined
+                      ? MateyaButtonTone.dark
+                      : MateyaButtonTone.brand,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

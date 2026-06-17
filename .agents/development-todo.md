@@ -1,6 +1,6 @@
 # Development TODO
 
-- P1: `details`의 500줄 이상 presentation 파일을 `screen`/`widgets` 단위로 추가 분리
-  이유: 이번 리팩토링으로 `home`, `onboarding`, `mypage`, `chat`, `create`는 진입 screen과 하위 위젯 책임이 분리됐지만, `details` 플로우는 여전히 화면 파일 하나에 상세 본문, 리뷰 UI, 액션 영역이 몰려 있어 같은 유지보수 문제가 남아 있음
+- P1: 500줄 이상 `application/data` 파일을 validator/helper/service/repository 단위로 추가 분리
+  이유: 이번 리팩토링으로 대형 presentation 파일과 `create_controller`는 정리됐지만, `mypage/home/chat/create/details` repository와 `onboarding/chat` controller는 아직 상태 전이, API 처리, mock 데이터, 검증 책임이 한 파일에 과밀하게 남아 있음
 - P2: `onboarding`/`create` 화면의 개별 로딩 UI를 `MateyaSkeleton` 기반으로 통일
   이유: 이번 작업으로 `home/chat/mypage/details`는 공통 스켈레톤을 쓰게 됐지만, 나머지 플로우는 여전히 화면별 로딩 표현이 달라 UX 일관성이 깨질 수 있음
