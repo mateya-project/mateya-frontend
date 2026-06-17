@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../../shared/widgets/mateya_bottom_navigation.dart';
 import '../../../../shared/widgets/mateya_header.dart';
+import '../../../../shared/widgets/mateya_skeleton.dart';
 import '../../../onboarding/domain/onboarding_flow.dart';
 import '../../application/chat_controller.dart';
 import '../../domain/chat_models.dart';
@@ -1422,39 +1423,45 @@ class _ChatListSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.separated(
-      padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
-      itemCount: 6,
-      separatorBuilder: (context, _) => const SizedBox(height: 18),
-      itemBuilder: (context, index) {
-        return const Row(
-          children: <Widget>[
-            _SkeletonBox(width: 54, height: 54, radius: 27),
-            SizedBox(width: 15),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+    return MateyaSkeleton(
+      child: ListView.separated(
+        padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+        itemCount: 6,
+        separatorBuilder: (context, _) => const SizedBox(height: 18),
+        itemBuilder: (context, index) {
+          return const Row(
+            children: <Widget>[
+              MateyaSkeletonBlock(width: 54, height: 54, radius: 27),
+              SizedBox(width: 15),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    MateyaSkeletonBlock(width: 140, height: 16, radius: 8),
+                    SizedBox(height: 8),
+                    MateyaSkeletonBlock(
+                      width: double.infinity,
+                      height: 14,
+                      radius: 8,
+                    ),
+                    SizedBox(height: 6),
+                    MateyaSkeletonBlock(width: 120, height: 14, radius: 8),
+                  ],
+                ),
+              ),
+              SizedBox(width: 12),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: <Widget>[
-                  _SkeletonBox(width: 140, height: 16, radius: 8),
-                  SizedBox(height: 8),
-                  _SkeletonBox(width: double.infinity, height: 14, radius: 8),
-                  SizedBox(height: 6),
-                  _SkeletonBox(width: 120, height: 14, radius: 8),
+                  MateyaSkeletonBlock(width: 44, height: 14, radius: 8),
+                  SizedBox(height: 14),
+                  MateyaSkeletonBlock(width: 25, height: 25, radius: 12.5),
                 ],
               ),
-            ),
-            SizedBox(width: 12),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: <Widget>[
-                _SkeletonBox(width: 44, height: 14, radius: 8),
-                SizedBox(height: 14),
-                _SkeletonBox(width: 25, height: 25, radius: 12.5),
-              ],
-            ),
-          ],
-        );
-      },
+            ],
+          );
+        },
+      ),
     );
   }
 }
@@ -1464,66 +1471,50 @@ class _ChatDetailSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(20, 15, 20, 20),
-      children: const <Widget>[
-        Center(child: _SkeletonBox(width: 124, height: 24, radius: 12)),
-        SizedBox(height: 22),
-        Align(
-          alignment: Alignment.centerRight,
-          child: _SkeletonBox(width: 180, height: 38, radius: 16),
-        ),
-        SizedBox(height: 8),
-        Align(
-          alignment: Alignment.centerRight,
-          child: _SkeletonBox(width: 210, height: 38, radius: 16),
-        ),
-        SizedBox(height: 20),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            _SkeletonBox(width: 48, height: 48, radius: 24),
-            SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  _SkeletonBox(width: 92, height: 12, radius: 6),
-                  SizedBox(height: 12),
-                  _SkeletonBox(width: 156, height: 36, radius: 18),
-                  SizedBox(height: 8),
-                  _SkeletonBox(width: 156, height: 36, radius: 18),
-                  SizedBox(height: 8),
-                  _SkeletonBox(width: double.infinity, height: 72, radius: 18),
-                ],
+    return MateyaSkeleton(
+      child: ListView(
+        padding: const EdgeInsets.fromLTRB(20, 15, 20, 20),
+        children: const <Widget>[
+          Center(
+            child: MateyaSkeletonBlock(width: 124, height: 24, radius: 12),
+          ),
+          SizedBox(height: 22),
+          Align(
+            alignment: Alignment.centerRight,
+            child: MateyaSkeletonBlock(width: 180, height: 38, radius: 16),
+          ),
+          SizedBox(height: 8),
+          Align(
+            alignment: Alignment.centerRight,
+            child: MateyaSkeletonBlock(width: 210, height: 38, radius: 16),
+          ),
+          SizedBox(height: 20),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              MateyaSkeletonBlock(width: 48, height: 48, radius: 24),
+              SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    MateyaSkeletonBlock(width: 92, height: 12, radius: 6),
+                    SizedBox(height: 12),
+                    MateyaSkeletonBlock(width: 156, height: 36, radius: 18),
+                    SizedBox(height: 8),
+                    MateyaSkeletonBlock(width: 156, height: 36, radius: 18),
+                    SizedBox(height: 8),
+                    MateyaSkeletonBlock(
+                      width: double.infinity,
+                      height: 72,
+                      radius: 18,
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
-class _SkeletonBox extends StatelessWidget {
-  const _SkeletonBox({
-    required this.width,
-    required this.height,
-    required this.radius,
-  });
-
-  final double width;
-  final double height;
-  final double radius;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: width,
-      height: height,
-      decoration: BoxDecoration(
-        color: AppColors.disabledSurface,
-        borderRadius: BorderRadius.circular(radius),
+            ],
+          ),
+        ],
       ),
     );
   }
