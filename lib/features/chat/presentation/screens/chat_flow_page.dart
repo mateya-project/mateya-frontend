@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../../shared/media/image_picker_lost_data.dart';
 import '../../../../shared/permissions/mateya_permission_dialogs.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../../shared/widgets/mateya_bottom_navigation.dart';
@@ -64,6 +65,7 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
     _listScrollController.addListener(_handleListScroll);
     _scrollController.addListener(_handleDetailScroll);
     _syncDraft();
+    _restoreLostAttachments();
   }
 
   @override
@@ -158,6 +160,25 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  Future<void> _restoreLostAttachments() async {
+    final recovery = await recoverLostImagePickerData(
+      _imagePicker.retrieveLostData,
+      fallbackErrorMessage: '이전에 선택하던 사진을 복구하지 못했어요. 다시 선택해 주세요.',
+    );
+    if (!mounted || recovery.isEmpty) {
+      return;
+    }
+    if (recovery.errorMessage != null) {
+      _showPendingMessage(recovery.errorMessage!);
+      return;
+    }
+
+    await _consumePickedFiles(
+      recovery.files,
+      source: ChatAttachmentSource.gallery,
+    );
   }
 
   Future<void> _openAttachmentPicker() async {

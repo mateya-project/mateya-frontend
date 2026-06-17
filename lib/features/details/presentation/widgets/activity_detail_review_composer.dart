@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../../shared/media/image_picker_lost_data.dart';
 import '../../../../shared/permissions/mateya_permission_dialogs.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../../shared/widgets/mateya_button.dart';
@@ -37,6 +38,7 @@ class _ReviewComposerSheetState extends State<ReviewComposerSheet> {
   void initState() {
     super.initState();
     _focusNode.addListener(_handleFocusChanged);
+    _restoreLostImages();
   }
 
   @override
@@ -54,6 +56,39 @@ class _ReviewComposerSheetState extends State<ReviewComposerSheet> {
   }
 
   bool get _canSubmit => _rating > 0 && _bodyController.text.trim().isNotEmpty;
+
+  Future<void> _restoreLostImages() async {
+    final recovery = await recoverLostImagePickerData(
+      _imagePicker.retrieveLostData,
+      fallbackErrorMessage: '이전에 선택하던 후기 이미지를 복구하지 못했어요. 다시 선택해 주세요.',
+    );
+    if (!mounted || recovery.isEmpty) {
+      return;
+    }
+    if (recovery.errorMessage != null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(recovery.errorMessage!)));
+      return;
+    }
+
+    final available = _maxImageCount - _images.length;
+    if (available <= 0) {
+      return;
+    }
+
+    final restored = recovery.files.take(available).toList(growable: false);
+    if (restored.isEmpty) {
+      return;
+    }
+
+    setState(() {
+      _images.addAll(restored);
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('이전에 선택하던 후기 이미지 ${restored.length}장을 복구했어요.')),
+    );
+  }
 
   Future<void> _pickImages() async {
     final available = _maxImageCount - _images.length;
