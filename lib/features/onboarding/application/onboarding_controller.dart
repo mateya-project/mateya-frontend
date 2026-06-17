@@ -1,11 +1,13 @@
 // ignore_for_file: prefer_initializing_formals
 
 import 'dart:async';
-import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 
 import '../../../app/app_config.dart';
+import '../../../shared/auth/auth_session.dart';
+import '../../../shared/network/mateya_api_client.dart';
+import '../data/auth_repository.dart';
 import '../data/location_repository.dart';
 import '../domain/onboarding_flow.dart';
 import '../domain/onboarding_validators.dart';
@@ -13,14 +15,20 @@ import '../domain/onboarding_validators.dart';
 class OnboardingController extends ChangeNotifier {
   OnboardingController({
     required NeighborhoodLocationRepository locationRepository,
-  }) : _locationRepository = locationRepository;
+    required OnboardingAuthRepository authRepository,
+    required AuthSessionStore authSessionStore,
+  }) : _locationRepository = locationRepository,
+       _authRepository = authRepository,
+       _authSessionStore = authSessionStore;
 
   final NeighborhoodLocationRepository _locationRepository;
-  final Random _random = Random();
+  final OnboardingAuthRepository _authRepository;
+  final AuthSessionStore _authSessionStore;
 
   OnboardingStep _step = OnboardingStep.welcome;
   FlowKind? _flowKind;
   AgreementState _agreementState = const AgreementState();
+  AsyncPhase _authPhase = AsyncPhase.idle;
   AsyncPhase _locationPhase = AsyncPhase.idle;
   NeighborhoodSelection? _selectedNeighborhood;
   LocationFailure? _locationFailure;
@@ -32,6 +40,8 @@ class OnboardingController extends ChangeNotifier {
   int _remainingSeconds = 0;
   int _resendCount = 0;
   String? _expectedVerificationCode;
+  String? _verificationToken;
+  DateTime? _verificationTokenExpiresAt;
 
   String _name = '';
   String _carrier = '';
@@ -51,6 +61,7 @@ class OnboardingController extends ChangeNotifier {
   OnboardingStep get step => _step;
   FlowKind? get flowKind => _flowKind;
   AgreementState get agreementState => _agreementState;
+  AsyncPhase get authPhase => _authPhase;
   AsyncPhase get locationPhase => _locationPhase;
   NeighborhoodSelection? get selectedNeighborhood => _selectedNeighborhood;
   LocationFailure? get locationFailure => _locationFailure;
@@ -73,6 +84,7 @@ class OnboardingController extends ChangeNotifier {
   HomePreviewSection get homePreviewSection => _homePreviewSection;
   List<String> get carriers => AppConfig.supportedCarriers;
   List<String> get countryCodes => AppConfig.supportedCountryCodes;
+  bool get isAuthLoading => _authPhase == AsyncPhase.loading;
 
   String? errorFor(String fieldName) => _fieldErrors[fieldName];
 
@@ -200,7 +212,7 @@ class OnboardingController extends ChangeNotifier {
     notifyListeners();
   }
 
-  void sendVerificationCode() {
+  Future<void> sendVerificationCode() async {
     final phoneError = OnboardingValidators.validatePhoneNumber(_phoneNumber);
     _fieldErrors['phone'] = phoneError;
     _fieldErrors['carrier'] = _carrier.isEmpty ? '통신사를 선택해 주세요.' : null;
@@ -210,17 +222,30 @@ class OnboardingController extends ChangeNotifier {
       return;
     }
 
-    _expectedVerificationCode = _buildVerificationCode();
-    _verificationCode = '';
-    _resendCount = 1;
-    _startVerificationCountdown();
-    _emitToast('테스트용 인증번호가 발급됐어요.');
+    _authPhase = AsyncPhase.loading;
+    _fieldErrors.remove('verification');
+    notifyListeners();
+
+    try {
+      final result = await _authRepository.requestSmsCode(
+        phoneNumber: _phoneNumber,
+      );
+      _authPhase = AsyncPhase.success;
+      _expectedVerificationCode = result.debugCode;
+      _verificationCode = '';
+      _resendCount = 1;
+      _startVerificationCountdown();
+      _emitToast('인증번호를 발송했어요.');
+    } on MateyaApiException catch (error) {
+      _applyApiError(error, preferredField: 'phone');
+    }
+
     notifyListeners();
   }
 
-  void resendVerificationCode() {
+  Future<void> resendVerificationCode() async {
     if (!hasSentVerificationCode) {
-      sendVerificationCode();
+      await sendVerificationCode();
       return;
     }
     if (_resendCount >= 5) {
@@ -228,11 +253,7 @@ class OnboardingController extends ChangeNotifier {
       return;
     }
     _resendCount += 1;
-    _expectedVerificationCode = _buildVerificationCode();
-    _verificationCode = '';
-    _startVerificationCountdown();
-    _emitToast('인증번호를 다시 발급했어요.');
-    notifyListeners();
+    await sendVerificationCode();
   }
 
   Future<void> submitVerificationCode() async {
@@ -248,10 +269,25 @@ class OnboardingController extends ChangeNotifier {
       return;
     }
 
-    _verificationTimer?.cancel();
-    _step = OnboardingStep.neighborhoodAuto;
+    _authPhase = AsyncPhase.loading;
     notifyListeners();
-    await startAutomaticNeighborhoodVerification();
+
+    try {
+      final result = await _authRepository.verifySmsCode(
+        phoneNumber: _phoneNumber,
+        code: _verificationCode,
+      );
+      _verificationToken = result.verificationToken;
+      _verificationTokenExpiresAt = result.expiresAt;
+      _authPhase = AsyncPhase.success;
+      _verificationTimer?.cancel();
+      _step = OnboardingStep.neighborhoodAuto;
+      notifyListeners();
+      await startAutomaticNeighborhoodVerification();
+    } on MateyaApiException catch (apiError) {
+      _applyApiError(apiError, preferredField: 'verification');
+      notifyListeners();
+    }
   }
 
   Future<void> startAutomaticNeighborhoodVerification() async {
@@ -331,6 +367,37 @@ class OnboardingController extends ChangeNotifier {
         return;
       }
     }
+
+    if (_verificationToken == null ||
+        _verificationTokenExpiresAt == null ||
+        _verificationTokenExpiresAt!.isBefore(DateTime.now())) {
+      _authPhase = AsyncPhase.validationError;
+      _emitToast('인증이 만료되어 인증번호를 다시 받아야 해요.');
+      _step = OnboardingStep.guestPhone;
+      notifyListeners();
+      return;
+    }
+
+    _authPhase = AsyncPhase.loading;
+    notifyListeners();
+
+    try {
+      final session = await _authRepository.signupGuest(
+        verificationToken: _verificationToken!,
+        displayName: completedName,
+        primaryLanguage: _resolvedPrimaryLanguage,
+        primaryCountry: _resolvedPrimaryCountry,
+        agreementState: _agreementState,
+        neighborhood: _selectedNeighborhood!,
+      );
+      _authSessionStore.save(session);
+      _authPhase = AsyncPhase.success;
+    } on MateyaApiException catch (error) {
+      _applyApiError(error);
+      notifyListeners();
+      return;
+    }
+
     _step = OnboardingStep.completed;
     notifyListeners();
   }
@@ -424,6 +491,8 @@ class OnboardingController extends ChangeNotifier {
     _remainingSeconds = 0;
     _resendCount = 0;
     _expectedVerificationCode = null;
+    _verificationToken = null;
+    _verificationTokenExpiresAt = null;
     _name = '';
     _carrier = '';
     _countryCode = '+82';
@@ -478,10 +547,6 @@ class OnboardingController extends ChangeNotifier {
     });
   }
 
-  String _buildVerificationCode() {
-    return (_random.nextInt(900000) + 100000).toString();
-  }
-
   void _clearError(String key) {
     if (_fieldErrors[key] != null) {
       _fieldErrors = <String, String?>{..._fieldErrors}..remove(key);
@@ -492,5 +557,37 @@ class OnboardingController extends ChangeNotifier {
     _toastMessage = message;
     _toastVersion += 1;
     notifyListeners();
+  }
+
+  String get _resolvedPrimaryLanguage => switch (_countryCode) {
+    '+81' => 'ja',
+    '+1' => 'en',
+    '+86' => 'zh',
+    _ => 'ko',
+  };
+
+  String get _resolvedPrimaryCountry => switch (_countryCode) {
+    '+81' => 'JP',
+    '+1' => 'US',
+    '+84' => 'VN',
+    '+86' => 'CN',
+    _ => 'KR',
+  };
+
+  void _applyApiError(MateyaApiException error, {String? preferredField}) {
+    _authPhase = switch (error.type) {
+      ApiFailureType.validation => AsyncPhase.validationError,
+      ApiFailureType.network => AsyncPhase.networkError,
+      ApiFailureType.unauthorized ||
+      ApiFailureType.server => AsyncPhase.serverError,
+    };
+
+    if (error.fieldErrors.isNotEmpty) {
+      _fieldErrors = <String, String?>{..._fieldErrors, ...error.fieldErrors};
+    } else if (preferredField != null) {
+      _fieldErrors[preferredField] = error.message;
+    }
+
+    _emitToast(error.message);
   }
 }

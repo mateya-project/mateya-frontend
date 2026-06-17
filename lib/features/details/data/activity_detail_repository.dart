@@ -1,8 +1,201 @@
+import '../../../app/app_config.dart';
+import '../../../shared/auth/auth_session.dart';
+import '../../../shared/network/mateya_api_client.dart';
 import '../../home/domain/home_models.dart';
 import '../domain/activity_detail_models.dart';
 
 abstract interface class ActivityDetailRepository {
   Future<ActivityDetail> fetchDetail(ActivityItem activity);
+}
+
+class ApiActivityDetailRepository implements ActivityDetailRepository {
+  ApiActivityDetailRepository({
+    MateyaApiClient? apiClient,
+    AuthSessionStore? sessionStore,
+  }) : _apiClient =
+           apiClient ??
+           MateyaApiClient(
+             baseUrl: AppConfig.apiBaseUrl,
+             sessionStore: sessionStore ?? AuthSessionStore.instance,
+           );
+
+  final MateyaApiClient _apiClient;
+
+  @override
+  Future<ActivityDetail> fetchDetail(ActivityItem activity) async {
+    try {
+      final detailData = await _apiClient.getJson(
+        '/api/v1/activities/${activity.id}',
+        requiresAuth: true,
+      );
+      final reviewsData = await _apiClient.getJson(
+        '/api/v1/activities/${activity.id}/reviews',
+        requiresAuth: true,
+      );
+      final statsData = await _apiClient.getJson(
+        '/api/v1/activities/${activity.id}/reviews/stats',
+      );
+
+      final detailJson = _asMap(detailData);
+      final hostJson = _asMap(detailJson['hostProfile']);
+      final reviewPageJson = _asMap(reviewsData);
+      final reviewItems =
+          reviewPageJson['items'] as List<Object?>? ?? const <Object?>[];
+      final statsJson = _asMap(statsData);
+
+      final images =
+          ((detailJson['images'] as List<Object?>?) ?? const <Object?>[])
+              .whereType<String>()
+              .toList(growable: false);
+      final placeName =
+          (detailJson['placeName'] as String?) ??
+          (detailJson['placeAddress'] as String?) ??
+          activity.place;
+      final placeAddress = detailJson['placeAddress'] as String?;
+      final participants =
+          ((detailJson['participantPreviews'] as List<Object?>?) ??
+                  const <Object?>[])
+              .map(_parseParticipant)
+              .toList(growable: false);
+      final reviews = reviewItems.map(_parseReview).toList(growable: false);
+
+      return ActivityDetail(
+        activity: activity.copyWith(
+          title: detailJson['title'] as String? ?? activity.title,
+          place: placeName,
+          startAt: DateTime.parse(detailJson['startAt'] as String),
+          endAt: DateTime.parse(detailJson['endAt'] as String),
+          price: detailJson['priceAmount'] as int? ?? activity.price,
+          participantCount:
+              detailJson['participantCount'] as int? ??
+              activity.participantCount,
+          participantCapacity:
+              detailJson['capacity'] as int? ?? activity.participantCapacity,
+          imageUrl:
+              detailJson['representativeImageUrl'] as String? ??
+              activity.imageUrl,
+        ),
+        imageUrls: images.isEmpty
+            ? <String>[
+                if ((detailJson['representativeImageUrl'] as String?) != null)
+                  detailJson['representativeImageUrl'] as String,
+              ]
+            : images,
+        locationLabel: placeAddress == null || placeAddress.isEmpty
+            ? placeName
+            : placeAddress,
+        host: ActivityHostProfile(
+          name: hostJson['displayName'] as String? ?? 'Host',
+          localizedName: hostJson['displayName'] as String? ?? 'Host',
+          locationLabel: _hostLocationLabel(
+            countryCode: hostJson['primaryCountry'] as String?,
+            languageCode: hostJson['primaryLanguage'] as String?,
+          ),
+          avatarUrl: hostJson['profileImageUrl'] as String?,
+        ),
+        description:
+            (detailJson['description'] as String?) ??
+            (detailJson['originalDescription'] as String?) ??
+            '',
+        shareUrl: 'https://mateya.app/activities/${activity.id}',
+        participants: participants,
+        reviews: reviews,
+        serverReviewSummary: _parseReviewSummary(statsJson),
+      );
+    } on MateyaApiException catch (error) {
+      if (error.type == ApiFailureType.network) {
+        throw const ActivityDetailRepositoryException(
+          ActivityDetailLoadFailureType.network,
+        );
+      }
+      throw const ActivityDetailRepositoryException(
+        ActivityDetailLoadFailureType.server,
+      );
+    }
+  }
+
+  ActivityParticipant _parseParticipant(Object? value) {
+    final json = _asMap(value);
+    return ActivityParticipant(
+      id: '${json['userId']}',
+      name: json['displayName'] as String? ?? '',
+      avatarUrl: json['profileImageUrl'] as String?,
+    );
+  }
+
+  ActivityReview _parseReview(Object? value) {
+    final json = _asMap(value);
+    final originalBody = json['originalBody'] as String?;
+    final translatedBody = json['body'] as String?;
+    final visibleTranslation =
+        translatedBody != null &&
+            originalBody != null &&
+            translatedBody != originalBody
+        ? translatedBody
+        : null;
+
+    return ActivityReview(
+      id: '${json['id']}',
+      authorName: json['authorDisplayName'] as String? ?? '',
+      authorAvatarUrl: json['authorProfileImageUrl'] as String?,
+      submittedAt: DateTime.parse(json['createdAt'] as String),
+      rating: json['rating'] as int? ?? 0,
+      originalText: originalBody ?? translatedBody ?? '',
+      translatedText: visibleTranslation,
+      helpfulCount: json['helpfulCount'] as int? ?? 0,
+      imageUrls: ((json['imageUrls'] as List<Object?>?) ?? const <Object?>[])
+          .whereType<String>()
+          .toList(growable: false),
+    );
+  }
+
+  ReviewSummary _parseReviewSummary(Map<String, dynamic> json) {
+    final distribution =
+        json['ratingDistribution'] as Map<String, dynamic>? ??
+        const <String, dynamic>{};
+    final ratingCounts = <int, int>{
+      for (var rating = 1; rating <= 5; rating += 1)
+        rating: distribution['$rating'] as int? ?? 0,
+    };
+    return ReviewSummary(
+      averageRating: (json['averageRating'] as num?)?.toDouble() ?? 0,
+      totalCount: json['totalCount'] as int? ?? 0,
+      ratingCounts: ratingCounts,
+    );
+  }
+
+  String _hostLocationLabel({
+    required String? countryCode,
+    required String? languageCode,
+  }) {
+    final normalizedCountry = (countryCode ?? '').toUpperCase();
+    final normalizedLanguage = (languageCode ?? '').toLowerCase();
+    final countryLabel = switch (normalizedCountry) {
+      'KR' => 'Korea',
+      'US' => 'United States',
+      'JP' => 'Japan',
+      'CN' => 'China',
+      'VN' => 'Vietnam',
+      _ => normalizedCountry.isEmpty ? 'Mateya' : normalizedCountry,
+    };
+    final languageLabel = switch (normalizedLanguage) {
+      'ko' => 'Korean',
+      'en' => 'English',
+      'ja' => 'Japanese',
+      'zh' => 'Chinese',
+      _ => normalizedLanguage.isEmpty ? 'Host' : normalizedLanguage,
+    };
+    return 'Language $languageLabel · $countryLabel';
+  }
+
+  Map<String, dynamic> _asMap(Object? value) {
+    if (value is Map<String, dynamic>) {
+      return value;
+    }
+    throw const ActivityDetailRepositoryException(
+      ActivityDetailLoadFailureType.server,
+    );
+  }
 }
 
 class MockActivityDetailRepository implements ActivityDetailRepository {

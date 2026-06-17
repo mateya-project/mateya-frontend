@@ -1,4 +1,9 @@
 abstract final class AppConfig {
+  static const String apiBaseUrl = String.fromEnvironment(
+    'MATEYA_API_BASE_URL',
+    defaultValue: 'https://api.mateya.cloud',
+  );
+
   static const String naverMapClientId = String.fromEnvironment(
     'NAVER_MAP_CLIENT_ID',
     defaultValue: 'io8sqad7yn',

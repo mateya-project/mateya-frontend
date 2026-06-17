@@ -1,3 +1,6 @@
+import '../../../app/app_config.dart';
+import '../../../shared/auth/auth_session.dart';
+import '../../../shared/network/mateya_api_client.dart';
 import '../domain/home_models.dart';
 
 abstract interface class HomeRepository {
@@ -11,6 +14,118 @@ class MockHomeRepository implements HomeRepository {
     return _mockActivities;
   }
 }
+
+class ApiHomeRepository implements HomeRepository {
+  ApiHomeRepository({
+    MateyaApiClient? apiClient,
+    AuthSessionStore? sessionStore,
+  }) : _apiClient =
+           apiClient ??
+           MateyaApiClient(
+             baseUrl: AppConfig.apiBaseUrl,
+             sessionStore: sessionStore ?? AuthSessionStore.instance,
+           );
+
+  final MateyaApiClient _apiClient;
+
+  @override
+  Future<List<ActivityItem>> fetchActivities() async {
+    try {
+      final trendingData = await _apiClient.getJson(
+        '/api/v1/home/trending',
+        requiresAuth: true,
+      );
+      final experiencesData = await _apiClient.getJson(
+        '/api/v1/home/experiences',
+        requiresAuth: true,
+      );
+
+      final activities = <ActivityItem>[];
+      final seenIds = <String>{};
+
+      if (trendingData != null) {
+        final item = _parseActivityCard(trendingData, isFeatured: true);
+        activities.add(item);
+        seenIds.add(item.id);
+      }
+
+      if (experiencesData is List<Object?>) {
+        for (final entry in experiencesData) {
+          final item = _parseActivityCard(entry, isFeatured: false);
+          if (seenIds.add(item.id)) {
+            activities.add(item);
+          }
+        }
+      }
+
+      return activities;
+    } on MateyaApiException catch (error) {
+      if (error.type == ApiFailureType.network) {
+        throw const HomeRepositoryException(HomeLoadFailureType.network);
+      }
+      throw const HomeRepositoryException(HomeLoadFailureType.server);
+    }
+  }
+
+  ActivityItem _parseActivityCard(Object? value, {required bool isFeatured}) {
+    if (value is! Map<String, dynamic>) {
+      throw const HomeRepositoryException(HomeLoadFailureType.server);
+    }
+
+    final categoryCode = value['category'] as String? ?? 'PUBLIC_FACILITY';
+    final mappedCategory =
+        _categoryByServerCode[categoryCode] ?? _fallbackCategory;
+    final priceType = value['priceType'] as String? ?? 'FREE';
+    final priceAmount = value['priceAmount'] as int? ?? 0;
+
+    return ActivityItem(
+      id: '${value['id']}',
+      categoryId: mappedCategory.id,
+      categoryLabel: mappedCategory.label,
+      title: value['title'] as String? ?? '',
+      place:
+          (value['placeName'] as String?) ??
+          (value['placeAddress'] as String?) ??
+          '',
+      startAt: DateTime.parse(value['startAt'] as String),
+      endAt: DateTime.parse(value['endAt'] as String),
+      price: priceType == 'FREE' ? 0 : priceAmount,
+      rating: (value['reviewRating'] as num?)?.toDouble() ?? 0,
+      participantCount: value['participantCount'] as int? ?? 0,
+      participantCapacity: value['capacity'] as int? ?? 0,
+      distanceKm: 0,
+      audiences: const <ActivityAudienceOption>{
+        ActivityAudienceOption.everyone,
+      },
+      languages: <String>{
+        if ((value['language'] as String?) != null) value['language'] as String,
+      },
+      statuses: const <ActivityStatusOption>{ActivityStatusOption.recruiting},
+      imageUrl: value['imageUrl'] as String?,
+      isFeatured: isFeatured,
+    );
+  }
+}
+
+const ActivityCategory _fallbackCategory = ActivityCategory(
+  id: 'etc',
+  label: '기타',
+);
+
+const Map<String, ActivityCategory> _categoryByServerCode =
+    <String, ActivityCategory>{
+      'TOURIST_ATTRACTION': ActivityCategory(id: 'walk', label: '관광/산책'),
+      'TRAVEL_COURSE': ActivityCategory(id: 'walk', label: '관광/산책'),
+      'CULTURE_TRADITION': ActivityCategory(id: 'traditional', label: '전통문화'),
+      'EVENT_PERFORMANCE_FESTIVAL': ActivityCategory(
+        id: 'festival',
+        label: '지역축제',
+      ),
+      'SPORTS': ActivityCategory(id: 'sports', label: '스포츠/액티비티'),
+      'ACTIVITY_LEPORTS': ActivityCategory(id: 'sports', label: '스포츠/액티비티'),
+      'PUBLIC_FACILITY': ActivityCategory(id: 'etc', label: '기타'),
+      'SHOPPING': ActivityCategory(id: 'food', label: '음식체험'),
+    };
 
 final DateTime _baseDate = DateTime(2026, 6, 13, 10);
 

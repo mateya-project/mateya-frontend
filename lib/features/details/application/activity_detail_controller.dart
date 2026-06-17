@@ -42,6 +42,11 @@ class ActivityDetailController extends ChangeNotifier {
   Future<void> retry() => _loadDetail();
 
   ReviewSummary get reviewSummary {
+    final serverSummary = _detail?.serverReviewSummary;
+    if (serverSummary != null) {
+      return serverSummary;
+    }
+
     final reviews = _detail?.reviews ?? const <ActivityReview>[];
     if (reviews.isEmpty) {
       return const ReviewSummary(

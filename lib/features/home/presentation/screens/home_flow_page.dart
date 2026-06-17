@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../../../shared/auth/auth_session.dart';
 import '../../../details/application/activity_detail_controller.dart';
 import '../../../details/data/activity_detail_repository.dart';
 import '../../../details/presentation/screens/activity_detail_page.dart';
@@ -36,14 +37,16 @@ class _HomeFlowPageState extends State<HomeFlowPage> {
   late final HomeController _controller;
   late final ChatController _chatController;
   late final MyPageController _myPageController;
+  late final ActivityDetailRepository _activityDetailRepository;
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
 
   @override
   void initState() {
     super.initState();
+    final hasSession = AuthSessionStore.instance.hasSession;
     _controller = HomeController(
-      repository: MockHomeRepository(),
+      repository: hasSession ? ApiHomeRepository() : MockHomeRepository(),
       flowKind: widget.flowKind,
     );
     _chatController = ChatController(repository: MockChatRepository());
@@ -51,6 +54,9 @@ class _HomeFlowPageState extends State<HomeFlowPage> {
       repository: MockMyPageRepository(),
       flowKind: widget.flowKind,
     );
+    _activityDetailRepository = hasSession
+        ? ApiActivityDetailRepository()
+        : MockActivityDetailRepository();
     _controller.initialize();
     _chatController.initialize();
   }
@@ -113,7 +119,7 @@ class _HomeFlowPageState extends State<HomeFlowPage> {
       MaterialPageRoute<void>(
         builder: (_) => ActivityDetailPage(
           controller: ActivityDetailController(
-            repository: MockActivityDetailRepository(),
+            repository: _activityDetailRepository,
             activity: activity,
           ),
         ),

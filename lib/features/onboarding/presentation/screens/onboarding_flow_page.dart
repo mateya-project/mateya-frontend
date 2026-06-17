@@ -570,7 +570,9 @@ class _PhoneStepViewState extends State<PhoneStepView> {
                     ),
                     const Spacer(),
                     GestureDetector(
-                      onTap: controller.resendVerificationCode,
+                      onTap: controller.isAuthLoading
+                          ? null
+                          : () => controller.resendVerificationCode(),
                       child: Text(
                         '인증번호 다시받기',
                         style: theme.textTheme.bodySmall?.copyWith(
@@ -597,14 +599,20 @@ class _PhoneStepViewState extends State<PhoneStepView> {
         Padding(
           padding: const EdgeInsets.fromLTRB(20, 0, 20, 26),
           child: MateyaButton(
-            label: controller.hasSentVerificationCode ? '인증하기' : '인증번호 받기',
+            label: controller.isAuthLoading
+                ? '처리 중...'
+                : controller.hasSentVerificationCode
+                ? '인증하기'
+                : '인증번호 받기',
             tone: MateyaButtonTone.dark,
-            enabled: controller.hasSentVerificationCode
-                ? controller.canSubmitVerificationCode
-                : controller.canSendVerificationCode,
+            enabled:
+                !controller.isAuthLoading &&
+                (controller.hasSentVerificationCode
+                    ? controller.canSubmitVerificationCode
+                    : controller.canSendVerificationCode),
             onPressed: controller.hasSentVerificationCode
                 ? () => controller.submitVerificationCode()
-                : controller.sendVerificationCode,
+                : () => controller.sendVerificationCode(),
           ),
         ),
       ],
@@ -698,8 +706,10 @@ class NeighborhoodAutoStepView extends StatelessWidget {
                   ),
                 ),
                 MateyaButton(
-                  label: '동네인증 완료하기',
-                  enabled: controller.canCompleteNeighborhood,
+                  label: controller.isAuthLoading ? '가입 처리 중...' : '동네인증 완료하기',
+                  enabled:
+                      controller.canCompleteNeighborhood &&
+                      !controller.isAuthLoading,
                   onPressed: controller.completeNeighborhood,
                 ),
                 const SizedBox(height: 17),
@@ -808,8 +818,12 @@ class _NeighborhoodManualStepViewState
                 Padding(
                   padding: const EdgeInsets.only(bottom: 26),
                   child: MateyaButton(
-                    label: '동네인증 완료하기',
-                    enabled: controller.canCompleteNeighborhood,
+                    label: controller.isAuthLoading
+                        ? '가입 처리 중...'
+                        : '동네인증 완료하기',
+                    enabled:
+                        controller.canCompleteNeighborhood &&
+                        !controller.isAuthLoading,
                     onPressed: controller.completeNeighborhood,
                   ),
                 ),
