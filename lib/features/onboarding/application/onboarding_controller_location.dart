@@ -17,10 +17,6 @@ Future<void> _startAutomaticNeighborhoodVerification(
   } else {
     controller._locationPhase = AsyncPhase.validationError;
     controller._locationFailure = result.failure;
-    if (result.failure?.type == LocationFailureType.permissionDenied) {
-      controller._step = OnboardingStep.neighborhoodManual;
-      controller._emitToast(result.failure?.message ?? '직접 입력으로 전환했어요.');
-    }
   }
   controller._notifyChanged();
 }

@@ -47,6 +47,7 @@ class NeighborhoodSelection {
 
 enum LocationFailureType {
   permissionDenied,
+  permissionPermanentlyDenied,
   serviceDisabled,
   accuracyTooLow,
   geocodingFailed,

@@ -91,9 +91,11 @@ Future<void> _submitVerificationCode(OnboardingController controller) async {
       await _completeHostSignup(controller);
       return;
     }
+    controller._locationPhase = AsyncPhase.idle;
+    controller._locationFailure = null;
+    controller._selectedNeighborhood = null;
     controller._step = OnboardingStep.neighborhoodAuto;
     controller._notifyChanged();
-    await _startAutomaticNeighborhoodVerification(controller);
   } on MateyaApiException catch (apiError) {
     _applyApiError(controller, apiError, preferredField: 'verification');
     controller._notifyChanged();

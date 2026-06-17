@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../../../shared/permissions/mateya_permission_dialogs.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../../shared/widgets/mateya_button.dart';
 import '../../../../shared/widgets/mateya_header.dart';
@@ -237,13 +238,102 @@ class _PhoneStepViewState extends State<PhoneStepView> {
   }
 }
 
-class NeighborhoodAutoStepView extends StatelessWidget {
+class NeighborhoodAutoStepView extends StatefulWidget {
   const NeighborhoodAutoStepView({super.key, required this.controller});
 
   final OnboardingController controller;
 
   @override
+  State<NeighborhoodAutoStepView> createState() =>
+      _NeighborhoodAutoStepViewState();
+}
+
+class _NeighborhoodAutoStepViewState extends State<NeighborhoodAutoStepView> {
+  bool _didStartPermissionFlow = false;
+  LocationFailureType? _lastHandledFailureType;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _startLocationVerificationFlow(showNotice: true);
+    });
+  }
+
+  Future<void> _startLocationVerificationFlow({
+    required bool showNotice,
+  }) async {
+    if (!mounted) {
+      return;
+    }
+
+    if (showNotice && !_didStartPermissionFlow) {
+      _didStartPermissionFlow = true;
+      final shouldContinue = await showMateyaPermissionNoticeDialog(
+        context,
+        title: '위치 권한 안내',
+        message:
+            '회원가입 중 동네 인증과 내 주변 활동 추천을 위해 현재 위치 권한이 필요합니다. 권한을 거부하셔도 동네를 직접 입력해 가입을 계속할 수 있습니다.',
+        confirmLabel: '현재 위치로 인증하기',
+        cancelLabel: '직접 입력하기',
+      );
+
+      if (!mounted) {
+        return;
+      }
+
+      if (!shouldContinue) {
+        widget.controller.openManualNeighborhood();
+        return;
+      }
+    }
+
+    _lastHandledFailureType = null;
+    await widget.controller.startAutomaticNeighborhoodVerification();
+    if (!mounted) {
+      return;
+    }
+
+    await _handleLocationFailure();
+  }
+
+  Future<void> _handleLocationFailure() async {
+    final failure = widget.controller.locationFailure;
+    if (failure == null || _lastHandledFailureType == failure.type) {
+      return;
+    }
+
+    _lastHandledFailureType = failure.type;
+
+    switch (failure.type) {
+      case LocationFailureType.serviceDisabled:
+        await showMateyaLocationSettingsDialog(
+          context,
+          title: '위치 서비스가 꺼져 있어요',
+          message:
+              '현재 위치로 동네 인증을 진행하려면 기기 위치 서비스를 켜야 합니다. 켜지 않아도 동네를 직접 입력해 가입을 계속할 수 있습니다.',
+        );
+        break;
+      case LocationFailureType.permissionPermanentlyDenied:
+        await showMateyaAppSettingsDialog(
+          context,
+          title: '위치 권한이 꺼져 있어요',
+          message:
+              '현재 위치 자동 인증을 사용하려면 앱 설정에서 위치 권한을 허용해야 합니다. 권한을 허용하지 않아도 직접 입력으로 가입을 계속할 수 있습니다.',
+        );
+        break;
+      case LocationFailureType.permissionDenied ||
+          LocationFailureType.accuracyTooLow ||
+          LocationFailureType.geocodingFailed ||
+          LocationFailureType.locationUnavailable ||
+          LocationFailureType.unknown:
+        break;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final controller = widget.controller;
     final theme = Theme.of(context);
 
     return Column(
@@ -285,6 +375,25 @@ class NeighborhoodAutoStepView extends StatelessWidget {
                       !controller.isAuthLoading,
                   onPressed: controller.completeNeighborhood,
                 ),
+                if (controller.selectedNeighborhood == null &&
+                    controller.locationPhase != AsyncPhase.loading) ...<Widget>[
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton(
+                      onPressed: () =>
+                          _startLocationVerificationFlow(showNotice: false),
+                      child: Text(switch (controller.locationFailure?.type) {
+                        LocationFailureType.permissionDenied =>
+                          '현재 위치 권한 다시 요청',
+                        LocationFailureType.permissionPermanentlyDenied =>
+                          '설정 변경 후 다시 확인',
+                        LocationFailureType.serviceDisabled => '위치 서비스 다시 확인',
+                        _ => '현재 위치 다시 확인',
+                      }),
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 17),
                 Center(
                   child: GestureDetector(

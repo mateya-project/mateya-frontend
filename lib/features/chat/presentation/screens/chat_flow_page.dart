@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../../shared/permissions/mateya_permission_dialogs.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../../shared/widgets/mateya_bottom_navigation.dart';
 import '../../../../shared/widgets/mateya_header.dart';
@@ -214,6 +216,20 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
       return;
     }
 
+    final shouldContinue = await showMateyaPermissionNoticeDialog(
+      context,
+      title: action == _AttachmentAction.gallery ? '사진 권한 안내' : '카메라 권한 안내',
+      message: action == _AttachmentAction.gallery
+          ? '채팅에서 사진을 첨부하려면 사진 보관함 접근 권한이 필요합니다. 권한을 거부하셔도 텍스트 채팅은 계속 이용할 수 있습니다.'
+          : '채팅에서 사진을 바로 촬영해 보내려면 카메라 권한이 필요합니다. 권한을 거부하셔도 텍스트 채팅은 계속 이용할 수 있습니다.',
+      confirmLabel: action == _AttachmentAction.gallery ? '사진 선택하기' : '카메라 열기',
+      cancelLabel: '나중에',
+    );
+
+    if (!mounted || !shouldContinue) {
+      return;
+    }
+
     try {
       switch (action) {
         case _AttachmentAction.gallery:
@@ -243,7 +259,31 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
           ], source: ChatAttachmentSource.camera);
           return;
       }
-    } catch (_) {
+    } on PlatformException catch (error) {
+      if (!mounted) {
+        return;
+      }
+
+      if (error.code == 'photo_access_denied' ||
+          error.code == 'camera_access_denied') {
+        final actionResult = await showMateyaPermissionRecoveryDialog(
+          context,
+          title: error.code == 'camera_access_denied'
+              ? '카메라 권한이 필요해요'
+              : '사진 권한이 필요해요',
+          message: error.code == 'camera_access_denied'
+              ? '사진 촬영 첨부를 사용하려면 카메라 권한이 필요합니다. 권한이 없어도 텍스트 채팅은 계속할 수 있고, 다시 시도하거나 앱 설정에서 권한을 허용할 수 있습니다.'
+              : '사진 첨부를 사용하려면 사진 보관함 접근 권한이 필요합니다. 권한이 없어도 텍스트 채팅은 계속할 수 있고, 다시 시도하거나 앱 설정에서 권한을 허용할 수 있습니다.',
+          retryLabel: '다시 시도',
+        );
+        if (!mounted) {
+          return;
+        }
+        if (actionResult == MateyaPermissionRecoveryAction.retry) {
+          await _openAttachmentPicker();
+          return;
+        }
+      }
       if (!mounted) {
         return;
       }
