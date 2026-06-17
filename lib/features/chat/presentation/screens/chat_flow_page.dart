@@ -45,6 +45,7 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
 
   final ImagePicker _imagePicker = ImagePicker();
   final TextEditingController _draftController = TextEditingController();
+  final ScrollController _listScrollController = ScrollController();
   final ScrollController _scrollController = ScrollController();
 
   String? _lastRoomId;
@@ -55,6 +56,8 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
   void initState() {
     super.initState();
     widget.controller.addListener(_handleControllerChanged);
+    _listScrollController.addListener(_handleListScroll);
+    _scrollController.addListener(_handleDetailScroll);
     _syncDraft();
   }
 
@@ -72,9 +75,31 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
   @override
   void dispose() {
     widget.controller.removeListener(_handleControllerChanged);
+    _listScrollController
+      ..removeListener(_handleListScroll)
+      ..dispose();
+    _scrollController.removeListener(_handleDetailScroll);
     _draftController.dispose();
     _scrollController.dispose();
     super.dispose();
+  }
+
+  void _handleListScroll() {
+    if (!_listScrollController.hasClients) {
+      return;
+    }
+    if (_listScrollController.position.extentAfter < 280) {
+      widget.controller.loadMoreRooms();
+    }
+  }
+
+  void _handleDetailScroll() {
+    if (!_scrollController.hasClients) {
+      return;
+    }
+    if (_scrollController.position.extentBefore < 120) {
+      widget.controller.loadOlderMessages();
+    }
   }
 
   void _handleControllerChanged() {
@@ -352,10 +377,28 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
     }
 
     return ListView.separated(
+      controller: _listScrollController,
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
-      itemCount: rooms.length,
+      itemCount: rooms.length + (widget.controller.hasMoreRooms ? 1 : 0),
       separatorBuilder: (context, _) => const SizedBox(height: 18),
       itemBuilder: (context, index) {
+        if (index >= rooms.length) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Center(
+              child: widget.controller.isLoadingMoreRooms
+                  ? const SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : Text(
+                      '스크롤하면 채팅방을 더 불러옵니다.',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+            ),
+          );
+        }
         final room = rooms[index];
         return _ChatRoomTile(
           room: room,
@@ -409,6 +452,23 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
         controller: _scrollController,
         padding: const EdgeInsets.fromLTRB(20, 15, 20, 20),
         children: <Widget>[
+          if (widget.controller.hasOlderMessages ||
+              widget.controller.isLoadingOlderMessages)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 14),
+              child: Center(
+                child: widget.controller.isLoadingOlderMessages
+                    ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : Text(
+                        '위로 스크롤하면 이전 메시지를 더 불러옵니다.',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+              ),
+            ),
           Center(child: _DateChip(label: _formatConversationDate(room))),
           const SizedBox(height: 18),
           for (final group in room.messageGroups) ...<Widget>[

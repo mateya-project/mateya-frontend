@@ -6,9 +6,38 @@ import '../../../shared/network/http_transport.dart';
 import '../../../shared/network/mateya_api_client.dart';
 import '../domain/chat_models.dart';
 
+class ChatRoomPageResult {
+  const ChatRoomPageResult({
+    required this.rooms,
+    required this.hasNext,
+    required this.nextPage,
+  });
+
+  final List<ChatRoom> rooms;
+  final bool hasNext;
+  final int? nextPage;
+}
+
+class ChatMessagePageResult {
+  const ChatMessagePageResult({
+    required this.groups,
+    required this.hasNext,
+    required this.nextPage,
+  });
+
+  final List<ChatMessageGroup> groups;
+  final bool hasNext;
+  final int? nextPage;
+}
+
 abstract interface class ChatRepository {
   Future<List<ChatRoom>> fetchRooms();
   Future<ChatRoom> fetchRoom(String roomId);
+  Future<ChatRoomPageResult> fetchRoomsPage({required int page});
+  Future<ChatMessagePageResult> fetchRoomMessagesPage({
+    required String roomId,
+    required int page,
+  });
   Future<List<ChatBubble>> sendMessage({
     required String roomId,
     required String text,
@@ -38,21 +67,32 @@ class ApiChatRepository implements ChatRepository {
 
   @override
   Future<List<ChatRoom>> fetchRooms() async {
+    final result = await fetchRoomsPage(page: 0);
+    return result.rooms;
+  }
+
+  @override
+  Future<ChatRoomPageResult> fetchRoomsPage({required int page}) async {
     try {
       final data = await _apiClient.getJson(
         '/api/v1/chats',
         requiresAuth: true,
-        queryParameters: const <String, String>{'page': '0'},
+        queryParameters: <String, String>{'page': '$page'},
       );
       final json = _asMap(data);
       final items = json['items'] as List<Object?>? ?? const <Object?>[];
       final rooms = items.map(_parseRoomSummary).toList(growable: false);
-      _cachedRooms
-        ..clear()
-        ..addEntries(
-          rooms.map((room) => MapEntry<String, ChatRoom>(room.id, room)),
-        );
-      return rooms;
+      if (page == 0) {
+        _cachedRooms.clear();
+      }
+      _cachedRooms.addEntries(
+        rooms.map((room) => MapEntry<String, ChatRoom>(room.id, room)),
+      );
+      return ChatRoomPageResult(
+        rooms: rooms,
+        hasNext: json['hasNext'] as bool? ?? false,
+        nextPage: json['nextPage'] as int?,
+      );
     } on MateyaApiException catch (error) {
       throw _mapApiException(error);
     }
@@ -60,21 +100,34 @@ class ApiChatRepository implements ChatRepository {
 
   @override
   Future<ChatRoom> fetchRoom(String roomId) async {
+    final pageResult = await fetchRoomMessagesPage(roomId: roomId, page: 0);
+    final summary = _cachedRooms[roomId] ?? await _fetchRoomSummary(roomId);
+    final room = summary.copyWith(messageGroups: pageResult.groups);
+    _cachedRooms[roomId] = room;
+    return room;
+  }
+
+  @override
+  Future<ChatMessagePageResult> fetchRoomMessagesPage({
+    required String roomId,
+    required int page,
+  }) async {
     try {
-      final summary = _cachedRooms[roomId] ?? await _fetchRoomSummary(roomId);
       final data = await _apiClient.getJson(
         '/api/v1/chats/$roomId/messages',
         requiresAuth: true,
-        queryParameters: const <String, String>{'page': '0'},
+        queryParameters: <String, String>{'page': '$page'},
       );
       final json = _asMap(data);
       final items = json['items'] as List<Object?>? ?? const <Object?>[];
       final messageGroups = items
           .map(_parseMessageGroup)
           .toList(growable: false);
-      final room = summary.copyWith(messageGroups: messageGroups);
-      _cachedRooms[roomId] = room;
-      return room;
+      return ChatMessagePageResult(
+        groups: messageGroups,
+        hasNext: json['hasNext'] as bool? ?? false,
+        nextPage: json['nextPage'] as int?,
+      );
     } on MateyaApiException catch (error) {
       throw _mapApiException(error);
     }
@@ -127,12 +180,21 @@ class ApiChatRepository implements ChatRepository {
   }
 
   Future<ChatRoom> _fetchRoomSummary(String roomId) async {
-    final rooms = await fetchRooms();
-    final room = rooms.where((item) => item.id == roomId).firstOrNull;
-    if (room == null) {
-      throw const ChatRepositoryException(ChatLoadFailureType.server);
+    var page = 0;
+    while (true) {
+      final pageResult = await fetchRoomsPage(page: page);
+      final room = pageResult.rooms
+          .where((item) => item.id == roomId)
+          .firstOrNull;
+      if (room != null) {
+        return room;
+      }
+      if (!pageResult.hasNext || pageResult.nextPage == null) {
+        break;
+      }
+      page = pageResult.nextPage!;
     }
-    return room;
+    throw const ChatRepositoryException(ChatLoadFailureType.server);
   }
 
   Future<String> _uploadChatImage(ChatAttachment attachment) async {
@@ -337,18 +399,78 @@ class ApiChatRepository implements ChatRepository {
 class MockChatRepository implements ChatRepository {
   @override
   Future<List<ChatRoom>> fetchRooms() async {
+    final result = await fetchRoomsPage(page: 0);
+    return result.rooms;
+  }
+
+  @override
+  Future<ChatRoomPageResult> fetchRoomsPage({required int page}) async {
     await Future<void>.delayed(const Duration(milliseconds: 300));
-    return _mockRooms.map(_cloneRoom).toList(growable: false);
+    const pageSize = 2;
+    final start = page * pageSize;
+    if (start >= _mockRooms.length) {
+      return const ChatRoomPageResult(
+        rooms: <ChatRoom>[],
+        hasNext: false,
+        nextPage: null,
+      );
+    }
+    final end = (start + pageSize).clamp(0, _mockRooms.length);
+    final hasNext = end < _mockRooms.length;
+    return ChatRoomPageResult(
+      rooms: _mockRooms
+          .sublist(start, end)
+          .map(_cloneRoom)
+          .toList(growable: false),
+      hasNext: hasNext,
+      nextPage: hasNext ? page + 1 : null,
+    );
   }
 
   @override
   Future<ChatRoom> fetchRoom(String roomId) async {
+    final pageResult = await fetchRoomMessagesPage(roomId: roomId, page: 0);
     await Future<void>.delayed(const Duration(milliseconds: 220));
     final room = _mockRooms.where((item) => item.id == roomId).firstOrNull;
     if (room == null) {
       throw const ChatRepositoryException(ChatLoadFailureType.server);
     }
-    return _cloneRoom(room);
+    return _cloneRoom(room).copyWith(messageGroups: pageResult.groups);
+  }
+
+  @override
+  Future<ChatMessagePageResult> fetchRoomMessagesPage({
+    required String roomId,
+    required int page,
+  }) async {
+    await Future<void>.delayed(const Duration(milliseconds: 220));
+    final room = _mockRooms.where((item) => item.id == roomId).firstOrNull;
+    if (room == null) {
+      throw const ChatRepositoryException(ChatLoadFailureType.server);
+    }
+    const pageSize = 2;
+    final groups = room.messageGroups;
+    final reversed = groups.reversed.toList(growable: false);
+    final start = page * pageSize;
+    if (start >= reversed.length) {
+      return const ChatMessagePageResult(
+        groups: <ChatMessageGroup>[],
+        hasNext: false,
+        nextPage: null,
+      );
+    }
+    final end = (start + pageSize).clamp(0, reversed.length);
+    final pageGroups = reversed
+        .sublist(start, end)
+        .reversed
+        .map(_cloneGroup)
+        .toList(growable: false);
+    final hasNext = end < reversed.length;
+    return ChatMessagePageResult(
+      groups: pageGroups,
+      hasNext: hasNext,
+      nextPage: hasNext ? page + 1 : null,
+    );
   }
 
   @override
@@ -555,18 +677,18 @@ final List<ChatRoom> _mockRooms = <ChatRoom>[
 
 ChatRoom _cloneRoom(ChatRoom room) {
   return room.copyWith(
-    messageGroups: room.messageGroups
+    messageGroups: room.messageGroups.map(_cloneGroup).toList(),
+  );
+}
+
+ChatMessageGroup _cloneGroup(ChatMessageGroup group) {
+  return group.copyWith(
+    sender: group.sender.copyWith(),
+    bubbles: group.bubbles
         .map(
-          (group) => group.copyWith(
-            sender: group.sender.copyWith(),
-            bubbles: group.bubbles
-                .map(
-                  (bubble) => bubble.copyWith(
-                    attachments: bubble.attachments
-                        .map((attachment) => attachment.copyWith())
-                        .toList(),
-                  ),
-                )
+          (bubble) => bubble.copyWith(
+            attachments: bubble.attachments
+                .map((attachment) => attachment.copyWith())
                 .toList(),
           ),
         )

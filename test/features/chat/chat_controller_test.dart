@@ -15,6 +15,12 @@ void main() {
       await controller.initialize();
 
       expect(controller.listPhase, AsyncPhase.success);
+      expect(controller.visibleRooms, hasLength(2));
+      expect(controller.hasMoreRooms, isTrue);
+
+      await controller.loadMoreRooms();
+      await controller.loadMoreRooms();
+
       expect(controller.visibleRooms, hasLength(5));
 
       controller.updateFilter(ChatListFilter.group);
@@ -49,6 +55,7 @@ void main() {
         expect(controller.isDetailOpen, isTrue);
         expect(controller.currentRoom?.id, 'hongdae-language');
         expect(controller.currentRoom?.unreadCount, 0);
+        expect(controller.hasOlderMessages, isFalse);
       },
     );
 

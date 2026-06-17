@@ -23,6 +23,12 @@ class ChatController extends ChangeNotifier {
   String? _toastMessage;
   int _toastVersion = 0;
   bool _isSending = false;
+  bool _isLoadingMoreRooms = false;
+  bool _isLoadingOlderMessages = false;
+  bool _hasMoreRooms = false;
+  int? _nextRoomsPage;
+  bool _hasOlderMessages = false;
+  int? _nextRoomMessagesPage;
 
   AsyncPhase get listPhase => _listPhase;
   AsyncPhase get roomPhase => _roomPhase;
@@ -35,6 +41,10 @@ class ChatController extends ChangeNotifier {
   String? get toastMessage => _toastMessage;
   int get toastVersion => _toastVersion;
   bool get isSending => _isSending;
+  bool get isLoadingMoreRooms => _isLoadingMoreRooms;
+  bool get isLoadingOlderMessages => _isLoadingOlderMessages;
+  bool get hasMoreRooms => _hasMoreRooms;
+  bool get hasOlderMessages => _hasOlderMessages;
   bool get isDetailOpen => _selectedRoomId != null;
   bool get canSendMessage =>
       !_isSending && (_draft.trim().isNotEmpty || _draftAttachments.isNotEmpty);
@@ -96,7 +106,13 @@ class ChatController extends ChangeNotifier {
 
     try {
       final room = await _repository.fetchRoom(roomId);
+      final firstPage = await _repository.fetchRoomMessagesPage(
+        roomId: roomId,
+        page: 0,
+      );
       _replaceRoom(room.copyWith(unreadCount: 0));
+      _hasOlderMessages = firstPage.hasNext;
+      _nextRoomMessagesPage = firstPage.nextPage;
       try {
         await _repository.markRoomAsRead(roomId);
       } on ChatRepositoryException {
@@ -119,6 +135,80 @@ class ChatController extends ChangeNotifier {
     }
 
     notifyListeners();
+  }
+
+  Future<void> loadMoreRooms() async {
+    if (_isLoadingMoreRooms || !_hasMoreRooms || _nextRoomsPage == null) {
+      return;
+    }
+
+    _isLoadingMoreRooms = true;
+    notifyListeners();
+    try {
+      final pageResult = await _repository.fetchRoomsPage(
+        page: _nextRoomsPage!,
+      );
+      final merged = <String, ChatRoom>{
+        for (final room in _rooms) room.id: room,
+        for (final room in pageResult.rooms) room.id: room,
+      };
+      _rooms = merged.values.toList()
+        ..sort(
+          (left, right) => right.lastMessageAt.compareTo(left.lastMessageAt),
+        );
+      _hasMoreRooms = pageResult.hasNext;
+      _nextRoomsPage = pageResult.nextPage;
+    } on ChatRepositoryException catch (error) {
+      _pushToast(
+        error.message ??
+            (error.type == ChatLoadFailureType.network
+                ? '채팅 목록을 더 불러오지 못했어요. 네트워크를 확인해 주세요.'
+                : '채팅 목록을 더 불러오지 못했어요. 잠시 후 다시 시도해 주세요.'),
+      );
+    } finally {
+      _isLoadingMoreRooms = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> loadOlderMessages() async {
+    final roomId = _selectedRoomId;
+    final room = currentRoom;
+    if (roomId == null ||
+        room == null ||
+        _isLoadingOlderMessages ||
+        !_hasOlderMessages ||
+        _nextRoomMessagesPage == null) {
+      return;
+    }
+
+    _isLoadingOlderMessages = true;
+    notifyListeners();
+    try {
+      final pageResult = await _repository.fetchRoomMessagesPage(
+        roomId: roomId,
+        page: _nextRoomMessagesPage!,
+      );
+      final updatedRoom = room.copyWith(
+        messageGroups: <ChatMessageGroup>[
+          ...pageResult.groups,
+          ...room.messageGroups,
+        ],
+      );
+      _replaceRoom(updatedRoom);
+      _hasOlderMessages = pageResult.hasNext;
+      _nextRoomMessagesPage = pageResult.nextPage;
+    } on ChatRepositoryException catch (error) {
+      _pushToast(
+        error.message ??
+            (error.type == ChatLoadFailureType.network
+                ? '이전 메시지를 불러오지 못했어요. 네트워크를 확인해 주세요.'
+                : '이전 메시지를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.'),
+      );
+    } finally {
+      _isLoadingOlderMessages = false;
+      notifyListeners();
+    }
   }
 
   void closeRoom() {
@@ -253,11 +343,13 @@ class ChatController extends ChangeNotifier {
     notifyListeners();
 
     try {
-      _rooms = await _repository.fetchRooms();
-      _rooms = _rooms.toList()
+      final pageResult = await _repository.fetchRoomsPage(page: 0);
+      _rooms = pageResult.rooms.toList()
         ..sort(
           (left, right) => right.lastMessageAt.compareTo(left.lastMessageAt),
         );
+      _hasMoreRooms = pageResult.hasNext;
+      _nextRoomsPage = pageResult.nextPage;
       _listPhase = AsyncPhase.success;
       _listErrorMessage = null;
     } on ChatRepositoryException catch (error) {
