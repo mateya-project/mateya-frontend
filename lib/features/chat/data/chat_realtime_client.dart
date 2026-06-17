@@ -4,16 +4,19 @@ import 'package:stomp_dart_client/stomp_dart_client.dart';
 
 import '../../../app/app_config.dart';
 import '../../../shared/auth/auth_session.dart';
+import '../../../shared/logging/app_logger.dart';
 import '../domain/chat_models.dart';
 
 typedef ChatRealtimeMessageCallback = void Function(ChatMessageGroup message);
 typedef ChatRealtimeErrorCallback = void Function(String message);
 
 class ChatRealtimeClient {
-  ChatRealtimeClient({AuthSessionStore? sessionStore})
-    : _sessionStore = sessionStore ?? AuthSessionStore.instance;
+  ChatRealtimeClient({AuthSessionStore? sessionStore, AppLogger? logger})
+    : _sessionStore = sessionStore ?? AuthSessionStore.instance,
+      _logger = logger ?? AppLogger.instance;
 
   final AuthSessionStore _sessionStore;
+  final AppLogger _logger;
 
   StompClient? _client;
   StompUnsubscribe? _unsubscribe;
@@ -33,6 +36,10 @@ class ChatRealtimeClient {
     if (_roomId == roomId && _client != null) {
       _onMessage = onMessage;
       _onError = onError;
+      _logger.debug(
+        'Chat realtime subscription callback updated',
+        context: <String, Object?>{'roomId': roomId},
+      );
       return;
     }
 
@@ -40,12 +47,20 @@ class ChatRealtimeClient {
 
     final accessToken = _sessionStore.session?.accessToken;
     if (accessToken == null || accessToken.isEmpty) {
+      _logger.warning(
+        'Chat realtime subscription skipped because access token is missing',
+        context: <String, Object?>{'roomId': roomId},
+      );
       return;
     }
 
     _roomId = roomId;
     _onMessage = onMessage;
     _onError = onError;
+    _logger.info(
+      'Chat realtime subscription requested',
+      context: <String, Object?>{'roomId': roomId},
+    );
 
     late final StompClient client;
     client = StompClient(
@@ -59,6 +74,10 @@ class ChatRealtimeClient {
           'Authorization': 'Bearer $accessToken',
         },
         onConnect: (_) {
+          _logger.info(
+            'Chat realtime connected',
+            context: <String, Object?>{'roomId': roomId},
+          );
           _unsubscribe?.call();
           _unsubscribe = client.subscribe(
             destination: '/topic/chat.rooms.$roomId',
@@ -66,9 +85,21 @@ class ChatRealtimeClient {
           );
         },
         onStompError: (frame) {
+          _logger.warning(
+            'Chat realtime STOMP error received',
+            context: <String, Object?>{
+              'roomId': roomId,
+              'command': frame.command,
+            },
+          );
           _reportError(frame.body ?? '실시간 채팅 연결에 실패했어요.');
         },
-        onWebSocketError: (_) {
+        onWebSocketError: (error) {
+          _logger.warning(
+            'Chat realtime WebSocket error received',
+            error: error,
+            context: <String, Object?>{'roomId': roomId},
+          );
           _reportError('실시간 채팅 연결에 실패했어요.');
         },
       ),
@@ -79,6 +110,7 @@ class ChatRealtimeClient {
   }
 
   void disconnect() {
+    final roomId = _roomId;
     _unsubscribe?.call();
     _unsubscribe = null;
     _client?.deactivate();
@@ -86,6 +118,12 @@ class ChatRealtimeClient {
     _roomId = null;
     _onMessage = null;
     _onError = null;
+    if (roomId != null) {
+      _logger.info(
+        'Chat realtime disconnected',
+        context: <String, Object?>{'roomId': roomId},
+      );
+    }
   }
 
   void _handleFrame(
@@ -103,7 +141,13 @@ class ChatRealtimeClient {
         throw const FormatException('Invalid chat payload');
       }
       _onMessage?.call(parseMessage(decoded));
-    } catch (_) {
+    } catch (error, stackTrace) {
+      _logger.warning(
+        'Chat realtime message parsing failed',
+        error: error,
+        stackTrace: stackTrace,
+        context: <String, Object?>{'roomId': _roomId},
+      );
       _reportError('실시간 채팅 메시지를 처리하지 못했어요.');
     }
   }
