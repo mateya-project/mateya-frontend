@@ -4,14 +4,59 @@ import '../../../shared/network/mateya_api_client.dart';
 import '../domain/home_models.dart';
 
 abstract interface class HomeRepository {
-  Future<List<ActivityItem>> fetchActivities();
+  Future<List<ActivityItem>> fetchHomeActivities();
+  Future<ExploreActivitiesPage> fetchExploreActivities({
+    required int page,
+    required String keyword,
+    required ExploreFilter filter,
+  });
 }
 
 class MockHomeRepository implements HomeRepository {
   @override
-  Future<List<ActivityItem>> fetchActivities() async {
+  Future<List<ActivityItem>> fetchHomeActivities() async {
     await Future<void>.delayed(const Duration(milliseconds: 450));
     return _mockActivities;
+  }
+
+  @override
+  Future<ExploreActivitiesPage> fetchExploreActivities({
+    required int page,
+    required String keyword,
+    required ExploreFilter filter,
+  }) async {
+    await Future<void>.delayed(const Duration(milliseconds: 220));
+
+    final filtered = _sortActivities(
+      _mockActivities
+          .where((item) => !item.isFeatured)
+          .where((item) => item.matchesKeyword(keyword))
+          .where((item) => item.matchesFilter(filter))
+          .toList(),
+      filter.sort,
+    );
+
+    const pageSize = 20;
+    final startIndex = page * pageSize;
+    if (startIndex >= filtered.length) {
+      return ExploreActivitiesPage(
+        items: const <ActivityItem>[],
+        page: page,
+        size: pageSize,
+        hasNext: false,
+        nextPage: null,
+      );
+    }
+
+    final endIndex = (startIndex + pageSize).clamp(0, filtered.length);
+    final hasNext = endIndex < filtered.length;
+    return ExploreActivitiesPage(
+      items: filtered.sublist(startIndex, endIndex),
+      page: page,
+      size: pageSize,
+      hasNext: hasNext,
+      nextPage: hasNext ? page + 1 : null,
+    );
   }
 }
 
@@ -19,17 +64,19 @@ class ApiHomeRepository implements HomeRepository {
   ApiHomeRepository({
     MateyaApiClient? apiClient,
     AuthSessionStore? sessionStore,
-  }) : _apiClient =
+  }) : _sessionStore = sessionStore ?? AuthSessionStore.instance,
+       _apiClient =
            apiClient ??
            MateyaApiClient(
              baseUrl: AppConfig.apiBaseUrl,
              sessionStore: sessionStore ?? AuthSessionStore.instance,
            );
 
+  final AuthSessionStore _sessionStore;
   final MateyaApiClient _apiClient;
 
   @override
-  Future<List<ActivityItem>> fetchActivities() async {
+  Future<List<ActivityItem>> fetchHomeActivities() async {
     try {
       final trendingData = await _apiClient.getJson(
         '/api/v1/home/trending',
@@ -67,43 +114,165 @@ class ApiHomeRepository implements HomeRepository {
     }
   }
 
-  ActivityItem _parseActivityCard(Object? value, {required bool isFeatured}) {
-    if (value is! Map<String, dynamic>) {
+  @override
+  Future<ExploreActivitiesPage> fetchExploreActivities({
+    required int page,
+    required String keyword,
+    required ExploreFilter filter,
+  }) async {
+    try {
+      final data = await _apiClient.getJson(
+        '/api/v1/activities',
+        requiresAuth: true,
+        queryParametersAll: _buildExploreQueryParametersAll(
+          page: page,
+          keyword: keyword,
+          filter: filter,
+        ),
+      );
+      final json = _asMap(data);
+      final items = (json['items'] as List<Object?>? ?? const <Object?>[])
+          .map((entry) => _parseActivityCard(entry, isFeatured: false))
+          .toList(growable: false);
+      return ExploreActivitiesPage(
+        items: items,
+        page: json['page'] as int? ?? page,
+        size: json['size'] as int? ?? items.length,
+        hasNext: json['hasNext'] as bool? ?? false,
+        nextPage: json['nextPage'] as int?,
+      );
+    } on MateyaApiException catch (error) {
+      if (error.type == ApiFailureType.network) {
+        throw const HomeRepositoryException(HomeLoadFailureType.network);
+      }
       throw const HomeRepositoryException(HomeLoadFailureType.server);
     }
+  }
 
-    final categoryCode = value['category'] as String? ?? 'PUBLIC_FACILITY';
+  Map<String, List<String>> _buildExploreQueryParametersAll({
+    required int page,
+    required String keyword,
+    required ExploreFilter filter,
+  }) {
+    final queryParameters = <String, List<String>>{
+      'page': <String>['$page'],
+      'sort': <String>[_sortToServerValue(filter.sort)],
+    };
+    final trimmedKeyword = keyword.trim();
+    if (trimmedKeyword.isNotEmpty) {
+      queryParameters['keyword'] = <String>[trimmedKeyword];
+    }
+
+    final categories = filter.categoryIds
+        .where((categoryId) => categoryId != 'all')
+        .expand(
+          (categoryId) =>
+              _serverCategoriesByClientCategoryId[categoryId] ??
+              const <String>[],
+        )
+        .toSet()
+        .toList(growable: false);
+    if (categories.isNotEmpty) {
+      queryParameters['categories'] = categories;
+    }
+
+    if (filter.languages.isNotEmpty) {
+      queryParameters['languages'] = filter.languages.toList(growable: false);
+    }
+
+    if (filter.audiences.isNotEmpty) {
+      queryParameters['targets'] = filter.audiences
+          .map(_audienceToServerValue)
+          .toList(growable: false);
+    }
+
+    if (filter.minPrice != null) {
+      queryParameters['costMin'] = <String>['${filter.minPrice}'];
+    }
+    if (filter.maxPrice != null) {
+      queryParameters['costMax'] = <String>['${filter.maxPrice}'];
+    }
+
+    if (filter.startDate != null) {
+      queryParameters['startFrom'] = <String>[
+        DateTime(
+          filter.startDate!.year,
+          filter.startDate!.month,
+          filter.startDate!.day,
+        ).toIso8601String(),
+      ];
+    }
+    if (filter.endDate != null) {
+      queryParameters['startTo'] = <String>[
+        DateTime(
+          filter.endDate!.year,
+          filter.endDate!.month,
+          filter.endDate!.day,
+          23,
+          59,
+          59,
+        ).toIso8601String(),
+      ];
+    }
+
+    if (filter.statuses.isNotEmpty) {
+      queryParameters['statusFilters'] = filter.statuses
+          .map(_statusToServerValue)
+          .toList(growable: false);
+    }
+
+    final user = _sessionStore.session?.user;
+    if (user?.activityLatitude != null && user?.activityLongitude != null) {
+      queryParameters['latitude'] = <String>['${user!.activityLatitude!}'];
+      queryParameters['longitude'] = <String>['${user.activityLongitude!}'];
+    }
+    queryParameters['radiusKm'] = <String>['${filter.distance.maxDistanceKm}'];
+
+    return queryParameters;
+  }
+
+  ActivityItem _parseActivityCard(Object? value, {required bool isFeatured}) {
+    final json = _asMap(value);
+
+    final categoryCode = json['category'] as String? ?? 'PUBLIC_FACILITY';
     final mappedCategory =
         _categoryByServerCode[categoryCode] ?? _fallbackCategory;
-    final priceType = value['priceType'] as String? ?? 'FREE';
-    final priceAmount = value['priceAmount'] as int? ?? 0;
+    final priceType = json['priceType'] as String? ?? 'FREE';
+    final priceAmount = json['priceAmount'] as int? ?? 0;
 
     return ActivityItem(
-      id: '${value['id']}',
+      id: '${json['id']}',
       categoryId: mappedCategory.id,
       categoryLabel: mappedCategory.label,
-      title: value['title'] as String? ?? '',
+      title: json['title'] as String? ?? '',
       place:
-          (value['placeName'] as String?) ??
-          (value['placeAddress'] as String?) ??
+          (json['placeName'] as String?) ??
+          (json['placeAddress'] as String?) ??
           '',
-      startAt: DateTime.parse(value['startAt'] as String),
-      endAt: DateTime.parse(value['endAt'] as String),
+      startAt: DateTime.parse(json['startAt'] as String),
+      endAt: DateTime.parse(json['endAt'] as String),
       price: priceType == 'FREE' ? 0 : priceAmount,
-      rating: (value['reviewRating'] as num?)?.toDouble() ?? 0,
-      participantCount: value['participantCount'] as int? ?? 0,
-      participantCapacity: value['capacity'] as int? ?? 0,
+      rating: (json['reviewRating'] as num?)?.toDouble() ?? 0,
+      participantCount: json['participantCount'] as int? ?? 0,
+      participantCapacity: json['capacity'] as int? ?? 0,
       distanceKm: 0,
       audiences: const <ActivityAudienceOption>{
         ActivityAudienceOption.everyone,
       },
       languages: <String>{
-        if ((value['language'] as String?) != null) value['language'] as String,
+        if ((json['language'] as String?) != null) json['language'] as String,
       },
       statuses: const <ActivityStatusOption>{ActivityStatusOption.recruiting},
-      imageUrl: value['imageUrl'] as String?,
+      imageUrl: json['imageUrl'] as String?,
       isFeatured: isFeatured,
     );
+  }
+
+  Map<String, dynamic> _asMap(Object? value) {
+    if (value is Map<String, dynamic>) {
+      return value;
+    }
+    throw const HomeRepositoryException(HomeLoadFailureType.server);
   }
 }
 
@@ -126,6 +295,59 @@ const Map<String, ActivityCategory> _categoryByServerCode =
       'PUBLIC_FACILITY': ActivityCategory(id: 'etc', label: '기타'),
       'SHOPPING': ActivityCategory(id: 'food', label: '음식체험'),
     };
+
+const Map<String, List<String>> _serverCategoriesByClientCategoryId =
+    <String, List<String>>{
+      'traditional': <String>['CULTURE_TRADITION'],
+      'sports': <String>['SPORTS', 'ACTIVITY_LEPORTS'],
+      'festival': <String>['EVENT_PERFORMANCE_FESTIVAL'],
+      'food': <String>['SHOPPING'],
+      // Backend categories are currently coarser than the UX chips.
+      'language': <String>['PUBLIC_FACILITY'],
+      'walk': <String>['TOURIST_ATTRACTION', 'TRAVEL_COURSE'],
+      'craft': <String>['CULTURE_TRADITION'],
+      'etc': <String>['PUBLIC_FACILITY'],
+    };
+
+String _sortToServerValue(ActivitySortOption value) => switch (value) {
+  ActivitySortOption.recommended => 'recommended',
+  ActivitySortOption.popular => 'popular',
+  ActivitySortOption.latest => 'latest',
+  ActivitySortOption.closingSoon => 'deadline',
+  ActivitySortOption.nearby => 'distance',
+};
+
+String _audienceToServerValue(ActivityAudienceOption value) => switch (value) {
+  ActivityAudienceOption.everyone => 'ANYONE',
+  ActivityAudienceOption.foreignerFriendly => 'FOREIGNER_WELCOME',
+  ActivityAudienceOption.koreanFriendly => 'KOREAN_WELCOME',
+  ActivityAudienceOption.touristFriendly => 'TOURIST_RECOMMENDED',
+  ActivityAudienceOption.beginnerFriendly => 'BEGINNER_WELCOME',
+};
+
+String _statusToServerValue(ActivityStatusOption value) => switch (value) {
+  ActivityStatusOption.recruiting => 'recruiting',
+  ActivityStatusOption.closingSoon => 'closing-soon',
+  ActivityStatusOption.newlyListed => 'new',
+};
+
+List<ActivityItem> _sortActivities(
+  List<ActivityItem> items,
+  ActivitySortOption sort,
+) {
+  items.sort((left, right) {
+    return switch (sort) {
+      ActivitySortOption.recommended => right.rating.compareTo(left.rating),
+      ActivitySortOption.popular => right.participantCount.compareTo(
+        left.participantCount,
+      ),
+      ActivitySortOption.latest => right.startAt.compareTo(left.startAt),
+      ActivitySortOption.closingSoon => left.endAt.compareTo(right.endAt),
+      ActivitySortOption.nearby => left.distanceKm.compareTo(right.distanceKm),
+    };
+  });
+  return items;
+}
 
 final DateTime _baseDate = DateTime(2026, 6, 13, 10);
 

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -45,9 +47,20 @@ class _HomeFlowPageState extends State<HomeFlowPage> {
   void initState() {
     super.initState();
     final hasSession = AuthSessionStore.instance.hasSession;
+    final defaultLanguage = AuthSessionStore
+        .instance
+        .session
+        ?.user
+        .primaryLanguage
+        .toLowerCase();
     _controller = HomeController(
       repository: hasSession ? ApiHomeRepository() : MockHomeRepository(),
       flowKind: widget.flowKind,
+      initialFilter: ExploreFilter(
+        languages: kSupportedExploreLanguageCodes.contains(defaultLanguage)
+            ? <String>{defaultLanguage!}
+            : const <String>{'ko'},
+      ),
     );
     _chatController = ChatController(repository: MockChatRepository());
     _myPageController = MyPageController(
@@ -79,6 +92,7 @@ class _HomeFlowPageState extends State<HomeFlowPage> {
       builder: (context) {
         return _ExploreFilterSheet(
           initialFilter: _controller.filter,
+          defaultFilter: _controller.defaultFilter,
           validator: _controller.validateFilterDraft,
         );
       },
@@ -259,14 +273,14 @@ class _HomeContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    switch (controller.phase) {
+    switch (controller.homePhase) {
       case AsyncPhase.loading:
       case AsyncPhase.idle:
         return const _HomeSkeleton();
       case AsyncPhase.networkError:
       case AsyncPhase.serverError:
         return _RetryState(
-          message: controller.errorMessage ?? '데이터를 불러오지 못했어요.',
+          message: controller.homeErrorMessage ?? '데이터를 불러오지 못했어요.',
           onRetry: controller.retry,
         );
       case AsyncPhase.success:
@@ -320,8 +334,6 @@ class _ExploreScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final paginated = controller.paginatedExplore;
-
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
       child: Column(
@@ -360,23 +372,24 @@ class _ExploreScreen extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Expanded(
-            child: switch (controller.phase) {
+            child: switch (controller.explorePhase) {
               AsyncPhase.loading || AsyncPhase.idle => const _ExploreSkeleton(),
               AsyncPhase.networkError || AsyncPhase.serverError => _RetryState(
-                message: controller.errorMessage ?? '결과를 불러오지 못했어요.',
+                message: controller.exploreErrorMessage ?? '결과를 불러오지 못했어요.',
                 onRetry: controller.retry,
               ),
               AsyncPhase.success || AsyncPhase.validationError =>
-                paginated.items.isEmpty
+                controller.exploreActivities.isEmpty
                     ? const _EmptyState()
                     : Column(
                         children: <Widget>[
-                          if (controller.phase == AsyncPhase.validationError &&
-                              controller.errorMessage != null)
+                          if (controller.explorePhase ==
+                                  AsyncPhase.validationError &&
+                              controller.exploreErrorMessage != null)
                             Padding(
                               padding: const EdgeInsets.only(bottom: 8),
                               child: _InlineErrorText(
-                                message: controller.errorMessage!,
+                                message: controller.exploreErrorMessage!,
                               ),
                             ),
                           Expanded(
@@ -386,7 +399,21 @@ class _ExploreScreen extends StatelessWidget {
                                 bottom: 16,
                               ),
                               itemBuilder: (context, index) {
-                                final activity = paginated.items[index];
+                                if (index ==
+                                    controller.exploreActivities.length) {
+                                  return _ExploreResultsFooter(
+                                    controller: controller,
+                                  );
+                                }
+                                if (index >=
+                                        controller.exploreActivities.length -
+                                            3 &&
+                                    controller.hasMoreExplore &&
+                                    !controller.isLoadingMoreExplore) {
+                                  unawaited(controller.loadMoreExplore());
+                                }
+                                final activity =
+                                    controller.exploreActivities[index];
                                 return _CompactActivityRow(
                                   activity: activity,
                                   onTap: () => onActivityTap(activity),
@@ -394,14 +421,9 @@ class _ExploreScreen extends StatelessWidget {
                               },
                               separatorBuilder: (_, _) =>
                                   Divider(height: 32, color: AppColors.divider),
-                              itemCount: paginated.items.length,
+                              itemCount:
+                                  controller.exploreActivities.length + 1,
                             ),
-                          ),
-                          _PaginationBar(
-                            currentPage: paginated.currentPage,
-                            pageCount: paginated.pageCount,
-                            totalCount: paginated.totalCount,
-                            onPageSelected: controller.goToPage,
                           ),
                         ],
                       ),
@@ -1043,50 +1065,61 @@ class _ExploreCategoryStrip extends StatelessWidget {
   }
 }
 
-class _PaginationBar extends StatelessWidget {
-  const _PaginationBar({
-    required this.currentPage,
-    required this.pageCount,
-    required this.totalCount,
-    required this.onPageSelected,
-  });
+class _ExploreResultsFooter extends StatelessWidget {
+  const _ExploreResultsFooter({required this.controller});
 
-  final int currentPage;
-  final int pageCount;
-  final int totalCount;
-  final ValueChanged<int> onPageSelected;
+  final HomeController controller;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: Column(
-        children: <Widget>[
-          Text(
-            '$totalCount개 결과 중 $currentPage / $pageCount 페이지',
-            style: Theme.of(context).textTheme.bodySmall,
-          ),
-          const SizedBox(height: 10),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              OutlinedButton(
-                onPressed: currentPage > 1
-                    ? () => onPageSelected(currentPage - 1)
-                    : null,
-                child: const Text('이전'),
-              ),
-              const SizedBox(width: 12),
-              OutlinedButton(
-                onPressed: currentPage < pageCount
-                    ? () => onPageSelected(currentPage + 1)
-                    : null,
-                child: const Text('다음'),
-              ),
-            ],
-          ),
-        ],
-      ),
+    if (controller.isLoadingMoreExplore) {
+      return const Padding(
+        padding: EdgeInsets.only(top: 8, bottom: 24),
+        child: Center(child: CircularProgressIndicator()),
+      );
+    }
+    if (controller.exploreLoadMoreErrorMessage != null) {
+      return Padding(
+        padding: const EdgeInsets.only(top: 8, bottom: 24),
+        child: Column(
+          children: <Widget>[
+            _InlineErrorText(message: controller.exploreLoadMoreErrorMessage!),
+            const SizedBox(height: 8),
+            OutlinedButton(
+              onPressed: () => unawaited(controller.loadMoreExplore()),
+              child: const Text('더 불러오기'),
+            ),
+          ],
+        ),
+      );
+    }
+    if (!controller.hasMoreExplore) {
+      return Padding(
+        padding: const EdgeInsets.only(top: 8, bottom: 24),
+        child: Text(
+          '${controller.exploreActivities.length}개 활동을 모두 불러왔어요.',
+          style: Theme.of(context).textTheme.bodySmall,
+          textAlign: TextAlign.center,
+        ),
+      );
+    }
+    return const Padding(
+      padding: EdgeInsets.only(bottom: 24),
+      child: SizedBox.shrink(),
+    );
+  }
+}
+
+class _ExploreLanguageSupportNotice extends StatelessWidget {
+  const _ExploreLanguageSupportNotice();
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      '현재 서버 검색 언어 필터는 한국어, 영어, 중국어, 일본어만 지원합니다.',
+      style: Theme.of(
+        context,
+      ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
     );
   }
 }
@@ -1257,10 +1290,12 @@ class _SkeletonBox extends StatelessWidget {
 class _ExploreFilterSheet extends StatefulWidget {
   const _ExploreFilterSheet({
     required this.initialFilter,
+    required this.defaultFilter,
     required this.validator,
   });
 
   final ExploreFilter initialFilter;
+  final ExploreFilter defaultFilter;
   final String? Function(ExploreFilter filter) validator;
 
   @override
@@ -1409,16 +1444,22 @@ class _ExploreFilterSheetState extends State<_ExploreFilterSheet> {
                                       if (_showMoreLanguages)
                                         ...kExtraLanguages,
                                     ].map((language) {
+                                      final supported =
+                                          kSupportedExploreLanguageCodes
+                                              .contains(language.code);
                                       return _CheckboxTag(
                                         label: language.label,
                                         selected: _draft.languages.contains(
                                           language.code,
                                         ),
+                                        enabled: supported,
                                         onTap: () =>
                                             _toggleLanguage(language.code),
                                       );
                                     }).toList(),
                               ),
+                              const SizedBox(height: 8),
+                              const _ExploreLanguageSupportNotice(),
                               const SizedBox(height: 12),
                               GestureDetector(
                                 onTap: () {
@@ -1713,10 +1754,12 @@ class _ExploreFilterSheetState extends State<_ExploreFilterSheet> {
 
   void _resetDraft() {
     setState(() {
-      _draft = const ExploreFilter();
+      _draft = widget.defaultFilter;
       _validationMessage = null;
-      _minPriceController.clear();
-      _maxPriceController.clear();
+      _minPriceController.text =
+          widget.defaultFilter.minPrice?.toString() ?? '';
+      _maxPriceController.text =
+          widget.defaultFilter.maxPrice?.toString() ?? '';
       _showMoreLanguages = false;
     });
   }
@@ -1816,16 +1859,18 @@ class _CheckboxTag extends StatelessWidget {
     required this.label,
     required this.selected,
     required this.onTap,
+    this.enabled = true,
   });
 
   final String label;
   final bool selected;
   final VoidCallback onTap;
+  final bool enabled;
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: onTap,
+      onTap: enabled ? onTap : null,
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
@@ -1833,12 +1878,14 @@ class _CheckboxTag extends StatelessWidget {
             width: 16,
             height: 16,
             decoration: BoxDecoration(
-              color: selected ? AppColors.brandGreen : Colors.white,
+              color: selected && enabled ? AppColors.brandGreen : Colors.white,
               borderRadius: BorderRadius.circular(4),
               border: Border.all(
-                color: selected
+                color: selected && enabled
                     ? AppColors.brandGreen
-                    : AppColors.fieldBorderLight,
+                    : enabled
+                    ? AppColors.fieldBorderLight
+                    : AppColors.divider,
               ),
             ),
             child: selected
@@ -1846,7 +1893,12 @@ class _CheckboxTag extends StatelessWidget {
                 : null,
           ),
           const SizedBox(width: 4),
-          Text(label, style: Theme.of(context).textTheme.bodyMedium),
+          Text(
+            label,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: enabled ? AppColors.textPrimary : AppColors.textMuted,
+            ),
+          ),
         ],
       ),
     );

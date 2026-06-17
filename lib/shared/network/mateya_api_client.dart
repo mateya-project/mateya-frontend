@@ -36,12 +36,15 @@ class MateyaApiClient {
   Future<Object?> getJson(
     String path, {
     Map<String, String> queryParameters = const <String, String>{},
+    Map<String, List<String>> queryParametersAll =
+        const <String, List<String>>{},
     bool requiresAuth = false,
   }) {
     return _sendJson(
       method: 'GET',
       path: path,
       queryParameters: queryParameters,
+      queryParametersAll: queryParametersAll,
       requiresAuth: requiresAuth,
     );
   }
@@ -63,13 +66,36 @@ class MateyaApiClient {
     required String method,
     required String path,
     Map<String, String> queryParameters = const <String, String>{},
+    Map<String, List<String>> queryParametersAll =
+        const <String, List<String>>{},
     bool requiresAuth = false,
     Object? body,
   }) async {
-    final uri = Uri.parse(baseUrl).replace(
-      path: path,
-      queryParameters: queryParameters.isEmpty ? null : queryParameters,
-    );
+    final mergedQueryParameters = <String, List<String>>{
+      for (final entry in queryParameters.entries)
+        entry.key: <String>[entry.value],
+    };
+    for (final entry in queryParametersAll.entries) {
+      if (entry.value.isEmpty) {
+        continue;
+      }
+      mergedQueryParameters.update(
+        entry.key,
+        (existing) => <String>[...existing, ...entry.value],
+        ifAbsent: () => List<String>.from(entry.value),
+      );
+    }
+    final query = mergedQueryParameters.entries
+        .expand(
+          (entry) => entry.value.map(
+            (value) =>
+                '${Uri.encodeQueryComponent(entry.key)}=${Uri.encodeQueryComponent(value)}',
+          ),
+        )
+        .join('&');
+    final uri = Uri.parse(
+      baseUrl,
+    ).replace(path: path, query: query.isEmpty ? null : query);
     final headers = <String, String>{
       'Accept': 'application/json',
       if (body != null) 'Content-Type': 'application/json',
