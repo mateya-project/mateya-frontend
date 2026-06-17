@@ -51,31 +51,30 @@ void main() {
         final controller = ActivityDetailController(
           repository: _FakeActivityDetailRepository.success(),
           activity: _seedActivity(),
-          now: () => DateTime(2026, 6, 14, 9, 30),
         );
 
         await controller.initialize();
 
-        final didSubmit = controller.submitReview(
+        final didSubmit = await controller.submitReview(
           rating: 5,
           body: '다음에도 또 참여하고 싶은 일정이었어요.',
           imageUrls: const <String>['/tmp/review-a.jpg'],
         );
 
-        expect(didSubmit, isTrue);
+        expect(didSubmit, isNull);
         expect(controller.reviewSort, ReviewSortOption.latest);
         expect(controller.visibleReviews.first.authorName, '나');
         expect(controller.visibleReviews.first.imageUrls, hasLength(1));
 
         final targetReviewId = controller.visibleReviews[1].id;
-        final before = controller.visibleReviews[1].helpfulCount;
-        controller.toggleHelpful(targetReviewId);
+        final toggleMessage = await controller.toggleHelpful(targetReviewId);
 
+        expect(toggleMessage, isNull);
         final updated = controller.visibleReviews.firstWhere(
           (review) => review.id == targetReviewId,
         );
         expect(updated.isHelpfulByMe, isTrue);
-        expect(updated.helpfulCount, before + 1);
+        expect(updated.helpfulCount, 17);
       },
     );
 
@@ -134,6 +133,36 @@ class _FakeActivityDetailRepository implements ActivityDetailRepository {
             helpfulCount: index,
           ),
       ],
+    );
+  }
+
+  @override
+  Future<bool> toggleFavorite({
+    required String activityId,
+    required bool isFavorite,
+  }) async {
+    return !isFavorite;
+  }
+
+  @override
+  Future<HelpfulToggleState> toggleHelpful({required String reviewId}) async {
+    return const HelpfulToggleState(helpful: true, helpfulCount: 17);
+  }
+
+  @override
+  Future<ActivityReview> submitReview({
+    required String activityId,
+    required int rating,
+    required String body,
+    List<String> imageUrls = const <String>[],
+  }) async {
+    return ActivityReview(
+      id: 'review-new',
+      authorName: '나',
+      submittedAt: DateTime(2026, 6, 14, 9, 30),
+      rating: rating,
+      originalText: body,
+      imageUrls: imageUrls,
     );
   }
 }

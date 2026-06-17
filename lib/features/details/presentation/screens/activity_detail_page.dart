@@ -46,6 +46,26 @@ class _ActivityDetailPageState extends State<ActivityDetailPage> {
     );
   }
 
+  Future<void> _handleFavoriteTap() async {
+    final message = await widget.controller.toggleFavorite();
+    if (!mounted || message == null) {
+      return;
+    }
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  Future<void> _handleHelpfulTap(String reviewId) async {
+    final message = await widget.controller.toggleHelpful(reviewId);
+    if (!mounted || message == null) {
+      return;
+    }
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
+  }
+
   Future<void> _openReviewList() async {
     await Navigator.of(context).push(
       MaterialPageRoute<void>(
@@ -98,6 +118,7 @@ class _ActivityDetailPageState extends State<ActivityDetailPage> {
                                 detail: detail,
                                 controller: widget.controller,
                                 onOpenReviews: _openReviewList,
+                                onHelpfulTap: _handleHelpfulTap,
                               ),
                             ),
                           ],
@@ -108,7 +129,7 @@ class _ActivityDetailPageState extends State<ActivityDetailPage> {
                           bottom: 0,
                           child: _DetailBottomBar(
                             detail: detail,
-                            onFavoriteTap: widget.controller.toggleFavorite,
+                            onFavoriteTap: _handleFavoriteTap,
                             onShareTap: () => _copyShareUrl(detail.shareUrl),
                             onJoinTap: widget.controller.toggleJoin,
                           ),
@@ -164,23 +185,23 @@ class _ActivityReviewListPageState extends State<ActivityReviewListPage> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => _ReviewComposerSheet(
-        onSubmit: (rating, body, imageUrls) {
-          final didSubmit = widget.controller.submitReview(
-            rating: rating,
-            body: body,
-            imageUrls: imageUrls,
-          );
-          if (!didSubmit) {
-            return false;
-          }
-          Navigator.of(context).pop();
-          ScaffoldMessenger.of(
-            this.context,
-          ).showSnackBar(const SnackBar(content: Text('후기를 등록했어요.')));
-          return true;
-        },
+        onSubmit: (rating, body, imageUrls) => widget.controller.submitReview(
+          rating: rating,
+          body: body,
+          imageUrls: imageUrls,
+        ),
       ),
     );
+  }
+
+  Future<void> _handleHelpfulTap(String reviewId) async {
+    final message = await widget.controller.toggleHelpful(reviewId);
+    if (!mounted || message == null) {
+      return;
+    }
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
@@ -272,8 +293,9 @@ class _ActivityReviewListPageState extends State<ActivityReviewListPage> {
               ) ...<Widget>[
                 _ReviewCard(
                   review: reviews[index],
-                  onHelpfulTap: () =>
-                      widget.controller.toggleHelpful(reviews[index].id),
+                  onHelpfulTap: () {
+                    _handleHelpfulTap(reviews[index].id);
+                  },
                   onTranslationTap: reviews[index].supportsTranslation
                       ? () => widget.controller.toggleTranslation(
                           reviews[index].id,
@@ -401,11 +423,13 @@ class _DetailBody extends StatelessWidget {
     required this.detail,
     required this.controller,
     required this.onOpenReviews,
+    required this.onHelpfulTap,
   });
 
   final ActivityDetail detail;
   final ActivityDetailController controller;
   final VoidCallback onOpenReviews;
+  final Future<void> Function(String reviewId)? onHelpfulTap;
 
   @override
   Widget build(BuildContext context) {
@@ -588,9 +612,9 @@ class _DetailBody extends StatelessWidget {
             ) ...<Widget>[
               _ReviewCard(
                 review: controller.previewReviews[index],
-                onHelpfulTap: () => controller.toggleHelpful(
-                  controller.previewReviews[index].id,
-                ),
+                onHelpfulTap: () {
+                  onHelpfulTap?.call(controller.previewReviews[index].id);
+                },
                 onTranslationTap:
                     controller.previewReviews[index].supportsTranslation
                     ? () => controller.toggleTranslation(
@@ -616,7 +640,7 @@ class _DetailBottomBar extends StatelessWidget {
   });
 
   final ActivityDetail detail;
-  final VoidCallback onFavoriteTap;
+  final Future<void> Function() onFavoriteTap;
   final VoidCallback onShareTap;
   final VoidCallback onJoinTap;
 
@@ -664,7 +688,9 @@ class _DetailBottomBar extends StatelessWidget {
                 icon: detail.isFavorite
                     ? Icons.favorite_rounded
                     : Icons.favorite_border_rounded,
-                onTap: onFavoriteTap,
+                onTap: () {
+                  onFavoriteTap();
+                },
               ),
               const SizedBox(width: 10),
               _BottomGlyphButton(icon: Icons.share_outlined, onTap: onShareTap),
@@ -690,7 +716,12 @@ class _DetailBottomBar extends StatelessWidget {
 class _ReviewComposerSheet extends StatefulWidget {
   const _ReviewComposerSheet({required this.onSubmit});
 
-  final bool Function(int rating, String body, List<String> imageUrls) onSubmit;
+  final Future<String?> Function(
+    int rating,
+    String body,
+    List<String> imageUrls,
+  )
+  onSubmit;
 
   @override
   State<_ReviewComposerSheet> createState() => _ReviewComposerSheetState();
@@ -706,6 +737,7 @@ class _ReviewComposerSheetState extends State<_ReviewComposerSheet> {
 
   int _rating = 0;
   int? _draggingIndex;
+  bool _isSubmitting = false;
 
   @override
   void initState() {
@@ -925,16 +957,39 @@ class _ReviewComposerSheetState extends State<_ReviewComposerSheet> {
                     ),
                   const SizedBox(height: 20),
                   MateyaButton(
-                    label: '작성하기',
-                    enabled: _canSubmit,
-                    onPressed: _canSubmit
-                        ? () => widget.onSubmit(
-                            _rating,
-                            _bodyController.text,
-                            _images
-                                .map((image) => image.path)
-                                .toList(growable: false),
-                          )
+                    label: _isSubmitting ? '작성 중...' : '작성하기',
+                    enabled: _canSubmit && !_isSubmitting,
+                    onPressed: _canSubmit && !_isSubmitting
+                        ? () async {
+                            final navigator = Navigator.of(context);
+                            final messenger = ScaffoldMessenger.of(context);
+                            setState(() {
+                              _isSubmitting = true;
+                            });
+                            final message = await widget.onSubmit(
+                              _rating,
+                              _bodyController.text,
+                              _images
+                                  .map((image) => image.path)
+                                  .toList(growable: false),
+                            );
+                            if (!mounted) {
+                              return;
+                            }
+                            setState(() {
+                              _isSubmitting = false;
+                            });
+                            if (message == null) {
+                              navigator.pop();
+                              messenger.showSnackBar(
+                                const SnackBar(content: Text('후기를 등록했어요.')),
+                              );
+                            } else {
+                              messenger.showSnackBar(
+                                SnackBar(content: Text(message)),
+                              );
+                            }
+                          }
                         : null,
                   ),
                 ],

@@ -192,21 +192,30 @@ class HomeRepositoryException implements Exception {
   final HomeLoadFailureType type;
 }
 
-class PaginatedActivities {
-  const PaginatedActivities({
+class ExploreActivitiesPage {
+  const ExploreActivitiesPage({
     required this.items,
-    required this.totalCount,
-    required this.currentPage,
-    required this.pageCount,
+    required this.page,
+    required this.size,
+    required this.hasNext,
+    required this.nextPage,
   });
 
   final List<ActivityItem> items;
-  final int totalCount;
-  final int currentPage;
-  final int pageCount;
+  final int page;
+  final int size;
+  final bool hasNext;
+  final int? nextPage;
 }
 
 const Object _sentinel = Object();
+
+const Set<String> kSupportedExploreLanguageCodes = <String>{
+  'ko',
+  'en',
+  'zh',
+  'ja',
+};
 
 const List<ActivityCategory> kExploreCategories = <ActivityCategory>[
   ActivityCategory(id: 'all', label: '전체', isAll: true),

@@ -1,6 +1,6 @@
 import '../../home/domain/home_models.dart';
 
-enum ActivityDetailLoadFailureType { network, server }
+enum ActivityDetailLoadFailureType { network, validation, server }
 
 enum ReviewSortOption { latest, oldest, highestRating, lowestRating }
 
@@ -127,6 +127,7 @@ class ActivityDetail {
     required this.shareUrl,
     required this.participants,
     required this.reviews,
+    this.serverReviewSummary,
     this.isFavorite = false,
     this.isJoined = false,
   });
@@ -139,6 +140,7 @@ class ActivityDetail {
   final String shareUrl;
   final List<ActivityParticipant> participants;
   final List<ActivityReview> reviews;
+  final ReviewSummary? serverReviewSummary;
   final bool isFavorite;
   final bool isJoined;
 
@@ -151,6 +153,7 @@ class ActivityDetail {
     String? shareUrl,
     List<ActivityParticipant>? participants,
     List<ActivityReview>? reviews,
+    Object? serverReviewSummary = _detailSentinel,
     bool? isFavorite,
     bool? isJoined,
   }) {
@@ -163,6 +166,9 @@ class ActivityDetail {
       shareUrl: shareUrl ?? this.shareUrl,
       participants: participants ?? this.participants,
       reviews: reviews ?? this.reviews,
+      serverReviewSummary: serverReviewSummary == _detailSentinel
+          ? this.serverReviewSummary
+          : serverReviewSummary as ReviewSummary?,
       isFavorite: isFavorite ?? this.isFavorite,
       isJoined: isJoined ?? this.isJoined,
     );
@@ -182,9 +188,17 @@ class ReviewSummary {
 }
 
 class ActivityDetailRepositoryException implements Exception {
-  const ActivityDetailRepositoryException(this.type);
+  const ActivityDetailRepositoryException(this.type, {this.message});
 
   final ActivityDetailLoadFailureType type;
+  final String? message;
+}
+
+class HelpfulToggleState {
+  const HelpfulToggleState({required this.helpful, required this.helpfulCount});
+
+  final bool helpful;
+  final int helpfulCount;
 }
 
 extension ReviewSortOptionX on ReviewSortOption {

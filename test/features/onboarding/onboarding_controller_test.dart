@@ -1,8 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mateya_app/features/onboarding/data/auth_repository.dart';
 import 'package:mateya_app/features/onboarding/application/onboarding_controller.dart';
 import 'package:mateya_app/features/onboarding/data/location_repository.dart';
 import 'package:mateya_app/features/onboarding/domain/onboarding_flow.dart';
 import 'package:mateya_app/features/onboarding/domain/onboarding_validators.dart';
+import 'package:mateya_app/shared/auth/auth_session.dart';
 
 void main() {
   group('OnboardingValidators', () {
@@ -18,8 +20,11 @@ void main() {
 
   group('OnboardingController', () {
     test('guest flow moves to automatic neighborhood verification', () async {
+      AuthSessionStore.instance.clear();
       final controller = OnboardingController(
         locationRepository: _FakeLocationRepository.success(),
+        authRepository: _FakeOnboardingAuthRepository(),
+        authSessionStore: AuthSessionStore.instance,
       );
 
       controller.startGuestFlow();
@@ -29,7 +34,7 @@ void main() {
       controller.submitName();
       controller.selectCarrier('LG U+');
       controller.updatePhoneNumber('01012345678');
-      controller.sendVerificationCode();
+      await controller.sendVerificationCode();
       controller.updateVerificationCode(controller.debugVerificationCode!);
 
       await controller.submitVerificationCode();
@@ -39,9 +44,36 @@ void main() {
       expect(controller.selectedNeighborhood?.displayName, '우만동');
     });
 
+    test('guest signup stores session after neighborhood completion', () async {
+      AuthSessionStore.instance.clear();
+      final controller = OnboardingController(
+        locationRepository: _FakeLocationRepository.success(),
+        authRepository: _FakeOnboardingAuthRepository(),
+        authSessionStore: AuthSessionStore.instance,
+      );
+
+      controller.startGuestFlow();
+      controller.toggleAllAgreements(true);
+      controller.confirmConsent();
+      controller.updateName('홍길동');
+      controller.submitName();
+      controller.selectCarrier('LG U+');
+      controller.updatePhoneNumber('01012345678');
+      await controller.sendVerificationCode();
+      controller.updateVerificationCode(controller.debugVerificationCode!);
+
+      await controller.submitVerificationCode();
+      await controller.completeNeighborhood();
+
+      expect(controller.step, OnboardingStep.completed);
+      expect(AuthSessionStore.instance.session?.user.displayName, '홍길동');
+    });
+
     test('host business validation blocks invalid number', () {
       final controller = OnboardingController(
         locationRepository: _FakeLocationRepository.success(),
+        authRepository: _FakeOnboardingAuthRepository(),
+        authSessionStore: AuthSessionStore.instance,
       );
 
       controller.startHostFlow();
@@ -61,6 +93,8 @@ void main() {
     test('guest plus destination opens group creation placeholder', () {
       final controller = OnboardingController(
         locationRepository: _FakeLocationRepository.success(),
+        authRepository: _FakeOnboardingAuthRepository(),
+        authSessionStore: AuthSessionStore.instance,
       );
 
       controller.startGuestFlow();
@@ -75,6 +109,8 @@ void main() {
     test('host plus destination opens class registration placeholder', () {
       final controller = OnboardingController(
         locationRepository: _FakeLocationRepository.success(),
+        authRepository: _FakeOnboardingAuthRepository(),
+        authSessionStore: AuthSessionStore.instance,
       );
 
       controller.startHostFlow();
@@ -110,5 +146,54 @@ class _FakeLocationRepository implements NeighborhoodLocationRepository {
   @override
   Future<LocationLookupResult> resolveNeighborhoodQuery(String query) async {
     return _result;
+  }
+}
+
+class _FakeOnboardingAuthRepository implements OnboardingAuthRepository {
+  @override
+  Future<SmsRequestResult> requestSmsCode({required String phoneNumber}) async {
+    return SmsRequestResult(
+      expiresAt: DateTime(2026, 6, 14, 10, 5),
+      debugCode: '123456',
+    );
+  }
+
+  @override
+  Future<SmsVerificationResult> verifySmsCode({
+    required String phoneNumber,
+    required String code,
+  }) async {
+    return SmsVerificationResult(
+      verificationToken: 'verification-token',
+      expiresAt: DateTime(2099, 6, 14, 10, 10),
+    );
+  }
+
+  @override
+  Future<AuthSession> signupGuest({
+    required String verificationToken,
+    required String displayName,
+    required String primaryLanguage,
+    required String primaryCountry,
+    required AgreementState agreementState,
+    required NeighborhoodSelection neighborhood,
+  }) async {
+    return AuthSession(
+      accessToken: 'access',
+      refreshToken: 'refresh',
+      tokenType: 'Bearer',
+      expiresIn: 1800,
+      refreshExpiresIn: 1209600,
+      refreshExpiresAt: DateTime(2026, 7, 1),
+      user: AuthUserProfile(
+        id: 1,
+        phoneNumber: '01012345678',
+        displayName: displayName,
+        role: 'USER',
+        primaryLanguage: primaryLanguage,
+        primaryCountry: primaryCountry,
+        createdAt: DateTime(2026, 6, 14),
+      ),
+    );
   }
 }
