@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../../shared/media/image_picker_lost_data.dart';
 import '../../../../shared/permissions/mateya_permission_dialogs.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../../shared/widgets/mateya_button.dart';
@@ -46,6 +47,7 @@ class _CreateFlowPageState extends State<CreateFlowPage> {
     _descriptionController.text = widget.controller.description;
     _priceController.text = widget.controller.priceText;
     widget.controller.initialize();
+    _restoreLostImages();
   }
 
   @override
@@ -97,6 +99,41 @@ class _CreateFlowPageState extends State<CreateFlowPage> {
       _hasSearched = _searchController.text.trim().isNotEmpty;
     });
     await widget.controller.searchPlaces();
+  }
+
+  Future<void> _restoreLostImages() async {
+    final recovery = await recoverLostImagePickerData(
+      _imagePicker.retrieveLostData,
+      fallbackErrorMessage: '이전에 선택하던 이미지를 복구하지 못했어요. 다시 선택해 주세요.',
+    );
+    if (!mounted || recovery.isEmpty) {
+      return;
+    }
+    if (recovery.errorMessage != null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(recovery.errorMessage!)));
+      return;
+    }
+
+    final available =
+        CreateController.maxImageCount - widget.controller.images.length;
+    if (available <= 0) {
+      return;
+    }
+
+    final beforeCount = widget.controller.images.length;
+    await widget.controller.addImages(recovery.files.take(available).toList());
+    if (!mounted) {
+      return;
+    }
+
+    final restoredCount = widget.controller.images.length - beforeCount;
+    if (restoredCount > 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('이전에 선택하던 이미지 $restoredCount장을 복구했어요.')),
+      );
+    }
   }
 
   Future<void> _pickImages() async {
