@@ -9,7 +9,8 @@ import '../domain/chat_models.dart';
 
 part 'chat_repository_api.dart';
 part 'chat_repository_mock.dart';
-part 'chat_repository_support.dart';
+part 'chat_repository_api_support.dart';
+part 'chat_repository_mock_support.dart';
 
 class ChatRoomPageResult {
   const ChatRoomPageResult({
