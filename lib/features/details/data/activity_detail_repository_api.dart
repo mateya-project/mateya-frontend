@@ -152,7 +152,11 @@ class ApiActivityDetailRepository implements ActivityDetailRepository {
     List<String> imageUrls = const <String>[],
   }) async {
     try {
-      final uploadedImageUrls = await _resolveReviewImageUrls(imageUrls);
+      final uploadedImageUrls = await _resolveReviewImageUrls(
+        imageUrls: imageUrls,
+        apiClient: _apiClient,
+        transport: _transport,
+      );
       final data = await _apiClient.postJson(
         '/api/v1/activities/$activityId/reviews',
         requiresAuth: true,
@@ -167,94 +171,5 @@ class ApiActivityDetailRepository implements ActivityDetailRepository {
     } on MateyaApiException catch (error) {
       throw _mapApiException(error);
     }
-  }
-
-  Future<List<String>> _resolveReviewImageUrls(List<String> imageUrls) async {
-    if (imageUrls.isEmpty) {
-      return const <String>[];
-    }
-
-    final resolved = <String>[];
-    for (final imageUrl in imageUrls) {
-      if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
-        resolved.add(imageUrl);
-        continue;
-      }
-      resolved.add(
-        await _uploadReviewImage(
-          imagePath: imageUrl,
-          requestedFileCount: imageUrls.length,
-        ),
-      );
-    }
-    return resolved;
-  }
-
-  Future<String> _uploadReviewImage({
-    required String imagePath,
-    required int requestedFileCount,
-  }) async {
-    final file = File(imagePath);
-    final fileName = imagePath.split('/').last;
-    final contentType = _contentTypeFor(fileName);
-    if (contentType == null) {
-      throw const ActivityDetailRepositoryException(
-        ActivityDetailLoadFailureType.validation,
-        message: 'JPG, PNG, WEBP, GIF 형식의 리뷰 이미지만 업로드할 수 있어요.',
-      );
-    }
-
-    final fileSize = await file.length();
-    final fileBytes = await file.readAsBytes();
-    final presignedData = await _apiClient.postJson(
-      '/api/v1/uploads/images/presigned-url',
-      requiresAuth: true,
-      body: <String, Object?>{
-        'purpose': 'REVIEW',
-        'originalFilename': fileName,
-        'contentType': contentType,
-        'sizeBytes': fileSize,
-        'requestedFileCount': requestedFileCount,
-      },
-    );
-    final presignedJson = _asMap(presignedData);
-    final uploadUrl = presignedJson['uploadUrl'] as String?;
-    final objectKey = presignedJson['objectKey'] as String?;
-    if (uploadUrl == null || objectKey == null) {
-      throw const ActivityDetailRepositoryException(
-        ActivityDetailLoadFailureType.server,
-      );
-    }
-
-    final uploadResponse = await _transport.send(
-      method: 'PUT',
-      uri: Uri.parse(uploadUrl),
-      headers: _flattenHeaders(
-        presignedJson['headers'] as Map<String, dynamic>? ??
-            const <String, dynamic>{},
-        fallbackContentType: contentType,
-      ),
-      bodyBytes: fileBytes,
-    );
-    if (uploadResponse.statusCode < 200 || uploadResponse.statusCode >= 300) {
-      throw const ActivityDetailRepositoryException(
-        ActivityDetailLoadFailureType.server,
-        message: '리뷰 이미지를 업로드하지 못했어요. 잠시 후 다시 시도해 주세요.',
-      );
-    }
-
-    final confirmedData = await _apiClient.postJson(
-      '/api/v1/uploads/images/confirm',
-      requiresAuth: true,
-      body: <String, Object?>{'objectKey': objectKey},
-    );
-    final confirmedJson = _asMap(confirmedData);
-    final publicUrl = confirmedJson['publicUrl'] as String?;
-    if (publicUrl == null || publicUrl.isEmpty) {
-      throw const ActivityDetailRepositoryException(
-        ActivityDetailLoadFailureType.server,
-      );
-    }
-    return publicUrl;
   }
 }

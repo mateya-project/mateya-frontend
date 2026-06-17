@@ -8,9 +8,11 @@ import '../../home/domain/home_models.dart';
 import '../domain/activity_detail_models.dart';
 
 part 'activity_detail_repository_api.dart';
-part 'activity_detail_repository_api_support.dart';
+part 'activity_detail_repository_api_parsers.dart';
+part 'activity_detail_repository_api_upload_support.dart';
 part 'activity_detail_repository_mock.dart';
-part 'activity_detail_repository_mock_support.dart';
+part 'activity_detail_repository_mock_builders.dart';
+part 'activity_detail_repository_mock_fixtures.dart';
 
 abstract interface class ActivityDetailRepository {
   Future<ActivityDetail> fetchDetail(ActivityItem activity);

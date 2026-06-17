@@ -8,20 +8,9 @@ class MockActivityDetailRepository implements ActivityDetailRepository {
     return ActivityDetail(
       activity: activity,
       imageUrls: _galleryFor(activity),
-      locationLabel:
-          _locationLabelById[activity.id] ?? '서울 성동구, ${activity.place}',
-      host:
-          _hostById[activity.id] ??
-          const ActivityHostProfile(
-            userId: 'host-default',
-            name: 'Lee MinJi',
-            localizedName: '이민지',
-            locationLabel: 'Living in Seoul · Shindang dong',
-            avatarUrl:
-                'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=300&q=80',
-          ),
-      description:
-          _descriptionById[activity.id] ?? _defaultDescription(activity),
+      locationLabel: _locationLabelFor(activity),
+      host: _hostFor(activity),
+      description: _descriptionFor(activity),
       shareUrl: 'https://mateya.app/activities/${activity.id}',
       participants: _participantsFor(activity),
       reviews: _reviewsFor(activity),
