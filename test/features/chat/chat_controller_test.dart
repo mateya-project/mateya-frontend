@@ -171,5 +171,121 @@ void main() {
         isNull,
       );
     });
+
+    test('realtime message appends to the open room once', () async {
+      final repository = _RealtimeChatRepository();
+      final controller = ChatController(
+        repository: repository,
+        now: () => DateTime(2026, 6, 14, 10, 30),
+      );
+
+      await controller.initialize();
+      await controller.openRoom('gyeongbokgung-walk');
+
+      repository.emit(
+        'gyeongbokgung-walk',
+        ChatMessageGroup(
+          id: 'ws-1',
+          sender: const ChatParticipant(id: 'jiwon', name: 'Ji-Won'),
+          sentAt: DateTime(2026, 6, 14, 10, 31),
+          bubbles: const <ChatBubble>[ChatBubble(originalText: '실시간 메시지예요.')],
+        ),
+      );
+      repository.emit(
+        'gyeongbokgung-walk',
+        ChatMessageGroup(
+          id: 'ws-1',
+          sender: const ChatParticipant(id: 'jiwon', name: 'Ji-Won'),
+          sentAt: DateTime(2026, 6, 14, 10, 31),
+          bubbles: const <ChatBubble>[ChatBubble(originalText: '실시간 메시지예요.')],
+        ),
+      );
+
+      expect(
+        controller.currentRoom?.messageGroups
+            .where((group) => group.id == 'ws-1')
+            .length,
+        1,
+      );
+      expect(
+        controller.currentRoom?.messageGroups.last.visibleTexts.single,
+        '실시간 메시지예요.',
+      );
+    });
+
+    test('realtime echo replaces a pending outgoing message', () async {
+      final repository = _RealtimeChatRepository();
+      final controller = ChatController(
+        repository: repository,
+        now: () => DateTime(2026, 6, 14, 10, 30),
+      );
+
+      await controller.initialize();
+      await controller.openRoom('gyeongbokgung-walk');
+      repository.realtimeConnected = false;
+      controller.updateDraft('실시간 연결 직전 메시지');
+
+      await controller.sendMessage();
+
+      expect(
+        controller.currentRoom?.messageGroups.last.id.startsWith('pending-'),
+        isTrue,
+      );
+
+      repository.emit(
+        'gyeongbokgung-walk',
+        ChatMessageGroup(
+          id: 'ws-confirmed',
+          sender: const ChatParticipant(id: 'me', name: '나'),
+          sentAt: DateTime(2026, 6, 14, 10, 30, 1),
+          isMine: true,
+          bubbles: const <ChatBubble>[
+            ChatBubble(originalText: '실시간 연결 직전 메시지'),
+          ],
+        ),
+      );
+
+      expect(controller.currentRoom?.messageGroups.last.id, 'ws-confirmed');
+      expect(
+        controller.currentRoom?.messageGroups
+            .where((group) => group.id.startsWith('pending-'))
+            .isEmpty,
+        isTrue,
+      );
+    });
   });
+}
+
+class _RealtimeChatRepository extends MockChatRepository {
+  void Function(ChatMessageGroup message)? _onMessage;
+  bool realtimeConnected = true;
+  String? _roomId;
+
+  @override
+  void subscribeToRoomMessages({
+    required String roomId,
+    required void Function(ChatMessageGroup message) onMessage,
+    required void Function(String message) onError,
+  }) {
+    _roomId = roomId;
+    _onMessage = onMessage;
+  }
+
+  @override
+  void unsubscribeFromRoomMessages() {
+    _roomId = null;
+    _onMessage = null;
+  }
+
+  @override
+  bool isRealtimeConnectedForRoom(String roomId) {
+    return realtimeConnected && _roomId == roomId && _onMessage != null;
+  }
+
+  void emit(String roomId, ChatMessageGroup message) {
+    if (_roomId != roomId) {
+      return;
+    }
+    _onMessage?.call(message);
+  }
 }
