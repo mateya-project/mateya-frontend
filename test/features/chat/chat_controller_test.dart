@@ -15,6 +15,12 @@ void main() {
       await controller.initialize();
 
       expect(controller.listPhase, AsyncPhase.success);
+      expect(controller.visibleRooms, hasLength(2));
+      expect(controller.hasMoreRooms, isTrue);
+
+      await controller.loadMoreRooms();
+      await controller.loadMoreRooms();
+
       expect(controller.visibleRooms, hasLength(5));
 
       controller.updateFilter(ChatListFilter.group);
@@ -49,6 +55,7 @@ void main() {
         expect(controller.isDetailOpen, isTrue);
         expect(controller.currentRoom?.id, 'hongdae-language');
         expect(controller.currentRoom?.unreadCount, 0);
+        expect(controller.hasOlderMessages, isFalse);
       },
     );
 
@@ -91,7 +98,7 @@ void main() {
         await controller.openRoom('gyeongbokgung-walk');
         controller.updateDraft('내일 1시에 정문에서 만나요.');
 
-        controller.sendMessage();
+        await controller.sendMessage();
 
         expect(controller.draft, isEmpty);
         expect(controller.canSendMessage, isFalse);
@@ -140,7 +147,7 @@ void main() {
         'a2',
       ]);
 
-      controller.sendMessage();
+      await controller.sendMessage();
 
       expect(controller.draftAttachments, isEmpty);
       expect(

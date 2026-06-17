@@ -20,6 +20,7 @@ abstract interface class HttpTransport {
     required Uri uri,
     Map<String, String> headers,
     String? body,
+    List<int>? bodyBytes,
   });
 }
 

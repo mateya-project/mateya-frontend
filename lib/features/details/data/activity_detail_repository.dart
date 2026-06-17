@@ -96,6 +96,7 @@ class ApiActivityDetailRepository implements ActivityDetailRepository {
             ? placeName
             : placeAddress,
         host: ActivityHostProfile(
+          userId: '${hostJson['userId']}',
           name: hostJson['displayName'] as String? ?? 'Host',
           localizedName: hostJson['displayName'] as String? ?? 'Host',
           locationLabel: _hostLocationLabel(
@@ -308,6 +309,7 @@ class MockActivityDetailRepository implements ActivityDetailRepository {
       host:
           _hostById[activity.id] ??
           const ActivityHostProfile(
+            userId: 'host-default',
             name: 'Lee MinJi',
             localizedName: '이민지',
             locationLabel: 'Living in Seoul · Shindang dong',
@@ -560,6 +562,7 @@ final Map<String, String> _descriptionById = <String, String>{
 final Map<String, ActivityHostProfile>
 _hostById = <String, ActivityHostProfile>{
   'featured-hike': const ActivityHostProfile(
+    userId: 'host-featured-hike',
     name: 'Lee MinJi',
     localizedName: '이민지',
     locationLabel: 'Living in Seoul · Shindang dong',
@@ -567,6 +570,7 @@ _hostById = <String, ActivityHostProfile>{
         'https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?auto=format&fit=crop&w=300&q=80',
   ),
   'river-bus': const ActivityHostProfile(
+    userId: 'host-river-bus',
     name: 'Park Jun',
     localizedName: '박준',
     locationLabel: 'Living in Seoul · Yeouido dong',

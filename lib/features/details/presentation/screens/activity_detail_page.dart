@@ -6,6 +6,9 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../../shared/widgets/mateya_button.dart';
+import '../../../mypage/application/mypage_controller.dart';
+import '../../../mypage/data/mypage_repository.dart';
+import '../../../mypage/presentation/screens/mypage_flow_page.dart';
 import '../../../onboarding/domain/onboarding_flow.dart';
 import '../../application/activity_detail_controller.dart';
 import '../../domain/activity_detail_models.dart';
@@ -74,6 +77,23 @@ class _ActivityDetailPageState extends State<ActivityDetailPage> {
     );
   }
 
+  Future<void> _openOtherProfile(String userId) async {
+    if (userId.isEmpty) {
+      return;
+    }
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => MyPageFlowPage(
+          controller: MyPageController(
+            repository: ApiMyPageRepository(),
+            flowKind: FlowKind.guest,
+            initialOtherProfileUserId: userId,
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
@@ -119,6 +139,7 @@ class _ActivityDetailPageState extends State<ActivityDetailPage> {
                                 controller: widget.controller,
                                 onOpenReviews: _openReviewList,
                                 onHelpfulTap: _handleHelpfulTap,
+                                onOpenOtherProfile: _openOtherProfile,
                               ),
                             ),
                           ],
@@ -424,12 +445,14 @@ class _DetailBody extends StatelessWidget {
     required this.controller,
     required this.onOpenReviews,
     required this.onHelpfulTap,
+    required this.onOpenOtherProfile,
   });
 
   final ActivityDetail detail;
   final ActivityDetailController controller;
   final VoidCallback onOpenReviews;
   final Future<void> Function(String reviewId)? onHelpfulTap;
+  final Future<void> Function(String userId) onOpenOtherProfile;
 
   @override
   Widget build(BuildContext context) {
@@ -516,62 +539,51 @@ class _DetailBody extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 16),
-                _ParticipantAvatarRow(participants: detail.participants),
+                _ParticipantAvatarRow(
+                  participants: detail.participants,
+                  onParticipantTap: onOpenOtherProfile,
+                ),
               ],
             ),
           ),
           const SizedBox(height: 20),
           _SectionCard(
-            child: Row(
-              children: <Widget>[
-                _AvatarCircle(
-                  imageUrl: detail.host.avatarUrl,
-                  size: 54,
-                  initials: 'H',
-                ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Text(
-                        '${detail.host.name} ${detail.host.localizedName}',
-                        style: Theme.of(
-                          context,
-                        ).textTheme.titleLarge?.copyWith(fontSize: 18),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        detail.host.locationLabel,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: AppColors.textSecondary,
+            child: InkWell(
+              onTap: () => onOpenOtherProfile(detail.host.userId),
+              borderRadius: BorderRadius.circular(18),
+              child: Row(
+                children: <Widget>[
+                  _AvatarCircle(
+                    imageUrl: detail.host.avatarUrl,
+                    size: 54,
+                    initials: 'H',
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(
+                          '${detail.host.name} ${detail.host.localizedName}',
+                          style: Theme.of(
+                            context,
+                          ).textTheme.titleLarge?.copyWith(fontSize: 18),
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-                OutlinedButton(
-                  onPressed: controller.toggleHostFriend,
-                  style: OutlinedButton.styleFrom(
-                    side: BorderSide(
-                      color: detail.host.isFriend
-                          ? AppColors.brandGreen
-                          : AppColors.divider,
-                    ),
-                    foregroundColor: detail.host.isFriend
-                        ? AppColors.brandGreen
-                        : AppColors.textPrimary,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 10,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(999),
+                        const SizedBox(height: 4),
+                        Text(
+                          detail.host.locationLabel,
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(color: AppColors.textSecondary),
+                        ),
+                      ],
                     ),
                   ),
-                  child: Text(detail.host.isFriend ? '친구됨' : '친구추가'),
-                ),
-              ],
+                  const Icon(
+                    Icons.chevron_right_rounded,
+                    color: AppColors.textSecondary,
+                  ),
+                ],
+              ),
             ),
           ),
           const SizedBox(height: 20),
@@ -1307,9 +1319,13 @@ class _ReviewImageTile extends StatelessWidget {
 }
 
 class _ParticipantAvatarRow extends StatelessWidget {
-  const _ParticipantAvatarRow({required this.participants});
+  const _ParticipantAvatarRow({
+    required this.participants,
+    required this.onParticipantTap,
+  });
 
   final List<ActivityParticipant> participants;
+  final Future<void> Function(String userId) onParticipantTap;
 
   @override
   Widget build(BuildContext context) {
@@ -1323,11 +1339,15 @@ class _ParticipantAvatarRow extends StatelessWidget {
           for (var index = 0; index < visible.length; index += 1)
             Positioned(
               left: index * 26,
-              child: _AvatarCircle(
-                imageUrl: visible[index].avatarUrl,
-                size: 40,
-                initials: visible[index].name.substring(0, 1),
-                borderColor: Colors.white,
+              child: InkWell(
+                onTap: () => onParticipantTap(visible[index].id),
+                borderRadius: BorderRadius.circular(999),
+                child: _AvatarCircle(
+                  imageUrl: visible[index].avatarUrl,
+                  size: 40,
+                  initials: visible[index].name.substring(0, 1),
+                  borderColor: Colors.white,
+                ),
               ),
             ),
           if (remaining > 0)

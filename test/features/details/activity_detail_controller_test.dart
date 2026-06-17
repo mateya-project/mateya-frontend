@@ -112,6 +112,7 @@ class _FakeActivityDetailRepository implements ActivityDetailRepository {
       imageUrls: const <String>['https://example.com/hero.jpg'],
       locationLabel: '서울 서초구, 예술의전당',
       host: const ActivityHostProfile(
+        userId: 'host-test',
         name: 'Host',
         localizedName: '호스트',
         locationLabel: 'Living in Seoul · Seocho',

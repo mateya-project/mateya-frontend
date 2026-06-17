@@ -37,22 +37,27 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
     'jpg',
     'jpeg',
     'png',
-    'heic',
+    'webp',
+    'gif',
   ];
   static const int _maxAttachmentCount = 10;
   static const int _maxAttachmentBytes = 10 * 1024 * 1024;
 
   final ImagePicker _imagePicker = ImagePicker();
   final TextEditingController _draftController = TextEditingController();
+  final ScrollController _listScrollController = ScrollController();
   final ScrollController _scrollController = ScrollController();
 
   String? _lastRoomId;
   int _lastGroupCount = 0;
+  int _lastToastVersion = 0;
 
   @override
   void initState() {
     super.initState();
     widget.controller.addListener(_handleControllerChanged);
+    _listScrollController.addListener(_handleListScroll);
+    _scrollController.addListener(_handleDetailScroll);
     _syncDraft();
   }
 
@@ -70,13 +75,41 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
   @override
   void dispose() {
     widget.controller.removeListener(_handleControllerChanged);
+    _listScrollController
+      ..removeListener(_handleListScroll)
+      ..dispose();
+    _scrollController.removeListener(_handleDetailScroll);
     _draftController.dispose();
     _scrollController.dispose();
     super.dispose();
   }
 
+  void _handleListScroll() {
+    if (!_listScrollController.hasClients) {
+      return;
+    }
+    if (_listScrollController.position.extentAfter < 280) {
+      widget.controller.loadMoreRooms();
+    }
+  }
+
+  void _handleDetailScroll() {
+    if (!_scrollController.hasClients) {
+      return;
+    }
+    if (_scrollController.position.extentBefore < 120) {
+      widget.controller.loadOlderMessages();
+    }
+  }
+
   void _handleControllerChanged() {
     _syncDraft();
+    if (widget.controller.toastMessage != null &&
+        widget.controller.toastVersion != _lastToastVersion) {
+      _lastToastVersion = widget.controller.toastVersion;
+      _showPendingMessage(widget.controller.toastMessage!);
+      widget.controller.clearToast();
+    }
     final room = widget.controller.currentRoom;
     final roomId = widget.controller.selectedRoomId;
     final groupCount = room?.messageGroups.length ?? 0;
@@ -141,7 +174,7 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
                 Text('사진 첨부 기준', style: theme.textTheme.titleLarge),
                 const SizedBox(height: 12),
                 Text(
-                  '실무 기준으로 JPG, PNG, HEIC 형식과 10MB 이하 이미지를 허용하도록 설계했습니다.',
+                  '실무 기준으로 JPG, PNG, WEBP, GIF 형식과 10MB 이하 이미지를 허용하도록 설계했습니다.',
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: AppColors.fieldBorder,
                   ),
@@ -163,7 +196,7 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
                       Navigator.of(context).pop(_AttachmentAction.camera),
                 ),
                 const SizedBox(height: 18),
-                const _GuideRow(text: '허용 형식: JPG, PNG, HEIC'),
+                const _GuideRow(text: '허용 형식: JPG, PNG, WEBP, GIF'),
                 const _GuideRow(text: '최대 크기: 10MB'),
                 const _GuideRow(text: '메시지당 최대 10장'),
                 const _GuideRow(text: '저해상도 이미지는 업로드 전 압축 권장'),
@@ -344,10 +377,28 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
     }
 
     return ListView.separated(
+      controller: _listScrollController,
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
-      itemCount: rooms.length,
+      itemCount: rooms.length + (widget.controller.hasMoreRooms ? 1 : 0),
       separatorBuilder: (context, _) => const SizedBox(height: 18),
       itemBuilder: (context, index) {
+        if (index >= rooms.length) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Center(
+              child: widget.controller.isLoadingMoreRooms
+                  ? const SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : Text(
+                      '스크롤하면 채팅방을 더 불러옵니다.',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+            ),
+          );
+        }
         final room = rooms[index];
         return _ChatRoomTile(
           room: room,
@@ -382,7 +433,9 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
           onChanged: widget.controller.updateDraft,
           onAttachTap: _openAttachmentPicker,
           onRemoveAttachment: widget.controller.removeDraftAttachment,
-          onSendTap: widget.controller.sendMessage,
+          onSendTap: () {
+            widget.controller.sendMessage();
+          },
         ),
       ],
     );
@@ -399,6 +452,23 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
         controller: _scrollController,
         padding: const EdgeInsets.fromLTRB(20, 15, 20, 20),
         children: <Widget>[
+          if (widget.controller.hasOlderMessages ||
+              widget.controller.isLoadingOlderMessages)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 14),
+              child: Center(
+                child: widget.controller.isLoadingOlderMessages
+                    ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : Text(
+                        '위로 스크롤하면 이전 메시지를 더 불러옵니다.',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+              ),
+            ),
           Center(child: _DateChip(label: _formatConversationDate(room))),
           const SizedBox(height: 18),
           for (final group in room.messageGroups) ...<Widget>[
@@ -999,12 +1069,19 @@ class _MessageAttachmentGrid extends StatelessWidget {
                   SizedBox(
                     width: isSingle ? 182 : 110,
                     height: isSingle ? 182 : 110,
-                    child: Image.file(
-                      File(attachment.path),
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, _, _) =>
-                          _AttachmentFallback(label: attachment.fileName),
-                    ),
+                    child: attachment.path.startsWith('http')
+                        ? Image.network(
+                            attachment.path,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, _, _) =>
+                                _AttachmentFallback(label: attachment.fileName),
+                          )
+                        : Image.file(
+                            File(attachment.path),
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, _, _) =>
+                                _AttachmentFallback(label: attachment.fileName),
+                          ),
                   ),
                   if (showOverlay)
                     Container(

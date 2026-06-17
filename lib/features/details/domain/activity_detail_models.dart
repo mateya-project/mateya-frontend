@@ -18,6 +18,7 @@ class ActivityParticipant {
 
 class ActivityHostProfile {
   const ActivityHostProfile({
+    required this.userId,
     required this.name,
     required this.localizedName,
     required this.locationLabel,
@@ -25,6 +26,7 @@ class ActivityHostProfile {
     this.isFriend = false,
   });
 
+  final String userId;
   final String name;
   final String localizedName;
   final String locationLabel;
@@ -32,6 +34,7 @@ class ActivityHostProfile {
   final bool isFriend;
 
   ActivityHostProfile copyWith({
+    String? userId,
     String? name,
     String? localizedName,
     String? locationLabel,
@@ -39,6 +42,7 @@ class ActivityHostProfile {
     bool? isFriend,
   }) {
     return ActivityHostProfile(
+      userId: userId ?? this.userId,
       name: name ?? this.name,
       localizedName: localizedName ?? this.localizedName,
       locationLabel: locationLabel ?? this.locationLabel,

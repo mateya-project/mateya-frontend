@@ -24,6 +24,10 @@ class CreateFlowPage extends StatefulWidget {
 class _CreateFlowPageState extends State<CreateFlowPage> {
   final ImagePicker _imagePicker = ImagePicker();
   final TextEditingController _searchController = TextEditingController();
+  final TextEditingController _manualPlaceNameController =
+      TextEditingController();
+  final TextEditingController _manualPlaceAddressController =
+      TextEditingController();
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
@@ -36,6 +40,8 @@ class _CreateFlowPageState extends State<CreateFlowPage> {
     super.initState();
     widget.controller.addListener(_handleControllerChanged);
     _searchController.text = widget.controller.searchQuery;
+    _manualPlaceNameController.text = widget.controller.manualPlaceName;
+    _manualPlaceAddressController.text = widget.controller.manualPlaceAddress;
     _titleController.text = widget.controller.title;
     _descriptionController.text = widget.controller.description;
     _priceController.text = widget.controller.priceText;
@@ -47,6 +53,8 @@ class _CreateFlowPageState extends State<CreateFlowPage> {
     widget.controller.removeListener(_handleControllerChanged);
     widget.controller.dispose();
     _searchController.dispose();
+    _manualPlaceNameController.dispose();
+    _manualPlaceAddressController.dispose();
     _titleController.dispose();
     _descriptionController.dispose();
     _priceController.dispose();
@@ -64,6 +72,23 @@ class _CreateFlowPageState extends State<CreateFlowPage> {
         context,
       ).showSnackBar(SnackBar(content: Text(widget.controller.toastMessage!)));
       widget.controller.clearToast();
+    }
+    if (_manualPlaceNameController.text != widget.controller.manualPlaceName) {
+      _manualPlaceNameController.value = TextEditingValue(
+        text: widget.controller.manualPlaceName,
+        selection: TextSelection.collapsed(
+          offset: widget.controller.manualPlaceName.length,
+        ),
+      );
+    }
+    if (_manualPlaceAddressController.text !=
+        widget.controller.manualPlaceAddress) {
+      _manualPlaceAddressController.value = TextEditingValue(
+        text: widget.controller.manualPlaceAddress,
+        selection: TextSelection.collapsed(
+          offset: widget.controller.manualPlaceAddress.length,
+        ),
+      );
     }
   }
 
@@ -293,6 +318,8 @@ class _CreateFlowPageState extends State<CreateFlowPage> {
         key: const ValueKey<String>('place-step'),
         controller: widget.controller,
         searchController: _searchController,
+        manualPlaceNameController: _manualPlaceNameController,
+        manualPlaceAddressController: _manualPlaceAddressController,
         hasSearched: _hasSearched,
         onSearchChanged: (value) {
           if (value.isEmpty && _hasSearched) {
@@ -390,7 +417,7 @@ class _CategoryStepView extends StatelessWidget {
         Text('어떤 모임을 만들까요?', style: theme.textTheme.headlineMedium),
         const SizedBox(height: 10),
         Text(
-          '현재는 한국문화 체험 유형만 먼저 제공하고, 카테고리는 1개 이상 선택하도록 구성했습니다.',
+          '현재는 한국문화 체험 유형만 먼저 제공하고, 카테고리는 1개만 선택하도록 구성했습니다.',
           style: theme.textTheme.bodyMedium?.copyWith(
             color: AppColors.textSecondary,
           ),
@@ -443,6 +470,8 @@ class _PlaceStepView extends StatelessWidget {
     super.key,
     required this.controller,
     required this.searchController,
+    required this.manualPlaceNameController,
+    required this.manualPlaceAddressController,
     required this.hasSearched,
     required this.onSearchChanged,
     required this.onSearch,
@@ -450,6 +479,8 @@ class _PlaceStepView extends StatelessWidget {
 
   final CreateController controller;
   final TextEditingController searchController;
+  final TextEditingController manualPlaceNameController;
+  final TextEditingController manualPlaceAddressController;
   final bool hasSearched;
   final ValueChanged<String> onSearchChanged;
   final Future<void> Function() onSearch;
@@ -476,12 +507,33 @@ class _PlaceStepView extends StatelessWidget {
         Text(
           controller.flowType == CreateFlowType.group
               ? '검색 결과 또는 추천 목록에서 1곳을 선택하면 지도에 바로 표시됩니다.'
-              : '프론트 단계에서는 지도 연동과 장소 선택 UX를 먼저 완성하고, 실제 API 연결은 이후에 붙일 수 있게 분리했습니다.',
+              : '클래스는 검색으로 장소를 고르거나, 장소명과 주소를 직접 입력할 수 있습니다.',
           style: theme.textTheme.bodyMedium?.copyWith(
             color: AppColors.textSecondary,
           ),
         ),
         const SizedBox(height: 24),
+        if (controller.flowType ==
+            CreateFlowType.classRegistration) ...<Widget>[
+          Text('직접 장소 입력', style: theme.textTheme.titleLarge),
+          const SizedBox(height: 10),
+          MateyaTextField(
+            controller: manualPlaceNameController,
+            hintText: '예: 성수 티 스튜디오',
+            errorText: controller.errorFor('manualPlaceName'),
+            onChanged: controller.updateManualPlaceName,
+          ),
+          const SizedBox(height: 12),
+          MateyaTextField(
+            controller: manualPlaceAddressController,
+            hintText: '예: 서울 성동구 성수일로 32',
+            errorText: controller.errorFor('manualPlaceAddress'),
+            onChanged: controller.updateManualPlaceAddress,
+          ),
+          const SizedBox(height: 20),
+          Text('또는 검색으로 선택', style: theme.textTheme.titleLarge),
+          const SizedBox(height: 10),
+        ],
         MateyaTextField(
           controller: searchController,
           hintText: '장소명으로 검색',
@@ -497,6 +549,19 @@ class _PlaceStepView extends StatelessWidget {
         if (selectedPlace != null) ...<Widget>[
           const SizedBox(height: 18),
           _SelectedPlaceCard(place: selectedPlace),
+        ] else if (controller.flowType == CreateFlowType.classRegistration &&
+            controller.manualPlaceName.trim().isNotEmpty &&
+            controller.manualPlaceAddress.trim().isNotEmpty) ...<Widget>[
+          const SizedBox(height: 18),
+          _SelectedPlaceCard(
+            place: CreatePlaceSuggestion(
+              id: 'manual-preview',
+              name: controller.manualPlaceName.trim(),
+              address: controller.manualPlaceAddress.trim(),
+              description: '직접 입력한 클래스 장소',
+              distanceKm: 0,
+            ),
+          ),
         ],
         if (controller.errorFor('place') != null) ...<Widget>[
           const SizedBox(height: 12),
@@ -605,6 +670,12 @@ class _DetailsStepView extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final selectedPlace = controller.selectedPlace;
+    final manualSummary =
+        controller.flowType == CreateFlowType.classRegistration &&
+            controller.manualPlaceName.trim().isNotEmpty &&
+            controller.manualPlaceAddress.trim().isNotEmpty
+        ? '${controller.manualPlaceName.trim()}\n${controller.manualPlaceAddress.trim()}'
+        : null;
     if (titleController.text != controller.title) {
       titleController.value = TextEditingValue(
         text: controller.title,
@@ -656,10 +727,12 @@ class _DetailsStepView extends StatelessWidget {
           ),
           const SizedBox(height: 12),
         ],
-        if (selectedPlace != null) ...<Widget>[
+        if (selectedPlace != null || manualSummary != null) ...<Widget>[
           _SummaryCard(
             title: '선택한 장소',
-            body: '${selectedPlace.name}\n${selectedPlace.address}',
+            body: selectedPlace != null
+                ? '${selectedPlace.name}\n${selectedPlace.address}'
+                : manualSummary!,
           ),
           const SizedBox(height: 24),
         ],
