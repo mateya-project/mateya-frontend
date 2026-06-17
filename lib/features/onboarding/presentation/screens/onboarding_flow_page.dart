@@ -1094,7 +1094,7 @@ class CompletedStepView extends StatelessWidget {
                 ),
                 const SizedBox(height: 24),
                 Text(
-                  '${controller.completedName}님\n메이트야 가입을 완료했어요',
+                  controller.completionHeadline,
                   textAlign: TextAlign.center,
                   style: theme.textTheme.titleLarge?.copyWith(
                     fontSize: 18,

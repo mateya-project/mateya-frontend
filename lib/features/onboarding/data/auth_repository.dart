@@ -27,6 +27,8 @@ abstract interface class OnboardingAuthRepository {
     required String code,
   });
 
+  Future<AuthSession> loginUser({required String verificationToken});
+
   Future<AuthSession> signupGuest({
     required String verificationToken,
     required String displayName,
@@ -69,6 +71,15 @@ class ApiOnboardingAuthRepository implements OnboardingAuthRepository {
       verificationToken: json['verificationToken'] as String,
       expiresAt: DateTime.parse(json['expiresAt'] as String),
     );
+  }
+
+  @override
+  Future<AuthSession> loginUser({required String verificationToken}) async {
+    final data = await apiClient.postJson(
+      '/api/v1/auth/login',
+      body: <String, Object?>{'verificationToken': verificationToken},
+    );
+    return _parseAuthSession(_asMap(data));
   }
 
   @override

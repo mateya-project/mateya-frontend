@@ -31,6 +31,8 @@ enum AsyncPhase {
   serverError,
 }
 
+enum AuthCompletionMode { signup, login }
+
 class NeighborhoodSelection {
   const NeighborhoodSelection({
     required this.displayName,

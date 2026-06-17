@@ -30,6 +30,7 @@ class OnboardingController extends ChangeNotifier {
   AgreementState _agreementState = const AgreementState();
   AsyncPhase _authPhase = AsyncPhase.idle;
   AsyncPhase _locationPhase = AsyncPhase.idle;
+  AuthCompletionMode _completionMode = AuthCompletionMode.signup;
   NeighborhoodSelection? _selectedNeighborhood;
   LocationFailure? _locationFailure;
   Map<String, String?> _fieldErrors = <String, String?>{};
@@ -63,6 +64,7 @@ class OnboardingController extends ChangeNotifier {
   AgreementState get agreementState => _agreementState;
   AsyncPhase get authPhase => _authPhase;
   AsyncPhase get locationPhase => _locationPhase;
+  AuthCompletionMode get completionMode => _completionMode;
   NeighborhoodSelection? get selectedNeighborhood => _selectedNeighborhood;
   LocationFailure? get locationFailure => _locationFailure;
   String get name => _name;
@@ -105,11 +107,30 @@ class OnboardingController extends ChangeNotifier {
       _businessNumberThird.length == 5;
 
   String get completedName {
+    if (_completionMode == AuthCompletionMode.login) {
+      final sessionDisplayName = _authSessionStore.session?.user.displayName
+          .trim();
+      if (sessionDisplayName != null && sessionDisplayName.isNotEmpty) {
+        return sessionDisplayName;
+      }
+    }
     if (_flowKind == FlowKind.host && _businessOwner.trim().isNotEmpty) {
       return _businessOwner.trim();
     }
     return _name.trim().isEmpty ? '메이트야 회원' : _name.trim();
   }
+
+  String get _signupDisplayName {
+    if (_flowKind == FlowKind.host && _businessOwner.trim().isNotEmpty) {
+      return _businessOwner.trim();
+    }
+    return _name.trim().isEmpty ? '메이트야 회원' : _name.trim();
+  }
+
+  String get completionHeadline => switch (_completionMode) {
+    AuthCompletionMode.login => '$completedName님\n메이트야 로그인을 완료했어요',
+    AuthCompletionMode.signup => '$completedName님\n메이트야 가입을 완료했어요',
+  };
 
   String get resolvedNeighborhoodMessage {
     final neighborhood = _selectedNeighborhood?.displayName ?? '동네';
@@ -123,6 +144,7 @@ class OnboardingController extends ChangeNotifier {
   void startGuestFlow() {
     _flowKind = FlowKind.guest;
     _agreementState = const AgreementState();
+    _completionMode = AuthCompletionMode.signup;
     _fieldErrors = <String, String?>{};
     _step = OnboardingStep.guestConsent;
     notifyListeners();
@@ -131,6 +153,7 @@ class OnboardingController extends ChangeNotifier {
   void startHostFlow() {
     _flowKind = FlowKind.host;
     _agreementState = const AgreementState();
+    _completionMode = AuthCompletionMode.signup;
     _fieldErrors = <String, String?>{};
     _step = OnboardingStep.hostConsent;
     notifyListeners();
@@ -279,8 +302,21 @@ class OnboardingController extends ChangeNotifier {
       );
       _verificationToken = result.verificationToken;
       _verificationTokenExpiresAt = result.expiresAt;
-      _authPhase = AsyncPhase.success;
+      final existingUserSession = await _tryLoginExistingUser(
+        verificationToken: result.verificationToken,
+      );
       _verificationTimer?.cancel();
+      if (existingUserSession != null) {
+        _authSessionStore.save(existingUserSession);
+        _completionMode = AuthCompletionMode.login;
+        _authPhase = AsyncPhase.success;
+        _step = OnboardingStep.completed;
+        notifyListeners();
+        return;
+      }
+
+      _completionMode = AuthCompletionMode.signup;
+      _authPhase = AsyncPhase.success;
       _step = OnboardingStep.neighborhoodAuto;
       notifyListeners();
       await startAutomaticNeighborhoodVerification();
@@ -384,13 +420,14 @@ class OnboardingController extends ChangeNotifier {
     try {
       final session = await _authRepository.signupGuest(
         verificationToken: _verificationToken!,
-        displayName: completedName,
+        displayName: _signupDisplayName,
         primaryLanguage: _resolvedPrimaryLanguage,
         primaryCountry: _resolvedPrimaryCountry,
         agreementState: _agreementState,
         neighborhood: _selectedNeighborhood!,
       );
       _authSessionStore.save(session);
+      _completionMode = AuthCompletionMode.signup;
       _authPhase = AsyncPhase.success;
     } on MateyaApiException catch (error) {
       _applyApiError(error);
@@ -452,6 +489,7 @@ class OnboardingController extends ChangeNotifier {
     if (!validateBusinessFields()) {
       return;
     }
+    _completionMode = AuthCompletionMode.signup;
     _step = OnboardingStep.completed;
     notifyListeners();
   }
@@ -484,6 +522,7 @@ class OnboardingController extends ChangeNotifier {
     _flowKind = null;
     _agreementState = const AgreementState();
     _locationPhase = AsyncPhase.idle;
+    _completionMode = AuthCompletionMode.signup;
     _selectedNeighborhood = null;
     _locationFailure = null;
     _fieldErrors = <String, String?>{};
@@ -520,6 +559,8 @@ class OnboardingController extends ChangeNotifier {
       OnboardingStep.completed =>
         _flowKind == FlowKind.host
             ? OnboardingStep.hostBusiness
+            : _completionMode == AuthCompletionMode.login
+            ? OnboardingStep.guestPhone
             : OnboardingStep.neighborhoodAuto,
       OnboardingStep.homePlaceholder => OnboardingStep.completed,
     };
@@ -589,5 +630,24 @@ class OnboardingController extends ChangeNotifier {
     }
 
     _emitToast(error.message);
+  }
+
+  Future<AuthSession?> _tryLoginExistingUser({
+    required String verificationToken,
+  }) async {
+    try {
+      return await _authRepository.loginUser(
+        verificationToken: verificationToken,
+      );
+    } on MateyaApiException catch (error) {
+      if (_isSignupCandidate(error)) {
+        return null;
+      }
+      rethrow;
+    }
+  }
+
+  bool _isSignupCandidate(MateyaApiException error) {
+    return error.code == 'not-found' || error.statusCode == 404;
   }
 }
