@@ -224,9 +224,10 @@ class ChatRoom {
 }
 
 class ChatRepositoryException implements Exception {
-  const ChatRepositoryException(this.type);
+  const ChatRepositoryException(this.type, {this.message});
 
   final ChatLoadFailureType type;
+  final String? message;
 }
 
 extension ChatListFilterX on ChatListFilter {

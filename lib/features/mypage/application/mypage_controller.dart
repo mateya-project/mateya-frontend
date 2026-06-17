@@ -140,19 +140,25 @@ class MyPageController extends ChangeNotifier {
     _errorMessage = null;
     notifyListeners();
 
-    await Future<void>.delayed(const Duration(milliseconds: 260));
-    _personalPage = _personalPage!.copyWith(
-      profile: _personalPage!.profile.copyWith(
-        primaryLanguageCode: language.code,
-        primaryLanguageLabel: language.label,
-        primaryCountryCode: country.code,
-        primaryCountryLabel: country.label,
-      ),
-    );
-    _phase = MyPageAsyncPhase.success;
-    _isSavingPreferences = false;
-    _route = MyPageRoute.personalHome;
-    _pushToast('대표 언어와 대표 나라를 반영했어요.');
+    try {
+      _personalPage = await repository.updatePrimaryPreferences(
+        displayName: _personalPage!.profile.name,
+        languageCode: language.code,
+        countryCode: country.code,
+      );
+      _phase = MyPageAsyncPhase.success;
+      _isSavingPreferences = false;
+      _route = MyPageRoute.personalHome;
+      _pushToast('대표 언어와 대표 나라를 반영했어요.');
+    } on MyPageRepositoryException catch (error) {
+      _phase = MyPageAsyncPhase.validationError;
+      _isSavingPreferences = false;
+      _errorMessage =
+          error.message ??
+          (error.type == MyPageLoadFailureType.network
+              ? '네트워크 연결을 확인한 뒤 다시 시도해 주세요.'
+              : '대표 언어와 대표 나라를 저장하지 못했어요. 잠시 후 다시 시도해 주세요.');
+    }
     notifyListeners();
   }
 
@@ -200,13 +206,24 @@ class MyPageController extends ChangeNotifier {
     _errorMessage = null;
     notifyListeners();
 
-    await Future<void>.delayed(const Duration(milliseconds: 260));
-    _businessPage = _businessPage!.copyWith(
-      profile: _businessPage!.profile.copyWith(oneLineIntroduction: trimmed),
-    );
-    _phase = MyPageAsyncPhase.success;
-    _isSavingBusinessIntroduction = false;
-    _pushToast('한줄소개를 저장했어요.');
+    try {
+      _businessPage = await repository.updateBusinessIntroduction(
+        introduction: trimmed,
+        placeName: _businessPage!.profile.placeLabel,
+        placeAddress: _businessPage!.profile.residence,
+      );
+      _phase = MyPageAsyncPhase.success;
+      _isSavingBusinessIntroduction = false;
+      _pushToast('한줄소개를 저장했어요.');
+    } on MyPageRepositoryException catch (error) {
+      _phase = MyPageAsyncPhase.validationError;
+      _isSavingBusinessIntroduction = false;
+      _errorMessage =
+          error.message ??
+          (error.type == MyPageLoadFailureType.network
+              ? '네트워크 연결을 확인한 뒤 다시 시도해 주세요.'
+              : '한줄소개를 저장하지 못했어요. 잠시 후 다시 시도해 주세요.');
+    }
     notifyListeners();
   }
 
@@ -241,11 +258,24 @@ class MyPageController extends ChangeNotifier {
     _withdrawalCompleted = false;
     notifyListeners();
 
-    await Future<void>.delayed(const Duration(milliseconds: 320));
-    _phase = MyPageAsyncPhase.success;
-    _isSubmittingWithdrawal = false;
-    _withdrawalCompleted = true;
-    _pushToast('탈퇴 요청을 접수했어요. 계정은 비활성화되며 30일 뒤 최종 삭제됩니다.');
+    try {
+      await repository.submitWithdrawal(
+        agreementText: '개인정보 관리 및 30일 후 최종 삭제 정책에 동의합니다.',
+      );
+      _phase = MyPageAsyncPhase.success;
+      _isSubmittingWithdrawal = false;
+      _withdrawalCompleted = true;
+      _pushToast('탈퇴 요청을 접수했어요. 계정은 비활성화되며 30일 뒤 최종 삭제됩니다.');
+    } on MyPageRepositoryException catch (error) {
+      _phase = MyPageAsyncPhase.validationError;
+      _isSubmittingWithdrawal = false;
+      _withdrawalCompleted = false;
+      _errorMessage =
+          error.message ??
+          (error.type == MyPageLoadFailureType.network
+              ? '네트워크 연결을 확인한 뒤 다시 시도해 주세요.'
+              : '탈퇴 요청을 처리하지 못했어요. 잠시 후 다시 시도해 주세요.');
+    }
     notifyListeners();
   }
 
@@ -258,7 +288,9 @@ class MyPageController extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final bundle = await repository.fetchBundle();
+      final bundle = await repository.fetchBundle(
+        isBusinessMode: isBusinessMode,
+      );
       _personalPage = bundle.personalPage;
       _otherProfile = bundle.otherProfile;
       _recentActivity = bundle.recentActivity;
@@ -271,9 +303,11 @@ class MyPageController extends ChangeNotifier {
       _phase = error.type == MyPageLoadFailureType.network
           ? MyPageAsyncPhase.networkError
           : MyPageAsyncPhase.serverError;
-      _errorMessage = error.type == MyPageLoadFailureType.network
-          ? '네트워크 연결을 확인한 뒤 다시 시도해 주세요.'
-          : '마이페이지 데이터를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.';
+      _errorMessage =
+          error.message ??
+          (error.type == MyPageLoadFailureType.network
+              ? '네트워크 연결을 확인한 뒤 다시 시도해 주세요.'
+              : '마이페이지 데이터를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.');
     } catch (_) {
       _phase = MyPageAsyncPhase.serverError;
       _errorMessage = '마이페이지 데이터를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.';

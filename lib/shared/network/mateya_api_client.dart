@@ -62,6 +62,23 @@ class MateyaApiClient {
     );
   }
 
+  Future<Object?> patchJson(
+    String path, {
+    Object? body,
+    bool requiresAuth = false,
+  }) {
+    return _sendJson(
+      method: 'PATCH',
+      path: path,
+      requiresAuth: requiresAuth,
+      body: body,
+    );
+  }
+
+  Future<Object?> deleteJson(String path, {bool requiresAuth = false}) {
+    return _sendJson(method: 'DELETE', path: path, requiresAuth: requiresAuth);
+  }
+
   Future<Object?> _sendJson({
     required String method,
     required String path,

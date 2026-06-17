@@ -256,9 +256,10 @@ class MyPageBundle {
 }
 
 class MyPageRepositoryException implements Exception {
-  const MyPageRepositoryException(this.type);
+  const MyPageRepositoryException(this.type, {this.message});
 
   final MyPageLoadFailureType type;
+  final String? message;
 }
 
 const List<SelectionOption> kMyPageLanguageOptions = <SelectionOption>[
@@ -266,8 +267,6 @@ const List<SelectionOption> kMyPageLanguageOptions = <SelectionOption>[
   SelectionOption(code: 'en', label: '영어'),
   SelectionOption(code: 'ja', label: '일본어'),
   SelectionOption(code: 'zh', label: '중국어'),
-  SelectionOption(code: 'vi', label: '베트남어'),
-  SelectionOption(code: 'es', label: '스페인어'),
 ];
 
 const List<SelectionOption> kMyPageCountryOptions = <SelectionOption>[

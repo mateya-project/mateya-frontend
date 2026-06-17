@@ -10,6 +10,7 @@ class _IoHttpTransport implements HttpTransport {
     required Uri uri,
     Map<String, String> headers = const <String, String>{},
     String? body,
+    List<int>? bodyBytes,
   }) async {
     final client = HttpClient();
     try {
@@ -17,6 +18,8 @@ class _IoHttpTransport implements HttpTransport {
       headers.forEach(request.headers.set);
       if (body != null) {
         request.add(utf8.encode(body));
+      } else if (bodyBytes != null) {
+        request.add(bodyBytes);
       }
 
       final response = await request.close();

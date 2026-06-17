@@ -37,7 +37,8 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
     'jpg',
     'jpeg',
     'png',
-    'heic',
+    'webp',
+    'gif',
   ];
   static const int _maxAttachmentCount = 10;
   static const int _maxAttachmentBytes = 10 * 1024 * 1024;
@@ -48,6 +49,7 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
 
   String? _lastRoomId;
   int _lastGroupCount = 0;
+  int _lastToastVersion = 0;
 
   @override
   void initState() {
@@ -77,6 +79,12 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
 
   void _handleControllerChanged() {
     _syncDraft();
+    if (widget.controller.toastMessage != null &&
+        widget.controller.toastVersion != _lastToastVersion) {
+      _lastToastVersion = widget.controller.toastVersion;
+      _showPendingMessage(widget.controller.toastMessage!);
+      widget.controller.clearToast();
+    }
     final room = widget.controller.currentRoom;
     final roomId = widget.controller.selectedRoomId;
     final groupCount = room?.messageGroups.length ?? 0;
@@ -141,7 +149,7 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
                 Text('사진 첨부 기준', style: theme.textTheme.titleLarge),
                 const SizedBox(height: 12),
                 Text(
-                  '실무 기준으로 JPG, PNG, HEIC 형식과 10MB 이하 이미지를 허용하도록 설계했습니다.',
+                  '실무 기준으로 JPG, PNG, WEBP, GIF 형식과 10MB 이하 이미지를 허용하도록 설계했습니다.',
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: AppColors.fieldBorder,
                   ),
@@ -163,7 +171,7 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
                       Navigator.of(context).pop(_AttachmentAction.camera),
                 ),
                 const SizedBox(height: 18),
-                const _GuideRow(text: '허용 형식: JPG, PNG, HEIC'),
+                const _GuideRow(text: '허용 형식: JPG, PNG, WEBP, GIF'),
                 const _GuideRow(text: '최대 크기: 10MB'),
                 const _GuideRow(text: '메시지당 최대 10장'),
                 const _GuideRow(text: '저해상도 이미지는 업로드 전 압축 권장'),
@@ -382,7 +390,9 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
           onChanged: widget.controller.updateDraft,
           onAttachTap: _openAttachmentPicker,
           onRemoveAttachment: widget.controller.removeDraftAttachment,
-          onSendTap: widget.controller.sendMessage,
+          onSendTap: () {
+            widget.controller.sendMessage();
+          },
         ),
       ],
     );
@@ -999,12 +1009,19 @@ class _MessageAttachmentGrid extends StatelessWidget {
                   SizedBox(
                     width: isSingle ? 182 : 110,
                     height: isSingle ? 182 : 110,
-                    child: Image.file(
-                      File(attachment.path),
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, _, _) =>
-                          _AttachmentFallback(label: attachment.fileName),
-                    ),
+                    child: attachment.path.startsWith('http')
+                        ? Image.network(
+                            attachment.path,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, _, _) =>
+                                _AttachmentFallback(label: attachment.fileName),
+                          )
+                        : Image.file(
+                            File(attachment.path),
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, _, _) =>
+                                _AttachmentFallback(label: attachment.fileName),
+                          ),
                   ),
                   if (showOverlay)
                     Container(

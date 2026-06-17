@@ -39,6 +39,7 @@ class CreatePlaceSuggestion {
     this.latitude,
     this.longitude,
     this.categoryIds = const <String>{},
+    this.serverCategoryCode,
   });
 
   final String id;
@@ -49,6 +50,7 @@ class CreatePlaceSuggestion {
   final double? latitude;
   final double? longitude;
   final Set<String> categoryIds;
+  final String? serverCategoryCode;
 
   bool get hasCoordinates => latitude != null && longitude != null;
 }
@@ -183,9 +185,6 @@ abstract final class CreateFormOptions {
     CreateLanguageOption(code: 'en', label: '영어'),
     CreateLanguageOption(code: 'ja', label: '일본어'),
     CreateLanguageOption(code: 'zh', label: '중국어'),
-    CreateLanguageOption(code: 'vi', label: '베트남어'),
-    CreateLanguageOption(code: 'th', label: '태국어'),
-    CreateLanguageOption(code: 'es', label: '스페인어'),
   ];
 
   static const List<CreateAudienceOption> audiences = <CreateAudienceOption>[

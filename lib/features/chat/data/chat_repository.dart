@@ -1,8 +1,337 @@
+import 'dart:io';
+
+import '../../../app/app_config.dart';
+import '../../../shared/auth/auth_session.dart';
+import '../../../shared/network/http_transport.dart';
+import '../../../shared/network/mateya_api_client.dart';
 import '../domain/chat_models.dart';
 
 abstract interface class ChatRepository {
   Future<List<ChatRoom>> fetchRooms();
   Future<ChatRoom> fetchRoom(String roomId);
+  Future<List<ChatBubble>> sendMessage({
+    required String roomId,
+    required String text,
+    required List<ChatAttachment> attachments,
+  });
+  Future<void> markRoomAsRead(String roomId);
+}
+
+class ApiChatRepository implements ChatRepository {
+  ApiChatRepository({
+    MateyaApiClient? apiClient,
+    AuthSessionStore? sessionStore,
+    HttpTransport? transport,
+  }) : _sessionStore = sessionStore ?? AuthSessionStore.instance,
+       _apiClient =
+           apiClient ??
+           MateyaApiClient(
+             baseUrl: AppConfig.apiBaseUrl,
+             sessionStore: sessionStore ?? AuthSessionStore.instance,
+           ),
+       _transport = transport ?? createHttpTransport();
+
+  final AuthSessionStore _sessionStore;
+  final MateyaApiClient _apiClient;
+  final HttpTransport _transport;
+  final Map<String, ChatRoom> _cachedRooms = <String, ChatRoom>{};
+
+  @override
+  Future<List<ChatRoom>> fetchRooms() async {
+    try {
+      final data = await _apiClient.getJson(
+        '/api/v1/chats',
+        requiresAuth: true,
+        queryParameters: const <String, String>{'page': '0'},
+      );
+      final json = _asMap(data);
+      final items = json['items'] as List<Object?>? ?? const <Object?>[];
+      final rooms = items.map(_parseRoomSummary).toList(growable: false);
+      _cachedRooms
+        ..clear()
+        ..addEntries(
+          rooms.map((room) => MapEntry<String, ChatRoom>(room.id, room)),
+        );
+      return rooms;
+    } on MateyaApiException catch (error) {
+      throw _mapApiException(error);
+    }
+  }
+
+  @override
+  Future<ChatRoom> fetchRoom(String roomId) async {
+    try {
+      final summary = _cachedRooms[roomId] ?? await _fetchRoomSummary(roomId);
+      final data = await _apiClient.getJson(
+        '/api/v1/chats/$roomId/messages',
+        requiresAuth: true,
+        queryParameters: const <String, String>{'page': '0'},
+      );
+      final json = _asMap(data);
+      final items = json['items'] as List<Object?>? ?? const <Object?>[];
+      final messageGroups = items
+          .map(_parseMessageGroup)
+          .toList(growable: false);
+      final room = summary.copyWith(messageGroups: messageGroups);
+      _cachedRooms[roomId] = room;
+      return room;
+    } on MateyaApiException catch (error) {
+      throw _mapApiException(error);
+    }
+  }
+
+  @override
+  Future<List<ChatBubble>> sendMessage({
+    required String roomId,
+    required String text,
+    required List<ChatAttachment> attachments,
+  }) async {
+    final bubbles = <ChatBubble>[];
+    final trimmedText = text.trim();
+
+    try {
+      if (trimmedText.isNotEmpty) {
+        final textData = await _apiClient.postJson(
+          '/api/v1/chats/$roomId/messages',
+          requiresAuth: true,
+          body: <String, Object?>{'type': 'TEXT', 'text': trimmedText},
+        );
+        bubbles.add(_parseMessageBubble(textData));
+      }
+
+      for (final attachment in attachments) {
+        final imageUrl = await _uploadChatImage(attachment);
+        final imageData = await _apiClient.postJson(
+          '/api/v1/chats/$roomId/messages',
+          requiresAuth: true,
+          body: <String, Object?>{'type': 'IMAGE', 'imageUrl': imageUrl},
+        );
+        bubbles.add(_parseMessageBubble(imageData));
+      }
+      return bubbles;
+    } on MateyaApiException catch (error) {
+      throw _mapApiException(error);
+    }
+  }
+
+  @override
+  Future<void> markRoomAsRead(String roomId) async {
+    try {
+      await _apiClient.postJson(
+        '/api/v1/chats/$roomId/read',
+        requiresAuth: true,
+      );
+    } on MateyaApiException catch (error) {
+      throw _mapApiException(error);
+    }
+  }
+
+  Future<ChatRoom> _fetchRoomSummary(String roomId) async {
+    final rooms = await fetchRooms();
+    final room = rooms.where((item) => item.id == roomId).firstOrNull;
+    if (room == null) {
+      throw const ChatRepositoryException(ChatLoadFailureType.server);
+    }
+    return room;
+  }
+
+  Future<String> _uploadChatImage(ChatAttachment attachment) async {
+    final contentType = _contentTypeFor(attachment.fileName);
+    if (contentType == null) {
+      throw const ChatRepositoryException(
+        ChatLoadFailureType.server,
+        message: 'JPG, PNG, WEBP, GIF 형식의 이미지만 전송할 수 있어요.',
+      );
+    }
+
+    final fileBytes = await File(attachment.path).readAsBytes();
+    final presignedData = await _apiClient.postJson(
+      '/api/v1/uploads/images/presigned-url',
+      requiresAuth: true,
+      body: <String, Object?>{
+        'purpose': 'CHAT',
+        'originalFilename': attachment.fileName,
+        'contentType': contentType,
+        'sizeBytes': attachment.fileSizeBytes,
+        'requestedFileCount': 1,
+      },
+    );
+    final presignedJson = _asMap(presignedData);
+    final uploadUrl = presignedJson['uploadUrl'] as String?;
+    final objectKey = presignedJson['objectKey'] as String?;
+    if (uploadUrl == null || objectKey == null) {
+      throw const ChatRepositoryException(ChatLoadFailureType.server);
+    }
+
+    final uploadResponse = await _transport.send(
+      method: 'PUT',
+      uri: Uri.parse(uploadUrl),
+      headers: _flattenHeaders(
+        presignedJson['headers'] as Map<String, dynamic>? ??
+            const <String, dynamic>{},
+        fallbackContentType: contentType,
+      ),
+      bodyBytes: fileBytes,
+    );
+    if (uploadResponse.statusCode < 200 || uploadResponse.statusCode >= 300) {
+      throw const ChatRepositoryException(
+        ChatLoadFailureType.server,
+        message: '채팅 이미지를 업로드하지 못했어요. 잠시 후 다시 시도해 주세요.',
+      );
+    }
+
+    final confirmedData = await _apiClient.postJson(
+      '/api/v1/uploads/images/confirm',
+      requiresAuth: true,
+      body: <String, Object?>{'objectKey': objectKey},
+    );
+    final confirmedJson = _asMap(confirmedData);
+    final publicUrl = confirmedJson['publicUrl'] as String?;
+    if (publicUrl == null || publicUrl.isEmpty) {
+      throw const ChatRepositoryException(ChatLoadFailureType.server);
+    }
+    return publicUrl;
+  }
+
+  ChatRoom _parseRoomSummary(Object? value) {
+    final json = _asMap(value);
+    final preview = json['lastMessagePreview'] as String?;
+    final lastMessageAt = json['lastMessageAt'] as String?;
+    final messageGroups = preview == null || preview.isEmpty
+        ? const <ChatMessageGroup>[]
+        : <ChatMessageGroup>[
+            ChatMessageGroup(
+              id: 'summary-${json['id']}',
+              sender: ChatParticipant(
+                id: 'summary-${json['id']}',
+                name: json['title'] as String? ?? '',
+              ),
+              sentAt: _parseDateTime(lastMessageAt),
+              bubbles: <ChatBubble>[ChatBubble(originalText: preview)],
+            ),
+          ];
+
+    return ChatRoom(
+      id: '${json['id']}',
+      type: (json['type'] as String?) == 'DIRECT'
+          ? ChatRoomType.direct
+          : ChatRoomType.group,
+      title: json['title'] as String? ?? '',
+      imageUrl: '',
+      participantCount: json['participantCount'] as int? ?? 0,
+      lastMessageAt: _parseDateTime(lastMessageAt),
+      unreadCount: json['unreadCount'] as int? ?? 0,
+      messageGroups: messageGroups,
+    );
+  }
+
+  ChatMessageGroup _parseMessageGroup(Object? value) {
+    final json = _asMap(value);
+    final senderId = '${json['senderUserId']}';
+    final isMine = senderId == '${_sessionStore.session?.user.id}';
+
+    return ChatMessageGroup(
+      id: '${json['id']}',
+      sender: ChatParticipant(
+        id: senderId,
+        name: json['senderDisplayName'] as String? ?? '',
+        avatarUrl: json['senderProfileImageUrl'] as String?,
+      ),
+      sentAt: _parseDateTime(json['sentAt'] as String?),
+      isMine: isMine,
+      bubbles: <ChatBubble>[_parseMessageBubble(json)],
+    );
+  }
+
+  ChatBubble _parseMessageBubble(Object? value) {
+    final json = _asMap(value);
+    final translatedText = json['text'] as String?;
+    final originalText = json['originalText'] as String?;
+    final imageUrl = json['imageUrl'] as String?;
+    return ChatBubble(
+      originalText: originalText ?? translatedText,
+      translatedText:
+          translatedText != null &&
+              originalText != null &&
+              translatedText != originalText
+          ? translatedText
+          : null,
+      attachments: imageUrl == null
+          ? const <ChatAttachment>[]
+          : <ChatAttachment>[
+              ChatAttachment(
+                id: 'remote-${json['id']}',
+                path: imageUrl,
+                fileName: imageUrl.split('/').last,
+                fileSizeBytes: 0,
+                source: ChatAttachmentSource.gallery,
+              ),
+            ],
+    );
+  }
+
+  DateTime _parseDateTime(String? value) {
+    return DateTime.tryParse(value ?? '') ??
+        DateTime.fromMillisecondsSinceEpoch(0);
+  }
+
+  Map<String, String> _flattenHeaders(
+    Map<String, dynamic> rawHeaders, {
+    required String fallbackContentType,
+  }) {
+    final headers = <String, String>{};
+    rawHeaders.forEach((key, value) {
+      if (value is List<Object?>) {
+        final joined = value.whereType<String>().join(', ');
+        if (joined.isNotEmpty) {
+          headers[key] = joined;
+        }
+        return;
+      }
+      if (value is String && value.isNotEmpty) {
+        headers[key] = value;
+      }
+    });
+    headers.putIfAbsent('Content-Type', () => fallbackContentType);
+    return headers;
+  }
+
+  String? _contentTypeFor(String fileName) {
+    final normalized = fileName.toLowerCase();
+    if (normalized.endsWith('.jpg') || normalized.endsWith('.jpeg')) {
+      return 'image/jpeg';
+    }
+    if (normalized.endsWith('.png')) {
+      return 'image/png';
+    }
+    if (normalized.endsWith('.webp')) {
+      return 'image/webp';
+    }
+    if (normalized.endsWith('.gif')) {
+      return 'image/gif';
+    }
+    return null;
+  }
+
+  ChatRepositoryException _mapApiException(MateyaApiException error) {
+    if (error.type == ApiFailureType.network) {
+      return ChatRepositoryException(
+        ChatLoadFailureType.network,
+        message: error.message,
+      );
+    }
+    return ChatRepositoryException(
+      ChatLoadFailureType.server,
+      message: error.message,
+    );
+  }
+
+  Map<String, dynamic> _asMap(Object? value) {
+    if (value is Map<String, dynamic>) {
+      return value;
+    }
+    return const <String, dynamic>{};
+  }
 }
 
 class MockChatRepository implements ChatRepository {
@@ -20,6 +349,26 @@ class MockChatRepository implements ChatRepository {
       throw const ChatRepositoryException(ChatLoadFailureType.server);
     }
     return _cloneRoom(room);
+  }
+
+  @override
+  Future<List<ChatBubble>> sendMessage({
+    required String roomId,
+    required String text,
+    required List<ChatAttachment> attachments,
+  }) async {
+    await Future<void>.delayed(const Duration(milliseconds: 180));
+    return <ChatBubble>[
+      ChatBubble(
+        originalText: text.trim().isEmpty ? null : text.trim(),
+        attachments: attachments,
+      ),
+    ];
+  }
+
+  @override
+  Future<void> markRoomAsRead(String roomId) async {
+    await Future<void>.delayed(const Duration(milliseconds: 120));
   }
 }
 

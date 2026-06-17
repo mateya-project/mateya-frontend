@@ -7,6 +7,7 @@ class _UnsupportedHttpTransport implements HttpTransport {
     required Uri uri,
     Map<String, String> headers = const <String, String>{},
     String? body,
+    List<int>? bodyBytes,
   }) {
     throw UnsupportedError('HTTP transport is not supported on this platform.');
   }

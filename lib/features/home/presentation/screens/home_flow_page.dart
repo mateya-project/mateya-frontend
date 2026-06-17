@@ -62,9 +62,11 @@ class _HomeFlowPageState extends State<HomeFlowPage> {
             : const <String>{'ko'},
       ),
     );
-    _chatController = ChatController(repository: MockChatRepository());
+    _chatController = ChatController(
+      repository: hasSession ? ApiChatRepository() : MockChatRepository(),
+    );
     _myPageController = MyPageController(
-      repository: MockMyPageRepository(),
+      repository: hasSession ? ApiMyPageRepository() : MockMyPageRepository(),
       flowKind: widget.flowKind,
     );
     _activityDetailRepository = hasSession
@@ -116,11 +118,14 @@ class _HomeFlowPageState extends State<HomeFlowPage> {
     final flowType = _controller.flowKind == FlowKind.host
         ? CreateFlowType.classRegistration
         : CreateFlowType.group;
+    final hasSession = AuthSessionStore.instance.hasSession;
     await Navigator.of(context).push(
       MaterialPageRoute<bool>(
         builder: (_) => CreateFlowPage(
           controller: CreateController(
-            repository: MockCreateRepository(),
+            repository: hasSession
+                ? ApiCreateRepository()
+                : MockCreateRepository(),
             flowType: flowType,
           ),
         ),

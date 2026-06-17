@@ -390,7 +390,7 @@ class _CategoryStepView extends StatelessWidget {
         Text('어떤 모임을 만들까요?', style: theme.textTheme.headlineMedium),
         const SizedBox(height: 10),
         Text(
-          '현재는 한국문화 체험 유형만 먼저 제공하고, 카테고리는 1개 이상 선택하도록 구성했습니다.',
+          '현재는 한국문화 체험 유형만 먼저 제공하고, 카테고리는 1개만 선택하도록 구성했습니다.',
           style: theme.textTheme.bodyMedium?.copyWith(
             color: AppColors.textSecondary,
           ),

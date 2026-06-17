@@ -25,7 +25,8 @@ class CreateController extends ChangeNotifier {
     'jpg',
     'jpeg',
     'png',
-    'heic',
+    'webp',
+    'gif',
   ];
 
   final CreateRepository repository;
@@ -126,9 +127,11 @@ class CreateController extends ChangeNotifier {
 
   void toggleCategory(String categoryId) {
     if (_selectedCategoryIds.contains(categoryId)) {
-      _selectedCategoryIds.remove(categoryId);
+      _selectedCategoryIds.clear();
     } else {
-      _selectedCategoryIds.add(categoryId);
+      _selectedCategoryIds
+        ..clear()
+        ..add(categoryId);
     }
     _clearErrors(<String>{'categories'});
     notifyListeners();
@@ -371,7 +374,7 @@ class CreateController extends ChangeNotifier {
     for (final file in files.take(availableSlots)) {
       final extension = file.name.split('.').last.toLowerCase();
       if (!allowedExtensions.contains(extension)) {
-        _emitToast('JPG, PNG, HEIC 형식의 이미지만 등록할 수 있어요.');
+        _emitToast('JPG, PNG, WEBP, GIF 형식의 이미지만 등록할 수 있어요.');
         continue;
       }
 
@@ -459,9 +462,10 @@ class CreateController extends ChangeNotifier {
           ? AsyncPhase.networkError
           : AsyncPhase.serverError;
       _emitToast(
-        error.type == CreateRepositoryFailureType.network
-            ? '${flowType.entityLabel} 등록에 실패했어요. 네트워크를 확인해 주세요.'
-            : '${flowType.entityLabel} 등록에 실패했어요. 잠시 후 다시 시도해 주세요.',
+        error.message ??
+            (error.type == CreateRepositoryFailureType.network
+                ? '${flowType.entityLabel} 등록에 실패했어요. 네트워크를 확인해 주세요.'
+                : '${flowType.entityLabel} 등록에 실패했어요. 잠시 후 다시 시도해 주세요.'),
       );
     } catch (_) {
       _submitPhase = AsyncPhase.serverError;
@@ -488,9 +492,10 @@ class CreateController extends ChangeNotifier {
           ? AsyncPhase.networkError
           : AsyncPhase.serverError;
       _emitToast(
-        error.type == CreateRepositoryFailureType.network
-            ? '삭제에 실패했어요. 네트워크를 확인해 주세요.'
-            : '삭제에 실패했어요. 잠시 후 다시 시도해 주세요.',
+        error.message ??
+            (error.type == CreateRepositoryFailureType.network
+                ? '삭제에 실패했어요. 네트워크를 확인해 주세요.'
+                : '삭제에 실패했어요. 잠시 후 다시 시도해 주세요.'),
       );
     } catch (_) {
       _deletePhase = AsyncPhase.serverError;
@@ -549,7 +554,7 @@ class CreateController extends ChangeNotifier {
     if (_selectedCategoryIds.isNotEmpty) {
       return <String, String?>{};
     }
-    return <String, String?>{'categories': '카테고리를 1개 이상 선택해 주세요.'};
+    return <String, String?>{'categories': '카테고리를 1개 선택해 주세요.'};
   }
 
   Map<String, String?> _validatePlaceStep() {
