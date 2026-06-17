@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../../shared/permissions/mateya_permission_dialogs.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../../shared/widgets/mateya_button.dart';
 import 'activity_detail_review_widgets.dart';
@@ -58,13 +60,52 @@ class _ReviewComposerSheetState extends State<ReviewComposerSheet> {
     if (available <= 0) {
       return;
     }
-    final picked = await _imagePicker.pickMultiImage(imageQuality: 88);
-    if (!mounted || picked.isEmpty) {
+
+    final shouldContinue = await showMateyaPermissionNoticeDialog(
+      context,
+      title: '사진 권한 안내',
+      message:
+          '후기에 사진을 첨부하려면 사진 보관함 접근 권한이 필요합니다. 권한을 거부하셔도 후기 텍스트 작성과 평점 등록은 계속할 수 있습니다.',
+      confirmLabel: '사진 선택하기',
+      cancelLabel: '나중에',
+    );
+
+    if (!mounted || !shouldContinue) {
       return;
     }
-    setState(() {
-      _images.addAll(picked.take(available));
-    });
+
+    try {
+      final picked = await _imagePicker.pickMultiImage(imageQuality: 88);
+      if (!mounted || picked.isEmpty) {
+        return;
+      }
+      setState(() {
+        _images.addAll(picked.take(available));
+      });
+    } on PlatformException catch (error) {
+      if (!mounted) {
+        return;
+      }
+      if (error.code == 'photo_access_denied') {
+        final action = await showMateyaPermissionRecoveryDialog(
+          context,
+          title: '사진 권한이 필요해요',
+          message:
+              '후기 사진 첨부를 사용하려면 사진 보관함 접근 권한이 필요합니다. 권한이 없어도 텍스트 후기와 평점 등록은 계속할 수 있고, 다시 시도하거나 앱 설정에서 권한을 허용할 수 있습니다.',
+          retryLabel: '다시 시도',
+        );
+        if (!mounted) {
+          return;
+        }
+        if (action == MateyaPermissionRecoveryAction.retry) {
+          await _pickImages();
+          return;
+        }
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('사진을 불러오지 못했어요. 권한과 파일 상태를 확인해 주세요.')),
+      );
+    }
   }
 
   void _moveImage(int fromIndex, int toIndex) {

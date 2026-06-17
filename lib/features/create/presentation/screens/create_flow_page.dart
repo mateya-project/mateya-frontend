@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../../shared/permissions/mateya_permission_dialogs.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../../shared/widgets/mateya_button.dart';
 import '../../../onboarding/domain/onboarding_flow.dart';
@@ -103,6 +105,20 @@ class _CreateFlowPageState extends State<CreateFlowPage> {
     if (remaining <= 0) {
       return;
     }
+
+    final shouldContinue = await showMateyaPermissionNoticeDialog(
+      context,
+      title: '사진 권한 안내',
+      message:
+          '활동 대표 이미지를 등록하기 위해 사진 보관함 접근 권한이 필요합니다. 권한을 거부하셔도 활동 정보 입력은 계속 진행할 수 있습니다.',
+      confirmLabel: '사진 선택하기',
+      cancelLabel: '나중에',
+    );
+
+    if (!mounted || !shouldContinue) {
+      return;
+    }
+
     try {
       final picked = await _imagePicker.pickMultiImage(
         imageQuality: 88,
@@ -112,6 +128,29 @@ class _CreateFlowPageState extends State<CreateFlowPage> {
         return;
       }
       await widget.controller.addImages(picked.take(remaining).toList());
+    } on PlatformException catch (error) {
+      if (!mounted) {
+        return;
+      }
+      if (error.code == 'photo_access_denied') {
+        final action = await showMateyaPermissionRecoveryDialog(
+          context,
+          title: '사진 권한이 필요해요',
+          message:
+              '대표 이미지를 추가하려면 사진 보관함 접근 권한이 필요합니다. 권한이 없어도 활동 정보 입력은 계속할 수 있고, 다시 시도하거나 앱 설정에서 권한을 허용할 수 있습니다.',
+          retryLabel: '다시 시도',
+        );
+        if (!mounted) {
+          return;
+        }
+        if (action == MateyaPermissionRecoveryAction.retry) {
+          await _pickImages();
+          return;
+        }
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('이미지를 불러오지 못했어요. 권한과 파일 상태를 확인해 주세요.')),
+      );
     } catch (_) {
       if (!mounted) {
         return;

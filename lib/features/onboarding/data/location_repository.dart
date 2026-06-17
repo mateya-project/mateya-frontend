@@ -28,12 +28,20 @@ class DeviceNeighborhoodLocationRepository
         permission = await Geolocator.requestPermission();
       }
 
-      if (permission == LocationPermission.denied ||
-          permission == LocationPermission.deniedForever) {
+      if (permission == LocationPermission.denied) {
         return const LocationLookupResult.failure(
           LocationFailure(
             LocationFailureType.permissionDenied,
-            '위치 권한이 없어 직접 입력으로 전환할게요.',
+            '위치 권한이 없으면 현재 위치 자동 인증을 사용할 수 없어요. 직접 입력은 계속 진행할 수 있고, 권한을 허용하면 다시 시도할 수 있어요.',
+          ),
+        );
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        return const LocationLookupResult.failure(
+          LocationFailure(
+            LocationFailureType.permissionPermanentlyDenied,
+            '위치 권한이 꺼져 있어 현재 위치 자동 인증을 사용할 수 없어요. 앱 설정에서 권한을 허용하거나 직접 입력으로 계속 진행해 주세요.',
           ),
         );
       }

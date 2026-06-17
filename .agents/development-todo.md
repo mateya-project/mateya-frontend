@@ -4,3 +4,5 @@
   이유: 이번 리팩토링으로 대형 presentation 파일과 `create_controller`는 정리됐지만, `mypage/home/chat/create/details` repository와 `onboarding/chat` controller는 아직 상태 전이, API 처리, mock 데이터, 검증 책임이 한 파일에 과밀하게 남아 있음
 - P2: `onboarding`/`create` 화면의 개별 로딩 UI를 `MateyaSkeleton` 기반으로 통일
   이유: 이번 작업으로 `home/chat/mypage/details`는 공통 스켈레톤을 쓰게 됐지만, 나머지 플로우는 여전히 화면별 로딩 표현이 달라 UX 일관성이 깨질 수 있음
+- P2: Android `image_picker` `retrieveLostData()` 복구 처리 추가
+  이유: 권한/미디어 업로드 흐름 점검 중 공식 문서 기준으로 picker 실행 중 앱이 재시작될 수 있고, 현재는 선택 이미지 유실 복구를 처리하지 않음

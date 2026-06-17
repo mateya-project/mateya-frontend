@@ -74,10 +74,23 @@ void main() {
 
         expect(controller.step, OnboardingStep.neighborhoodAuto);
         expect(controller.completionMode, AuthCompletionMode.signup);
-        expect(controller.locationPhase, AsyncPhase.success);
-        expect(controller.selectedNeighborhood?.displayName, '우만동');
+        expect(controller.locationPhase, AsyncPhase.idle);
+        expect(controller.selectedNeighborhood, isNull);
       },
     );
+
+    test('location verification success updates neighborhood state', () async {
+      final controller = OnboardingController(
+        locationRepository: _FakeLocationRepository.success(),
+        authRepository: _FakeOnboardingAuthRepository(),
+        authSessionStore: AuthSessionStore.instance,
+      );
+
+      await controller.startAutomaticNeighborhoodVerification();
+
+      expect(controller.locationPhase, AsyncPhase.success);
+      expect(controller.selectedNeighborhood?.displayName, '우만동');
+    });
 
     test('guest signup stores session after neighborhood completion', () async {
       AuthSessionStore.instance.clear();
@@ -98,10 +111,39 @@ void main() {
       controller.updateVerificationCode(controller.debugVerificationCode!);
 
       await controller.submitVerificationCode();
+      await controller.startAutomaticNeighborhoodVerification();
       await controller.completeNeighborhood();
 
       expect(controller.step, OnboardingStep.completed);
       expect(AuthSessionStore.instance.session?.user.displayName, '홍길동');
+    });
+
+    test('permission denial keeps auto verification step for retry', () async {
+      final controller = OnboardingController(
+        locationRepository: _FakeLocationRepository.permissionDenied(),
+        authRepository: _FakeOnboardingAuthRepository(),
+        authSessionStore: AuthSessionStore.instance,
+      );
+
+      controller.startGuestFlow();
+      controller.toggleAllAgreements(true);
+      controller.confirmConsent();
+      controller.updateName('홍길동');
+      controller.submitName();
+      controller.selectCarrier('LG U+');
+      controller.updatePhoneNumber('01012345678');
+      await controller.sendVerificationCode();
+      controller.updateVerificationCode(controller.debugVerificationCode!);
+      await controller.submitVerificationCode();
+
+      await controller.startAutomaticNeighborhoodVerification();
+
+      expect(controller.step, OnboardingStep.neighborhoodAuto);
+      expect(controller.locationPhase, AsyncPhase.validationError);
+      expect(
+        controller.locationFailure?.type,
+        LocationFailureType.permissionDenied,
+      );
     });
 
     test('host business validation blocks invalid number', () {
@@ -205,6 +247,14 @@ class _FakeLocationRepository implements NeighborhoodLocationRepository {
           displayName: '우만동',
           latitude: 37.2907,
           longitude: 127.0416,
+        ),
+      );
+
+  _FakeLocationRepository.permissionDenied()
+    : _result = const LocationLookupResult.failure(
+        LocationFailure(
+          LocationFailureType.permissionDenied,
+          '위치 권한이 없으면 현재 위치 자동 인증을 사용할 수 없어요. 직접 입력은 계속 진행할 수 있고, 권한을 허용하면 다시 시도할 수 있어요.',
         ),
       );
 
