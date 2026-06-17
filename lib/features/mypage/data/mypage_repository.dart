@@ -5,7 +5,8 @@ import '../domain/mypage_models.dart';
 
 part 'mypage_repository_api.dart';
 part 'mypage_repository_mock.dart';
-part 'mypage_repository_support.dart';
+part 'mypage_repository_api_support.dart';
+part 'mypage_repository_mock_support.dart';
 
 abstract interface class MyPageRepository {
   Future<MyPageBundle> fetchBundle({required bool isBusinessMode});
