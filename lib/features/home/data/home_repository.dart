@@ -165,11 +165,6 @@ class ApiHomeRepository implements HomeRepository {
 
     final categories = filter.categoryIds
         .where((categoryId) => categoryId != 'all')
-        .expand(
-          (categoryId) =>
-              _serverCategoriesByClientCategoryId[categoryId] ??
-              const <String>[],
-        )
         .toSet()
         .toList(growable: false);
     if (categories.isNotEmpty) {
@@ -277,36 +272,32 @@ class ApiHomeRepository implements HomeRepository {
 }
 
 const ActivityCategory _fallbackCategory = ActivityCategory(
-  id: 'etc',
-  label: '기타',
+  id: 'PUBLIC_FACILITY',
+  label: '공공시설',
 );
 
 const Map<String, ActivityCategory> _categoryByServerCode =
     <String, ActivityCategory>{
-      'TOURIST_ATTRACTION': ActivityCategory(id: 'walk', label: '관광/산책'),
-      'TRAVEL_COURSE': ActivityCategory(id: 'walk', label: '관광/산책'),
-      'CULTURE_TRADITION': ActivityCategory(id: 'traditional', label: '전통문화'),
-      'EVENT_PERFORMANCE_FESTIVAL': ActivityCategory(
-        id: 'festival',
-        label: '지역축제',
+      'TOURIST_ATTRACTION': ActivityCategory(
+        id: 'TOURIST_ATTRACTION',
+        label: '관광지',
       ),
-      'SPORTS': ActivityCategory(id: 'sports', label: '스포츠/액티비티'),
-      'ACTIVITY_LEPORTS': ActivityCategory(id: 'sports', label: '스포츠/액티비티'),
-      'PUBLIC_FACILITY': ActivityCategory(id: 'etc', label: '기타'),
-      'SHOPPING': ActivityCategory(id: 'food', label: '음식체험'),
-    };
-
-const Map<String, List<String>> _serverCategoriesByClientCategoryId =
-    <String, List<String>>{
-      'traditional': <String>['CULTURE_TRADITION'],
-      'sports': <String>['SPORTS', 'ACTIVITY_LEPORTS'],
-      'festival': <String>['EVENT_PERFORMANCE_FESTIVAL'],
-      'food': <String>['SHOPPING'],
-      // Backend categories are currently coarser than the UX chips.
-      'language': <String>['PUBLIC_FACILITY'],
-      'walk': <String>['TOURIST_ATTRACTION', 'TRAVEL_COURSE'],
-      'craft': <String>['CULTURE_TRADITION'],
-      'etc': <String>['PUBLIC_FACILITY'],
+      'TRAVEL_COURSE': ActivityCategory(id: 'TRAVEL_COURSE', label: '여행코스'),
+      'CULTURE_TRADITION': ActivityCategory(
+        id: 'CULTURE_TRADITION',
+        label: '문화/전통',
+      ),
+      'EVENT_PERFORMANCE_FESTIVAL': ActivityCategory(
+        id: 'EVENT_PERFORMANCE_FESTIVAL',
+        label: '행사/공연/축제',
+      ),
+      'SPORTS': ActivityCategory(id: 'SPORTS', label: '스포츠'),
+      'ACTIVITY_LEPORTS': ActivityCategory(
+        id: 'ACTIVITY_LEPORTS',
+        label: '액티비티/레포츠',
+      ),
+      'PUBLIC_FACILITY': ActivityCategory(id: 'PUBLIC_FACILITY', label: '공공시설'),
+      'SHOPPING': ActivityCategory(id: 'SHOPPING', label: '쇼핑'),
     };
 
 String _sortToServerValue(ActivitySortOption value) => switch (value) {
@@ -354,8 +345,8 @@ final DateTime _baseDate = DateTime(2026, 6, 13, 10);
 final List<ActivityItem> _mockActivities = <ActivityItem>[
   ActivityItem(
     id: 'featured-hike',
-    categoryId: 'sports',
-    categoryLabel: '액티비티',
+    categoryId: 'ACTIVITY_LEPORTS',
+    categoryLabel: '액티비티/레포츠',
     title: '토요일 등산 후 막걸리',
     place: '북한산 둘레길',
     startAt: _baseDate.add(const Duration(days: 1, hours: 4)),
@@ -381,8 +372,8 @@ final List<ActivityItem> _mockActivities = <ActivityItem>[
   ),
   ActivityItem(
     id: 'river-bus',
-    categoryId: 'traditional',
-    categoryLabel: '전통문화',
+    categoryId: 'TRAVEL_COURSE',
+    categoryLabel: '여행코스',
     title: '여의도 한강 버스 타러가요',
     place: '여의도 한강공원',
     startAt: _baseDate.add(const Duration(days: 4, hours: 7)),
@@ -403,8 +394,8 @@ final List<ActivityItem> _mockActivities = <ActivityItem>[
   ),
   ActivityItem(
     id: 'night-walk',
-    categoryId: 'walk',
-    categoryLabel: '관광/산책',
+    categoryId: 'TOURIST_ATTRACTION',
+    categoryLabel: '관광지',
     title: '한강 밤 산책',
     place: '잠수교 산책로',
     startAt: _baseDate.add(const Duration(days: 1, hours: 8)),
@@ -428,8 +419,8 @@ final List<ActivityItem> _mockActivities = <ActivityItem>[
   ),
   ActivityItem(
     id: 'hanok-tea',
-    categoryId: 'traditional',
-    categoryLabel: '전통문화',
+    categoryId: 'CULTURE_TRADITION',
+    categoryLabel: '문화/전통',
     title: '북촌 한옥 티 클래스',
     place: '북촌 한옥마을',
     startAt: _baseDate.add(const Duration(days: 2, hours: 3)),
@@ -453,8 +444,8 @@ final List<ActivityItem> _mockActivities = <ActivityItem>[
   ),
   ActivityItem(
     id: 'street-food',
-    categoryId: 'food',
-    categoryLabel: '음식체험',
+    categoryId: 'SHOPPING',
+    categoryLabel: '쇼핑',
     title: '광장시장 야식 투어',
     place: '광장시장',
     startAt: _baseDate.add(const Duration(days: 3, hours: 8)),
@@ -468,15 +459,15 @@ final List<ActivityItem> _mockActivities = <ActivityItem>[
       ActivityAudienceOption.foreignerFriendly,
       ActivityAudienceOption.touristFriendly,
     },
-    languages: <String>{'ko', 'en', 'es'},
+    languages: <String>{'ko', 'en', 'zh'},
     statuses: <ActivityStatusOption>{ActivityStatusOption.recruiting},
     imageUrl:
         'https://images.unsplash.com/photo-1559847844-5315695dadae?auto=format&fit=crop&w=1200&q=80',
   ),
   ActivityItem(
     id: 'language-cafe',
-    categoryId: 'language',
-    categoryLabel: '언어교환',
+    categoryId: 'PUBLIC_FACILITY',
+    categoryLabel: '공공시설',
     title: '홍대 영어-한국어 언어교환',
     place: '홍대 카페거리',
     startAt: _baseDate.add(const Duration(days: 1, hours: 11)),
@@ -501,8 +492,8 @@ final List<ActivityItem> _mockActivities = <ActivityItem>[
   ),
   ActivityItem(
     id: 'pottery',
-    categoryId: 'craft',
-    categoryLabel: '공예',
+    categoryId: 'CULTURE_TRADITION',
+    categoryLabel: '문화/전통',
     title: '이천 도자기 핸드빌딩 체험',
     place: '이천 예스파크',
     startAt: _baseDate.add(const Duration(days: 7, hours: 2)),
@@ -516,15 +507,15 @@ final List<ActivityItem> _mockActivities = <ActivityItem>[
       ActivityAudienceOption.everyone,
       ActivityAudienceOption.beginnerFriendly,
     },
-    languages: <String>{'ko', 'en', 'vi'},
+    languages: <String>{'ko', 'en', 'ja'},
     statuses: <ActivityStatusOption>{ActivityStatusOption.recruiting},
     imageUrl:
         'https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=1200&q=80',
   ),
   ActivityItem(
     id: 'festival',
-    categoryId: 'festival',
-    categoryLabel: '지역축제',
+    categoryId: 'EVENT_PERFORMANCE_FESTIVAL',
+    categoryLabel: '행사/공연/축제',
     title: '수원 야행 같이 가요',
     place: '수원 화성행궁',
     startAt: _baseDate.add(const Duration(days: 5, hours: 8)),
@@ -545,8 +536,8 @@ final List<ActivityItem> _mockActivities = <ActivityItem>[
   ),
   ActivityItem(
     id: 'soccer',
-    categoryId: 'sports',
-    categoryLabel: '스포츠/액티비티',
+    categoryId: 'SPORTS',
+    categoryLabel: '스포츠',
     title: '초보자 풋살 매칭',
     place: '성수 풋살장',
     startAt: _baseDate.add(const Duration(days: 2, hours: 9)),
@@ -570,8 +561,8 @@ final List<ActivityItem> _mockActivities = <ActivityItem>[
   ),
   ActivityItem(
     id: 'market-walk',
-    categoryId: 'walk',
-    categoryLabel: '관광/산책',
+    categoryId: 'SHOPPING',
+    categoryLabel: '쇼핑',
     title: '망원시장 먹거리 산책',
     place: '망원시장',
     startAt: _baseDate.add(const Duration(days: 6, hours: 3)),
@@ -585,15 +576,15 @@ final List<ActivityItem> _mockActivities = <ActivityItem>[
       ActivityAudienceOption.foreignerFriendly,
       ActivityAudienceOption.touristFriendly,
     },
-    languages: <String>{'ko', 'en', 'fr'},
+    languages: <String>{'ko', 'en', 'zh'},
     statuses: <ActivityStatusOption>{ActivityStatusOption.recruiting},
     imageUrl:
         'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&w=1200&q=80',
   ),
   ActivityItem(
     id: 'kimchi-class',
-    categoryId: 'food',
-    categoryLabel: '음식체험',
+    categoryId: 'CULTURE_TRADITION',
+    categoryLabel: '문화/전통',
     title: '김치 만들기 원데이 클래스',
     place: '서촌 쿠킹스튜디오',
     startAt: _baseDate.add(const Duration(days: 3, hours: 2)),
@@ -607,15 +598,15 @@ final List<ActivityItem> _mockActivities = <ActivityItem>[
       ActivityAudienceOption.everyone,
       ActivityAudienceOption.foreignerFriendly,
     },
-    languages: <String>{'ko', 'en', 'de'},
+    languages: <String>{'ko', 'en', 'ja'},
     statuses: <ActivityStatusOption>{ActivityStatusOption.closingSoon},
     imageUrl:
         'https://images.unsplash.com/photo-1514517220017-8ce97a34a7b6?auto=format&fit=crop&w=1200&q=80',
   ),
   ActivityItem(
     id: 'hanji-lamp',
-    categoryId: 'craft',
-    categoryLabel: '공예',
+    categoryId: 'CULTURE_TRADITION',
+    categoryLabel: '문화/전통',
     title: '한지 무드등 만들기',
     place: '인사동 공방',
     startAt: _baseDate.add(const Duration(days: 8, hours: 1)),
@@ -639,8 +630,8 @@ final List<ActivityItem> _mockActivities = <ActivityItem>[
   ),
   ActivityItem(
     id: 'castle-run',
-    categoryId: 'sports',
-    categoryLabel: '스포츠/액티비티',
+    categoryId: 'SPORTS',
+    categoryLabel: '스포츠',
     title: '수원화성 러닝 크루',
     place: '수원화성',
     startAt: _baseDate.add(const Duration(days: 4, hours: 5)),
@@ -661,8 +652,8 @@ final List<ActivityItem> _mockActivities = <ActivityItem>[
   ),
   ActivityItem(
     id: 'temple',
-    categoryId: 'traditional',
-    categoryLabel: '전통문화',
+    categoryId: 'CULTURE_TRADITION',
+    categoryLabel: '문화/전통',
     title: '사찰 새벽 예불 체험',
     place: '봉은사',
     startAt: _baseDate.add(const Duration(days: 9, hours: -4)),
@@ -683,8 +674,8 @@ final List<ActivityItem> _mockActivities = <ActivityItem>[
   ),
   ActivityItem(
     id: 'museum-date',
-    categoryId: 'etc',
-    categoryLabel: '기타',
+    categoryId: 'PUBLIC_FACILITY',
+    categoryLabel: '공공시설',
     title: '전시 보고 감상 나누기',
     place: '국립중앙박물관',
     startAt: _baseDate.add(const Duration(days: 10, hours: 3)),
@@ -708,8 +699,8 @@ final List<ActivityItem> _mockActivities = <ActivityItem>[
   ),
   ActivityItem(
     id: 'lantern-night',
-    categoryId: 'festival',
-    categoryLabel: '지역축제',
+    categoryId: 'EVENT_PERFORMANCE_FESTIVAL',
+    categoryLabel: '행사/공연/축제',
     title: '연등축제 야간 투어',
     place: '종로 일대',
     startAt: _baseDate.add(const Duration(days: 11, hours: 8)),
@@ -723,15 +714,15 @@ final List<ActivityItem> _mockActivities = <ActivityItem>[
       ActivityAudienceOption.everyone,
       ActivityAudienceOption.foreignerFriendly,
     },
-    languages: <String>{'ko', 'en', 'th'},
+    languages: <String>{'ko', 'en', 'zh'},
     statuses: <ActivityStatusOption>{ActivityStatusOption.recruiting},
     imageUrl:
         'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80',
   ),
   ActivityItem(
     id: 'food-moon',
-    categoryId: 'food',
-    categoryLabel: '음식체험',
+    categoryId: 'CULTURE_TRADITION',
+    categoryLabel: '문화/전통',
     title: '달빛 막걸리 페어링',
     place: '익선동 한옥바',
     startAt: _baseDate.add(const Duration(days: 6, hours: 9)),
@@ -745,15 +736,15 @@ final List<ActivityItem> _mockActivities = <ActivityItem>[
       ActivityAudienceOption.koreanFriendly,
       ActivityAudienceOption.foreignerFriendly,
     },
-    languages: <String>{'ko', 'en', 'fr'},
+    languages: <String>{'ko', 'en', 'ja'},
     statuses: <ActivityStatusOption>{ActivityStatusOption.recruiting},
     imageUrl:
         'https://images.unsplash.com/photo-1470337458703-46ad1756a187?auto=format&fit=crop&w=1200&q=80',
   ),
   ActivityItem(
     id: 'craft-knot',
-    categoryId: 'craft',
-    categoryLabel: '공예',
+    categoryId: 'CULTURE_TRADITION',
+    categoryLabel: '문화/전통',
     title: '매듭 팔찌 만들기',
     place: '성북동 공예실',
     startAt: _baseDate.add(const Duration(days: 12, hours: 2)),
@@ -766,7 +757,7 @@ final List<ActivityItem> _mockActivities = <ActivityItem>[
     audiences: <ActivityAudienceOption>{
       ActivityAudienceOption.beginnerFriendly,
     },
-    languages: <String>{'ko', 'zh', 'vi'},
+    languages: <String>{'ko', 'zh', 'ja'},
     statuses: <ActivityStatusOption>{ActivityStatusOption.recruiting},
     imageUrl:
         'https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?auto=format&fit=crop&w=1200&q=80',

@@ -6,8 +6,12 @@ import 'package:mateya_app/features/onboarding/domain/onboarding_flow.dart';
 import 'package:mateya_app/features/onboarding/domain/onboarding_validators.dart';
 import 'package:mateya_app/shared/auth/auth_session.dart';
 import 'package:mateya_app/shared/network/mateya_api_client.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  SharedPreferences.setMockInitialValues(<String, Object>{});
+
   group('OnboardingValidators', () {
     test('rejects names with digits', () {
       expect(OnboardingValidators.validateName('홍길동1'), isNotNull);
@@ -112,6 +116,7 @@ void main() {
       controller.confirmConsent();
       controller.updateBusinessName('메이트야');
       controller.updateBusinessOwner('홍길동');
+      controller.updateBusinessOpeningDate('20240601');
       controller.updateBusinessNumberPart(0, '123');
       controller.updateBusinessNumberPart(1, '45');
       controller.updateBusinessNumberPart(2, '123');
@@ -119,6 +124,42 @@ void main() {
 
       expect(controller.step, isNot(OnboardingStep.completed));
       expect(controller.errorFor('businessNumber'), isNotNull);
+    });
+
+    test('new host flow verifies business then signs up after sms', () async {
+      AuthSessionStore.instance.clear();
+      final authRepository = _FakeOnboardingAuthRepository();
+      final controller = OnboardingController(
+        locationRepository: _FakeLocationRepository.success(),
+        authRepository: authRepository,
+        authSessionStore: AuthSessionStore.instance,
+      );
+
+      controller.startHostFlow();
+      controller.toggleAllAgreements(true);
+      controller.confirmConsent();
+      controller.updateBusinessName('메이트야 공방');
+      controller.updateBusinessOwner('홍길동');
+      controller.updateBusinessOpeningDate('20240601');
+      controller.updateBusinessNumberPart(0, '123');
+      controller.updateBusinessNumberPart(1, '45');
+      controller.updateBusinessNumberPart(2, '67890');
+
+      await controller.submitBusinessVerification();
+
+      expect(controller.step, OnboardingStep.guestPhone);
+
+      controller.selectCarrier('LG U+');
+      controller.updatePhoneNumber('01012345678');
+      await controller.sendVerificationCode();
+      controller.updateVerificationCode(controller.debugVerificationCode!);
+
+      await controller.submitVerificationCode();
+
+      expect(controller.step, OnboardingStep.completed);
+      expect(AuthSessionStore.instance.session?.user.displayName, '홍길동');
+      expect(authRepository.lastBusinessVerificationToken, 'business-token');
+      expect(authRepository.lastBusinessName, '메이트야 공방');
     });
 
     test('guest plus destination opens group creation placeholder', () {
@@ -203,6 +244,8 @@ class _FakeOnboardingAuthRepository implements OnboardingAuthRepository {
       );
 
   final AuthSession? loginSession;
+  String? lastBusinessVerificationToken;
+  String? lastBusinessName;
 
   @override
   Future<SmsRequestResult> requestSmsCode({required String phoneNumber}) async {
@@ -219,6 +262,18 @@ class _FakeOnboardingAuthRepository implements OnboardingAuthRepository {
   }) async {
     return SmsVerificationResult(
       verificationToken: 'verification-token',
+      expiresAt: DateTime(2099, 6, 14, 10, 10),
+    );
+  }
+
+  @override
+  Future<BusinessVerificationResult> verifyBusiness({
+    required String businessNumber,
+    required String representativeName,
+    required String openingDate,
+  }) async {
+    return BusinessVerificationResult(
+      businessVerificationToken: 'business-token',
       expiresAt: DateTime(2099, 6, 14, 10, 10),
     );
   }
@@ -257,6 +312,37 @@ class _FakeOnboardingAuthRepository implements OnboardingAuthRepository {
         phoneNumber: '01012345678',
         displayName: displayName,
         role: 'USER',
+        primaryLanguage: primaryLanguage,
+        primaryCountry: primaryCountry,
+        createdAt: DateTime(2026, 6, 14),
+      ),
+    );
+  }
+
+  @override
+  Future<AuthSession> signupHost({
+    required String verificationToken,
+    required String businessVerificationToken,
+    required String displayName,
+    required String businessName,
+    required String primaryLanguage,
+    required String primaryCountry,
+    required AgreementState agreementState,
+  }) async {
+    lastBusinessVerificationToken = businessVerificationToken;
+    lastBusinessName = businessName;
+    return AuthSession(
+      accessToken: 'host-access',
+      refreshToken: 'host-refresh',
+      tokenType: 'Bearer',
+      expiresIn: 1800,
+      refreshExpiresIn: 1209600,
+      refreshExpiresAt: DateTime(2026, 7, 1),
+      user: AuthUserProfile(
+        id: 7,
+        phoneNumber: '01012345678',
+        displayName: displayName,
+        role: 'BUSINESS',
         primaryLanguage: primaryLanguage,
         primaryCountry: primaryCountry,
         createdAt: DateTime(2026, 6, 14),

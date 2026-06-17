@@ -1311,7 +1311,6 @@ class _ExploreFilterSheetState extends State<_ExploreFilterSheet> {
   late ExploreFilter _draft;
   late final TextEditingController _minPriceController;
   late final TextEditingController _maxPriceController;
-  bool _showMoreLanguages = false;
   String? _validationMessage;
 
   @override
@@ -1443,43 +1442,23 @@ class _ExploreFilterSheetState extends State<_ExploreFilterSheet> {
                               Wrap(
                                 spacing: 12,
                                 runSpacing: 8,
-                                children:
-                                    <ActivityLanguageOption>[
-                                      ...kPrimaryLanguages,
-                                      if (_showMoreLanguages)
-                                        ...kExtraLanguages,
-                                    ].map((language) {
-                                      final supported =
-                                          kSupportedExploreLanguageCodes
-                                              .contains(language.code);
-                                      return _CheckboxTag(
-                                        label: language.label,
-                                        selected: _draft.languages.contains(
-                                          language.code,
-                                        ),
-                                        enabled: supported,
-                                        onTap: () =>
-                                            _toggleLanguage(language.code),
+                                children: kPrimaryLanguages.map((language) {
+                                  final supported =
+                                      kSupportedExploreLanguageCodes.contains(
+                                        language.code,
                                       );
-                                    }).toList(),
+                                  return _CheckboxTag(
+                                    label: language.label,
+                                    selected: _draft.languages.contains(
+                                      language.code,
+                                    ),
+                                    enabled: supported,
+                                    onTap: () => _toggleLanguage(language.code),
+                                  );
+                                }).toList(),
                               ),
                               const SizedBox(height: 8),
                               const _ExploreLanguageSupportNotice(),
-                              const SizedBox(height: 12),
-                              GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    _showMoreLanguages = !_showMoreLanguages;
-                                  });
-                                },
-                                child: Text(
-                                  _showMoreLanguages
-                                      ? '언어 목록 접기'
-                                      : '+ 24개 언어 더보기',
-                                  style: Theme.of(context).textTheme.bodyMedium
-                                      ?.copyWith(color: AppColors.brandGreen),
-                                ),
-                              ),
                             ],
                           ),
                         ),
@@ -1765,7 +1744,6 @@ class _ExploreFilterSheetState extends State<_ExploreFilterSheet> {
           widget.defaultFilter.minPrice?.toString() ?? '';
       _maxPriceController.text =
           widget.defaultFilter.maxPrice?.toString() ?? '';
-      _showMoreLanguages = false;
     });
   }
 

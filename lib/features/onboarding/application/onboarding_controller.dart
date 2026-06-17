@@ -43,6 +43,8 @@ class OnboardingController extends ChangeNotifier {
   String? _expectedVerificationCode;
   String? _verificationToken;
   DateTime? _verificationTokenExpiresAt;
+  String? _businessVerificationToken;
+  DateTime? _businessVerificationExpiresAt;
 
   String _name = '';
   String _carrier = '';
@@ -52,6 +54,7 @@ class OnboardingController extends ChangeNotifier {
   String _manualNeighborhoodQuery = '';
   String _businessName = '';
   String _businessOwner = '';
+  String _businessOpeningDate = '';
   String _businessNumberFirst = '';
   String _businessNumberSecond = '';
   String _businessNumberThird = '';
@@ -78,6 +81,7 @@ class OnboardingController extends ChangeNotifier {
   String get manualNeighborhoodQuery => _manualNeighborhoodQuery;
   String get businessName => _businessName;
   String get businessOwner => _businessOwner;
+  String get businessOpeningDate => _businessOpeningDate;
   String get businessNumberFirst => _businessNumberFirst;
   String get businessNumberSecond => _businessNumberSecond;
   String get businessNumberThird => _businessNumberThird;
@@ -102,6 +106,7 @@ class OnboardingController extends ChangeNotifier {
   bool get canCompleteBusiness =>
       _businessName.trim().isNotEmpty &&
       _businessOwner.trim().isNotEmpty &&
+      _businessOpeningDate.length == 8 &&
       _businessNumberFirst.length == 3 &&
       _businessNumberSecond.length == 2 &&
       _businessNumberThird.length == 5;
@@ -317,6 +322,10 @@ class OnboardingController extends ChangeNotifier {
 
       _completionMode = AuthCompletionMode.signup;
       _authPhase = AsyncPhase.success;
+      if (_flowKind == FlowKind.host) {
+        await _completeHostSignup();
+        return;
+      }
       _step = OnboardingStep.neighborhoodAuto;
       notifyListeners();
       await startAutomaticNeighborhoodVerification();
@@ -451,6 +460,12 @@ class OnboardingController extends ChangeNotifier {
     notifyListeners();
   }
 
+  void updateBusinessOpeningDate(String value) {
+    _businessOpeningDate = value.replaceAll(RegExp(r'\D'), '');
+    _clearError('businessOpeningDate');
+    notifyListeners();
+  }
+
   void updateBusinessNumberPart(int partIndex, String value) {
     final sanitized = value.replaceAll(RegExp(r'\D'), '');
     switch (partIndex) {
@@ -475,6 +490,8 @@ class OnboardingController extends ChangeNotifier {
     _fieldErrors['businessOwner'] = OnboardingValidators.validateBusinessOwner(
       _businessOwner,
     );
+    _fieldErrors['businessOpeningDate'] =
+        OnboardingValidators.validateBusinessOpeningDate(_businessOpeningDate);
     _fieldErrors['businessNumber'] =
         OnboardingValidators.validateBusinessNumber(
           _businessNumberFirst,
@@ -485,12 +502,31 @@ class OnboardingController extends ChangeNotifier {
     return _fieldErrors.values.whereType<String>().isEmpty;
   }
 
-  void submitBusinessVerification() {
+  Future<void> submitBusinessVerification() async {
     if (!validateBusinessFields()) {
       return;
     }
-    _completionMode = AuthCompletionMode.signup;
-    _step = OnboardingStep.completed;
+
+    _authPhase = AsyncPhase.loading;
+    notifyListeners();
+
+    try {
+      final result = await _authRepository.verifyBusiness(
+        businessNumber:
+            '$_businessNumberFirst-$_businessNumberSecond-$_businessNumberThird',
+        representativeName: _businessOwner.trim(),
+        openingDate: _businessOpeningDate,
+      );
+      _businessVerificationToken = result.businessVerificationToken;
+      _businessVerificationExpiresAt = result.expiresAt;
+      _completionMode = AuthCompletionMode.signup;
+      _authPhase = AsyncPhase.success;
+      _step = OnboardingStep.guestPhone;
+      _emitToast('사업자 인증이 완료됐어요. 휴대폰 인증을 이어서 진행해 주세요.');
+    } on MateyaApiException catch (error) {
+      _applyApiError(error, preferredField: 'businessNumber');
+    }
+
     notifyListeners();
   }
 
@@ -532,6 +568,8 @@ class OnboardingController extends ChangeNotifier {
     _expectedVerificationCode = null;
     _verificationToken = null;
     _verificationTokenExpiresAt = null;
+    _businessVerificationToken = null;
+    _businessVerificationExpiresAt = null;
     _name = '';
     _carrier = '';
     _countryCode = '+82';
@@ -540,6 +578,7 @@ class OnboardingController extends ChangeNotifier {
     _manualNeighborhoodQuery = '';
     _businessName = '';
     _businessOwner = '';
+    _businessOpeningDate = '';
     _businessNumberFirst = '';
     _businessNumberSecond = '';
     _businessNumberThird = '';
@@ -552,13 +591,16 @@ class OnboardingController extends ChangeNotifier {
       OnboardingStep.guestConsent ||
       OnboardingStep.hostConsent => OnboardingStep.welcome,
       OnboardingStep.guestName => OnboardingStep.guestConsent,
-      OnboardingStep.guestPhone => OnboardingStep.guestName,
+      OnboardingStep.guestPhone =>
+        _flowKind == FlowKind.host
+            ? OnboardingStep.hostBusiness
+            : OnboardingStep.guestName,
       OnboardingStep.neighborhoodAuto => OnboardingStep.guestPhone,
       OnboardingStep.neighborhoodManual => OnboardingStep.neighborhoodAuto,
       OnboardingStep.hostBusiness => OnboardingStep.hostConsent,
       OnboardingStep.completed =>
         _flowKind == FlowKind.host
-            ? OnboardingStep.hostBusiness
+            ? OnboardingStep.guestPhone
             : _completionMode == AuthCompletionMode.login
             ? OnboardingStep.guestPhone
             : OnboardingStep.neighborhoodAuto,
@@ -649,5 +691,49 @@ class OnboardingController extends ChangeNotifier {
 
   bool _isSignupCandidate(MateyaApiException error) {
     return error.code == 'not-found' || error.statusCode == 404;
+  }
+
+  Future<void> _completeHostSignup() async {
+    if (_verificationToken == null ||
+        _verificationTokenExpiresAt == null ||
+        _verificationTokenExpiresAt!.isBefore(DateTime.now())) {
+      _authPhase = AsyncPhase.validationError;
+      _emitToast('인증이 만료되어 인증번호를 다시 받아야 해요.');
+      _step = OnboardingStep.guestPhone;
+      notifyListeners();
+      return;
+    }
+    if (_businessVerificationToken == null ||
+        _businessVerificationExpiresAt == null ||
+        _businessVerificationExpiresAt!.isBefore(DateTime.now())) {
+      _authPhase = AsyncPhase.validationError;
+      _emitToast('사업자 인증이 만료되어 다시 인증해야 해요.');
+      _step = OnboardingStep.hostBusiness;
+      notifyListeners();
+      return;
+    }
+
+    _authPhase = AsyncPhase.loading;
+    notifyListeners();
+
+    try {
+      final session = await _authRepository.signupHost(
+        verificationToken: _verificationToken!,
+        businessVerificationToken: _businessVerificationToken!,
+        displayName: _signupDisplayName,
+        businessName: _businessName.trim(),
+        primaryLanguage: _resolvedPrimaryLanguage,
+        primaryCountry: _resolvedPrimaryCountry,
+        agreementState: _agreementState,
+      );
+      _authSessionStore.save(session);
+      _completionMode = AuthCompletionMode.signup;
+      _authPhase = AsyncPhase.success;
+      _step = OnboardingStep.completed;
+      notifyListeners();
+    } on MateyaApiException catch (error) {
+      _applyApiError(error);
+      notifyListeners();
+    }
   }
 }

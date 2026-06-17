@@ -21,7 +21,7 @@ void main() {
         expect(controller.step, CreateStep.category);
         expect(controller.errorFor('categories'), isNotNull);
 
-        controller.toggleCategory('traditional');
+        controller.toggleCategory('CULTURE_TRADITION');
         await controller.continueFlow();
 
         expect(controller.step, CreateStep.place);
@@ -66,5 +66,78 @@ void main() {
 
       controller.dispose();
     });
+
+    test('manual class place requires a category selection', () async {
+      final controller = CreateController(
+        repository: MockCreateRepository(),
+        flowType: CreateFlowType.classRegistration,
+        now: () => DateTime(2026, 6, 14, 9),
+      );
+
+      controller.updateManualPlaceName('성수 티 스튜디오');
+      controller.updateManualPlaceAddress('서울 성동구 성수일로 32');
+
+      await controller.continueFlow();
+
+      expect(controller.step, CreateStep.place);
+      expect(controller.errorFor('categories'), isNotNull);
+
+      controller.dispose();
+    });
+
+    test(
+      'class category detail reloads recommendations with detail code',
+      () async {
+        final repository = _FakeCreateRepository();
+        final controller = CreateController(
+          repository: repository,
+          flowType: CreateFlowType.classRegistration,
+          now: () => DateTime(2026, 6, 14, 9),
+        );
+
+        await controller.chooseCategory('CULTURE_TRADITION');
+        expect(repository.lastRecommendedCategoryIds, <String>{
+          'CULTURE_TRADITION',
+        });
+        expect(repository.lastRecommendedCategoryDetailCode, isNull);
+
+        await controller.chooseCategoryDetail('HANOK');
+
+        expect(repository.lastRecommendedCategoryDetailCode, 'HANOK');
+        expect(controller.selectedCategoryDetailCode, 'HANOK');
+
+        controller.dispose();
+      },
+    );
   });
+}
+
+class _FakeCreateRepository extends MockCreateRepository {
+  Set<String> lastRecommendedCategoryIds = const <String>{};
+  String? lastRecommendedCategoryDetailCode;
+
+  @override
+  Future<List<CreatePlaceSuggestion>> fetchRecommendedPlaces({
+    required CreateFlowType flowType,
+    Set<String> categoryIds = const <String>{},
+    String? categoryDetailCode,
+  }) async {
+    lastRecommendedCategoryIds = categoryIds;
+    lastRecommendedCategoryDetailCode = categoryDetailCode;
+    return const <CreatePlaceSuggestion>[
+      CreatePlaceSuggestion(
+        id: 'bukchon',
+        name: '북촌문화센터',
+        address: '서울 종로구 계동길 37',
+        description: '한옥 체험',
+        distanceKm: 2,
+        latitude: 37.582604,
+        longitude: 126.983998,
+        categoryIds: <String>{'CULTURE_TRADITION'},
+        serverCategoryCode: 'CULTURE_TRADITION',
+        categoryDetailCode: 'HANOK',
+        categoryDetailName: '한옥',
+      ),
+    ];
+  }
 }
