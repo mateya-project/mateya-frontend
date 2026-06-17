@@ -321,6 +321,8 @@ class _CreateFlowPageState extends State<CreateFlowPage> {
         manualPlaceNameController: _manualPlaceNameController,
         manualPlaceAddressController: _manualPlaceAddressController,
         hasSearched: _hasSearched,
+        onCategorySelected: widget.controller.chooseCategory,
+        onCategoryDetailSelected: widget.controller.chooseCategoryDetail,
         onSearchChanged: (value) {
           if (value.isEmpty && _hasSearched) {
             setState(() {
@@ -417,7 +419,7 @@ class _CategoryStepView extends StatelessWidget {
         Text('어떤 모임을 만들까요?', style: theme.textTheme.headlineMedium),
         const SizedBox(height: 10),
         Text(
-          '현재는 한국문화 체험 유형만 먼저 제공하고, 카테고리는 1개만 선택하도록 구성했습니다.',
+          '서비스 카테고리는 백엔드 public data 기준 8종으로 맞췄고, 모임은 1개 카테고리만 선택하도록 구성했습니다.',
           style: theme.textTheme.bodyMedium?.copyWith(
             color: AppColors.textSecondary,
           ),
@@ -473,6 +475,8 @@ class _PlaceStepView extends StatelessWidget {
     required this.manualPlaceNameController,
     required this.manualPlaceAddressController,
     required this.hasSearched,
+    required this.onCategorySelected,
+    required this.onCategoryDetailSelected,
     required this.onSearchChanged,
     required this.onSearch,
   });
@@ -482,6 +486,9 @@ class _PlaceStepView extends StatelessWidget {
   final TextEditingController manualPlaceNameController;
   final TextEditingController manualPlaceAddressController;
   final bool hasSearched;
+  final Future<void> Function(String categoryId) onCategorySelected;
+  final Future<void> Function(String? categoryDetailCode)
+  onCategoryDetailSelected;
   final ValueChanged<String> onSearchChanged;
   final Future<void> Function() onSearch;
 
@@ -507,7 +514,7 @@ class _PlaceStepView extends StatelessWidget {
         Text(
           controller.flowType == CreateFlowType.group
               ? '검색 결과 또는 추천 목록에서 1곳을 선택하면 지도에 바로 표시됩니다.'
-              : '클래스는 검색으로 장소를 고르거나, 장소명과 주소를 직접 입력할 수 있습니다.',
+              : '클래스는 서비스 카테고리를 먼저 맞춘 뒤, 추천 장소를 고르거나 장소명과 주소를 직접 입력할 수 있습니다.',
           style: theme.textTheme.bodyMedium?.copyWith(
             color: AppColors.textSecondary,
           ),
@@ -515,6 +522,52 @@ class _PlaceStepView extends StatelessWidget {
         const SizedBox(height: 24),
         if (controller.flowType ==
             CreateFlowType.classRegistration) ...<Widget>[
+          Text('클래스 카테고리', style: theme.textTheme.titleLarge),
+          const SizedBox(height: 10),
+          Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            children: CreateFormOptions.categories
+                .map(
+                  (category) => _SelectableChip(
+                    label: category.label,
+                    selected: controller.selectedCategoryIds.contains(
+                      category.id,
+                    ),
+                    onTap: () => onCategorySelected(category.id),
+                  ),
+                )
+                .toList(growable: false),
+          ),
+          if (controller.errorFor('categories') != null) ...<Widget>[
+            const SizedBox(height: 12),
+            _InlineErrorText(text: controller.errorFor('categories')!),
+          ],
+          if (controller.availableCategoryDetails.isNotEmpty) ...<Widget>[
+            const SizedBox(height: 20),
+            Text('세부유형', style: theme.textTheme.titleLarge),
+            const SizedBox(height: 10),
+            Wrap(
+              spacing: 10,
+              runSpacing: 10,
+              children: <Widget>[
+                _SelectableChip(
+                  label: '전체',
+                  selected: controller.selectedCategoryDetailCode == null,
+                  onTap: () => onCategoryDetailSelected(null),
+                ),
+                ...controller.availableCategoryDetails.map(
+                  (detail) => _SelectableChip(
+                    label: detail.label,
+                    selected:
+                        controller.selectedCategoryDetailCode == detail.code,
+                    onTap: () => onCategoryDetailSelected(detail.code),
+                  ),
+                ),
+              ],
+            ),
+          ],
+          const SizedBox(height: 20),
           Text('직접 장소 입력', style: theme.textTheme.titleLarge),
           const SizedBox(height: 10),
           MateyaTextField(

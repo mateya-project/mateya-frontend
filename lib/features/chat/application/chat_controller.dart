@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 
 import '../../onboarding/domain/onboarding_flow.dart';
@@ -96,6 +98,7 @@ class ChatController extends ChangeNotifier {
   }
 
   Future<void> openRoom(String roomId) async {
+    _stopRealtime();
     _selectedRoomId = roomId;
     _roomPhase = AsyncPhase.loading;
     _roomErrorMessage = null;
@@ -118,6 +121,7 @@ class ChatController extends ChangeNotifier {
       } on ChatRepositoryException {
         _pushToast('읽음 상태를 서버에 반영하지 못했어요. 다음에 다시 시도합니다.');
       }
+      _startRealtime(roomId);
       _roomPhase = AsyncPhase.success;
       _roomErrorMessage = null;
     } on ChatRepositoryException catch (error) {
@@ -212,12 +216,20 @@ class ChatController extends ChangeNotifier {
   }
 
   void closeRoom() {
+    _stopRealtime();
     _selectedRoomId = null;
     _roomPhase = AsyncPhase.idle;
     _roomErrorMessage = null;
     _draft = '';
     _draftAttachments = const <ChatAttachment>[];
     notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _stopRealtime();
+    _repository.dispose();
+    super.dispose();
   }
 
   void clearToast() {
@@ -294,31 +306,39 @@ class ChatController extends ChangeNotifier {
 
     final now = _now();
     final pendingAttachments = _draftAttachments;
+    final shouldWaitForRealtime = _repository.isRealtimeConnectedForRoom(
+      room.id,
+    );
     try {
       final sentBubbles = await _repository.sendMessage(
         roomId: room.id,
         text: message,
         attachments: pendingAttachments,
       );
-      final outgoingGroup = ChatMessageGroup(
-        id: 'out-${now.microsecondsSinceEpoch}',
-        sender: const ChatParticipant(id: 'me', name: '나'),
-        sentAt: now,
-        isMine: true,
-        bubbles: sentBubbles,
-      );
-
-      final updatedRoom = room.copyWith(
-        lastMessageAt: now,
-        unreadCount: 0,
-        messageGroups: <ChatMessageGroup>[...room.messageGroups, outgoingGroup],
-      );
 
       _draft = '';
       _draftAttachments = const <ChatAttachment>[];
       _roomPhase = AsyncPhase.success;
       _roomErrorMessage = null;
-      _replaceRoom(updatedRoom, moveToTop: true);
+      if (!shouldWaitForRealtime) {
+        final current = currentRoom ?? room;
+        final outgoingGroup = ChatMessageGroup(
+          id: 'pending-${now.microsecondsSinceEpoch}',
+          sender: const ChatParticipant(id: 'me', name: '나'),
+          sentAt: now,
+          isMine: true,
+          bubbles: sentBubbles,
+        );
+        final updatedRoom = current.copyWith(
+          lastMessageAt: now,
+          unreadCount: 0,
+          messageGroups: <ChatMessageGroup>[
+            ...current.messageGroups,
+            outgoingGroup,
+          ],
+        );
+        _replaceRoom(updatedRoom, moveToTop: true);
+      }
     } on ChatRepositoryException catch (error) {
       _roomPhase = AsyncPhase.validationError;
       _roomErrorMessage = error.message;
@@ -375,6 +395,67 @@ class ChatController extends ChangeNotifier {
         .toList(growable: false);
   }
 
+  void _startRealtime(String roomId) {
+    _repository.subscribeToRoomMessages(
+      roomId: roomId,
+      onMessage: (message) => _mergeRealtimeMessage(roomId, message),
+      onError: (message) {
+        _pushToast(message);
+        notifyListeners();
+      },
+    );
+  }
+
+  void _stopRealtime() {
+    _repository.unsubscribeFromRoomMessages();
+  }
+
+  void _mergeRealtimeMessage(String roomId, ChatMessageGroup message) {
+    final room = currentRoom;
+    if (room == null || room.id != roomId) {
+      return;
+    }
+
+    final existingIndex = room.messageGroups.indexWhere(
+      (group) => group.id == message.id,
+    );
+    if (existingIndex != -1) {
+      return;
+    }
+
+    final pendingIndex = message.isMine
+        ? room.messageGroups.lastIndexWhere(
+            (group) =>
+                group.isMine &&
+                group.id.startsWith('pending-') &&
+                _sameBubbles(group.bubbles, message.bubbles),
+          )
+        : -1;
+
+    final nextGroups = room.messageGroups.toList(growable: true);
+    if (pendingIndex != -1) {
+      nextGroups[pendingIndex] = message;
+    } else {
+      nextGroups.add(message);
+    }
+
+    final updatedRoom = room.copyWith(
+      lastMessageAt: message.sentAt.isAfter(room.lastMessageAt)
+          ? message.sentAt
+          : room.lastMessageAt,
+      unreadCount: 0,
+      messageGroups: nextGroups,
+    );
+    _roomPhase = AsyncPhase.success;
+    _roomErrorMessage = null;
+    _replaceRoom(updatedRoom, moveToTop: true);
+    notifyListeners();
+
+    if (!message.isMine) {
+      unawaited(_repository.markRoomAsRead(roomId));
+    }
+  }
+
   void _replaceRoom(ChatRoom nextRoom, {bool moveToTop = false}) {
     final updated = _rooms
         .where((room) => room.id != nextRoom.id)
@@ -393,5 +474,33 @@ class ChatController extends ChangeNotifier {
   void _pushToast(String message) {
     _toastMessage = message;
     _toastVersion += 1;
+  }
+
+  bool _sameBubbles(List<ChatBubble> left, List<ChatBubble> right) {
+    if (left.length != right.length) {
+      return false;
+    }
+    for (var index = 0; index < left.length; index += 1) {
+      final leftBubble = left[index];
+      final rightBubble = right[index];
+      if (leftBubble.originalText != rightBubble.originalText ||
+          leftBubble.translatedText != rightBubble.translatedText) {
+        return false;
+      }
+      if (leftBubble.attachments.length != rightBubble.attachments.length) {
+        return false;
+      }
+      for (
+        var attachmentIndex = 0;
+        attachmentIndex < leftBubble.attachments.length;
+        attachmentIndex += 1
+      ) {
+        if (leftBubble.attachments[attachmentIndex].path !=
+            rightBubble.attachments[attachmentIndex].path) {
+          return false;
+        }
+      }
+    }
+    return true;
   }
 }

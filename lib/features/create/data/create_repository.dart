@@ -10,12 +10,14 @@ abstract interface class CreateRepository {
   Future<List<CreatePlaceSuggestion>> fetchRecommendedPlaces({
     required CreateFlowType flowType,
     Set<String> categoryIds = const <String>{},
+    String? categoryDetailCode,
   });
 
   Future<List<CreatePlaceSuggestion>> searchPlaces({
     required String query,
     required CreateFlowType flowType,
     Set<String> categoryIds = const <String>{},
+    String? categoryDetailCode,
   });
 
   Future<CreateSubmitResult> submit(CreateSubmissionDraft draft);
@@ -54,6 +56,7 @@ class ApiCreateRepository implements CreateRepository {
   Future<List<CreatePlaceSuggestion>> fetchRecommendedPlaces({
     required CreateFlowType flowType,
     Set<String> categoryIds = const <String>{},
+    String? categoryDetailCode,
   }) async {
     final categoryCode = _resolveServerCategoryCode(
       explicitCategoryIds: categoryIds,
@@ -71,6 +74,8 @@ class ApiCreateRepository implements CreateRepository {
         requiresAuth: true,
         queryParameters: <String, String>{
           'category': categoryCode,
+          if (categoryDetailCode != null && categoryDetailCode.isNotEmpty)
+            'categoryDetailCode': categoryDetailCode,
           'latitude': '$latitude',
           'longitude': '$longitude',
         },
@@ -90,6 +95,7 @@ class ApiCreateRepository implements CreateRepository {
     required String query,
     required CreateFlowType flowType,
     Set<String> categoryIds = const <String>{},
+    String? categoryDetailCode,
   }) async {
     final trimmedQuery = query.trim();
     if (trimmedQuery.isEmpty) {
@@ -102,6 +108,8 @@ class ApiCreateRepository implements CreateRepository {
       );
       final queryParameters = <String, String>{
         'keyword': trimmedQuery,
+        if (categoryDetailCode != null && categoryDetailCode.isNotEmpty)
+          'categoryDetailCode': categoryDetailCode,
         ...?categoryCode == null
             ? null
             : <String, String>{'category': categoryCode},
@@ -303,6 +311,8 @@ class ApiCreateRepository implements CreateRepository {
           ? const <String>{}
           : <String>{clientCategoryId},
       serverCategoryCode: serverCategoryCode,
+      categoryDetailCode: json['categoryDetailCode'] as String?,
+      categoryDetailName: json['categoryDetailName'] as String?,
     );
   }
 
@@ -397,18 +407,27 @@ class MockCreateRepository implements CreateRepository {
   Future<List<CreatePlaceSuggestion>> fetchRecommendedPlaces({
     required CreateFlowType flowType,
     Set<String> categoryIds = const <String>{},
+    String? categoryDetailCode,
   }) async {
     await Future<void>.delayed(const Duration(milliseconds: 320));
     final candidates =
-        _placeSuggestions.where((place) {
-            if (flowType == CreateFlowType.classRegistration) {
-              return true;
-            }
-            if (categoryIds.isEmpty) {
-              return true;
-            }
-            return place.categoryIds.any(categoryIds.contains);
-          }).toList()
+        _placeSuggestions
+            .where((place) {
+              if (flowType == CreateFlowType.classRegistration) {
+                return true;
+              }
+              if (categoryIds.isEmpty) {
+                return true;
+              }
+              return place.categoryIds.any(categoryIds.contains);
+            })
+            .toList()
+            .where(
+              (place) =>
+                  categoryDetailCode == null ||
+                  place.categoryDetailCode == categoryDetailCode,
+            )
+            .toList()
           ..sort((left, right) => left.distanceKm.compareTo(right.distanceKm));
     return candidates.take(3).toList(growable: false);
   }
@@ -418,6 +437,7 @@ class MockCreateRepository implements CreateRepository {
     required String query,
     required CreateFlowType flowType,
     Set<String> categoryIds = const <String>{},
+    String? categoryDetailCode,
   }) async {
     await Future<void>.delayed(const Duration(milliseconds: 420));
     final normalized = query.trim().toLowerCase();
@@ -436,9 +456,12 @@ class MockCreateRepository implements CreateRepository {
         return false;
       }
       if (flowType == CreateFlowType.classRegistration || categoryIds.isEmpty) {
-        return true;
+        return categoryDetailCode == null ||
+            place.categoryDetailCode == categoryDetailCode;
       }
-      return place.categoryIds.any(categoryIds.contains);
+      return place.categoryIds.any(categoryIds.contains) &&
+          (categoryDetailCode == null ||
+              place.categoryDetailCode == categoryDetailCode);
     }).toList();
 
     filtered.sort((left, right) {
@@ -477,25 +500,25 @@ class MockCreateRepository implements CreateRepository {
 
 const Map<String, String> _serverCategoryCodeByClientCategoryId =
     <String, String>{
-      'traditional': 'CULTURE_TRADITION',
-      'sports': 'SPORTS',
-      'festival': 'EVENT_PERFORMANCE_FESTIVAL',
-      'food': 'SHOPPING',
-      'language': 'PUBLIC_FACILITY',
-      'walk': 'TOURIST_ATTRACTION',
-      'craft': 'CULTURE_TRADITION',
-      'etc': 'PUBLIC_FACILITY',
+      'TOURIST_ATTRACTION': 'TOURIST_ATTRACTION',
+      'TRAVEL_COURSE': 'TRAVEL_COURSE',
+      'CULTURE_TRADITION': 'CULTURE_TRADITION',
+      'EVENT_PERFORMANCE_FESTIVAL': 'EVENT_PERFORMANCE_FESTIVAL',
+      'SPORTS': 'SPORTS',
+      'ACTIVITY_LEPORTS': 'ACTIVITY_LEPORTS',
+      'PUBLIC_FACILITY': 'PUBLIC_FACILITY',
+      'SHOPPING': 'SHOPPING',
     };
 
 const Map<String, String> _clientCategoryIdByServerCode = <String, String>{
-  'TOURIST_ATTRACTION': 'walk',
-  'TRAVEL_COURSE': 'walk',
-  'CULTURE_TRADITION': 'traditional',
-  'EVENT_PERFORMANCE_FESTIVAL': 'festival',
-  'SPORTS': 'sports',
-  'ACTIVITY_LEPORTS': 'sports',
-  'PUBLIC_FACILITY': 'etc',
-  'SHOPPING': 'food',
+  'TOURIST_ATTRACTION': 'TOURIST_ATTRACTION',
+  'TRAVEL_COURSE': 'TRAVEL_COURSE',
+  'CULTURE_TRADITION': 'CULTURE_TRADITION',
+  'EVENT_PERFORMANCE_FESTIVAL': 'EVENT_PERFORMANCE_FESTIVAL',
+  'SPORTS': 'SPORTS',
+  'ACTIVITY_LEPORTS': 'ACTIVITY_LEPORTS',
+  'PUBLIC_FACILITY': 'PUBLIC_FACILITY',
+  'SHOPPING': 'SHOPPING',
 };
 
 String _audienceToServerValue(String audienceId) => switch (audienceId) {
@@ -516,8 +539,10 @@ const List<CreatePlaceSuggestion> _placeSuggestions = <CreatePlaceSuggestion>[
     distanceKm: 1,
     latitude: 37.579617,
     longitude: 126.977041,
-    categoryIds: <String>{'traditional', 'walk'},
+    categoryIds: <String>{'CULTURE_TRADITION'},
     serverCategoryCode: 'CULTURE_TRADITION',
+    categoryDetailCode: 'PALACE',
+    categoryDetailName: '궁궐',
   ),
   CreatePlaceSuggestion(
     id: 'bukchon',
@@ -527,8 +552,10 @@ const List<CreatePlaceSuggestion> _placeSuggestions = <CreatePlaceSuggestion>[
     distanceKm: 2,
     latitude: 37.582604,
     longitude: 126.983998,
-    categoryIds: <String>{'traditional', 'craft'},
+    categoryIds: <String>{'CULTURE_TRADITION'},
     serverCategoryCode: 'CULTURE_TRADITION',
+    categoryDetailCode: 'HANOK',
+    categoryDetailName: '한옥',
   ),
   CreatePlaceSuggestion(
     id: 'seoul-forest',
@@ -538,8 +565,10 @@ const List<CreatePlaceSuggestion> _placeSuggestions = <CreatePlaceSuggestion>[
     distanceKm: 1,
     latitude: 37.544557,
     longitude: 127.037442,
-    categoryIds: <String>{'walk', 'sports'},
+    categoryIds: <String>{'TOURIST_ATTRACTION'},
     serverCategoryCode: 'TOURIST_ATTRACTION',
+    categoryDetailCode: 'URBAN_PARK',
+    categoryDetailName: '도시공원',
   ),
   CreatePlaceSuggestion(
     id: 'ttukseom-sports',
@@ -549,8 +578,10 @@ const List<CreatePlaceSuggestion> _placeSuggestions = <CreatePlaceSuggestion>[
     distanceKm: 3,
     latitude: 37.531011,
     longitude: 127.066887,
-    categoryIds: <String>{'sports', 'walk'},
-    serverCategoryCode: 'SPORTS',
+    categoryIds: <String>{'ACTIVITY_LEPORTS'},
+    serverCategoryCode: 'ACTIVITY_LEPORTS',
+    categoryDetailCode: 'RIVERSIDE_ACTIVITY',
+    categoryDetailName: '수변 액티비티',
   ),
   CreatePlaceSuggestion(
     id: 'gwangjang',
@@ -560,8 +591,10 @@ const List<CreatePlaceSuggestion> _placeSuggestions = <CreatePlaceSuggestion>[
     distanceKm: 4,
     latitude: 37.570404,
     longitude: 126.999177,
-    categoryIds: <String>{'food', 'walk'},
+    categoryIds: <String>{'SHOPPING'},
     serverCategoryCode: 'SHOPPING',
+    categoryDetailCode: 'TRADITIONAL_MARKET',
+    categoryDetailName: '전통시장',
   ),
   CreatePlaceSuggestion(
     id: 'hongdae-language',
@@ -571,8 +604,10 @@ const List<CreatePlaceSuggestion> _placeSuggestions = <CreatePlaceSuggestion>[
     distanceKm: 5,
     latitude: 37.557317,
     longitude: 126.924107,
-    categoryIds: <String>{'language', 'etc'},
+    categoryIds: <String>{'PUBLIC_FACILITY'},
     serverCategoryCode: 'PUBLIC_FACILITY',
+    categoryDetailCode: 'COMMUNITY_SPACE',
+    categoryDetailName: '커뮤니티 공간',
   ),
   CreatePlaceSuggestion(
     id: 'suwon-festival',
@@ -582,8 +617,10 @@ const List<CreatePlaceSuggestion> _placeSuggestions = <CreatePlaceSuggestion>[
     distanceKm: 9,
     latitude: 37.281962,
     longitude: 127.014306,
-    categoryIds: <String>{'festival', 'traditional'},
+    categoryIds: <String>{'EVENT_PERFORMANCE_FESTIVAL'},
     serverCategoryCode: 'EVENT_PERFORMANCE_FESTIVAL',
+    categoryDetailCode: 'HERITAGE_FESTIVAL',
+    categoryDetailName: '유산 축제',
   ),
   CreatePlaceSuggestion(
     id: 'icheon-ceramic',
@@ -593,7 +630,9 @@ const List<CreatePlaceSuggestion> _placeSuggestions = <CreatePlaceSuggestion>[
     distanceKm: 10,
     latitude: 37.293792,
     longitude: 127.409215,
-    categoryIds: <String>{'craft'},
+    categoryIds: <String>{'CULTURE_TRADITION'},
     serverCategoryCode: 'CULTURE_TRADITION',
+    categoryDetailCode: 'CRAFT_WORKSHOP',
+    categoryDetailName: '공방',
   ),
 ];

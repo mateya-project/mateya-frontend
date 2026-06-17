@@ -4,6 +4,7 @@ import '../../../app/app_config.dart';
 import '../../../shared/auth/auth_session.dart';
 import '../../../shared/network/http_transport.dart';
 import '../../../shared/network/mateya_api_client.dart';
+import 'chat_realtime_client.dart';
 import '../domain/chat_models.dart';
 
 class ChatRoomPageResult {
@@ -44,6 +45,14 @@ abstract interface class ChatRepository {
     required List<ChatAttachment> attachments,
   });
   Future<void> markRoomAsRead(String roomId);
+  void subscribeToRoomMessages({
+    required String roomId,
+    required void Function(ChatMessageGroup message) onMessage,
+    required void Function(String message) onError,
+  });
+  void unsubscribeFromRoomMessages();
+  bool isRealtimeConnectedForRoom(String roomId);
+  void dispose();
 }
 
 class ApiChatRepository implements ChatRepository {
@@ -51,7 +60,13 @@ class ApiChatRepository implements ChatRepository {
     MateyaApiClient? apiClient,
     AuthSessionStore? sessionStore,
     HttpTransport? transport,
+    ChatRealtimeClient? realtimeClient,
   }) : _sessionStore = sessionStore ?? AuthSessionStore.instance,
+       _realtimeClient =
+           realtimeClient ??
+           ChatRealtimeClient(
+             sessionStore: sessionStore ?? AuthSessionStore.instance,
+           ),
        _apiClient =
            apiClient ??
            MateyaApiClient(
@@ -61,6 +76,7 @@ class ApiChatRepository implements ChatRepository {
        _transport = transport ?? createHttpTransport();
 
   final AuthSessionStore _sessionStore;
+  final ChatRealtimeClient _realtimeClient;
   final MateyaApiClient _apiClient;
   final HttpTransport _transport;
   final Map<String, ChatRoom> _cachedRooms = <String, ChatRoom>{};
@@ -177,6 +193,35 @@ class ApiChatRepository implements ChatRepository {
     } on MateyaApiException catch (error) {
       throw _mapApiException(error);
     }
+  }
+
+  @override
+  void subscribeToRoomMessages({
+    required String roomId,
+    required void Function(ChatMessageGroup message) onMessage,
+    required void Function(String message) onError,
+  }) {
+    _realtimeClient.subscribeToRoom(
+      roomId: roomId,
+      onMessage: onMessage,
+      onError: onError,
+      parseMessage: _parseMessageGroup,
+    );
+  }
+
+  @override
+  void unsubscribeFromRoomMessages() {
+    _realtimeClient.disconnect();
+  }
+
+  @override
+  bool isRealtimeConnectedForRoom(String roomId) {
+    return _realtimeClient.isConnectedForRoom(roomId);
+  }
+
+  @override
+  void dispose() {
+    _realtimeClient.disconnect();
   }
 
   Future<ChatRoom> _fetchRoomSummary(String roomId) async {
@@ -492,6 +537,22 @@ class MockChatRepository implements ChatRepository {
   Future<void> markRoomAsRead(String roomId) async {
     await Future<void>.delayed(const Duration(milliseconds: 120));
   }
+
+  @override
+  void subscribeToRoomMessages({
+    required String roomId,
+    required void Function(ChatMessageGroup message) onMessage,
+    required void Function(String message) onError,
+  }) {}
+
+  @override
+  void unsubscribeFromRoomMessages() {}
+
+  @override
+  bool isRealtimeConnectedForRoom(String roomId) => false;
+
+  @override
+  void dispose() {}
 }
 
 final ChatParticipant _me = ChatParticipant(id: 'me', name: '나');

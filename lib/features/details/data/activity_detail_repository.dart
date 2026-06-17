@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import '../../../app/app_config.dart';
 import '../../../shared/auth/auth_session.dart';
+import '../../../shared/network/http_transport.dart';
 import '../../../shared/network/mateya_api_client.dart';
 import '../../home/domain/home_models.dart';
 import '../domain/activity_detail_models.dart';
@@ -23,14 +26,17 @@ class ApiActivityDetailRepository implements ActivityDetailRepository {
   ApiActivityDetailRepository({
     MateyaApiClient? apiClient,
     AuthSessionStore? sessionStore,
+    HttpTransport? transport,
   }) : _apiClient =
            apiClient ??
            MateyaApiClient(
              baseUrl: AppConfig.apiBaseUrl,
              sessionStore: sessionStore ?? AuthSessionStore.instance,
-           );
+           ),
+       _transport = transport ?? createHttpTransport();
 
   final MateyaApiClient _apiClient;
+  final HttpTransport _transport;
 
   @override
   Future<ActivityDetail> fetchDetail(ActivityItem activity) async {
@@ -167,25 +173,16 @@ class ApiActivityDetailRepository implements ActivityDetailRepository {
     required String body,
     List<String> imageUrls = const <String>[],
   }) async {
-    final hasLocalImages = imageUrls.any(
-      (imageUrl) =>
-          !(imageUrl.startsWith('http://') || imageUrl.startsWith('https://')),
-    );
-    if (hasLocalImages) {
-      throw const ActivityDetailRepositoryException(
-        ActivityDetailLoadFailureType.validation,
-        message: '리뷰 이미지 업로드 연동은 아직 진행 중입니다. 텍스트 후기만 먼저 등록해 주세요.',
-      );
-    }
-
     try {
+      final uploadedImageUrls = await _resolveReviewImageUrls(imageUrls);
       final data = await _apiClient.postJson(
         '/api/v1/activities/$activityId/reviews',
         requiresAuth: true,
         body: <String, Object?>{
           'rating': rating,
           'body': body,
-          'imageUrls': imageUrls,
+          'imageUrls': uploadedImageUrls,
+          'representativeImageIndex': uploadedImageUrls.isEmpty ? null : 0,
         },
       );
       return _parseReview(data);
@@ -268,6 +265,95 @@ class ApiActivityDetailRepository implements ActivityDetailRepository {
     return 'Language $languageLabel · $countryLabel';
   }
 
+  Future<List<String>> _resolveReviewImageUrls(List<String> imageUrls) async {
+    if (imageUrls.isEmpty) {
+      return const <String>[];
+    }
+
+    final resolved = <String>[];
+    for (final imageUrl in imageUrls) {
+      if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+        resolved.add(imageUrl);
+        continue;
+      }
+      resolved.add(
+        await _uploadReviewImage(
+          imagePath: imageUrl,
+          requestedFileCount: imageUrls.length,
+        ),
+      );
+    }
+    return resolved;
+  }
+
+  Future<String> _uploadReviewImage({
+    required String imagePath,
+    required int requestedFileCount,
+  }) async {
+    final file = File(imagePath);
+    final fileName = imagePath.split('/').last;
+    final contentType = _contentTypeFor(fileName);
+    if (contentType == null) {
+      throw const ActivityDetailRepositoryException(
+        ActivityDetailLoadFailureType.validation,
+        message: 'JPG, PNG, WEBP, GIF 형식의 리뷰 이미지만 업로드할 수 있어요.',
+      );
+    }
+
+    final fileSize = await file.length();
+    final fileBytes = await file.readAsBytes();
+    final presignedData = await _apiClient.postJson(
+      '/api/v1/uploads/images/presigned-url',
+      requiresAuth: true,
+      body: <String, Object?>{
+        'purpose': 'REVIEW',
+        'originalFilename': fileName,
+        'contentType': contentType,
+        'sizeBytes': fileSize,
+        'requestedFileCount': requestedFileCount,
+      },
+    );
+    final presignedJson = _asMap(presignedData);
+    final uploadUrl = presignedJson['uploadUrl'] as String?;
+    final objectKey = presignedJson['objectKey'] as String?;
+    if (uploadUrl == null || objectKey == null) {
+      throw const ActivityDetailRepositoryException(
+        ActivityDetailLoadFailureType.server,
+      );
+    }
+
+    final uploadResponse = await _transport.send(
+      method: 'PUT',
+      uri: Uri.parse(uploadUrl),
+      headers: _flattenHeaders(
+        presignedJson['headers'] as Map<String, dynamic>? ??
+            const <String, dynamic>{},
+        fallbackContentType: contentType,
+      ),
+      bodyBytes: fileBytes,
+    );
+    if (uploadResponse.statusCode < 200 || uploadResponse.statusCode >= 300) {
+      throw const ActivityDetailRepositoryException(
+        ActivityDetailLoadFailureType.server,
+        message: '리뷰 이미지를 업로드하지 못했어요. 잠시 후 다시 시도해 주세요.',
+      );
+    }
+
+    final confirmedData = await _apiClient.postJson(
+      '/api/v1/uploads/images/confirm',
+      requiresAuth: true,
+      body: <String, Object?>{'objectKey': objectKey},
+    );
+    final confirmedJson = _asMap(confirmedData);
+    final publicUrl = confirmedJson['publicUrl'] as String?;
+    if (publicUrl == null || publicUrl.isEmpty) {
+      throw const ActivityDetailRepositoryException(
+        ActivityDetailLoadFailureType.server,
+      );
+    }
+    return publicUrl;
+  }
+
   Map<String, dynamic> _asMap(Object? value) {
     if (value is Map<String, dynamic>) {
       return value;
@@ -293,6 +379,44 @@ class ApiActivityDetailRepository implements ActivityDetailRepository {
       ActivityDetailLoadFailureType.server,
       message: error.message,
     );
+  }
+
+  Map<String, String> _flattenHeaders(
+    Map<String, dynamic> rawHeaders, {
+    required String fallbackContentType,
+  }) {
+    final headers = <String, String>{};
+    rawHeaders.forEach((key, value) {
+      if (value is List<Object?>) {
+        final joined = value.whereType<String>().join(', ');
+        if (joined.isNotEmpty) {
+          headers[key] = joined;
+        }
+        return;
+      }
+      if (value is String && value.isNotEmpty) {
+        headers[key] = value;
+      }
+    });
+    headers.putIfAbsent('Content-Type', () => fallbackContentType);
+    return headers;
+  }
+
+  String? _contentTypeFor(String fileName) {
+    final normalized = fileName.toLowerCase();
+    if (normalized.endsWith('.jpg') || normalized.endsWith('.jpeg')) {
+      return 'image/jpeg';
+    }
+    if (normalized.endsWith('.png')) {
+      return 'image/png';
+    }
+    if (normalized.endsWith('.webp')) {
+      return 'image/webp';
+    }
+    if (normalized.endsWith('.gif')) {
+      return 'image/gif';
+    }
+    return null;
   }
 }
 

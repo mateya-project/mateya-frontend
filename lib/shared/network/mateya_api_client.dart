@@ -87,6 +87,7 @@ class MateyaApiClient {
         const <String, List<String>>{},
     bool requiresAuth = false,
     Object? body,
+    bool allowRefresh = true,
   }) async {
     final mergedQueryParameters = <String, List<String>>{
       for (final entry in queryParameters.entries)
@@ -110,9 +111,7 @@ class MateyaApiClient {
           ),
         )
         .join('&');
-    final uri = Uri.parse(
-      baseUrl,
-    ).replace(path: path, query: query.isEmpty ? null : query);
+    final uri = _buildUri(path, query.isEmpty ? null : query);
     final headers = <String, String>{
       'Accept': 'application/json',
       if (body != null) 'Content-Type': 'application/json',
@@ -130,24 +129,42 @@ class MateyaApiClient {
     }
 
     try {
-      final response = await _transport.send(
-        method: method,
-        uri: uri,
-        headers: headers,
-        body: body == null ? null : jsonEncode(body),
-      );
-      final payload = response.body.isEmpty
-          ? null
-          : jsonDecode(response.body) as Object?;
+      try {
+        final response = await _transport.send(
+          method: method,
+          uri: uri,
+          headers: headers,
+          body: body == null ? null : jsonEncode(body),
+        );
+        final payload = response.body.isEmpty
+            ? null
+            : jsonDecode(response.body) as Object?;
 
-      if (response.statusCode >= 200 && response.statusCode < 300) {
-        if (payload is Map<String, dynamic>) {
-          return payload['data'];
+        if (response.statusCode >= 200 && response.statusCode < 300) {
+          if (payload is Map<String, dynamic>) {
+            return payload['data'];
+          }
+          return payload;
         }
-        return payload;
-      }
 
-      throw _toApiException(response.statusCode, payload);
+        throw _toApiException(response.statusCode, payload);
+      } on MateyaApiException catch (error) {
+        if (requiresAuth &&
+            allowRefresh &&
+            error.type == ApiFailureType.unauthorized &&
+            await _tryRefreshSession()) {
+          return _sendJson(
+            method: method,
+            path: path,
+            queryParameters: queryParameters,
+            queryParametersAll: queryParametersAll,
+            requiresAuth: requiresAuth,
+            body: body,
+            allowRefresh: false,
+          );
+        }
+        rethrow;
+      }
     } on MateyaApiException {
       rethrow;
     } on TimeoutException {
@@ -160,6 +177,48 @@ class MateyaApiClient {
         type: ApiFailureType.network,
         message: '네트워크 연결을 확인한 뒤 다시 시도해 주세요.',
       );
+    }
+  }
+
+  Uri _buildUri(String path, String? query) {
+    return Uri.parse(baseUrl).replace(path: path, query: query);
+  }
+
+  Future<bool> _tryRefreshSession() async {
+    try {
+      final refreshed = await sessionStore.refreshSession((refreshToken) async {
+        final response = await _transport.send(
+          method: 'POST',
+          uri: _buildUri('/api/v1/auth/refresh', null),
+          headers: const <String, String>{
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: jsonEncode(<String, String>{'refreshToken': refreshToken}),
+        );
+        final payload = response.body.isEmpty
+            ? null
+            : jsonDecode(response.body) as Object?;
+        if (response.statusCode >= 200 && response.statusCode < 300) {
+          final data = payload is Map<String, dynamic>
+              ? payload['data'] as Map<String, dynamic>? ??
+                    const <String, dynamic>{}
+              : const <String, dynamic>{};
+          return AuthSession.fromJson(data);
+        }
+        throw _toApiException(response.statusCode, payload);
+      });
+      return refreshed != null;
+    } on MateyaApiException catch (error) {
+      if (error.type == ApiFailureType.validation ||
+          error.type == ApiFailureType.unauthorized) {
+        sessionStore.clear();
+      }
+      return false;
+    } on TimeoutException {
+      return false;
+    } catch (_) {
+      return false;
     }
   }
 

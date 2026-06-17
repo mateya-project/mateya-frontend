@@ -848,10 +848,12 @@ class HostBusinessStepView extends StatefulWidget {
 class _HostBusinessStepViewState extends State<HostBusinessStepView> {
   late final TextEditingController _businessNameController;
   late final TextEditingController _ownerNameController;
+  late final TextEditingController _openingDateController;
   late final TextEditingController _firstController;
   late final TextEditingController _secondController;
   late final TextEditingController _thirdController;
   late final FocusNode _ownerFocusNode;
+  late final FocusNode _openingDateFocusNode;
   late final FocusNode _firstFocusNode;
   late final FocusNode _secondFocusNode;
   late final FocusNode _thirdFocusNode;
@@ -865,6 +867,9 @@ class _HostBusinessStepViewState extends State<HostBusinessStepView> {
     _ownerNameController = TextEditingController(
       text: widget.controller.businessOwner,
     );
+    _openingDateController = TextEditingController(
+      text: widget.controller.businessOpeningDate,
+    );
     _firstController = TextEditingController(
       text: widget.controller.businessNumberFirst,
     );
@@ -875,6 +880,7 @@ class _HostBusinessStepViewState extends State<HostBusinessStepView> {
       text: widget.controller.businessNumberThird,
     );
     _ownerFocusNode = FocusNode();
+    _openingDateFocusNode = FocusNode();
     _firstFocusNode = FocusNode();
     _secondFocusNode = FocusNode();
     _thirdFocusNode = FocusNode();
@@ -884,10 +890,12 @@ class _HostBusinessStepViewState extends State<HostBusinessStepView> {
   void dispose() {
     _businessNameController.dispose();
     _ownerNameController.dispose();
+    _openingDateController.dispose();
     _firstController.dispose();
     _secondController.dispose();
     _thirdController.dispose();
     _ownerFocusNode.dispose();
+    _openingDateFocusNode.dispose();
     _firstFocusNode.dispose();
     _secondFocusNode.dispose();
     _thirdFocusNode.dispose();
@@ -906,6 +914,10 @@ class _HostBusinessStepViewState extends State<HostBusinessStepView> {
     _ownerNameController.text = controller.businessOwner;
     _ownerNameController.selection = TextSelection.collapsed(
       offset: controller.businessOwner.length,
+    );
+    _openingDateController.text = controller.businessOpeningDate;
+    _openingDateController.selection = TextSelection.collapsed(
+      offset: controller.businessOpeningDate.length,
     );
     _firstController.text = controller.businessNumberFirst;
     _firstController.selection = TextSelection.collapsed(
@@ -1042,6 +1054,22 @@ class _HostBusinessStepViewState extends State<HostBusinessStepView> {
                   hintText: '홍길동',
                   errorText: controller.errorFor('businessOwner'),
                   onChanged: controller.updateBusinessOwner,
+                  textInputAction: TextInputAction.next,
+                ),
+                const SizedBox(height: 58),
+                Text('개업일자', style: theme.textTheme.titleLarge),
+                const SizedBox(height: 21),
+                MateyaTextField(
+                  controller: _openingDateController,
+                  focusNode: _openingDateFocusNode,
+                  hintText: '20240131',
+                  errorText: controller.errorFor('businessOpeningDate'),
+                  keyboardType: TextInputType.number,
+                  inputFormatters: <TextInputFormatter>[
+                    FilteringTextInputFormatter.digitsOnly,
+                    LengthLimitingTextInputFormatter(8),
+                  ],
+                  onChanged: controller.updateBusinessOpeningDate,
                 ),
                 const SizedBox(height: 140),
               ],
