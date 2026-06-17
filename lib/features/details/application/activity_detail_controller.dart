@@ -8,20 +8,18 @@ import '../data/activity_detail_repository.dart';
 import '../domain/activity_detail_models.dart';
 
 class ActivityDetailController extends ChangeNotifier {
-  ActivityDetailController({
-    required this.repository,
-    required this.activity,
-    DateTime Function()? now,
-  }) : _now = now ?? DateTime.now;
+  ActivityDetailController({required this.repository, required this.activity});
 
   static const int reviewPageSize = 8;
   static const int reviewPreviewLimit = 5;
 
   final ActivityDetailRepository repository;
   final ActivityItem activity;
-  final DateTime Function() _now;
 
   AsyncPhase _phase = AsyncPhase.idle;
+  bool _isMutatingFavorite = false;
+  final Set<String> _helpfulReviewIdsInFlight = <String>{};
+  bool _isSubmittingReview = false;
   ActivityDetail? _detail;
   ReviewSortOption _reviewSort = ReviewSortOption.latest;
   int _visibleReviewCount = reviewPageSize;
@@ -31,6 +29,10 @@ class ActivityDetailController extends ChangeNotifier {
   ActivityDetail? get detail => _detail;
   ReviewSortOption get reviewSort => _reviewSort;
   String? get errorMessage => _errorMessage;
+  bool get isMutatingFavorite => _isMutatingFavorite;
+  bool get isSubmittingReview => _isSubmittingReview;
+  bool isHelpfulMutationInFlight(String reviewId) =>
+      _helpfulReviewIdsInFlight.contains(reviewId);
 
   Future<void> initialize() async {
     if (_phase != AsyncPhase.idle) {
@@ -123,13 +125,33 @@ class ActivityDetailController extends ChangeNotifier {
     notifyListeners();
   }
 
-  void toggleFavorite() {
+  Future<String?> toggleFavorite() async {
     final current = _detail;
     if (current == null) {
-      return;
+      return '활동 정보를 먼저 불러와야 합니다.';
     }
-    _detail = current.copyWith(isFavorite: !current.isFavorite);
+    if (_isMutatingFavorite) {
+      return null;
+    }
+
+    _isMutatingFavorite = true;
+    _errorMessage = null;
     notifyListeners();
+
+    try {
+      final nextFavorite = await repository.toggleFavorite(
+        activityId: current.activity.id,
+        isFavorite: current.isFavorite,
+      );
+      _detail = current.copyWith(isFavorite: nextFavorite);
+      return null;
+    } on ActivityDetailRepositoryException catch (error) {
+      _errorMessage = error.message ?? '즐겨찾기 상태를 변경하지 못했어요. 잠시 후 다시 시도해 주세요.';
+      return _errorMessage;
+    } finally {
+      _isMutatingFavorite = false;
+      notifyListeners();
+    }
   }
 
   void toggleJoin() {
@@ -181,27 +203,41 @@ class ActivityDetailController extends ChangeNotifier {
     notifyListeners();
   }
 
-  void toggleHelpful(String reviewId) {
+  Future<String?> toggleHelpful(String reviewId) async {
     final current = _detail;
     if (current == null) {
-      return;
+      return '후기 정보를 먼저 불러와야 합니다.';
     }
-    final nextReviews = current.reviews
-        .map((review) {
-          if (review.id != reviewId) {
-            return review;
-          }
-          final nextHelpful = !review.isHelpfulByMe;
-          return review.copyWith(
-            isHelpfulByMe: nextHelpful,
-            helpfulCount: nextHelpful
-                ? review.helpfulCount + 1
-                : math.max(0, review.helpfulCount - 1),
-          );
-        })
-        .toList(growable: false);
-    _detail = current.copyWith(reviews: nextReviews);
+    if (_helpfulReviewIdsInFlight.contains(reviewId)) {
+      return null;
+    }
+
+    _helpfulReviewIdsInFlight.add(reviewId);
+    _errorMessage = null;
     notifyListeners();
+
+    try {
+      final result = await repository.toggleHelpful(reviewId: reviewId);
+      final nextReviews = current.reviews
+          .map((review) {
+            if (review.id != reviewId) {
+              return review;
+            }
+            return review.copyWith(
+              isHelpfulByMe: result.helpful,
+              helpfulCount: result.helpfulCount,
+            );
+          })
+          .toList(growable: false);
+      _detail = current.copyWith(reviews: nextReviews);
+      return null;
+    } on ActivityDetailRepositoryException catch (error) {
+      _errorMessage = error.message ?? '도움이 돼요 상태를 변경하지 못했어요. 잠시 후 다시 시도해 주세요.';
+      return _errorMessage;
+    } finally {
+      _helpfulReviewIdsInFlight.remove(reviewId);
+      notifyListeners();
+    }
   }
 
   void toggleTranslation(String reviewId) {
@@ -223,38 +259,69 @@ class ActivityDetailController extends ChangeNotifier {
     notifyListeners();
   }
 
-  bool submitReview({
+  Future<String?> submitReview({
     required int rating,
     required String body,
     List<String> imageUrls = const <String>[],
-  }) {
+  }) async {
     final current = _detail;
     if (current == null) {
-      return false;
+      return '활동 정보를 먼저 불러와야 합니다.';
     }
     final trimmed = body.trim();
     if (rating < 1 || rating > 5 || trimmed.isEmpty) {
-      return false;
+      return '별점과 후기를 입력해 주세요.';
+    }
+    if (_isSubmittingReview) {
+      return null;
     }
 
-    final review = ActivityReview(
-      id: 'review-${_now().microsecondsSinceEpoch}',
-      authorName: '나',
-      submittedAt: _now(),
-      rating: rating,
-      originalText: trimmed,
-      helpfulCount: 0,
-      imageUrls: imageUrls,
-    );
-    final nextReviews = <ActivityReview>[review, ...current.reviews];
-    _detail = current.copyWith(reviews: nextReviews);
-    _reviewSort = ReviewSortOption.latest;
-    _visibleReviewCount = math.min(
-      math.max(_visibleReviewCount, reviewPageSize),
-      nextReviews.length,
-    );
+    _isSubmittingReview = true;
+    _errorMessage = null;
     notifyListeners();
-    return true;
+
+    try {
+      final review = await repository.submitReview(
+        activityId: current.activity.id,
+        rating: rating,
+        body: trimmed,
+        imageUrls: imageUrls,
+      );
+      final nextReviews = <ActivityReview>[review, ...current.reviews];
+      ReviewSummary? nextSummary;
+      final summary = current.serverReviewSummary;
+      if (summary != null) {
+        final nextTotal = summary.totalCount + 1;
+        final nextAverage = nextTotal == 0
+            ? 0
+            : ((summary.averageRating * summary.totalCount) + rating) /
+                  nextTotal;
+        final nextCounts = <int, int>{...summary.ratingCounts};
+        nextCounts[rating] = (nextCounts[rating] ?? 0) + 1;
+        nextSummary = ReviewSummary(
+          averageRating: nextAverage.toDouble(),
+          totalCount: nextTotal,
+          ratingCounts: nextCounts,
+        );
+      }
+
+      _detail = current.copyWith(
+        reviews: nextReviews,
+        serverReviewSummary: nextSummary,
+      );
+      _reviewSort = ReviewSortOption.latest;
+      _visibleReviewCount = math.min(
+        math.max(_visibleReviewCount, reviewPageSize),
+        nextReviews.length,
+      );
+      return null;
+    } on ActivityDetailRepositoryException catch (error) {
+      _errorMessage = error.message ?? '후기를 등록하지 못했어요. 잠시 후 다시 시도해 주세요.';
+      return _errorMessage;
+    } finally {
+      _isSubmittingReview = false;
+      notifyListeners();
+    }
   }
 
   Future<void> _loadDetail() async {
@@ -267,12 +334,16 @@ class ActivityDetailController extends ChangeNotifier {
       _phase = AsyncPhase.success;
       _visibleReviewCount = math.min(reviewPageSize, _detail!.reviews.length);
     } on ActivityDetailRepositoryException catch (error) {
-      _phase = error.type == ActivityDetailLoadFailureType.network
-          ? AsyncPhase.networkError
-          : AsyncPhase.serverError;
-      _errorMessage = error.type == ActivityDetailLoadFailureType.network
-          ? '네트워크 연결을 확인한 뒤 다시 시도해 주세요.'
-          : '활동 정보를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.';
+      _phase = switch (error.type) {
+        ActivityDetailLoadFailureType.network => AsyncPhase.networkError,
+        ActivityDetailLoadFailureType.validation => AsyncPhase.validationError,
+        ActivityDetailLoadFailureType.server => AsyncPhase.serverError,
+      };
+      _errorMessage =
+          error.message ??
+          (error.type == ActivityDetailLoadFailureType.network
+              ? '네트워크 연결을 확인한 뒤 다시 시도해 주세요.'
+              : '활동 정보를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.');
     } catch (_) {
       _phase = AsyncPhase.serverError;
       _errorMessage = '활동 정보를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.';

@@ -6,6 +6,17 @@ import '../domain/activity_detail_models.dart';
 
 abstract interface class ActivityDetailRepository {
   Future<ActivityDetail> fetchDetail(ActivityItem activity);
+  Future<bool> toggleFavorite({
+    required String activityId,
+    required bool isFavorite,
+  });
+  Future<HelpfulToggleState> toggleHelpful({required String reviewId});
+  Future<ActivityReview> submitReview({
+    required String activityId,
+    required int rating,
+    required String body,
+    List<String> imageUrls,
+  });
 }
 
 class ApiActivityDetailRepository implements ActivityDetailRepository {
@@ -114,6 +125,74 @@ class ApiActivityDetailRepository implements ActivityDetailRepository {
     }
   }
 
+  @override
+  Future<bool> toggleFavorite({
+    required String activityId,
+    required bool isFavorite,
+  }) async {
+    try {
+      final data = await _apiClient.postJson(
+        '/api/v1/activities/$activityId/favorite',
+        requiresAuth: true,
+      );
+      final json = _asMap(data);
+      return json['favorite'] as bool? ?? !isFavorite;
+    } on MateyaApiException catch (error) {
+      throw _mapApiException(error);
+    }
+  }
+
+  @override
+  Future<HelpfulToggleState> toggleHelpful({required String reviewId}) async {
+    try {
+      final data = await _apiClient.postJson(
+        '/api/v1/reviews/$reviewId/helpful',
+        requiresAuth: true,
+      );
+      final json = _asMap(data);
+      return HelpfulToggleState(
+        helpful: json['helpful'] as bool? ?? false,
+        helpfulCount: json['helpfulCount'] as int? ?? 0,
+      );
+    } on MateyaApiException catch (error) {
+      throw _mapApiException(error);
+    }
+  }
+
+  @override
+  Future<ActivityReview> submitReview({
+    required String activityId,
+    required int rating,
+    required String body,
+    List<String> imageUrls = const <String>[],
+  }) async {
+    final hasLocalImages = imageUrls.any(
+      (imageUrl) =>
+          !(imageUrl.startsWith('http://') || imageUrl.startsWith('https://')),
+    );
+    if (hasLocalImages) {
+      throw const ActivityDetailRepositoryException(
+        ActivityDetailLoadFailureType.validation,
+        message: '리뷰 이미지 업로드 연동은 아직 진행 중입니다. 텍스트 후기만 먼저 등록해 주세요.',
+      );
+    }
+
+    try {
+      final data = await _apiClient.postJson(
+        '/api/v1/activities/$activityId/reviews',
+        requiresAuth: true,
+        body: <String, Object?>{
+          'rating': rating,
+          'body': body,
+          'imageUrls': imageUrls,
+        },
+      );
+      return _parseReview(data);
+    } on MateyaApiException catch (error) {
+      throw _mapApiException(error);
+    }
+  }
+
   ActivityParticipant _parseParticipant(Object? value) {
     final json = _asMap(value);
     return ActivityParticipant(
@@ -196,6 +275,24 @@ class ApiActivityDetailRepository implements ActivityDetailRepository {
       ActivityDetailLoadFailureType.server,
     );
   }
+
+  ActivityDetailRepositoryException _mapApiException(MateyaApiException error) {
+    if (error.type == ApiFailureType.network) {
+      return const ActivityDetailRepositoryException(
+        ActivityDetailLoadFailureType.network,
+      );
+    }
+    if (error.type == ApiFailureType.validation) {
+      return ActivityDetailRepositoryException(
+        ActivityDetailLoadFailureType.validation,
+        message: error.message,
+      );
+    }
+    return ActivityDetailRepositoryException(
+      ActivityDetailLoadFailureType.server,
+      message: error.message,
+    );
+  }
 }
 
 class MockActivityDetailRepository implements ActivityDetailRepository {
@@ -224,6 +321,39 @@ class MockActivityDetailRepository implements ActivityDetailRepository {
       reviews: _reviewsFor(activity),
       isFavorite: activity.isFeatured,
       isJoined: activity.participantCount >= activity.participantCapacity,
+    );
+  }
+
+  @override
+  Future<bool> toggleFavorite({
+    required String activityId,
+    required bool isFavorite,
+  }) async {
+    await Future<void>.delayed(const Duration(milliseconds: 120));
+    return !isFavorite;
+  }
+
+  @override
+  Future<HelpfulToggleState> toggleHelpful({required String reviewId}) async {
+    await Future<void>.delayed(const Duration(milliseconds: 120));
+    return const HelpfulToggleState(helpful: true, helpfulCount: 1);
+  }
+
+  @override
+  Future<ActivityReview> submitReview({
+    required String activityId,
+    required int rating,
+    required String body,
+    List<String> imageUrls = const <String>[],
+  }) async {
+    await Future<void>.delayed(const Duration(milliseconds: 180));
+    return ActivityReview(
+      id: 'review-${DateTime.now().microsecondsSinceEpoch}',
+      authorName: '나',
+      submittedAt: DateTime.now(),
+      rating: rating,
+      originalText: body.trim(),
+      imageUrls: imageUrls,
     );
   }
 }

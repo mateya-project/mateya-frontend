@@ -1,6 +1,6 @@
 import '../../home/domain/home_models.dart';
 
-enum ActivityDetailLoadFailureType { network, server }
+enum ActivityDetailLoadFailureType { network, validation, server }
 
 enum ReviewSortOption { latest, oldest, highestRating, lowestRating }
 
@@ -188,9 +188,17 @@ class ReviewSummary {
 }
 
 class ActivityDetailRepositoryException implements Exception {
-  const ActivityDetailRepositoryException(this.type);
+  const ActivityDetailRepositoryException(this.type, {this.message});
 
   final ActivityDetailLoadFailureType type;
+  final String? message;
+}
+
+class HelpfulToggleState {
+  const HelpfulToggleState({required this.helpful, required this.helpfulCount});
+
+  final bool helpful;
+  final int helpfulCount;
 }
 
 extension ReviewSortOptionX on ReviewSortOption {
