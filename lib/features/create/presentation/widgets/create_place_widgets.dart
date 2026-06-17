@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 
 import '../../../../shared/theme/app_tokens.dart';
+import '../../../../shared/widgets/mateya_skeleton.dart';
 import '../../domain/create_models.dart';
 
 class PlaceTile extends StatelessWidget {
@@ -189,11 +190,7 @@ class PlaceMapCard extends StatelessWidget {
                 alignment: Alignment.center,
                 child: const Text('장소를 선택하면 이 영역에 위치가 표시됩니다.'),
               ),
-            if (isLoading)
-              Container(
-                color: Colors.white.withValues(alpha: 0.72),
-                child: const Center(child: CircularProgressIndicator()),
-              ),
+            if (isLoading) const Positioned.fill(child: MateyaMapSkeleton()),
           ],
         ),
       ),
@@ -206,15 +203,40 @@ class LoadingPlaceList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: List<Widget>.generate(
-        3,
-        (index) => Container(
-          margin: EdgeInsets.only(bottom: index == 2 ? 0 : 12),
-          height: 88,
-          decoration: BoxDecoration(
-            color: AppColors.subtleBackground,
-            borderRadius: BorderRadius.circular(18),
+    return MateyaSkeleton(
+      child: Column(
+        children: List<Widget>.generate(
+          3,
+          (index) => Padding(
+            padding: EdgeInsets.only(bottom: index == 2 ? 0 : 12),
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(18),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: const <Widget>[
+                  MateyaSkeletonBlock(width: 42, height: 42, radius: 21),
+                  SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        MateyaSkeletonBlock(height: 18, width: 148, radius: 9),
+                        SizedBox(height: 8),
+                        MateyaSkeletonBlock(height: 14, width: 196, radius: 7),
+                        SizedBox(height: 8),
+                        MateyaSkeletonBlock(height: 12, width: 164, radius: 6),
+                      ],
+                    ),
+                  ),
+                  SizedBox(width: 12),
+                  MateyaSkeletonBlock(width: 36, height: 14, radius: 7),
+                ],
+              ),
+            ),
           ),
         ),
       ),
