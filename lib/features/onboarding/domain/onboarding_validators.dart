@@ -63,6 +63,28 @@ class OnboardingValidators {
     return validateName(value);
   }
 
+  static String? validateBusinessOpeningDate(String value) {
+    final digits = value.replaceAll(RegExp(r'\D'), '');
+    if (digits.length != 8) {
+      return '개업일자 8자리를 입력해 주세요.';
+    }
+    final year = int.tryParse(digits.substring(0, 4));
+    final month = int.tryParse(digits.substring(4, 6));
+    final day = int.tryParse(digits.substring(6, 8));
+    if (year == null || month == null || day == null) {
+      return '개업일자는 숫자만 입력해 주세요.';
+    }
+    try {
+      final parsed = DateTime(year, month, day);
+      if (parsed.year != year || parsed.month != month || parsed.day != day) {
+        return '개업일자를 정확히 입력해 주세요.';
+      }
+    } catch (_) {
+      return '개업일자를 정확히 입력해 주세요.';
+    }
+    return null;
+  }
+
   static String? validateBusinessNumber(
     String first,
     String second,

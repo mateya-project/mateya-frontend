@@ -15,6 +15,13 @@ class CreateCategoryOption {
   final String label;
 }
 
+class CreateCategoryDetailOption {
+  const CreateCategoryDetailOption({required this.code, required this.label});
+
+  final String code;
+  final String label;
+}
+
 class CreateLanguageOption {
   const CreateLanguageOption({required this.code, required this.label});
 
@@ -40,6 +47,8 @@ class CreatePlaceSuggestion {
     this.longitude,
     this.categoryIds = const <String>{},
     this.serverCategoryCode,
+    this.categoryDetailCode,
+    this.categoryDetailName,
   });
 
   final String id;
@@ -51,6 +60,8 @@ class CreatePlaceSuggestion {
   final double? longitude;
   final Set<String> categoryIds;
   final String? serverCategoryCode;
+  final String? categoryDetailCode;
+  final String? categoryDetailName;
 
   bool get hasCoordinates => latitude != null && longitude != null;
 }
@@ -170,14 +181,14 @@ class CreateSubmitResult {
 
 abstract final class CreateFormOptions {
   static const List<CreateCategoryOption> categories = <CreateCategoryOption>[
-    CreateCategoryOption(id: 'traditional', label: '전통문화'),
-    CreateCategoryOption(id: 'sports', label: '스포츠/액티비티'),
-    CreateCategoryOption(id: 'festival', label: '지역축제'),
-    CreateCategoryOption(id: 'food', label: '음식체험'),
-    CreateCategoryOption(id: 'language', label: '언어교환'),
-    CreateCategoryOption(id: 'walk', label: '관광/산책'),
-    CreateCategoryOption(id: 'craft', label: '공예'),
-    CreateCategoryOption(id: 'etc', label: '기타'),
+    CreateCategoryOption(id: 'TOURIST_ATTRACTION', label: '관광지'),
+    CreateCategoryOption(id: 'TRAVEL_COURSE', label: '여행코스'),
+    CreateCategoryOption(id: 'CULTURE_TRADITION', label: '문화/전통'),
+    CreateCategoryOption(id: 'EVENT_PERFORMANCE_FESTIVAL', label: '행사/공연/축제'),
+    CreateCategoryOption(id: 'SPORTS', label: '스포츠'),
+    CreateCategoryOption(id: 'ACTIVITY_LEPORTS', label: '액티비티/레포츠'),
+    CreateCategoryOption(id: 'PUBLIC_FACILITY', label: '공공시설'),
+    CreateCategoryOption(id: 'SHOPPING', label: '쇼핑'),
   ];
 
   static const List<CreateLanguageOption> languages = <CreateLanguageOption>[

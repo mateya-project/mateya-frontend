@@ -219,35 +219,21 @@ const Set<String> kSupportedExploreLanguageCodes = <String>{
 
 const List<ActivityCategory> kExploreCategories = <ActivityCategory>[
   ActivityCategory(id: 'all', label: '전체', isAll: true),
-  ActivityCategory(id: 'traditional', label: '전통문화'),
-  ActivityCategory(id: 'sports', label: '스포츠/액티비티'),
-  ActivityCategory(id: 'festival', label: '지역축제'),
-  ActivityCategory(id: 'food', label: '음식체험'),
-  ActivityCategory(id: 'language', label: '언어교환'),
-  ActivityCategory(id: 'walk', label: '관광/산책'),
-  ActivityCategory(id: 'craft', label: '공예'),
-  ActivityCategory(id: 'etc', label: '기타'),
+  ActivityCategory(id: 'TOURIST_ATTRACTION', label: '관광지'),
+  ActivityCategory(id: 'TRAVEL_COURSE', label: '여행코스'),
+  ActivityCategory(id: 'CULTURE_TRADITION', label: '문화/전통'),
+  ActivityCategory(id: 'EVENT_PERFORMANCE_FESTIVAL', label: '행사/공연/축제'),
+  ActivityCategory(id: 'SPORTS', label: '스포츠'),
+  ActivityCategory(id: 'ACTIVITY_LEPORTS', label: '액티비티/레포츠'),
+  ActivityCategory(id: 'PUBLIC_FACILITY', label: '공공시설'),
+  ActivityCategory(id: 'SHOPPING', label: '쇼핑'),
 ];
 
 const List<ActivityLanguageOption> kPrimaryLanguages = <ActivityLanguageOption>[
   ActivityLanguageOption(code: 'ko', label: '한국어'),
-  ActivityLanguageOption(code: 'zh', label: '중국어'),
   ActivityLanguageOption(code: 'en', label: '영어'),
   ActivityLanguageOption(code: 'ja', label: '일본어'),
-  ActivityLanguageOption(code: 'vi', label: '베트남어'),
-];
-
-const List<ActivityLanguageOption> kExtraLanguages = <ActivityLanguageOption>[
-  ActivityLanguageOption(code: 'th', label: '태국어'),
-  ActivityLanguageOption(code: 'es', label: '스페인어'),
-  ActivityLanguageOption(code: 'fr', label: '프랑스어'),
-  ActivityLanguageOption(code: 'de', label: '독일어'),
-  ActivityLanguageOption(code: 'it', label: '이탈리아어'),
-  ActivityLanguageOption(code: 'ru', label: '러시아어'),
-  ActivityLanguageOption(code: 'ar', label: '아랍어'),
-  ActivityLanguageOption(code: 'id', label: '인도네시아어'),
-  ActivityLanguageOption(code: 'pt', label: '포르투갈어'),
-  ActivityLanguageOption(code: 'mn', label: '몽골어'),
+  ActivityLanguageOption(code: 'zh', label: '중국어'),
 ];
 
 extension ActivitySortOptionX on ActivitySortOption {

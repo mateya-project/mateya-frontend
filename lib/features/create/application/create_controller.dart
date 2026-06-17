@@ -44,6 +44,7 @@ class CreateController extends ChangeNotifier {
   List<CreatePlaceSuggestion> _recommendedPlaces =
       const <CreatePlaceSuggestion>[];
   final Set<String> _selectedCategoryIds = <String>{};
+  String? _selectedCategoryDetailCode;
   CreatePlaceSuggestion? _selectedPlace;
   String _manualPlaceName = '';
   String _manualPlaceAddress = '';
@@ -73,6 +74,8 @@ class CreateController extends ChangeNotifier {
   List<CreatePlaceSuggestion> get searchResults => _searchResults;
   List<CreatePlaceSuggestion> get recommendedPlaces => _recommendedPlaces;
   Set<String> get selectedCategoryIds => _selectedCategoryIds;
+  String? get selectedCategoryId => _selectedCategoryIds.firstOrNull;
+  String? get selectedCategoryDetailCode => _selectedCategoryDetailCode;
   CreatePlaceSuggestion? get selectedPlace => _selectedPlace;
   String get manualPlaceName => _manualPlaceName;
   String get manualPlaceAddress => _manualPlaceAddress;
@@ -92,6 +95,32 @@ class CreateController extends ChangeNotifier {
   String? get toastMessage => _toastMessage;
   int get toastVersion => _toastVersion;
   CreateSubmitResult? get submitResult => _submitResult;
+  List<CreateCategoryDetailOption> get availableCategoryDetails {
+    final selectedCategoryId = this.selectedCategoryId;
+    if (selectedCategoryId == null) {
+      return const <CreateCategoryDetailOption>[];
+    }
+
+    final options = <CreateCategoryDetailOption>[];
+    final seenCodes = <String>{};
+    for (final place in <CreatePlaceSuggestion>[
+      ..._recommendedPlaces,
+      ..._searchResults,
+    ]) {
+      if (!place.categoryIds.contains(selectedCategoryId)) {
+        continue;
+      }
+      final code = place.categoryDetailCode;
+      final label = place.categoryDetailName;
+      if (code == null || code.isEmpty || label == null || label.isEmpty) {
+        continue;
+      }
+      if (seenCodes.add(code)) {
+        options.add(CreateCategoryDetailOption(code: code, label: label));
+      }
+    }
+    return options;
+  }
 
   List<CreateStep> get steps => flowType == CreateFlowType.group
       ? const <CreateStep>[
@@ -130,15 +159,40 @@ class CreateController extends ChangeNotifier {
   }
 
   void toggleCategory(String categoryId) {
-    if (_selectedCategoryIds.contains(categoryId)) {
-      _selectedCategoryIds.clear();
-    } else {
-      _selectedCategoryIds
-        ..clear()
-        ..add(categoryId);
-    }
+    _applySingleCategorySelection(categoryId);
+    _selectedCategoryDetailCode = null;
     _clearErrors(<String>{'categories'});
     notifyListeners();
+  }
+
+  Future<void> chooseCategory(String categoryId) async {
+    _applySingleCategorySelection(categoryId);
+    _selectedCategoryDetailCode = null;
+    _selectedPlace = null;
+    _clearErrors(<String>{'categories', 'place'});
+    notifyListeners();
+
+    if (_searchQuery.trim().isNotEmpty) {
+      await searchPlaces();
+      return;
+    }
+    await loadRecommendedPlaces();
+  }
+
+  Future<void> chooseCategoryDetail(String? categoryDetailCode) async {
+    if (_selectedCategoryDetailCode == categoryDetailCode) {
+      return;
+    }
+    _selectedCategoryDetailCode = categoryDetailCode;
+    _selectedPlace = null;
+    _clearErrors(<String>{'place'});
+    notifyListeners();
+
+    if (_searchQuery.trim().isNotEmpty) {
+      await searchPlaces();
+      return;
+    }
+    await loadRecommendedPlaces();
   }
 
   Future<void> continueFlow() async {
@@ -190,6 +244,7 @@ class CreateController extends ChangeNotifier {
       _recommendedPlaces = await repository.fetchRecommendedPlaces(
         flowType: flowType,
         categoryIds: _selectedCategoryIds,
+        categoryDetailCode: _selectedCategoryDetailCode,
       );
       _placePhase = AsyncPhase.success;
     } on CreateRepositoryException catch (error) {
@@ -237,6 +292,7 @@ class CreateController extends ChangeNotifier {
         query: query,
         flowType: flowType,
         categoryIds: _selectedCategoryIds,
+        categoryDetailCode: _selectedCategoryDetailCode,
       );
       _placePhase = AsyncPhase.success;
     } on CreateRepositoryException catch (error) {
@@ -270,10 +326,20 @@ class CreateController extends ChangeNotifier {
     }
     _selectedPlace = place;
     if (flowType == CreateFlowType.classRegistration) {
+      final categoryId = place.categoryIds.firstOrNull;
+      if (categoryId != null) {
+        _applySingleCategorySelection(categoryId);
+      }
+      _selectedCategoryDetailCode = place.categoryDetailCode;
       _manualPlaceName = place.name;
       _manualPlaceAddress = place.address;
     }
-    _clearErrors(<String>{'place', 'manualPlaceName', 'manualPlaceAddress'});
+    _clearErrors(<String>{
+      'categories',
+      'place',
+      'manualPlaceName',
+      'manualPlaceAddress',
+    });
     notifyListeners();
   }
 
@@ -584,6 +650,9 @@ class CreateController extends ChangeNotifier {
     if (flowType == CreateFlowType.classRegistration &&
         _manualPlaceName.trim().isNotEmpty &&
         _manualPlaceAddress.trim().isNotEmpty) {
+      if (selectedCategoryId == null) {
+        return <String, String?>{'categories': '클래스 카테고리를 먼저 선택해 주세요.'};
+      }
       return <String, String?>{};
     }
     return <String, String?>{
@@ -697,7 +766,27 @@ class CreateController extends ChangeNotifier {
       address: address,
       description: '직접 입력한 클래스 장소',
       distanceKm: 0,
+      categoryIds: selectedCategoryId == null
+          ? const <String>{}
+          : <String>{selectedCategoryId!},
+      serverCategoryCode: selectedCategoryId,
+      categoryDetailCode: _selectedCategoryDetailCode,
+      categoryDetailName: availableCategoryDetails
+          .where((item) => item.code == _selectedCategoryDetailCode)
+          .firstOrNull
+          ?.label,
     );
+  }
+
+  void _applySingleCategorySelection(String categoryId) {
+    if (_selectedCategoryIds.contains(categoryId) &&
+        _selectedCategoryIds.length == 1) {
+      _selectedCategoryIds.clear();
+      return;
+    }
+    _selectedCategoryIds
+      ..clear()
+      ..add(categoryId);
   }
 
   void _clearErrors(Set<String> keys) {

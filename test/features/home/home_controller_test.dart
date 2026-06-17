@@ -55,7 +55,9 @@ void main() {
         controller.updateSearchQuery('한강');
         await controller.refreshExplore();
         controller.applyFilter(
-          controller.filter.copyWith(categoryIds: <String>{'walk'}),
+          controller.filter.copyWith(
+            categoryIds: <String>{'TOURIST_ATTRACTION'},
+          ),
         );
         await Future<void>.delayed(Duration.zero);
 
@@ -114,23 +116,23 @@ class _FakeHomeRepository implements HomeRepository {
       _activity(
         id: 'featured',
         title: '대표 활동',
-        categoryId: 'sports',
-        categoryLabel: '스포츠/액티비티',
+        categoryId: 'SPORTS',
+        categoryLabel: '스포츠',
         isFeatured: true,
       ),
       _activity(
         id: 'walk-1',
         title: '한강 밤 산책',
-        categoryId: 'walk',
-        categoryLabel: '관광/산책',
+        categoryId: 'TOURIST_ATTRACTION',
+        categoryLabel: '관광지',
         languages: <String>{'ko', 'en'},
       ),
       for (var index = 0; index < 10; index += 1)
         _activity(
           id: 'home-$index',
           title: '홈 샘플 활동 $index',
-          categoryId: index.isEven ? 'traditional' : 'food',
-          categoryLabel: index.isEven ? '전통문화' : '음식체험',
+          categoryId: index.isEven ? 'CULTURE_TRADITION' : 'SHOPPING',
+          categoryLabel: index.isEven ? '문화/전통' : '쇼핑',
           startAt: DateTime(2026, 6, 13 + index, 10),
         ),
     ];
@@ -210,16 +212,16 @@ final List<ActivityItem> _exploreActivities = <ActivityItem>[
   _buildExploreActivity(
     id: 'walk-1',
     title: '한강 밤 산책',
-    categoryId: 'walk',
-    categoryLabel: '관광/산책',
+    categoryId: 'TOURIST_ATTRACTION',
+    categoryLabel: '관광지',
     languages: <String>{'ko', 'en'},
   ),
   for (var index = 0; index < 24; index += 1)
     _buildExploreActivity(
       id: 'item-$index',
       title: '탐색 활동 $index',
-      categoryId: index.isEven ? 'traditional' : 'food',
-      categoryLabel: index.isEven ? '전통문화' : '음식체험',
+      categoryId: index.isEven ? 'CULTURE_TRADITION' : 'SHOPPING',
+      categoryLabel: index.isEven ? '문화/전통' : '쇼핑',
       startAt: DateTime(2026, 6, 15 + index, 10),
     ),
 ];

@@ -19,12 +19,28 @@ class SmsVerificationResult {
   final DateTime expiresAt;
 }
 
+class BusinessVerificationResult {
+  const BusinessVerificationResult({
+    required this.businessVerificationToken,
+    required this.expiresAt,
+  });
+
+  final String businessVerificationToken;
+  final DateTime expiresAt;
+}
+
 abstract interface class OnboardingAuthRepository {
   Future<SmsRequestResult> requestSmsCode({required String phoneNumber});
 
   Future<SmsVerificationResult> verifySmsCode({
     required String phoneNumber,
     required String code,
+  });
+
+  Future<BusinessVerificationResult> verifyBusiness({
+    required String businessNumber,
+    required String representativeName,
+    required String openingDate,
   });
 
   Future<AuthSession> loginUser({required String verificationToken});
@@ -36,6 +52,16 @@ abstract interface class OnboardingAuthRepository {
     required String primaryCountry,
     required AgreementState agreementState,
     required NeighborhoodSelection neighborhood,
+  });
+
+  Future<AuthSession> signupHost({
+    required String verificationToken,
+    required String businessVerificationToken,
+    required String displayName,
+    required String businessName,
+    required String primaryLanguage,
+    required String primaryCountry,
+    required AgreementState agreementState,
   });
 }
 
@@ -74,6 +100,27 @@ class ApiOnboardingAuthRepository implements OnboardingAuthRepository {
   }
 
   @override
+  Future<BusinessVerificationResult> verifyBusiness({
+    required String businessNumber,
+    required String representativeName,
+    required String openingDate,
+  }) async {
+    final data = await apiClient.postJson(
+      '/api/v1/business-verifications',
+      body: <String, Object?>{
+        'businessNumber': businessNumber,
+        'representativeName': representativeName,
+        'openingDate': openingDate,
+      },
+    );
+    final json = _asMap(data);
+    return BusinessVerificationResult(
+      businessVerificationToken: json['businessVerificationToken'] as String,
+      expiresAt: DateTime.parse(json['expiresAt'] as String),
+    );
+  }
+
+  @override
   Future<AuthSession> loginUser({required String verificationToken}) async {
     final data = await apiClient.postJson(
       '/api/v1/auth/login',
@@ -101,6 +148,42 @@ class ApiOnboardingAuthRepository implements OnboardingAuthRepository {
         'activityRegionName': neighborhood.displayName,
         'activityLatitude': neighborhood.latitude,
         'activityLongitude': neighborhood.longitude,
+        'termsAgreements': <Map<String, Object?>>[
+          _agreement(type: 'SERVICE_TERMS', agreed: agreementState.service),
+          _agreement(
+            type: 'PRIVACY_THIRD_PARTY',
+            agreed: agreementState.privacy,
+          ),
+          _agreement(
+            type: 'LOCATION_BASED_SERVICE',
+            agreed: agreementState.location,
+          ),
+          _agreement(type: 'AGE_OVER_14', agreed: agreementState.age),
+        ],
+      },
+    );
+    return _parseAuthSession(_asMap(data));
+  }
+
+  @override
+  Future<AuthSession> signupHost({
+    required String verificationToken,
+    required String businessVerificationToken,
+    required String displayName,
+    required String businessName,
+    required String primaryLanguage,
+    required String primaryCountry,
+    required AgreementState agreementState,
+  }) async {
+    final data = await apiClient.postJson(
+      '/api/v1/auth/signup',
+      body: <String, Object?>{
+        'verificationToken': verificationToken,
+        'displayName': displayName,
+        'primaryLanguage': primaryLanguage,
+        'primaryCountry': primaryCountry,
+        'businessVerificationToken': businessVerificationToken,
+        'businessName': businessName,
         'termsAgreements': <Map<String, Object?>>[
           _agreement(type: 'SERVICE_TERMS', agreed: agreementState.service),
           _agreement(
