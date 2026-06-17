@@ -42,4 +42,20 @@ void main() {
       expect(tester.takeException(), isNull);
     },
   );
+
+  testWidgets('MateyaMapSkeleton renders shimmer blocks without exceptions', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      const MaterialApp(home: Scaffold(body: MateyaMapSkeleton())),
+    );
+
+    expect(find.byType(MateyaMapSkeleton), findsOneWidget);
+    expect(find.byType(MateyaSkeleton), findsOneWidget);
+    expect(find.byType(MateyaSkeletonBlock), findsNWidgets(4));
+
+    await tester.pump(const Duration(milliseconds: 250));
+
+    expect(tester.takeException(), isNull);
+  });
 }

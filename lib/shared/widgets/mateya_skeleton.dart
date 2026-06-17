@@ -89,3 +89,37 @@ class MateyaSkeletonBlock extends StatelessWidget {
     );
   }
 }
+
+class MateyaMapSkeleton extends StatelessWidget {
+  const MateyaMapSkeleton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ColoredBox(
+      color: Colors.white.withValues(alpha: 0.88),
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 28),
+          child: MateyaSkeleton(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: const <Widget>[
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: MateyaSkeletonBlock(width: 88, height: 18, radius: 9),
+                ),
+                SizedBox(height: 24),
+                MateyaSkeletonBlock(height: 120, radius: 24),
+                SizedBox(height: 18),
+                MateyaSkeletonBlock(width: 164, height: 18, radius: 9),
+                SizedBox(height: 10),
+                MateyaSkeletonBlock(width: 212, height: 14, radius: 7),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

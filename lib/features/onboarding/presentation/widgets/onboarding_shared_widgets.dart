@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 
 import '../../../../shared/theme/app_tokens.dart';
+import '../../../../shared/widgets/mateya_skeleton.dart';
 import '../../domain/onboarding_flow.dart';
 
 class NeighborhoodMapCard extends StatelessWidget {
@@ -48,11 +49,7 @@ class NeighborhoodMapCard extends StatelessWidget {
                 }
               },
             ),
-            if (isLoading)
-              Container(
-                color: Colors.white.withValues(alpha: 0.72),
-                child: const Center(child: CircularProgressIndicator()),
-              ),
+            if (isLoading) const Positioned.fill(child: MateyaMapSkeleton()),
           ],
         ),
       ),
