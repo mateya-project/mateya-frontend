@@ -6,6 +6,8 @@ import '../../../../shared/widgets/mateya_header.dart';
 import '../../../../shared/widgets/mateya_text_field.dart';
 import '../../application/onboarding_controller.dart';
 import '../../domain/onboarding_flow.dart';
+import '../../domain/onboarding_terms.dart';
+import '../screens/onboarding_terms_detail_page.dart';
 import 'onboarding_shared_widgets.dart';
 
 class WelcomeStepView extends StatelessWidget {
@@ -111,6 +113,7 @@ class ConsentOverlayStepView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final requiredDocuments = kRequiredOnboardingTermsDocuments;
 
     return Stack(
       children: <Widget>[
@@ -161,32 +164,45 @@ class ConsentOverlayStepView extends StatelessWidget {
                     selected: agreementState.isAllChecked,
                     emphasized: true,
                     helperText: '아래 필수 및 선택항목에 모두 동의합니다.',
-                    onTap: () => onToggleAll(!agreementState.isAllChecked),
+                    onChanged: onToggleAll,
                   ),
                   const SizedBox(height: 28),
-                  AgreementRow(
-                    label: '(필수) 서비스 이용 약관',
-                    selected: agreementState.service,
-                    onTap: () => onToggleService(!agreementState.service),
-                  ),
-                  const SizedBox(height: 32),
-                  AgreementRow(
-                    label: '(필수) 개인정보 제3자 제공 동의',
-                    selected: agreementState.privacy,
-                    onTap: () => onTogglePrivacy(!agreementState.privacy),
-                  ),
-                  const SizedBox(height: 32),
-                  AgreementRow(
-                    label: '(필수) 위치기반서비스 이용약관',
-                    selected: agreementState.location,
-                    onTap: () => onToggleLocation(!agreementState.location),
-                  ),
-                  const SizedBox(height: 32),
-                  AgreementRow(
-                    label: '(필수) 만 14세 이상',
-                    selected: agreementState.age,
-                    onTap: () => onToggleAge(!agreementState.age),
-                  ),
+                  for (
+                    int index = 0;
+                    index < requiredDocuments.length;
+                    index++
+                  ) ...<Widget>[
+                    Builder(
+                      builder: (context) {
+                        final document = requiredDocuments[index];
+                        return AgreementRow(
+                          label: '(필수) ${document.title}',
+                          selected: _isAgreementSelected(
+                            agreementState,
+                            document.type,
+                          ),
+                          onChanged: (value) => _toggleAgreementByType(
+                            document.type,
+                            value,
+                            onToggleService: onToggleService,
+                            onTogglePrivacy: onTogglePrivacy,
+                            onToggleLocation: onToggleLocation,
+                            onToggleAge: onToggleAge,
+                          ),
+                          onDetailTap: () =>
+                              _openTermsDetail(context, document),
+                          checkboxKey: ValueKey<String>(
+                            'agreement-checkbox-${document.type.apiType}',
+                          ),
+                          detailKey: ValueKey<String>(
+                            'agreement-detail-${document.type.apiType}',
+                          ),
+                        );
+                      },
+                    ),
+                    if (index != requiredDocuments.length - 1)
+                      const SizedBox(height: 32),
+                  ],
                   const SizedBox(height: 40),
                   MateyaButton(
                     label: '다음',
@@ -202,6 +218,53 @@ class ConsentOverlayStepView extends StatelessWidget {
       ],
     );
   }
+}
+
+bool _isAgreementSelected(
+  AgreementState agreementState,
+  OnboardingTermsType type,
+) {
+  return switch (type) {
+    OnboardingTermsType.serviceTerms => agreementState.service,
+    OnboardingTermsType.privacyThirdParty => agreementState.privacy,
+    OnboardingTermsType.locationBasedService => agreementState.location,
+    OnboardingTermsType.ageOver14 => agreementState.age,
+  };
+}
+
+void _toggleAgreementByType(
+  OnboardingTermsType type,
+  bool value, {
+  required ValueChanged<bool> onToggleService,
+  required ValueChanged<bool> onTogglePrivacy,
+  required ValueChanged<bool> onToggleLocation,
+  required ValueChanged<bool> onToggleAge,
+}) {
+  switch (type) {
+    case OnboardingTermsType.serviceTerms:
+      onToggleService(value);
+      break;
+    case OnboardingTermsType.privacyThirdParty:
+      onTogglePrivacy(value);
+      break;
+    case OnboardingTermsType.locationBasedService:
+      onToggleLocation(value);
+      break;
+    case OnboardingTermsType.ageOver14:
+      onToggleAge(value);
+      break;
+  }
+}
+
+Future<void> _openTermsDetail(
+  BuildContext context,
+  OnboardingTermsDocument document,
+) {
+  return Navigator.of(context).push<void>(
+    MaterialPageRoute<void>(
+      builder: (_) => OnboardingTermsDetailPage(document: document),
+    ),
+  );
 }
 
 class NameStepView extends StatefulWidget {
