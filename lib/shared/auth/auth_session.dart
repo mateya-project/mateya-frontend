@@ -3,6 +3,8 @@ import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../logging/app_logger.dart';
+
 class AuthUserProfile {
   const AuthUserProfile({
     required this.id,
@@ -133,6 +135,7 @@ class AuthSessionStore {
     final raw = preferences.getString(_storageKey);
     if (raw == null || raw.isEmpty) {
       _session = null;
+      unawaited(_syncLoggingContext());
       return;
     }
     try {
@@ -141,21 +144,40 @@ class AuthSessionStore {
         throw const FormatException('Invalid auth session payload');
       }
       _session = AuthSession.fromJson(decoded);
+      AppLogger.instance.info(
+        'Auth session restored from local storage',
+        context: _sessionLogContext(_session),
+      );
     } catch (_) {
       _session = null;
       await preferences.remove(_storageKey);
+      AppLogger.instance.warning(
+        'Stored auth session was invalid and has been cleared',
+      );
     }
+    unawaited(_syncLoggingContext());
   }
 
   void save(AuthSession session) {
     _session = session;
+    AppLogger.instance.info(
+      'Auth session saved',
+      context: _sessionLogContext(session),
+    );
+    unawaited(_syncLoggingContext());
     _queueStorageWrite((preferences) async {
       await preferences.setString(_storageKey, jsonEncode(session.toJson()));
     });
   }
 
   void clear() {
+    final previousSession = _session;
     _session = null;
+    AppLogger.instance.info(
+      'Auth session cleared',
+      context: _sessionLogContext(previousSession),
+    );
+    unawaited(_syncLoggingContext());
     _queueStorageWrite((preferences) async {
       await preferences.remove(_storageKey);
     });
@@ -177,6 +199,10 @@ class AuthSessionStore {
 
     final future = () async {
       try {
+        AppLogger.instance.info(
+          'Refreshing auth session',
+          context: _sessionLogContext(current),
+        );
         final nextSession = await refresh(current.refreshToken);
         save(nextSession);
         await flush();
@@ -196,5 +222,26 @@ class AuthSessionStore {
       final preferences = await SharedPreferences.getInstance();
       await action(preferences);
     });
+  }
+
+  Future<void> _syncLoggingContext() {
+    final session = _session;
+    return AppLogger.instance.updateUserContext(
+      userId: session?.user.id.toString(),
+      context: <String, Object?>{
+        'role': session?.user.role,
+        'primaryLanguage': session?.user.primaryLanguage,
+        'primaryCountry': session?.user.primaryCountry,
+      },
+    );
+  }
+
+  Map<String, Object?> _sessionLogContext(AuthSession? session) {
+    return <String, Object?>{
+      'hasSession': session != null,
+      if (session != null) 'userId': session.user.id,
+      if (session != null) 'role': session.user.role,
+      if (session != null) 'primaryLanguage': session.user.primaryLanguage,
+    };
   }
 }

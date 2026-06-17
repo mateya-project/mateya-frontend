@@ -1,4 +1,4 @@
-package com.example.mateya_app
+package com.minjeong.mateya
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "277517125092",
+    "project_id": "mateya-4821e",
+    "storage_bucket": "mateya-4821e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:277517125092:android:34249034f1725c588773f1",
+        "android_client_info": {
+          "package_name": "com.minjeong.mateya"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDm9Id3wA81weXQ5aGwor728MlLlEw2LGI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
