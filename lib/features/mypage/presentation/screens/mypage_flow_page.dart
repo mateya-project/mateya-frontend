@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../../shared/widgets/mateya_button.dart';
 import '../../../../shared/widgets/mateya_header.dart';
+import '../../../../shared/widgets/mateya_skeleton.dart';
 import '../../../../shared/widgets/mateya_text_field.dart';
 import '../../application/mypage_controller.dart';
 import '../../domain/mypage_models.dart';
@@ -1364,17 +1365,19 @@ class _LoadingView extends StatelessWidget {
       children: <Widget>[
         const MateyaHeader.noBackArrow(),
         Expanded(
-          child: ListView(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
-            children: const <Widget>[
-              _SkeletonBlock(height: 140),
-              SizedBox(height: 16),
-              _SkeletonBlock(height: 124),
-              SizedBox(height: 16),
-              _SkeletonBlock(height: 210),
-              SizedBox(height: 16),
-              _SkeletonBlock(height: 300),
-            ],
+          child: MateyaSkeleton(
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+              children: const <Widget>[
+                MateyaSkeletonBlock(height: 140, radius: 18),
+                SizedBox(height: 16),
+                MateyaSkeletonBlock(height: 124, radius: 18),
+                SizedBox(height: 16),
+                MateyaSkeletonBlock(height: 210, radius: 18),
+                SizedBox(height: 16),
+                MateyaSkeletonBlock(height: 300, radius: 18),
+              ],
+            ),
           ),
         ),
       ],
@@ -1423,23 +1426,6 @@ class _RetryView extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-class _SkeletonBlock extends StatelessWidget {
-  const _SkeletonBlock({required this.height});
-
-  final double height;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: height,
-      decoration: BoxDecoration(
-        color: AppColors.subtleBackground,
-        borderRadius: BorderRadius.circular(18),
-      ),
     );
   }
 }

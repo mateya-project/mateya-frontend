@@ -20,6 +20,7 @@ import '../../../mypage/presentation/screens/mypage_flow_page.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../../shared/widgets/mateya_bottom_navigation.dart';
 import '../../../../shared/widgets/mateya_header.dart';
+import '../../../../shared/widgets/mateya_skeleton.dart';
 import '../../../onboarding/domain/onboarding_flow.dart';
 import '../../application/home_controller.dart';
 import '../../data/home_repository.dart';
@@ -1236,19 +1237,21 @@ class _HomeSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      padding: const EdgeInsets.only(bottom: 24),
-      children: const <Widget>[
-        _SkeletonBox(height: 34, width: 168),
-        SizedBox(height: 16),
-        _SkeletonBox(height: 470),
-        SizedBox(height: 24),
-        _SkeletonBox(height: 34, width: 220),
-        SizedBox(height: 23),
-        _SkeletonBox(height: 336),
-        SizedBox(height: 32),
-        _SkeletonBox(height: 336),
-      ],
+    return MateyaSkeleton(
+      child: ListView(
+        padding: const EdgeInsets.only(bottom: 24),
+        children: const <Widget>[
+          MateyaSkeletonBlock(height: 34, width: 168),
+          SizedBox(height: 16),
+          MateyaSkeletonBlock(height: 470),
+          SizedBox(height: 24),
+          MateyaSkeletonBlock(height: 34, width: 220),
+          SizedBox(height: 23),
+          MateyaSkeletonBlock(height: 336),
+          SizedBox(height: 32),
+          MateyaSkeletonBlock(height: 336),
+        ],
+      ),
     );
   }
 }
@@ -1258,35 +1261,18 @@ class _ExploreSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      padding: const EdgeInsets.only(top: 6, bottom: 16),
-      children: const <Widget>[
-        _SkeletonBox(height: 110),
-        SizedBox(height: 24),
-        _SkeletonBox(height: 110),
-        SizedBox(height: 24),
-        _SkeletonBox(height: 110),
-        SizedBox(height: 24),
-        _SkeletonBox(height: 110),
-      ],
-    );
-  }
-}
-
-class _SkeletonBox extends StatelessWidget {
-  const _SkeletonBox({required this.height, this.width});
-
-  final double height;
-  final double? width;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: width,
-      height: height,
-      decoration: BoxDecoration(
-        color: AppColors.subtleBackground,
-        borderRadius: BorderRadius.circular(16),
+    return MateyaSkeleton(
+      child: ListView(
+        padding: const EdgeInsets.only(top: 6, bottom: 16),
+        children: const <Widget>[
+          MateyaSkeletonBlock(height: 110),
+          SizedBox(height: 24),
+          MateyaSkeletonBlock(height: 110),
+          SizedBox(height: 24),
+          MateyaSkeletonBlock(height: 110),
+          SizedBox(height: 24),
+          MateyaSkeletonBlock(height: 110),
+        ],
       ),
     );
   }
