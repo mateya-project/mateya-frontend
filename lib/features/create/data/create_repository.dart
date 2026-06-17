@@ -8,7 +8,8 @@ import '../domain/create_models.dart';
 
 part 'create_repository_api.dart';
 part 'create_repository_mock.dart';
-part 'create_repository_support.dart';
+part 'create_repository_api_support.dart';
+part 'create_repository_mock_support.dart';
 
 abstract interface class CreateRepository {
   Future<List<CreatePlaceSuggestion>> fetchRecommendedPlaces({
