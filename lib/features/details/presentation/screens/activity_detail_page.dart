@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../../shared/widgets/mateya_button.dart';
+import '../../../../shared/widgets/mateya_report_sheet.dart';
 import '../../../mypage/application/mypage_controller.dart';
 import '../../../mypage/data/mypage_repository.dart';
 import '../../../mypage/presentation/screens/mypage_flow_page.dart';
@@ -78,6 +79,10 @@ class _ActivityDetailPageState extends State<ActivityDetailPage> {
     );
   }
 
+  Future<void> _openReportSheet(String subjectLabel) {
+    return showMateyaReportSheet(context, subjectLabel: subjectLabel);
+  }
+
   Future<void> _openOtherProfile(String userId) async {
     if (userId.isEmpty) {
       return;
@@ -131,6 +136,8 @@ class _ActivityDetailPageState extends State<ActivityDetailPage> {
                                   });
                                 },
                                 onBack: () => Navigator.of(context).pop(),
+                                onReport: () =>
+                                    _openReportSheet(detail.activity.title),
                               ),
                             ),
                             SliverToBoxAdapter(
@@ -225,6 +232,10 @@ class _ActivityReviewListPageState extends State<ActivityReviewListPage> {
     ).showSnackBar(SnackBar(content: Text(message)));
   }
 
+  Future<void> _openReportSheet(String subjectLabel) {
+    return showMateyaReportSheet(context, subjectLabel: subjectLabel);
+  }
+
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
@@ -247,6 +258,13 @@ class _ActivityReviewListPageState extends State<ActivityReviewListPage> {
               overflow: TextOverflow.ellipsis,
               style: Theme.of(context).textTheme.titleLarge,
             ),
+            actions: <Widget>[
+              IconButton(
+                onPressed: () =>
+                    _openReportSheet('${detail.activity.title} 리뷰 목록'),
+                icon: const Icon(mateyaReportIcon),
+              ),
+            ],
           ),
           bottomNavigationBar: SafeArea(
             top: false,

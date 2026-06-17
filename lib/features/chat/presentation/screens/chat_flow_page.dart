@@ -7,6 +7,7 @@ import '../../../../shared/permissions/mateya_permission_dialogs.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../../shared/widgets/mateya_bottom_navigation.dart';
 import '../../../../shared/widgets/mateya_header.dart';
+import '../../../../shared/widgets/mateya_report_sheet.dart';
 import '../../../onboarding/domain/onboarding_flow.dart';
 import '../../application/chat_controller.dart';
 import '../../domain/chat_models.dart';
@@ -160,6 +161,10 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  Future<void> _openReportSheet(ChatRoom room) {
+    return showMateyaReportSheet(context, subjectLabel: room.title);
   }
 
   Future<void> _restoreLostAttachments() async {
@@ -488,6 +493,7 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
           title: room.title,
           subtitle: room.subtitle,
           onBack: widget.controller.closeRoom,
+          onReportTap: () => _openReportSheet(room),
         ),
         Expanded(child: _buildDetailBody(context, room)),
         ChatComposer(
