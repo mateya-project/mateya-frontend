@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../shared/theme/app_tokens.dart';
+import '../../../../shared/widgets/mateya_report_sheet.dart';
 import '../../../../shared/widgets/mateya_button.dart';
 import '../../application/activity_detail_controller.dart';
 import '../../domain/activity_detail_models.dart';
@@ -16,6 +17,7 @@ class DetailHeroSection extends StatelessWidget {
     required this.currentPage,
     required this.onPageChanged,
     required this.onBack,
+    required this.onReport,
   });
 
   final ActivityDetail detail;
@@ -23,6 +25,7 @@ class DetailHeroSection extends StatelessWidget {
   final int currentPage;
   final ValueChanged<int> onPageChanged;
   final VoidCallback onBack;
+  final VoidCallback onReport;
 
   @override
   Widget build(BuildContext context) {
@@ -67,6 +70,8 @@ class DetailHeroSection extends StatelessWidget {
                     onTap: onBack,
                   ),
                   const Spacer(),
+                  HeroCircleButton(icon: mateyaReportIcon, onTap: onReport),
+                  const SizedBox(width: 8),
                   CategoryPill(
                     label: detail.activity.categoryLabel,
                     filled: true,

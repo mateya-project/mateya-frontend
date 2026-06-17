@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import '../theme/app_tokens.dart';
 import 'mateya_language_dialog.dart';
+import 'mateya_report_sheet.dart';
 
 enum MateyaHeaderVariant { noBackArrow, backArrow, chatDetail }
 
@@ -10,13 +11,18 @@ class MateyaHeader extends StatelessWidget {
   const MateyaHeader.noBackArrow({super.key, this.onLanguageTap})
     : variant = MateyaHeaderVariant.noBackArrow,
       onBack = null,
+      onReportTap = null,
       title = null,
       subtitle = null;
 
-  const MateyaHeader.backArrow({super.key, this.onBack, this.onLanguageTap})
-    : variant = MateyaHeaderVariant.backArrow,
-      title = null,
-      subtitle = null;
+  const MateyaHeader.backArrow({
+    super.key,
+    this.onBack,
+    this.onLanguageTap,
+    this.onReportTap,
+  }) : variant = MateyaHeaderVariant.backArrow,
+       title = null,
+       subtitle = null;
 
   const MateyaHeader.chatDetail({
     super.key,
@@ -24,11 +30,13 @@ class MateyaHeader extends StatelessWidget {
     required this.subtitle,
     this.onBack,
     this.onLanguageTap,
+    this.onReportTap,
   }) : variant = MateyaHeaderVariant.chatDetail;
 
   final MateyaHeaderVariant variant;
   final VoidCallback? onBack;
   final VoidCallback? onLanguageTap;
+  final VoidCallback? onReportTap;
   final String? title;
   final String? subtitle;
 
@@ -43,6 +51,7 @@ class MateyaHeader extends StatelessWidget {
         MateyaHeaderVariant.backArrow => _BackArrowHeader(
           onBack: onBack,
           onLanguageTap: onLanguageTap,
+          onReportTap: onReportTap,
         ),
         MateyaHeaderVariant.chatDetail => Stack(
           children: <Widget>[
@@ -58,7 +67,7 @@ class MateyaHeader extends StatelessWidget {
             ),
             Positioned(
               left: 80,
-              right: 80,
+              right: onReportTap == null ? 80 : 122,
               top: 16,
               bottom: 16,
               child: _ChatDetailTitle(title: title!, subtitle: subtitle!),
@@ -66,7 +75,10 @@ class MateyaHeader extends StatelessWidget {
             Positioned(
               right: 14,
               top: 24,
-              child: _LanguageButton(onTap: onLanguageTap),
+              child: _HeaderTrailingActions(
+                onReportTap: onReportTap,
+                onLanguageTap: onLanguageTap,
+              ),
             ),
           ],
         ),
@@ -96,10 +108,15 @@ class _LogoHeader extends StatelessWidget {
 }
 
 class _BackArrowHeader extends StatelessWidget {
-  const _BackArrowHeader({required this.onBack, required this.onLanguageTap});
+  const _BackArrowHeader({
+    required this.onBack,
+    required this.onLanguageTap,
+    required this.onReportTap,
+  });
 
   final VoidCallback? onBack;
   final VoidCallback? onLanguageTap;
+  final VoidCallback? onReportTap;
 
   @override
   Widget build(BuildContext context) {
@@ -119,8 +136,40 @@ class _BackArrowHeader extends StatelessWidget {
         Positioned(
           right: 24,
           top: 24,
-          child: _LanguageButton(onTap: onLanguageTap),
+          child: _HeaderTrailingActions(
+            onReportTap: onReportTap,
+            onLanguageTap: onLanguageTap,
+          ),
         ),
+      ],
+    );
+  }
+}
+
+class _HeaderTrailingActions extends StatelessWidget {
+  const _HeaderTrailingActions({
+    required this.onReportTap,
+    required this.onLanguageTap,
+  });
+
+  final VoidCallback? onReportTap;
+  final VoidCallback? onLanguageTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        if (onReportTap != null) ...<Widget>[
+          _HeaderGlyphButton(
+            onTap: onReportTap,
+            icon: mateyaReportIcon,
+            size: 32,
+            color: AppColors.textPrimary,
+          ),
+          const SizedBox(width: 8),
+        ],
+        _LanguageButton(onTap: onLanguageTap),
       ],
     );
   }
