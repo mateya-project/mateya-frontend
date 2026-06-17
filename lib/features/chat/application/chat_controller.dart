@@ -8,7 +8,8 @@ import '../domain/chat_models.dart';
 
 part 'chat_controller_composer.dart';
 part 'chat_controller_realtime.dart';
-part 'chat_controller_rooms.dart';
+part 'chat_controller_room.dart';
+part 'chat_controller_list.dart';
 
 class ChatController extends ChangeNotifier {
   ChatController({required this._repository, DateTime Function()? now})

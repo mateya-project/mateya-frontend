@@ -60,6 +60,33 @@ void main() {
     );
 
     test(
+      'loading older messages prepends the next page in chronological order',
+      () async {
+        final controller = ChatController(
+          repository: MockChatRepository(),
+          now: () => DateTime(2026, 6, 14, 10, 30),
+        );
+
+        await controller.initialize();
+        await controller.openRoom('gyeongbokgung-walk');
+
+        expect(
+          controller.currentRoom?.messageGroups.map((group) => group.id),
+          <String>['g-2', 'g-3'],
+        );
+        expect(controller.hasOlderMessages, isTrue);
+
+        await controller.loadOlderMessages();
+
+        expect(
+          controller.currentRoom?.messageGroups.map((group) => group.id),
+          <String>['g-1', 'g-2', 'g-3'],
+        );
+        expect(controller.hasOlderMessages, isFalse);
+      },
+    );
+
+    test(
       'translation toggle swaps between original and translated copy',
       () async {
         final controller = ChatController(
