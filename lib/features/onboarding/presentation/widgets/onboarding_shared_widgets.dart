@@ -65,78 +65,104 @@ class AgreementRow extends StatelessWidget {
     super.key,
     required this.label,
     required this.selected,
-    required this.onTap,
+    required this.onChanged,
     this.emphasized = false,
     this.helperText,
+    this.onDetailTap,
+    this.checkboxKey,
+    this.detailKey,
   });
 
   final String label;
   final bool selected;
-  final VoidCallback onTap;
+  final ValueChanged<bool> onChanged;
   final bool emphasized;
   final String? helperText;
+  final VoidCallback? onDetailTap;
+  final Key? checkboxKey;
+  final Key? detailKey;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final detailTap = onDetailTap ?? () => onChanged(!selected);
 
-    return InkWell(
-      onTap: onTap,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Container(
-            width: 24,
-            height: 24,
-            decoration: BoxDecoration(
-              color: selected ? AppColors.brandGreen : Colors.white,
-              borderRadius: BorderRadius.circular(4),
-              border: Border.all(
-                color: selected
-                    ? AppColors.brandGreen
-                    : const Color(0xFF58616A),
-              ),
-            ),
-            child: selected
-                ? const Icon(Icons.check_rounded, color: Colors.white, size: 18)
-                : null,
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(
-                  label,
-                  style:
-                      (emphasized
-                              ? theme.textTheme.titleLarge
-                              : theme.textTheme.bodyMedium)
-                          ?.copyWith(
-                            fontSize: emphasized ? 20 : 14,
-                            fontWeight: emphasized
-                                ? FontWeight.w600
-                                : FontWeight.w400,
-                          ),
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Semantics(
+          checked: selected,
+          label: '$label 동의',
+          child: InkWell(
+            key: checkboxKey,
+            onTap: () => onChanged(!selected),
+            borderRadius: BorderRadius.circular(6),
+            child: Container(
+              width: 24,
+              height: 24,
+              decoration: BoxDecoration(
+                color: selected ? AppColors.brandGreen : Colors.white,
+                borderRadius: BorderRadius.circular(4),
+                border: Border.all(
+                  color: selected
+                      ? AppColors.brandGreen
+                      : const Color(0xFF58616A),
                 ),
-                if (helperText != null) ...<Widget>[
-                  const SizedBox(height: 4),
-                  Text(helperText!, style: theme.textTheme.bodySmall),
-                ],
-              ],
+              ),
+              child: selected
+                  ? const Icon(
+                      Icons.check_rounded,
+                      color: Colors.white,
+                      size: 18,
+                    )
+                  : null,
             ),
           ),
-          if (!emphasized)
-            const Padding(
-              padding: EdgeInsets.only(top: 2),
-              child: Icon(
-                Icons.chevron_right_rounded,
-                size: 24,
-                color: Color(0xFF5A5F66),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: InkWell(
+            key: detailKey,
+            onTap: emphasized ? () => onChanged(!selected) : detailTap,
+            borderRadius: BorderRadius.circular(12),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 2),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(
+                    label,
+                    style:
+                        (emphasized
+                                ? theme.textTheme.titleLarge
+                                : theme.textTheme.bodyMedium)
+                            ?.copyWith(
+                              fontSize: emphasized ? 20 : 14,
+                              fontWeight: emphasized
+                                  ? FontWeight.w600
+                                  : FontWeight.w400,
+                            ),
+                  ),
+                  if (helperText != null) ...<Widget>[
+                    const SizedBox(height: 4),
+                    Text(helperText!, style: theme.textTheme.bodySmall),
+                  ],
+                ],
               ),
             ),
-        ],
-      ),
+          ),
+        ),
+        if (!emphasized)
+          IconButton(
+            onPressed: detailTap,
+            splashRadius: 18,
+            icon: const Icon(
+              Icons.chevron_right_rounded,
+              size: 24,
+              color: Color(0xFF5A5F66),
+            ),
+          ),
+      ],
     );
   }
 }
