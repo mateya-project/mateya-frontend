@@ -12,6 +12,11 @@ import '../data/location_repository.dart';
 import '../domain/onboarding_flow.dart';
 import '../domain/onboarding_validators.dart';
 
+part 'onboarding_controller_auth.dart';
+part 'onboarding_controller_business.dart';
+part 'onboarding_controller_flow.dart';
+part 'onboarding_controller_location.dart';
+
 class OnboardingController extends ChangeNotifier {
   OnboardingController({
     required NeighborhoodLocationRepository locationRepository,
@@ -146,488 +151,98 @@ class OnboardingController extends ChangeNotifier {
     _toastMessage = null;
   }
 
-  void startGuestFlow() {
-    _flowKind = FlowKind.guest;
-    _agreementState = const AgreementState();
-    _completionMode = AuthCompletionMode.signup;
-    _fieldErrors = <String, String?>{};
-    _step = OnboardingStep.guestConsent;
-    notifyListeners();
-  }
+  void startGuestFlow() => _startGuestFlow(this);
 
-  void startHostFlow() {
-    _flowKind = FlowKind.host;
-    _agreementState = const AgreementState();
-    _completionMode = AuthCompletionMode.signup;
-    _fieldErrors = <String, String?>{};
-    _step = OnboardingStep.hostConsent;
-    notifyListeners();
-  }
+  void startHostFlow() => _startHostFlow(this);
 
-  void toggleAllAgreements(bool value) {
-    _agreementState = _agreementState.toggleAll(value);
-    notifyListeners();
-  }
+  void toggleAllAgreements(bool value) => _toggleAllAgreements(this, value);
 
   void toggleAgreement({
     bool? service,
     bool? privacy,
     bool? location,
     bool? age,
-  }) {
-    _agreementState = _agreementState.copyWith(
-      service: service,
-      privacy: privacy,
-      location: location,
-      age: age,
-    );
-    notifyListeners();
-  }
+  }) => _toggleAgreement(
+    this,
+    service: service,
+    privacy: privacy,
+    location: location,
+    age: age,
+  );
 
-  void confirmConsent() {
-    if (!isConsentComplete) {
-      _emitToast('필수 약관에 모두 동의해 주세요.');
-      return;
-    }
+  void confirmConsent() => _confirmConsent(this);
 
-    _step = _flowKind == FlowKind.host
-        ? OnboardingStep.hostBusiness
-        : OnboardingStep.guestName;
-    notifyListeners();
-  }
+  void updateName(String value) => _updateName(this, value);
 
-  void updateName(String value) {
-    _name = value;
-    _clearError('name');
-    notifyListeners();
-  }
+  bool validateNameField() => _validateNameField(this);
 
-  bool validateNameField() {
-    final error = OnboardingValidators.validateName(_name);
-    _fieldErrors['name'] = error;
-    notifyListeners();
-    return error == null;
-  }
+  void submitName() => _submitName(this);
 
-  void submitName() {
-    if (!validateNameField()) {
-      return;
-    }
-    _step = OnboardingStep.guestPhone;
-    notifyListeners();
-  }
+  void selectCarrier(String value) => _selectCarrier(this, value);
 
-  void selectCarrier(String value) {
-    _carrier = value;
-    _clearError('carrier');
-    notifyListeners();
-  }
+  void selectCountryCode(String value) => _selectCountryCode(this, value);
 
-  void selectCountryCode(String value) {
-    _countryCode = value;
-    notifyListeners();
-  }
-
-  void updatePhoneNumber(String value) {
-    _phoneNumber = value.replaceAll(RegExp(r'\D'), '');
-    _clearError('phone');
-    notifyListeners();
-  }
+  void updatePhoneNumber(String value) => _updatePhoneNumber(this, value);
 
   void updateVerificationCode(String value) {
-    _verificationCode = value.replaceAll(RegExp(r'\D'), '');
-    _clearError('verification');
-    notifyListeners();
+    _updateVerificationCode(this, value);
   }
 
-  Future<void> sendVerificationCode() async {
-    final phoneError = OnboardingValidators.validatePhoneNumber(_phoneNumber);
-    _fieldErrors['phone'] = phoneError;
-    _fieldErrors['carrier'] = _carrier.isEmpty ? '통신사를 선택해 주세요.' : null;
+  Future<void> sendVerificationCode() => _sendVerificationCode(this);
 
-    if (phoneError != null || _carrier.isEmpty) {
-      notifyListeners();
-      return;
-    }
+  Future<void> resendVerificationCode() => _resendVerificationCode(this);
 
-    _authPhase = AsyncPhase.loading;
-    _fieldErrors.remove('verification');
-    notifyListeners();
+  Future<void> submitVerificationCode() => _submitVerificationCode(this);
 
-    try {
-      final result = await _authRepository.requestSmsCode(
-        phoneNumber: _phoneNumber,
-      );
-      _authPhase = AsyncPhase.success;
-      _expectedVerificationCode = result.debugCode;
-      _verificationCode = '';
-      _resendCount = 1;
-      _startVerificationCountdown();
-      _emitToast('인증번호를 발송했어요.');
-    } on MateyaApiException catch (error) {
-      _applyApiError(error, preferredField: 'phone');
-    }
-
-    notifyListeners();
+  Future<void> startAutomaticNeighborhoodVerification() {
+    return _startAutomaticNeighborhoodVerification(this);
   }
 
-  Future<void> resendVerificationCode() async {
-    if (!hasSentVerificationCode) {
-      await sendVerificationCode();
-      return;
-    }
-    if (_resendCount >= 5) {
-      _emitToast('인증번호는 하루 최대 5번까지 다시 받을 수 있어요.');
-      return;
-    }
-    _resendCount += 1;
-    await sendVerificationCode();
-  }
-
-  Future<void> submitVerificationCode() async {
-    final error = OnboardingValidators.validateVerificationCode(
-      _verificationCode,
-      _expectedVerificationCode,
-      _remainingSeconds == 0,
-    );
-    _fieldErrors['verification'] = error;
-
-    if (error != null) {
-      notifyListeners();
-      return;
-    }
-
-    _authPhase = AsyncPhase.loading;
-    notifyListeners();
-
-    try {
-      final result = await _authRepository.verifySmsCode(
-        phoneNumber: _phoneNumber,
-        code: _verificationCode,
-      );
-      _verificationToken = result.verificationToken;
-      _verificationTokenExpiresAt = result.expiresAt;
-      final existingUserSession = await _tryLoginExistingUser(
-        verificationToken: result.verificationToken,
-      );
-      _verificationTimer?.cancel();
-      if (existingUserSession != null) {
-        _authSessionStore.save(existingUserSession);
-        _completionMode = AuthCompletionMode.login;
-        _authPhase = AsyncPhase.success;
-        _step = OnboardingStep.completed;
-        notifyListeners();
-        return;
-      }
-
-      _completionMode = AuthCompletionMode.signup;
-      _authPhase = AsyncPhase.success;
-      if (_flowKind == FlowKind.host) {
-        await _completeHostSignup();
-        return;
-      }
-      _step = OnboardingStep.neighborhoodAuto;
-      notifyListeners();
-      await startAutomaticNeighborhoodVerification();
-    } on MateyaApiException catch (apiError) {
-      _applyApiError(apiError, preferredField: 'verification');
-      notifyListeners();
-    }
-  }
-
-  Future<void> startAutomaticNeighborhoodVerification() async {
-    _locationPhase = AsyncPhase.loading;
-    _locationFailure = null;
-    _selectedNeighborhood = null;
-    notifyListeners();
-
-    final result = await _locationRepository.resolveCurrentNeighborhood();
-    if (result.isSuccess) {
-      _locationPhase = AsyncPhase.success;
-      _selectedNeighborhood = result.selection;
-      _locationFailure = null;
-    } else {
-      _locationPhase = AsyncPhase.validationError;
-      _locationFailure = result.failure;
-      if (result.failure?.type == LocationFailureType.permissionDenied) {
-        _step = OnboardingStep.neighborhoodManual;
-        _emitToast(result.failure?.message ?? '직접 입력으로 전환했어요.');
-      }
-    }
-    notifyListeners();
-  }
-
-  void openManualNeighborhood() {
-    _step = OnboardingStep.neighborhoodManual;
-    notifyListeners();
-  }
+  void openManualNeighborhood() => _openManualNeighborhood(this);
 
   void updateManualNeighborhoodQuery(String value) {
-    _manualNeighborhoodQuery = value;
-    _clearError('manualNeighborhood');
-    _manualLookupDebounce?.cancel();
-    if (value.trim().length < 2) {
-      notifyListeners();
-      return;
-    }
-    _manualLookupDebounce = Timer(
-      const Duration(milliseconds: 500),
-      resolveManualNeighborhood,
-    );
-    notifyListeners();
+    _updateManualNeighborhoodQuery(this, value);
   }
 
-  Future<void> resolveManualNeighborhood() async {
-    final trimmed = _manualNeighborhoodQuery.trim();
-    if (trimmed.isEmpty) {
-      _fieldErrors['manualNeighborhood'] = '동네를 입력해 주세요.';
-      notifyListeners();
-      return;
-    }
+  Future<void> resolveManualNeighborhood() => _resolveManualNeighborhood(this);
 
-    _locationPhase = AsyncPhase.loading;
-    _locationFailure = null;
-    notifyListeners();
+  Future<void> completeNeighborhood() => _completeNeighborhood(this);
 
-    final result = await _locationRepository.resolveNeighborhoodQuery(trimmed);
-    if (result.isSuccess) {
-      _locationPhase = AsyncPhase.success;
-      _selectedNeighborhood = result.selection;
-      _locationFailure = null;
-      _clearError('manualNeighborhood');
-    } else {
-      _locationPhase = AsyncPhase.validationError;
-      _selectedNeighborhood = null;
-      _locationFailure = result.failure;
-      _fieldErrors['manualNeighborhood'] =
-          result.failure?.message ?? '동네를 찾지 못했어요.';
-    }
-    notifyListeners();
-  }
+  void updateBusinessName(String value) => _updateBusinessName(this, value);
 
-  Future<void> completeNeighborhood() async {
-    if (_selectedNeighborhood == null) {
-      await resolveManualNeighborhood();
-      if (_selectedNeighborhood == null) {
-        return;
-      }
-    }
-
-    if (_verificationToken == null ||
-        _verificationTokenExpiresAt == null ||
-        _verificationTokenExpiresAt!.isBefore(DateTime.now())) {
-      _authPhase = AsyncPhase.validationError;
-      _emitToast('인증이 만료되어 인증번호를 다시 받아야 해요.');
-      _step = OnboardingStep.guestPhone;
-      notifyListeners();
-      return;
-    }
-
-    _authPhase = AsyncPhase.loading;
-    notifyListeners();
-
-    try {
-      final session = await _authRepository.signupGuest(
-        verificationToken: _verificationToken!,
-        displayName: _signupDisplayName,
-        primaryLanguage: _resolvedPrimaryLanguage,
-        primaryCountry: _resolvedPrimaryCountry,
-        agreementState: _agreementState,
-        neighborhood: _selectedNeighborhood!,
-      );
-      _authSessionStore.save(session);
-      _completionMode = AuthCompletionMode.signup;
-      _authPhase = AsyncPhase.success;
-    } on MateyaApiException catch (error) {
-      _applyApiError(error);
-      notifyListeners();
-      return;
-    }
-
-    _step = OnboardingStep.completed;
-    notifyListeners();
-  }
-
-  void updateBusinessName(String value) {
-    _businessName = value;
-    _clearError('businessName');
-    notifyListeners();
-  }
-
-  void updateBusinessOwner(String value) {
-    _businessOwner = value;
-    _clearError('businessOwner');
-    notifyListeners();
-  }
+  void updateBusinessOwner(String value) => _updateBusinessOwner(this, value);
 
   void updateBusinessOpeningDate(String value) {
-    _businessOpeningDate = value.replaceAll(RegExp(r'\D'), '');
-    _clearError('businessOpeningDate');
-    notifyListeners();
+    _updateBusinessOpeningDate(this, value);
   }
 
   void updateBusinessNumberPart(int partIndex, String value) {
-    final sanitized = value.replaceAll(RegExp(r'\D'), '');
-    switch (partIndex) {
-      case 0:
-        _businessNumberFirst = sanitized;
-        break;
-      case 1:
-        _businessNumberSecond = sanitized;
-        break;
-      case 2:
-        _businessNumberThird = sanitized;
-        break;
-    }
-    _clearError('businessNumber');
-    notifyListeners();
+    _updateBusinessNumberPart(this, partIndex: partIndex, value: value);
   }
 
-  bool validateBusinessFields() {
-    _fieldErrors['businessName'] = OnboardingValidators.validateBusinessName(
-      _businessName,
-    );
-    _fieldErrors['businessOwner'] = OnboardingValidators.validateBusinessOwner(
-      _businessOwner,
-    );
-    _fieldErrors['businessOpeningDate'] =
-        OnboardingValidators.validateBusinessOpeningDate(_businessOpeningDate);
-    _fieldErrors['businessNumber'] =
-        OnboardingValidators.validateBusinessNumber(
-          _businessNumberFirst,
-          _businessNumberSecond,
-          _businessNumberThird,
-        );
-    notifyListeners();
-    return _fieldErrors.values.whereType<String>().isEmpty;
+  bool validateBusinessFields() => _validateBusinessFields(this);
+
+  Future<void> submitBusinessVerification() {
+    return _submitBusinessVerification(this);
   }
 
-  Future<void> submitBusinessVerification() async {
-    if (!validateBusinessFields()) {
-      return;
-    }
-
-    _authPhase = AsyncPhase.loading;
-    notifyListeners();
-
-    try {
-      final result = await _authRepository.verifyBusiness(
-        businessNumber:
-            '$_businessNumberFirst-$_businessNumberSecond-$_businessNumberThird',
-        representativeName: _businessOwner.trim(),
-        openingDate: _businessOpeningDate,
-      );
-      _businessVerificationToken = result.businessVerificationToken;
-      _businessVerificationExpiresAt = result.expiresAt;
-      _completionMode = AuthCompletionMode.signup;
-      _authPhase = AsyncPhase.success;
-      _step = OnboardingStep.guestPhone;
-      _emitToast('사업자 인증이 완료됐어요. 휴대폰 인증을 이어서 진행해 주세요.');
-    } on MateyaApiException catch (error) {
-      _applyApiError(error, preferredField: 'businessNumber');
-    }
-
-    notifyListeners();
-  }
-
-  void openHomePlaceholder() {
-    _homePreviewSection = HomePreviewSection.home;
-    _step = OnboardingStep.homePlaceholder;
-    notifyListeners();
-  }
+  void openHomePlaceholder() => _openHomePlaceholder(this);
 
   void openHomePreviewSection(HomePreviewSection section) {
-    if (_homePreviewSection == section) {
-      return;
-    }
-    _homePreviewSection = section;
-    notifyListeners();
+    _openHomePreviewSection(this, section);
   }
 
-  void openPlusDestination() {
-    _homePreviewSection = _flowKind == FlowKind.host
-        ? HomePreviewSection.classRegistration
-        : HomePreviewSection.groupCreation;
-    notifyListeners();
-  }
+  void openPlusDestination() => _openPlusDestination(this);
 
-  void restart() {
-    _verificationTimer?.cancel();
-    _manualLookupDebounce?.cancel();
-    _step = OnboardingStep.welcome;
-    _flowKind = null;
-    _agreementState = const AgreementState();
-    _locationPhase = AsyncPhase.idle;
-    _completionMode = AuthCompletionMode.signup;
-    _selectedNeighborhood = null;
-    _locationFailure = null;
-    _fieldErrors = <String, String?>{};
-    _homePreviewSection = HomePreviewSection.home;
-    _remainingSeconds = 0;
-    _resendCount = 0;
-    _expectedVerificationCode = null;
-    _verificationToken = null;
-    _verificationTokenExpiresAt = null;
-    _businessVerificationToken = null;
-    _businessVerificationExpiresAt = null;
-    _name = '';
-    _carrier = '';
-    _countryCode = '+82';
-    _phoneNumber = '';
-    _verificationCode = '';
-    _manualNeighborhoodQuery = '';
-    _businessName = '';
-    _businessOwner = '';
-    _businessOpeningDate = '';
-    _businessNumberFirst = '';
-    _businessNumberSecond = '';
-    _businessNumberThird = '';
-    notifyListeners();
-  }
+  void restart() => _restartOnboarding(this);
 
-  void goBack() {
-    _step = switch (_step) {
-      OnboardingStep.welcome => OnboardingStep.welcome,
-      OnboardingStep.guestConsent ||
-      OnboardingStep.hostConsent => OnboardingStep.welcome,
-      OnboardingStep.guestName => OnboardingStep.guestConsent,
-      OnboardingStep.guestPhone =>
-        _flowKind == FlowKind.host
-            ? OnboardingStep.hostBusiness
-            : OnboardingStep.guestName,
-      OnboardingStep.neighborhoodAuto => OnboardingStep.guestPhone,
-      OnboardingStep.neighborhoodManual => OnboardingStep.neighborhoodAuto,
-      OnboardingStep.hostBusiness => OnboardingStep.hostConsent,
-      OnboardingStep.completed =>
-        _flowKind == FlowKind.host
-            ? OnboardingStep.guestPhone
-            : _completionMode == AuthCompletionMode.login
-            ? OnboardingStep.guestPhone
-            : OnboardingStep.neighborhoodAuto,
-      OnboardingStep.homePlaceholder => OnboardingStep.completed,
-    };
-    notifyListeners();
-  }
+  void goBack() => _goBack(this);
 
   @override
   void dispose() {
     _verificationTimer?.cancel();
     _manualLookupDebounce?.cancel();
     super.dispose();
-  }
-
-  void _startVerificationCountdown() {
-    _verificationTimer?.cancel();
-    _remainingSeconds = 300;
-    _verificationTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (_remainingSeconds <= 1) {
-        _remainingSeconds = 0;
-        timer.cancel();
-      } else {
-        _remainingSeconds -= 1;
-      }
-      notifyListeners();
-    });
   }
 
   void _clearError(String key) {
@@ -639,6 +254,10 @@ class OnboardingController extends ChangeNotifier {
   void _emitToast(String message) {
     _toastMessage = message;
     _toastVersion += 1;
+    notifyListeners();
+  }
+
+  void _notifyChanged() {
     notifyListeners();
   }
 
@@ -656,84 +275,4 @@ class OnboardingController extends ChangeNotifier {
     '+86' => 'CN',
     _ => 'KR',
   };
-
-  void _applyApiError(MateyaApiException error, {String? preferredField}) {
-    _authPhase = switch (error.type) {
-      ApiFailureType.validation => AsyncPhase.validationError,
-      ApiFailureType.network => AsyncPhase.networkError,
-      ApiFailureType.unauthorized ||
-      ApiFailureType.server => AsyncPhase.serverError,
-    };
-
-    if (error.fieldErrors.isNotEmpty) {
-      _fieldErrors = <String, String?>{..._fieldErrors, ...error.fieldErrors};
-    } else if (preferredField != null) {
-      _fieldErrors[preferredField] = error.message;
-    }
-
-    _emitToast(error.message);
-  }
-
-  Future<AuthSession?> _tryLoginExistingUser({
-    required String verificationToken,
-  }) async {
-    try {
-      return await _authRepository.loginUser(
-        verificationToken: verificationToken,
-      );
-    } on MateyaApiException catch (error) {
-      if (_isSignupCandidate(error)) {
-        return null;
-      }
-      rethrow;
-    }
-  }
-
-  bool _isSignupCandidate(MateyaApiException error) {
-    return error.code == 'not-found' || error.statusCode == 404;
-  }
-
-  Future<void> _completeHostSignup() async {
-    if (_verificationToken == null ||
-        _verificationTokenExpiresAt == null ||
-        _verificationTokenExpiresAt!.isBefore(DateTime.now())) {
-      _authPhase = AsyncPhase.validationError;
-      _emitToast('인증이 만료되어 인증번호를 다시 받아야 해요.');
-      _step = OnboardingStep.guestPhone;
-      notifyListeners();
-      return;
-    }
-    if (_businessVerificationToken == null ||
-        _businessVerificationExpiresAt == null ||
-        _businessVerificationExpiresAt!.isBefore(DateTime.now())) {
-      _authPhase = AsyncPhase.validationError;
-      _emitToast('사업자 인증이 만료되어 다시 인증해야 해요.');
-      _step = OnboardingStep.hostBusiness;
-      notifyListeners();
-      return;
-    }
-
-    _authPhase = AsyncPhase.loading;
-    notifyListeners();
-
-    try {
-      final session = await _authRepository.signupHost(
-        verificationToken: _verificationToken!,
-        businessVerificationToken: _businessVerificationToken!,
-        displayName: _signupDisplayName,
-        businessName: _businessName.trim(),
-        primaryLanguage: _resolvedPrimaryLanguage,
-        primaryCountry: _resolvedPrimaryCountry,
-        agreementState: _agreementState,
-      );
-      _authSessionStore.save(session);
-      _completionMode = AuthCompletionMode.signup;
-      _authPhase = AsyncPhase.success;
-      _step = OnboardingStep.completed;
-      notifyListeners();
-    } on MateyaApiException catch (error) {
-      _applyApiError(error);
-      notifyListeners();
-    }
-  }
 }

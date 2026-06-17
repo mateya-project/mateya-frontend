@@ -1,0 +1,204 @@
+part of 'create_repository.dart';
+
+class MockCreateRepository implements CreateRepository {
+  @override
+  Future<List<CreatePlaceSuggestion>> fetchRecommendedPlaces({
+    required CreateFlowType flowType,
+    Set<String> categoryIds = const <String>{},
+    String? categoryDetailCode,
+  }) async {
+    await Future<void>.delayed(const Duration(milliseconds: 320));
+    final candidates =
+        _placeSuggestions
+            .where((place) {
+              if (flowType == CreateFlowType.classRegistration) {
+                return true;
+              }
+              if (categoryIds.isEmpty) {
+                return true;
+              }
+              return place.categoryIds.any(categoryIds.contains);
+            })
+            .toList()
+            .where(
+              (place) =>
+                  categoryDetailCode == null ||
+                  place.categoryDetailCode == categoryDetailCode,
+            )
+            .toList()
+          ..sort((left, right) => left.distanceKm.compareTo(right.distanceKm));
+    return candidates.take(3).toList(growable: false);
+  }
+
+  @override
+  Future<List<CreatePlaceSuggestion>> searchPlaces({
+    required String query,
+    required CreateFlowType flowType,
+    Set<String> categoryIds = const <String>{},
+    String? categoryDetailCode,
+  }) async {
+    await Future<void>.delayed(const Duration(milliseconds: 420));
+    final normalized = query.trim().toLowerCase();
+    if (normalized == 'network-error') {
+      throw const CreateRepositoryException(
+        CreateRepositoryFailureType.network,
+      );
+    }
+
+    final filtered = _placeSuggestions.where((place) {
+      final matchesQuery =
+          place.name.toLowerCase().contains(normalized) ||
+          place.address.toLowerCase().contains(normalized) ||
+          place.description.toLowerCase().contains(normalized);
+      if (!matchesQuery) {
+        return false;
+      }
+      if (flowType == CreateFlowType.classRegistration || categoryIds.isEmpty) {
+        return categoryDetailCode == null ||
+            place.categoryDetailCode == categoryDetailCode;
+      }
+      return place.categoryIds.any(categoryIds.contains) &&
+          (categoryDetailCode == null ||
+              place.categoryDetailCode == categoryDetailCode);
+    }).toList();
+
+    filtered.sort((left, right) {
+      final leftStartsWith = left.name.toLowerCase().startsWith(normalized);
+      final rightStartsWith = right.name.toLowerCase().startsWith(normalized);
+      if (leftStartsWith != rightStartsWith) {
+        return leftStartsWith ? -1 : 1;
+      }
+      return left.distanceKm.compareTo(right.distanceKm);
+    });
+
+    return filtered;
+  }
+
+  @override
+  Future<CreateSubmitResult> submit(CreateSubmissionDraft draft) async {
+    await Future<void>.delayed(const Duration(milliseconds: 720));
+    return CreateSubmitResult(
+      id: 'created-${DateTime.now().microsecondsSinceEpoch}',
+      flowType: draft.flowType,
+      title: draft.title,
+      placeName: draft.place.name,
+      eventStartsAt: draft.eventStartsAt,
+      chatStatus: ChatProvisionStatus.created,
+    );
+  }
+
+  @override
+  Future<void> delete({
+    required String id,
+    required CreateFlowType flowType,
+  }) async {
+    await Future<void>.delayed(const Duration(milliseconds: 360));
+  }
+}
+
+const List<CreatePlaceSuggestion> _placeSuggestions = <CreatePlaceSuggestion>[
+  CreatePlaceSuggestion(
+    id: 'gyeongbokgung',
+    name: '경복궁 흥례문 광장',
+    address: '서울 종로구 사직로 161',
+    description: '전통문화 모임과 관광형 클래스에 적합한 대표 장소',
+    distanceKm: 1,
+    latitude: 37.579617,
+    longitude: 126.977041,
+    categoryIds: <String>{'CULTURE_TRADITION'},
+    serverCategoryCode: 'CULTURE_TRADITION',
+    categoryDetailCode: 'PALACE',
+    categoryDetailName: '궁궐',
+  ),
+  CreatePlaceSuggestion(
+    id: 'bukchon',
+    name: '북촌문화센터',
+    address: '서울 종로구 계동길 37',
+    description: '한옥, 공예, 전통문화 체험 운영에 적합한 공간',
+    distanceKm: 2,
+    latitude: 37.582604,
+    longitude: 126.983998,
+    categoryIds: <String>{'CULTURE_TRADITION'},
+    serverCategoryCode: 'CULTURE_TRADITION',
+    categoryDetailCode: 'HANOK',
+    categoryDetailName: '한옥',
+  ),
+  CreatePlaceSuggestion(
+    id: 'seoul-forest',
+    name: '서울숲 가족마당',
+    address: '서울 성동구 뚝섬로 273',
+    description: '산책형 모임과 야외 액티비티에 적합한 공원형 장소',
+    distanceKm: 1,
+    latitude: 37.544557,
+    longitude: 127.037442,
+    categoryIds: <String>{'TOURIST_ATTRACTION'},
+    serverCategoryCode: 'TOURIST_ATTRACTION',
+    categoryDetailCode: 'URBAN_PARK',
+    categoryDetailName: '도시공원',
+  ),
+  CreatePlaceSuggestion(
+    id: 'ttukseom-sports',
+    name: '뚝섬한강공원 수변무대',
+    address: '서울 광진구 강변북로 139',
+    description: '러닝, 피크닉, 한강 액티비티에 적합한 장소',
+    distanceKm: 3,
+    latitude: 37.531011,
+    longitude: 127.066887,
+    categoryIds: <String>{'ACTIVITY_LEPORTS'},
+    serverCategoryCode: 'ACTIVITY_LEPORTS',
+    categoryDetailCode: 'RIVERSIDE_ACTIVITY',
+    categoryDetailName: '수변 액티비티',
+  ),
+  CreatePlaceSuggestion(
+    id: 'gwangjang',
+    name: '광장시장 동문 입구',
+    address: '서울 종로구 창경궁로 88',
+    description: '음식 체험과 관광형 모임 수요가 높은 위치',
+    distanceKm: 4,
+    latitude: 37.570404,
+    longitude: 126.999177,
+    categoryIds: <String>{'SHOPPING'},
+    serverCategoryCode: 'SHOPPING',
+    categoryDetailCode: 'TRADITIONAL_MARKET',
+    categoryDetailName: '전통시장',
+  ),
+  CreatePlaceSuggestion(
+    id: 'hongdae-language',
+    name: '홍대입구 글로벌 라운지',
+    address: '서울 마포구 양화로 188',
+    description: '언어교환과 소규모 커뮤니티 클래스 진행에 적합',
+    distanceKm: 5,
+    latitude: 37.557317,
+    longitude: 126.924107,
+    categoryIds: <String>{'PUBLIC_FACILITY'},
+    serverCategoryCode: 'PUBLIC_FACILITY',
+    categoryDetailCode: 'COMMUNITY_SPACE',
+    categoryDetailName: '커뮤니티 공간',
+  ),
+  CreatePlaceSuggestion(
+    id: 'suwon-festival',
+    name: '수원 화성행궁 광장',
+    address: '경기 수원시 팔달구 정조로 825',
+    description: '지역축제 연계 모임과 야외 행사에 적합한 장소',
+    distanceKm: 9,
+    latitude: 37.281962,
+    longitude: 127.014306,
+    categoryIds: <String>{'EVENT_PERFORMANCE_FESTIVAL'},
+    serverCategoryCode: 'EVENT_PERFORMANCE_FESTIVAL',
+    categoryDetailCode: 'HERITAGE_FESTIVAL',
+    categoryDetailName: '유산 축제',
+  ),
+  CreatePlaceSuggestion(
+    id: 'icheon-ceramic',
+    name: '이천 예스파크 공방동',
+    address: '경기 이천시 신둔면 경충대로 3151',
+    description: '공예 클래스와 체험형 수업에 적합한 전문 공간',
+    distanceKm: 10,
+    latitude: 37.293792,
+    longitude: 127.409215,
+    categoryIds: <String>{'CULTURE_TRADITION'},
+    serverCategoryCode: 'CULTURE_TRADITION',
+    categoryDetailCode: 'CRAFT_WORKSHOP',
+    categoryDetailName: '공방',
+  ),
+];

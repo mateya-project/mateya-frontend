@@ -1,0 +1,140 @@
+part of 'activity_detail_repository.dart';
+
+ActivityParticipant _parseParticipant(Object? value) {
+  final json = _asMap(value);
+  return ActivityParticipant(
+    id: '${json['userId']}',
+    name: json['displayName'] as String? ?? '',
+    avatarUrl: json['profileImageUrl'] as String?,
+  );
+}
+
+ActivityReview _parseReview(Object? value) {
+  final json = _asMap(value);
+  final originalBody = json['originalBody'] as String?;
+  final translatedBody = json['body'] as String?;
+  final visibleTranslation =
+      translatedBody != null &&
+          originalBody != null &&
+          translatedBody != originalBody
+      ? translatedBody
+      : null;
+
+  return ActivityReview(
+    id: '${json['id']}',
+    authorName: json['authorDisplayName'] as String? ?? '',
+    authorAvatarUrl: json['authorProfileImageUrl'] as String?,
+    submittedAt: DateTime.parse(json['createdAt'] as String),
+    rating: json['rating'] as int? ?? 0,
+    originalText: originalBody ?? translatedBody ?? '',
+    translatedText: visibleTranslation,
+    helpfulCount: json['helpfulCount'] as int? ?? 0,
+    imageUrls: ((json['imageUrls'] as List<Object?>?) ?? const <Object?>[])
+        .whereType<String>()
+        .toList(growable: false),
+  );
+}
+
+ReviewSummary _parseReviewSummary(Map<String, dynamic> json) {
+  final distribution =
+      json['ratingDistribution'] as Map<String, dynamic>? ??
+      const <String, dynamic>{};
+  final ratingCounts = <int, int>{
+    for (var rating = 1; rating <= 5; rating += 1)
+      rating: distribution['$rating'] as int? ?? 0,
+  };
+  return ReviewSummary(
+    averageRating: (json['averageRating'] as num?)?.toDouble() ?? 0,
+    totalCount: json['totalCount'] as int? ?? 0,
+    ratingCounts: ratingCounts,
+  );
+}
+
+String _hostLocationLabel({
+  required String? countryCode,
+  required String? languageCode,
+}) {
+  final normalizedCountry = (countryCode ?? '').toUpperCase();
+  final normalizedLanguage = (languageCode ?? '').toLowerCase();
+  final countryLabel = switch (normalizedCountry) {
+    'KR' => 'Korea',
+    'US' => 'United States',
+    'JP' => 'Japan',
+    'CN' => 'China',
+    'VN' => 'Vietnam',
+    _ => normalizedCountry.isEmpty ? 'Mateya' : normalizedCountry,
+  };
+  final languageLabel = switch (normalizedLanguage) {
+    'ko' => 'Korean',
+    'en' => 'English',
+    'ja' => 'Japanese',
+    'zh' => 'Chinese',
+    _ => normalizedLanguage.isEmpty ? 'Host' : normalizedLanguage,
+  };
+  return 'Language $languageLabel · $countryLabel';
+}
+
+Map<String, dynamic> _asMap(Object? value) {
+  if (value is Map<String, dynamic>) {
+    return value;
+  }
+  throw const ActivityDetailRepositoryException(
+    ActivityDetailLoadFailureType.server,
+  );
+}
+
+ActivityDetailRepositoryException _mapApiException(MateyaApiException error) {
+  if (error.type == ApiFailureType.network) {
+    return const ActivityDetailRepositoryException(
+      ActivityDetailLoadFailureType.network,
+    );
+  }
+  if (error.type == ApiFailureType.validation) {
+    return ActivityDetailRepositoryException(
+      ActivityDetailLoadFailureType.validation,
+      message: error.message,
+    );
+  }
+  return ActivityDetailRepositoryException(
+    ActivityDetailLoadFailureType.server,
+    message: error.message,
+  );
+}
+
+Map<String, String> _flattenHeaders(
+  Map<String, dynamic> rawHeaders, {
+  required String fallbackContentType,
+}) {
+  final headers = <String, String>{};
+  rawHeaders.forEach((key, value) {
+    if (value is List<Object?>) {
+      final joined = value.whereType<String>().join(', ');
+      if (joined.isNotEmpty) {
+        headers[key] = joined;
+      }
+      return;
+    }
+    if (value is String && value.isNotEmpty) {
+      headers[key] = value;
+    }
+  });
+  headers.putIfAbsent('Content-Type', () => fallbackContentType);
+  return headers;
+}
+
+String? _contentTypeFor(String fileName) {
+  final normalized = fileName.toLowerCase();
+  if (normalized.endsWith('.jpg') || normalized.endsWith('.jpeg')) {
+    return 'image/jpeg';
+  }
+  if (normalized.endsWith('.png')) {
+    return 'image/png';
+  }
+  if (normalized.endsWith('.webp')) {
+    return 'image/webp';
+  }
+  if (normalized.endsWith('.gif')) {
+    return 'image/gif';
+  }
+  return null;
+}
