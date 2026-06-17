@@ -91,7 +91,7 @@ void main() {
         await controller.openRoom('gyeongbokgung-walk');
         controller.updateDraft('내일 1시에 정문에서 만나요.');
 
-        controller.sendMessage();
+        await controller.sendMessage();
 
         expect(controller.draft, isEmpty);
         expect(controller.canSendMessage, isFalse);
@@ -140,7 +140,7 @@ void main() {
         'a2',
       ]);
 
-      controller.sendMessage();
+      await controller.sendMessage();
 
       expect(controller.draftAttachments, isEmpty);
       expect(

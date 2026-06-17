@@ -5,10 +5,15 @@ import '../data/mypage_repository.dart';
 import '../domain/mypage_models.dart';
 
 class MyPageController extends ChangeNotifier {
-  MyPageController({required this.repository, required this.flowKind});
+  MyPageController({
+    required this.repository,
+    required this.flowKind,
+    this.initialOtherProfileUserId,
+  });
 
   final MyPageRepository repository;
   final FlowKind? flowKind;
+  final String? initialOtherProfileUserId;
 
   MyPageAsyncPhase _phase = MyPageAsyncPhase.idle;
   MyPageRoute _route = MyPageRoute.personalHome;
@@ -26,6 +31,7 @@ class MyPageController extends ChangeNotifier {
   bool _isSavingBusinessIntroduction = false;
   bool _isSubmittingWithdrawal = false;
   bool _withdrawalCompleted = false;
+  String? _currentOtherProfileUserId;
 
   MyPageAsyncPhase get phase => _phase;
   MyPageRoute get route => _route;
@@ -51,6 +57,10 @@ class MyPageController extends ChangeNotifier {
       return;
     }
     await _loadBundle();
+    if (initialOtherProfileUserId != null &&
+        initialOtherProfileUserId!.isNotEmpty) {
+      await openOtherProfile(targetUserId: initialOtherProfileUserId!);
+    }
   }
 
   Future<void> retry() => _loadBundle();
@@ -78,9 +88,37 @@ class MyPageController extends ChangeNotifier {
     notifyListeners();
   }
 
-  void openOtherProfile() {
+  Future<void> openOtherProfile({String? targetUserId}) async {
+    final nextTargetUserId = targetUserId ?? _currentOtherProfileUserId;
+    if (nextTargetUserId == null || nextTargetUserId.isEmpty) {
+      _pushToast('다른 사용자 프로필은 활동 상세의 호스트나 참여자에서 열 수 있어요.');
+      notifyListeners();
+      return;
+    }
+
     _clearErrorWithoutNotify();
     _route = MyPageRoute.otherProfile;
+    _isUpdatingFriendship = false;
+    _phase = MyPageAsyncPhase.loading;
+    notifyListeners();
+
+    try {
+      _otherProfile = await repository.fetchOtherProfile(
+        targetUserId: nextTargetUserId,
+      );
+      _currentOtherProfileUserId = nextTargetUserId;
+      _phase = MyPageAsyncPhase.success;
+      _errorMessage = null;
+    } on MyPageRepositoryException catch (error) {
+      _phase = error.type == MyPageLoadFailureType.network
+          ? MyPageAsyncPhase.networkError
+          : MyPageAsyncPhase.serverError;
+      _errorMessage =
+          error.message ??
+          (error.type == MyPageLoadFailureType.network
+              ? '네트워크 연결을 확인한 뒤 다시 시도해 주세요.'
+              : '다른 사용자 프로필을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.');
+    }
     notifyListeners();
   }
 
@@ -163,7 +201,9 @@ class MyPageController extends ChangeNotifier {
   }
 
   Future<void> toggleFriendship() async {
-    if (_otherProfile == null || _isUpdatingFriendship) {
+    if (_otherProfile == null ||
+        _isUpdatingFriendship ||
+        _currentOtherProfileUserId == null) {
       return;
     }
 
@@ -171,16 +211,24 @@ class MyPageController extends ChangeNotifier {
     _errorMessage = null;
     notifyListeners();
 
-    await Future<void>.delayed(const Duration(milliseconds: 260));
-    final nextIsFriend = !_otherProfile!.isFriend;
-    _otherProfile = _otherProfile!.copyWith(isFriend: nextIsFriend);
-    _phase = MyPageAsyncPhase.success;
-    _isUpdatingFriendship = false;
-    _pushToast(
-      nextIsFriend
-          ? '친구가 추가되었고, 1:1 채팅방 생성은 백엔드 연결 단계에서 이어집니다.'
-          : '친구 상태를 해제했어요.',
-    );
+    try {
+      final wasFriend = _otherProfile!.isFriend;
+      _otherProfile = await repository.updateFriendship(
+        targetUserId: _currentOtherProfileUserId!,
+        isFriend: wasFriend,
+      );
+      _phase = MyPageAsyncPhase.success;
+      _isUpdatingFriendship = false;
+      _pushToast(wasFriend ? '친구 상태를 해제했어요.' : '친구를 추가했어요.');
+    } on MyPageRepositoryException catch (error) {
+      _phase = MyPageAsyncPhase.validationError;
+      _isUpdatingFriendship = false;
+      _errorMessage =
+          error.message ??
+          (error.type == MyPageLoadFailureType.network
+              ? '네트워크 연결을 확인한 뒤 다시 시도해 주세요.'
+              : '친구 상태를 변경하지 못했어요. 잠시 후 다시 시도해 주세요.');
+    }
     notifyListeners();
   }
 

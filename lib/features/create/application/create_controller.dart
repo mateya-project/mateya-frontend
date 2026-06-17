@@ -45,6 +45,8 @@ class CreateController extends ChangeNotifier {
       const <CreatePlaceSuggestion>[];
   final Set<String> _selectedCategoryIds = <String>{};
   CreatePlaceSuggestion? _selectedPlace;
+  String _manualPlaceName = '';
+  String _manualPlaceAddress = '';
   String _title = '';
   String _description = '';
   DateTime? _eventDate;
@@ -72,6 +74,8 @@ class CreateController extends ChangeNotifier {
   List<CreatePlaceSuggestion> get recommendedPlaces => _recommendedPlaces;
   Set<String> get selectedCategoryIds => _selectedCategoryIds;
   CreatePlaceSuggestion? get selectedPlace => _selectedPlace;
+  String get manualPlaceName => _manualPlaceName;
+  String get manualPlaceAddress => _manualPlaceAddress;
   String get title => _title;
   String get description => _description;
   DateTime? get eventDate => _eventDate;
@@ -265,7 +269,23 @@ class CreateController extends ChangeNotifier {
       return;
     }
     _selectedPlace = place;
-    _clearErrors(<String>{'place'});
+    if (flowType == CreateFlowType.classRegistration) {
+      _manualPlaceName = place.name;
+      _manualPlaceAddress = place.address;
+    }
+    _clearErrors(<String>{'place', 'manualPlaceName', 'manualPlaceAddress'});
+    notifyListeners();
+  }
+
+  void updateManualPlaceName(String value) {
+    _manualPlaceName = value;
+    _clearErrors(<String>{'place', 'manualPlaceName'});
+    notifyListeners();
+  }
+
+  void updateManualPlaceAddress(String value) {
+    _manualPlaceAddress = value;
+    _clearErrors(<String>{'place', 'manualPlaceAddress'});
     notifyListeners();
   }
 
@@ -510,7 +530,7 @@ class CreateController extends ChangeNotifier {
     final eventDate = _eventDate;
     final startTime = _startTime;
     final endTime = _endTime;
-    final selectedPlace = _selectedPlace;
+    final selectedPlace = _selectedPlace ?? _buildManualPlace();
     if (eventDate == null ||
         startTime == null ||
         endTime == null ||
@@ -561,7 +581,16 @@ class CreateController extends ChangeNotifier {
     if (_selectedPlace != null) {
       return <String, String?>{};
     }
-    return <String, String?>{'place': '장소를 1개 선택해 주세요.'};
+    if (flowType == CreateFlowType.classRegistration &&
+        _manualPlaceName.trim().isNotEmpty &&
+        _manualPlaceAddress.trim().isNotEmpty) {
+      return <String, String?>{};
+    }
+    return <String, String?>{
+      'place': flowType == CreateFlowType.classRegistration
+          ? '장소를 선택하거나 장소명과 주소를 입력해 주세요.'
+          : '장소를 1개 선택해 주세요.',
+    };
   }
 
   Map<String, String?> _validateDetailStep() {
@@ -651,6 +680,24 @@ class CreateController extends ChangeNotifier {
 
   DateTime _combine(DateTime date, TimeOfDay time) {
     return DateTime(date.year, date.month, date.day, time.hour, time.minute);
+  }
+
+  CreatePlaceSuggestion? _buildManualPlace() {
+    if (flowType != CreateFlowType.classRegistration) {
+      return null;
+    }
+    final name = _manualPlaceName.trim();
+    final address = _manualPlaceAddress.trim();
+    if (name.isEmpty || address.isEmpty) {
+      return null;
+    }
+    return CreatePlaceSuggestion(
+      id: 'manual-class-place',
+      name: name,
+      address: address,
+      description: '직접 입력한 클래스 장소',
+      distanceKm: 0,
+    );
   }
 
   void _clearErrors(Set<String> keys) {

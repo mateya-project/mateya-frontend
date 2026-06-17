@@ -6,6 +6,8 @@ import '../domain/mypage_models.dart';
 abstract interface class MyPageRepository {
   Future<MyPageBundle> fetchBundle({required bool isBusinessMode});
 
+  Future<OtherProfileData> fetchOtherProfile({required String targetUserId});
+
   Future<PersonalMyPageData> updatePrimaryPreferences({
     required String displayName,
     required String languageCode,
@@ -21,6 +23,11 @@ abstract interface class MyPageRepository {
   Future<void> submitWithdrawal({
     required String agreementText,
     String? reason,
+  });
+
+  Future<OtherProfileData> updateFriendship({
+    required String targetUserId,
+    required bool isFriend,
   });
 }
 
@@ -122,7 +129,21 @@ class ApiMyPageRepository implements MyPageRepository {
 
       return MyPageBundle(
         personalPage: personalPage,
-        otherProfile: _otherProfile,
+        otherProfile: const OtherProfileData(
+          profile: ProfileSummary(
+            id: '',
+            name: '',
+            residence: '',
+            primaryLanguageCode: 'ko',
+            primaryLanguageLabel: '한국어',
+            primaryCountryCode: 'kr',
+            primaryCountryLabel: '대한민국',
+          ),
+          metrics: <ProfileMetric>[],
+          badges: <ActivityBadge>[],
+          recentActivities: <ActivityHistoryEntry>[],
+          isFriend: false,
+        ),
         recentActivity: recentActivity,
         businessPage: businessPage,
         languageOptions: kMyPageLanguageOptions,
@@ -251,6 +272,76 @@ class ApiMyPageRepository implements MyPageRepository {
     }
   }
 
+  @override
+  Future<OtherProfileData> fetchOtherProfile({
+    required String targetUserId,
+  }) async {
+    try {
+      final pageData = await _apiClient.getJson(
+        '/api/v1/users/$targetUserId',
+        requiresAuth: true,
+      );
+      final historyData = await _apiClient.getJson(
+        '/api/v1/users/$targetUserId/activity-history',
+        requiresAuth: true,
+        queryParameters: <String, String>{'limit': '3'},
+      );
+      final pageJson = _asMap(pageData);
+      final statsJson = _asMap(pageJson['stats']);
+      final historyItems = historyData is List<Object?>
+          ? historyData
+          : const <Object?>[];
+
+      return OtherProfileData(
+        profile: _buildOtherProfile(pageJson),
+        metrics: <ProfileMetric>[
+          ProfileMetric(
+            label: '참가/생성 활동',
+            value: '${statsJson['totalActivityCount'] as int? ?? 0}',
+          ),
+          ProfileMetric(
+            label: '친구 수',
+            value: '${statsJson['friendCount'] as int? ?? 0}',
+          ),
+          ProfileMetric(
+            label: '작성 리뷰',
+            value: '${statsJson['reviewCount'] as int? ?? 0}',
+          ),
+        ],
+        badges: const <ActivityBadge>[],
+        recentActivities: historyItems
+            .map(_parseActivityHistoryEntry)
+            .toList(growable: false),
+        isFriend: pageJson['friend'] as bool? ?? false,
+      );
+    } on MateyaApiException catch (error) {
+      throw _mapApiException(error);
+    }
+  }
+
+  @override
+  Future<OtherProfileData> updateFriendship({
+    required String targetUserId,
+    required bool isFriend,
+  }) async {
+    try {
+      if (isFriend) {
+        await _apiClient.deleteJson(
+          '/api/v1/users/$targetUserId/friends',
+          requiresAuth: true,
+        );
+      } else {
+        await _apiClient.postJson(
+          '/api/v1/users/$targetUserId/friends',
+          requiresAuth: true,
+        );
+      }
+      return fetchOtherProfile(targetUserId: targetUserId);
+    } on MateyaApiException catch (error) {
+      throw _mapApiException(error);
+    }
+  }
+
   ProfileSummary _buildPersonalProfile(
     Map<String, dynamic> meProfileJson,
     Map<String, dynamic> mePageJson,
@@ -274,6 +365,24 @@ class ApiMyPageRepository implements MyPageRepository {
       isActiveWithin30Days: _isActiveWithin30Days(
         lastLoginAt ?? mePageJson['createdAt'] as String?,
       ),
+    );
+  }
+
+  ProfileSummary _buildOtherProfile(Map<String, dynamic> pageJson) {
+    final languageCode = (pageJson['primaryLanguage'] as String? ?? 'ko')
+        .toLowerCase();
+    final countryCode = (pageJson['primaryCountry'] as String? ?? 'KR')
+        .toLowerCase();
+    return ProfileSummary(
+      id: '${pageJson['id']}',
+      name: pageJson['displayName'] as String? ?? '',
+      residence: (pageJson['activityRegionName'] as String?) ?? '활동 지역 미설정',
+      primaryLanguageCode: languageCode,
+      primaryLanguageLabel: _languageLabel(languageCode),
+      primaryCountryCode: countryCode,
+      primaryCountryLabel: _countryLabel(countryCode),
+      profileImageUrl: pageJson['profileImageUrl'] as String?,
+      isActiveWithin30Days: pageJson['activeWithin30Days'] as bool? ?? false,
     );
   }
 
@@ -506,6 +615,14 @@ class MockMyPageRepository implements MyPageRepository {
   }
 
   @override
+  Future<OtherProfileData> fetchOtherProfile({
+    required String targetUserId,
+  }) async {
+    await Future<void>.delayed(const Duration(milliseconds: 260));
+    return _otherProfile;
+  }
+
+  @override
   Future<PersonalMyPageData> updatePrimaryPreferences({
     required String displayName,
     required String languageCode,
@@ -549,6 +666,15 @@ class MockMyPageRepository implements MyPageRepository {
     String? reason,
   }) async {
     await Future<void>.delayed(const Duration(milliseconds: 320));
+  }
+
+  @override
+  Future<OtherProfileData> updateFriendship({
+    required String targetUserId,
+    required bool isFriend,
+  }) async {
+    await Future<void>.delayed(const Duration(milliseconds: 260));
+    return _otherProfile.copyWith(isFriend: !isFriend);
   }
 }
 
