@@ -14,6 +14,8 @@ import '../domain/onboarding_validators.dart';
 
 part 'onboarding_controller_auth.dart';
 part 'onboarding_controller_business.dart';
+part 'onboarding_controller_completion.dart';
+part 'onboarding_controller_form.dart';
 part 'onboarding_controller_flow.dart';
 part 'onboarding_controller_location.dart';
 

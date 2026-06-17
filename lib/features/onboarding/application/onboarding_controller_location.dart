@@ -82,37 +82,8 @@ Future<void> _completeNeighborhood(OnboardingController controller) async {
     }
   }
 
-  if (controller._verificationToken == null ||
-      controller._verificationTokenExpiresAt == null ||
-      controller._verificationTokenExpiresAt!.isBefore(DateTime.now())) {
-    controller._authPhase = AsyncPhase.validationError;
-    controller._emitToast('인증이 만료되어 인증번호를 다시 받아야 해요.');
-    controller._step = OnboardingStep.guestPhone;
-    controller._notifyChanged();
-    return;
-  }
-
-  controller._authPhase = AsyncPhase.loading;
-  controller._notifyChanged();
-
-  try {
-    final session = await controller._authRepository.signupGuest(
-      verificationToken: controller._verificationToken!,
-      displayName: controller._signupDisplayName,
-      primaryLanguage: controller._resolvedPrimaryLanguage,
-      primaryCountry: controller._resolvedPrimaryCountry,
-      agreementState: controller._agreementState,
-      neighborhood: controller._selectedNeighborhood!,
-    );
-    controller._authSessionStore.save(session);
-    controller._completionMode = AuthCompletionMode.signup;
-    controller._authPhase = AsyncPhase.success;
-  } on MateyaApiException catch (error) {
-    _applyApiError(controller, error);
-    controller._notifyChanged();
-    return;
-  }
-
-  controller._step = OnboardingStep.completed;
-  controller._notifyChanged();
+  await _completeGuestSignup(
+    controller,
+    neighborhood: controller._selectedNeighborhood!,
+  );
 }
