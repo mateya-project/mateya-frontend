@@ -34,22 +34,30 @@ class ApiActivityDetailRepository implements ActivityDetailRepository {
       );
 
       final detailJson = _asMap(detailData);
+      final manageJson = await _fetchParticipantManageJsonIfNeeded(
+        activityId: activity.id,
+        detailJson: detailJson,
+      );
       final reviewPageJson = _asMap(reviewsData);
       final reviewItems =
           reviewPageJson['items'] as List<Object?>? ?? const <Object?>[];
       final statsJson = _asMap(statsData);
-      final participants =
-          ((detailJson['participantPreviews'] as List<Object?>?) ??
-                  const <Object?>[])
-              .map(_parseParticipant)
-              .toList(growable: false);
+      final participants = _parseParticipants(
+        manageJson?['approvedParticipants'] ?? detailJson['participantPreviews'],
+      );
+      final pendingParticipants = _parseParticipants(
+        manageJson?['pendingParticipants'],
+      );
       final reviews = reviewItems.map(_parseReview).toList(growable: false);
       return _buildActivityDetail(
         activity: activity,
         detailJson: detailJson,
         participants: participants,
+        pendingParticipants: pendingParticipants,
         reviews: reviews,
         reviewSummary: _parseReviewSummary(statsJson),
+        participantCountOverride: manageJson?['participantCount'] as int?,
+        participantCapacityOverride: manageJson?['capacity'] as int?,
       );
     } on MateyaApiException catch (error) {
       if (error.type == ApiFailureType.network) {
@@ -91,6 +99,63 @@ class ApiActivityDetailRepository implements ActivityDetailRepository {
         current: detail,
         detailJson: _asMap(data),
         participationState: ActivityParticipationState.requested,
+      );
+    } on MateyaApiException catch (error) {
+      throw _mapApiException(error);
+    }
+  }
+
+  @override
+  Future<ActivityDetail> approvePendingParticipant({
+    required ActivityDetail detail,
+    required String participantId,
+  }) async {
+    try {
+      final data = await _apiClient.postJson(
+        '/api/v1/activities/${detail.activity.id}/participants/$participantId/approve',
+        requiresAuth: true,
+      );
+      return _mergeHostedParticipantDetail(
+        current: detail,
+        detailJson: _asMap(data),
+      );
+    } on MateyaApiException catch (error) {
+      throw _mapApiException(error);
+    }
+  }
+
+  @override
+  Future<ActivityDetail> removeApprovedParticipant({
+    required ActivityDetail detail,
+    required String participantId,
+  }) async {
+    try {
+      final data = await _apiClient.deleteJson(
+        '/api/v1/activities/${detail.activity.id}/participants/$participantId',
+        requiresAuth: true,
+      );
+      return _mergeHostedParticipantDetail(
+        current: detail,
+        detailJson: _asMap(data),
+      );
+    } on MateyaApiException catch (error) {
+      throw _mapApiException(error);
+    }
+  }
+
+  @override
+  Future<ActivityDetail> removePendingParticipant({
+    required ActivityDetail detail,
+    required String participantId,
+  }) async {
+    try {
+      final data = await _apiClient.deleteJson(
+        '/api/v1/activities/${detail.activity.id}/participant-requests/$participantId',
+        requiresAuth: true,
+      );
+      return _mergeHostedParticipantDetail(
+        current: detail,
+        detailJson: _asMap(data),
       );
     } on MateyaApiException catch (error) {
       throw _mapApiException(error);
@@ -147,8 +212,11 @@ class ApiActivityDetailRepository implements ActivityDetailRepository {
     required ActivityItem activity,
     required Map<String, dynamic> detailJson,
     required List<ActivityParticipant> participants,
+    required List<ActivityParticipant> pendingParticipants,
     required List<ActivityReview> reviews,
     required ReviewSummary reviewSummary,
+    int? participantCountOverride,
+    int? participantCapacityOverride,
   }) {
     final hostJson = _asMap(detailJson['hostProfile']);
     final placeName =
@@ -169,9 +237,13 @@ class ApiActivityDetailRepository implements ActivityDetailRepository {
         endAt: DateTime.parse(detailJson['endAt'] as String),
         price: detailJson['priceAmount'] as int? ?? activity.price,
         participantCount:
-            detailJson['participantCount'] as int? ?? activity.participantCount,
+            participantCountOverride ??
+            detailJson['participantCount'] as int? ??
+            activity.participantCount,
         participantCapacity:
-            detailJson['capacity'] as int? ?? activity.participantCapacity,
+            participantCapacityOverride ??
+            detailJson['capacity'] as int? ??
+            activity.participantCapacity,
         imageUrl:
             detailJson['representativeImageUrl'] as String? ?? activity.imageUrl,
       ),
@@ -200,7 +272,7 @@ class ApiActivityDetailRepository implements ActivityDetailRepository {
           '',
       shareUrl: 'https://mateya.app/activities/${activity.id}',
       participants: participants,
-      pendingParticipants: const <ActivityParticipant>[],
+      pendingParticipants: pendingParticipants,
       reviews: reviews,
       serverReviewSummary: reviewSummary,
       isFavorite: detailJson['favorited'] as bool? ?? false,
@@ -215,13 +287,15 @@ class ApiActivityDetailRepository implements ActivityDetailRepository {
     required ActivityDetail current,
     required Map<String, dynamic> detailJson,
     required ActivityParticipationState participationState,
+    List<ActivityParticipant>? participantsOverride,
+    List<ActivityParticipant>? pendingParticipantsOverride,
+    int? participantCountOverride,
+    int? participantCapacityOverride,
   }) {
     final hostJson = _asMap(detailJson['hostProfile']);
     final participants =
-        ((detailJson['participantPreviews'] as List<Object?>?) ??
-                const <Object?>[])
-            .map(_parseParticipant)
-            .toList(growable: false);
+        participantsOverride ??
+        _parseParticipants(detailJson['participantPreviews']);
     final placeName =
         (detailJson['placeName'] as String?) ??
         (detailJson['placeAddress'] as String?) ??
@@ -240,9 +314,11 @@ class ApiActivityDetailRepository implements ActivityDetailRepository {
         endAt: DateTime.parse(detailJson['endAt'] as String),
         price: detailJson['priceAmount'] as int? ?? current.activity.price,
         participantCount:
+            participantCountOverride ??
             detailJson['participantCount'] as int? ??
             current.activity.participantCount,
         participantCapacity:
+            participantCapacityOverride ??
             detailJson['capacity'] as int? ??
             current.activity.participantCapacity,
         imageUrl:
@@ -271,6 +347,8 @@ class ApiActivityDetailRepository implements ActivityDetailRepository {
           (detailJson['originalDescription'] as String?) ??
           current.description,
       participants: participants,
+      pendingParticipants:
+          pendingParticipantsOverride ?? current.pendingParticipants,
       isFavorite: detailJson['favorited'] as bool? ?? current.isFavorite,
       participationState: _resolveParticipationState(
         detailJson: detailJson,
@@ -306,5 +384,42 @@ class ApiActivityDetailRepository implements ActivityDetailRepository {
     return '${hostJson['userId']}' == '$viewerUserId'
         ? ActivityParticipationState.host
         : fallback ?? ActivityParticipationState.available;
+  }
+
+  Future<Map<String, dynamic>?> _fetchParticipantManageJsonIfNeeded({
+    required String activityId,
+    required Map<String, dynamic> detailJson,
+  }) async {
+    if ((detailJson['hostedByMe'] as bool?) != true) {
+      return null;
+    }
+    final data = await _apiClient.getJson(
+      '/api/v1/activities/$activityId/participants/manage',
+      requiresAuth: true,
+    );
+    return _asMap(data);
+  }
+
+  Future<ActivityDetail> _mergeHostedParticipantDetail({
+    required ActivityDetail current,
+    required Map<String, dynamic> detailJson,
+  }) async {
+    final manageJson = await _fetchParticipantManageJsonIfNeeded(
+      activityId: current.activity.id,
+      detailJson: detailJson,
+    );
+    return _mergeActivityDetail(
+      current: current,
+      detailJson: detailJson,
+      participationState: ActivityParticipationState.host,
+      participantsOverride: _parseParticipants(
+        manageJson?['approvedParticipants'] ?? detailJson['participantPreviews'],
+      ),
+      pendingParticipantsOverride: _parseParticipants(
+        manageJson?['pendingParticipants'],
+      ),
+      participantCountOverride: manageJson?['participantCount'] as int?,
+      participantCapacityOverride: manageJson?['capacity'] as int?,
+    );
   }
 }

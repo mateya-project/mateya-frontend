@@ -13,6 +13,11 @@ ActivityParticipant _parseParticipant(Object? value) {
   );
 }
 
+List<ActivityParticipant> _parseParticipants(Object? value) {
+  final items = value is List<Object?> ? value : const <Object?>[];
+  return items.map(_parseParticipant).toList(growable: false);
+}
+
 ActivityReview _parseReview(Object? value) {
   final json = _asMap(value);
   final originalBody = json['originalBody'] as String?;

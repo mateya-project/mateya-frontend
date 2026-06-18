@@ -37,6 +37,60 @@ class MockActivityDetailRepository implements ActivityDetailRepository {
   }
 
   @override
+  Future<ActivityDetail> approvePendingParticipant({
+    required ActivityDetail detail,
+    required String participantId,
+  }) async {
+    await Future<void>.delayed(const Duration(milliseconds: 180));
+    final target = detail.pendingParticipants
+        .where((participant) => participant.id == participantId)
+        .firstOrNull;
+    if (target == null) {
+      return detail;
+    }
+    return detail.copyWith(
+      activity: detail.activity.copyWith(
+        participantCount: detail.activity.participantCount + 1,
+      ),
+      participants: <ActivityParticipant>[...detail.participants, target],
+      pendingParticipants: detail.pendingParticipants
+          .where((participant) => participant.id != participantId)
+          .toList(growable: false),
+    );
+  }
+
+  @override
+  Future<ActivityDetail> removeApprovedParticipant({
+    required ActivityDetail detail,
+    required String participantId,
+  }) async {
+    await Future<void>.delayed(const Duration(milliseconds: 180));
+    return detail.copyWith(
+      activity: detail.activity.copyWith(
+        participantCount: detail.activity.participantCount > 0
+            ? detail.activity.participantCount - 1
+            : 0,
+      ),
+      participants: detail.participants
+          .where((participant) => participant.id != participantId)
+          .toList(growable: false),
+    );
+  }
+
+  @override
+  Future<ActivityDetail> removePendingParticipant({
+    required ActivityDetail detail,
+    required String participantId,
+  }) async {
+    await Future<void>.delayed(const Duration(milliseconds: 180));
+    return detail.copyWith(
+      pendingParticipants: detail.pendingParticipants
+          .where((participant) => participant.id != participantId)
+          .toList(growable: false),
+    );
+  }
+
+  @override
   Future<HelpfulToggleState> toggleHelpful({required String reviewId}) async {
     await Future<void>.delayed(const Duration(milliseconds: 120));
     return const HelpfulToggleState(helpful: true, helpfulCount: 1);

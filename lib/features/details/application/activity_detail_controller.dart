@@ -200,77 +200,71 @@ class ActivityDetailController extends ChangeNotifier {
     notifyListeners();
   }
 
-  ActivityParticipant? removeApprovedParticipant(String participantId) {
+  Future<String?> removeApprovedParticipant(String participantId) async {
     final current = _detail;
     if (current == null) {
-      return null;
+      return '활동 정보를 먼저 불러와야 합니다.';
     }
-    final target = current.participants
-        .where((participant) => participant.id == participantId)
-        .firstOrNull;
-    if (target == null) {
-      return null;
-    }
-
-    final nextParticipants = current.participants
-        .where((participant) => participant.id != participantId)
-        .toList(growable: false);
-    final nextCount = current.activity.participantCount > 0
-        ? current.activity.participantCount - 1
-        : 0;
-    _detail = current.copyWith(
-      participants: nextParticipants,
-      activity: current.activity.copyWith(participantCount: nextCount),
-    );
-    _armedParticipantRemovalId = null;
+    _errorMessage = null;
     notifyListeners();
-    return target;
+
+    try {
+      _detail = await repository.removeApprovedParticipant(
+        detail: current,
+        participantId: participantId,
+      );
+      _armedParticipantRemovalId = null;
+      return null;
+    } on ActivityDetailRepositoryException catch (error) {
+      _errorMessage = error.message ?? '참여자를 삭제하지 못했어요. 잠시 후 다시 시도해 주세요.';
+      return _errorMessage;
+    } finally {
+      notifyListeners();
+    }
   }
 
-  ActivityParticipant? removePendingParticipant(String participantId) {
+  Future<String?> removePendingParticipant(String participantId) async {
     final current = _detail;
     if (current == null) {
-      return null;
+      return '활동 정보를 먼저 불러와야 합니다.';
     }
-    final target = current.pendingParticipants
-        .where((participant) => participant.id == participantId)
-        .firstOrNull;
-    if (target == null) {
-      return null;
-    }
-
-    _detail = current.copyWith(
-      pendingParticipants: current.pendingParticipants
-          .where((participant) => participant.id != participantId)
-          .toList(growable: false),
-    );
+    _errorMessage = null;
     notifyListeners();
-    return target;
+
+    try {
+      _detail = await repository.removePendingParticipant(
+        detail: current,
+        participantId: participantId,
+      );
+      return null;
+    } on ActivityDetailRepositoryException catch (error) {
+      _errorMessage = error.message ?? '신청을 취소하지 못했어요. 잠시 후 다시 시도해 주세요.';
+      return _errorMessage;
+    } finally {
+      notifyListeners();
+    }
   }
 
-  void approvePendingParticipant(String participantId) {
+  Future<String?> approvePendingParticipant(String participantId) async {
     final current = _detail;
     if (current == null) {
-      return;
+      return '활동 정보를 먼저 불러와야 합니다.';
     }
-    final target = current.pendingParticipants
-        .where((participant) => participant.id == participantId)
-        .firstOrNull;
-    if (target == null) {
-      return;
-    }
-
-    final nextApproved = <ActivityParticipant>[...current.participants, target];
-    _detail = current.copyWith(
-      participants: nextApproved,
-      pendingParticipants: current.pendingParticipants
-          .where((participant) => participant.id != participantId)
-          .toList(growable: false),
-      activity: current.activity.copyWith(
-        participantCount: current.activity.participantCount + 1,
-      ),
-    );
+    _errorMessage = null;
     notifyListeners();
+
+    try {
+      _detail = await repository.approvePendingParticipant(
+        detail: current,
+        participantId: participantId,
+      );
+      return null;
+    } on ActivityDetailRepositoryException catch (error) {
+      _errorMessage = error.message ?? '참여 신청을 승인하지 못했어요. 잠시 후 다시 시도해 주세요.';
+      return _errorMessage;
+    } finally {
+      notifyListeners();
+    }
   }
 
   void restoreApprovedParticipant(ActivityParticipant participant) {

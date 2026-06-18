@@ -24,6 +24,21 @@ abstract interface class ActivityDetailRepository {
 
   Future<ActivityDetail> requestJoin({required ActivityDetail detail});
 
+  Future<ActivityDetail> approvePendingParticipant({
+    required ActivityDetail detail,
+    required String participantId,
+  });
+
+  Future<ActivityDetail> removeApprovedParticipant({
+    required ActivityDetail detail,
+    required String participantId,
+  });
+
+  Future<ActivityDetail> removePendingParticipant({
+    required ActivityDetail detail,
+    required String participantId,
+  });
+
   Future<HelpfulToggleState> toggleHelpful({required String reviewId});
 
   Future<ActivityReview> submitReview({

@@ -285,48 +285,45 @@ class ActivityParticipantRequestPage extends StatelessWidget {
                       controller.armedParticipantRemovalId == participant.id
                       ? const Color(0xFFC73E19)
                       : AppColors.brandGreen,
-                  onTap: () {
+                  onTap: (context) async {
                     if (controller.armedParticipantRemovalId ==
                         participant.id) {
-                      final removed = controller.removeApprovedParticipant(
+                      final message = await controller.removeApprovedParticipant(
                         participant.id,
                       );
-                      if (removed == null) {
+                      if (!context.mounted) {
+                        return;
+                      }
+                      if (message != null) {
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(SnackBar(content: Text(message)));
                         return;
                       }
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: const Text('참여자를 삭제했어요.'),
-                          duration: const Duration(seconds: 3),
-                          action: SnackBarAction(
-                            label: '실행취소',
-                            onPressed: () =>
-                                controller.restoreApprovedParticipant(removed),
-                          ),
-                        ),
+                        const SnackBar(content: Text('참여자를 삭제했어요.')),
                       );
                     } else {
                       controller.armParticipantRemoval(participant.id);
                     }
                   },
-                  onDismissed: () {
-                    final removed = controller.removeApprovedParticipant(
+                  onDismissAttempt: (context) async {
+                    final message = await controller.removeApprovedParticipant(
                       participant.id,
                     );
-                    if (removed == null) {
-                      return;
+                    if (!context.mounted) {
+                      return false;
+                    }
+                    if (message != null) {
+                      ScaffoldMessenger.of(
+                        context,
+                      ).showSnackBar(SnackBar(content: Text(message)));
+                      return false;
                     }
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: const Text('참여자를 삭제했어요.'),
-                        duration: const Duration(seconds: 3),
-                        action: SnackBarAction(
-                          label: '실행취소',
-                          onPressed: () =>
-                              controller.restoreApprovedParticipant(removed),
-                        ),
-                      ),
+                      const SnackBar(content: Text('참여자를 삭제했어요.')),
                     );
+                    return true;
                   },
                 ),
                 const SizedBox(height: 14),
@@ -343,26 +340,37 @@ class ActivityParticipantRequestPage extends StatelessWidget {
                   backgroundColor: AppColors.softGreenBorder,
                   actionIcon: Icons.add_rounded,
                   actionColor: AppColors.brandGreen,
-                  onTap: () =>
-                      controller.approvePendingParticipant(participant.id),
-                  onDismissed: () {
-                    final removed = controller.removePendingParticipant(
+                  onTap: (context) async {
+                    final message = await controller.approvePendingParticipant(
                       participant.id,
                     );
-                    if (removed == null) {
+                    if (!context.mounted) {
+                      return;
+                    }
+                    if (message == null) {
                       return;
                     }
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: const Text('신청을 취소했어요.'),
-                        duration: const Duration(seconds: 3),
-                        action: SnackBarAction(
-                          label: '실행취소',
-                          onPressed: () =>
-                              controller.restorePendingParticipant(removed),
-                        ),
-                      ),
+                      SnackBar(content: Text(message)),
                     );
+                  },
+                  onDismissAttempt: (context) async {
+                    final message = await controller.removePendingParticipant(
+                      participant.id,
+                    );
+                    if (!context.mounted) {
+                      return false;
+                    }
+                    if (message != null) {
+                      ScaffoldMessenger.of(
+                        context,
+                      ).showSnackBar(SnackBar(content: Text(message)));
+                      return false;
+                    }
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('신청을 취소했어요.')),
+                    );
+                    return true;
                   },
                 ),
                 const SizedBox(height: 14),
@@ -389,15 +397,15 @@ class _ParticipantCard extends StatelessWidget {
     required this.actionIcon,
     required this.actionColor,
     required this.onTap,
-    required this.onDismissed,
+    required this.onDismissAttempt,
     this.backgroundColor = Colors.white,
   });
 
   final ActivityParticipant participant;
   final IconData actionIcon;
   final Color actionColor;
-  final VoidCallback onTap;
-  final VoidCallback onDismissed;
+  final Future<void> Function(BuildContext context) onTap;
+  final Future<bool> Function(BuildContext context) onDismissAttempt;
   final Color backgroundColor;
 
   @override
@@ -406,10 +414,7 @@ class _ParticipantCard extends StatelessWidget {
       key: ValueKey<String>('participant-${participant.id}-$actionIcon'),
       background: const SizedBox.shrink(),
       secondaryBackground: const SizedBox.shrink(),
-      confirmDismiss: (_) async {
-        onDismissed();
-        return false;
-      },
+      confirmDismiss: (_) => onDismissAttempt(context),
       child: MyPageSectionCard(
         child: Container(
           color: backgroundColor,
@@ -446,7 +451,7 @@ class _ParticipantCard extends StatelessWidget {
                 ),
               ),
               IconButton(
-                onPressed: onTap,
+                onPressed: () => onTap(context),
                 icon: Icon(actionIcon),
                 color: Colors.white,
                 style: IconButton.styleFrom(
