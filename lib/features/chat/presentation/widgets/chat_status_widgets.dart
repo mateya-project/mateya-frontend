@@ -140,6 +140,27 @@ class ChatListSkeleton extends StatelessWidget {
   }
 }
 
+class ChatListGuidance extends StatelessWidget {
+  const ChatListGuidance({super.key});
+
+  static const String _message =
+      '활동에 참여하면 자동으로 단체채팅방에 가입됩니다.\n'
+      '개인 채팅은 친구인 유저와 자동으로 생성됩니다.\n'
+      '친구가 아닌 유저와는 채팅할 수 없습니다.';
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      _message,
+      textAlign: TextAlign.center,
+      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+        color: AppColors.textMuted,
+        height: 17 / 12,
+      ),
+    );
+  }
+}
+
 class ChatDetailSkeleton extends StatelessWidget {
   const ChatDetailSkeleton({super.key});
 
