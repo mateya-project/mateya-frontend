@@ -412,6 +412,11 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
         ),
         const SizedBox(height: 24),
         Expanded(child: _buildListBody(context)),
+        const SizedBox(height: 24),
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 34),
+          child: ChatListGuidance(),
+        ),
         MateyaBottomNavigation(
           currentTab: MateyaBottomTab.chat,
           onHomeTap: widget.onHomeTap,
