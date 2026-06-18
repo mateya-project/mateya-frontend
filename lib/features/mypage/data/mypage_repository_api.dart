@@ -255,6 +255,37 @@ class ApiMyPageRepository implements MyPageRepository {
   }
 
   @override
+  Future<String> updateActivityRegion({
+    required NeighborhoodSelection neighborhood,
+  }) async {
+    try {
+      final data = await _apiClient.patchJson(
+        '/api/v1/users/me/activity-region',
+        requiresAuth: true,
+        body: <String, Object?>{
+          'regionName': neighborhood.displayName,
+          'latitude': neighborhood.latitude,
+          'longitude': neighborhood.longitude,
+        },
+      );
+      final profileJson = _asMap(data);
+      _syncSessionUserProfile(profileJson);
+      final regionName =
+          profileJson['activityRegionName'] as String? ??
+          neighborhood.displayName;
+      if (regionName.isEmpty) {
+        throw const MyPageRepositoryException(
+          MyPageLoadFailureType.server,
+          message: '활동 지역 저장 결과를 확인하지 못했어요. 잠시 후 다시 시도해 주세요.',
+        );
+      }
+      return regionName;
+    } on MateyaApiException catch (error) {
+      throw _mapApiException(error);
+    }
+  }
+
+  @override
   Future<void> submitWithdrawal({
     required String agreementText,
     String? reason,

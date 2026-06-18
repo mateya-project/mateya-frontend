@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import '../../../app/app_config.dart';
+import '../../onboarding/domain/onboarding_flow.dart';
 import '../../../shared/auth/auth_session.dart';
 import '../../../shared/network/http_transport.dart';
 import '../../../shared/network/mateya_api_client.dart';
@@ -30,6 +31,10 @@ abstract interface class MyPageRepository {
   });
 
   Future<String> updateProfileImage({required String imagePath});
+
+  Future<String> updateActivityRegion({
+    required NeighborhoodSelection neighborhood,
+  });
 
   Future<void> submitWithdrawal({
     required String agreementText,

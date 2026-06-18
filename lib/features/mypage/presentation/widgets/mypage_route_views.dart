@@ -151,6 +151,7 @@ class SettingsView extends StatelessWidget {
   const SettingsView({
     super.key,
     required this.profile,
+    required this.onEditActivityRegion,
     required this.onOpenConsentHistory,
     required this.onOpenCustomerSupport,
     required this.onOpenBlockedUsers,
@@ -159,6 +160,7 @@ class SettingsView extends StatelessWidget {
   });
 
   final ProfileSummary profile;
+  final VoidCallback onEditActivityRegion;
   final VoidCallback onOpenConsentHistory;
   final VoidCallback onOpenCustomerSupport;
   final VoidCallback onOpenBlockedUsers;
@@ -206,6 +208,10 @@ class SettingsView extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 18),
+              _SettingsMenuItem(
+                title: '활동 지역 변경하기',
+                onTap: onEditActivityRegion,
+              ),
               _SettingsMenuItem(
                 title: '개인정보 수집·이용 동의 내역',
                 onTap: onOpenConsentHistory,
@@ -934,8 +940,10 @@ class BusinessMyPageView extends StatelessWidget {
     required this.introductionController,
     required this.isSaving,
     required this.isUpdatingProfileImage,
+    required this.isUpdatingActivityRegion,
     required this.errorText,
     required this.onEditProfileImage,
+    required this.onEditActivityRegion,
     required this.onSave,
   });
 
@@ -943,8 +951,10 @@ class BusinessMyPageView extends StatelessWidget {
   final TextEditingController introductionController;
   final bool isSaving;
   final bool isUpdatingProfileImage;
+  final bool isUpdatingActivityRegion;
   final String? errorText;
   final VoidCallback onEditProfileImage;
+  final VoidCallback onEditActivityRegion;
   final VoidCallback onSave;
 
   @override
@@ -964,6 +974,30 @@ class BusinessMyPageView extends StatelessWidget {
                       ? Icons.hourglass_top_rounded
                       : Icons.photo_camera_outlined,
                   onTap: isUpdatingProfileImage ? null : onEditProfileImage,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton.icon(
+                  onPressed: isUpdatingActivityRegion
+                      ? null
+                      : onEditActivityRegion,
+                  icon: Icon(
+                    Icons.my_location_rounded,
+                    color: isUpdatingActivityRegion
+                        ? AppColors.textSecondary
+                        : AppColors.brandGreen,
+                  ),
+                  label: Text(
+                    isUpdatingActivityRegion ? '변경 중...' : '활동 지역 변경',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: isUpdatingActivityRegion
+                          ? AppColors.textSecondary
+                          : AppColors.brandGreen,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ),
               ),
               const SizedBox(height: 16),

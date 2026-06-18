@@ -32,6 +32,7 @@ class MyPageController extends ChangeNotifier {
   bool _isUpdatingFriendship = false;
   bool _isSavingBusinessIntroduction = false;
   bool _isUpdatingProfileImage = false;
+  bool _isUpdatingActivityRegion = false;
   bool _isSubmittingWithdrawal = false;
   bool _isLoggingOut = false;
   bool _withdrawalCompleted = false;
@@ -54,6 +55,7 @@ class MyPageController extends ChangeNotifier {
   bool get isUpdatingFriendship => _isUpdatingFriendship;
   bool get isSavingBusinessIntroduction => _isSavingBusinessIntroduction;
   bool get isUpdatingProfileImage => _isUpdatingProfileImage;
+  bool get isUpdatingActivityRegion => _isUpdatingActivityRegion;
   bool get isSubmittingWithdrawal => _isSubmittingWithdrawal;
   bool get isLoggingOut => _isLoggingOut;
   bool get withdrawalCompleted => _withdrawalCompleted;
@@ -368,6 +370,51 @@ class MyPageController extends ChangeNotifier {
       _pushToast(_errorMessage!);
     } finally {
       _isUpdatingProfileImage = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> updateActivityRegion(NeighborhoodSelection neighborhood) async {
+    if (_personalPage == null || _isUpdatingActivityRegion) {
+      return false;
+    }
+
+    final previousResidence = _personalPage!.profile.residence;
+    _isUpdatingActivityRegion = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final regionName = await repository.updateActivityRegion(
+        neighborhood: neighborhood,
+      );
+      _personalPage = _personalPage!.copyWith(
+        profile: _personalPage!.profile.copyWith(residence: regionName),
+      );
+      if (_businessPage != null) {
+        final currentBusinessProfile = _businessPage!.profile;
+        final nextResidence =
+            currentBusinessProfile.residence == previousResidence
+            ? regionName
+            : currentBusinessProfile.residence;
+        _businessPage = _businessPage!.copyWith(
+          profile: currentBusinessProfile.copyWith(residence: nextResidence),
+        );
+      }
+      _phase = MyPageAsyncPhase.success;
+      _pushToast('활동 지역을 저장했어요.');
+      return true;
+    } on MyPageRepositoryException catch (error) {
+      _phase = MyPageAsyncPhase.validationError;
+      _errorMessage =
+          error.message ??
+          (error.type == MyPageLoadFailureType.network
+              ? '네트워크 연결을 확인한 뒤 다시 시도해 주세요.'
+              : '활동 지역을 저장하지 못했어요. 잠시 후 다시 시도해 주세요.');
+      _pushToast(_errorMessage!);
+      return false;
+    } finally {
+      _isUpdatingActivityRegion = false;
       notifyListeners();
     }
   }

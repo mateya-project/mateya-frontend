@@ -70,6 +70,14 @@ class MockMyPageRepository implements MyPageRepository {
   }
 
   @override
+  Future<String> updateActivityRegion({
+    required NeighborhoodSelection neighborhood,
+  }) async {
+    await Future<void>.delayed(const Duration(milliseconds: 260));
+    return neighborhood.displayName;
+  }
+
+  @override
   Future<void> submitWithdrawal({
     required String agreementText,
     String? reason,
