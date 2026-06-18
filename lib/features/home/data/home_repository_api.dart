@@ -160,8 +160,10 @@ class ApiHomeRepository implements HomeRepository {
     if (user?.activityLatitude != null && user?.activityLongitude != null) {
       queryParameters['latitude'] = <String>['${user!.activityLatitude!}'];
       queryParameters['longitude'] = <String>['${user.activityLongitude!}'];
+      queryParameters['radiusKm'] = <String>[
+        '${filter.distance.maxDistanceKm}',
+      ];
     }
-    queryParameters['radiusKm'] = <String>['${filter.distance.maxDistanceKm}'];
 
     return queryParameters;
   }

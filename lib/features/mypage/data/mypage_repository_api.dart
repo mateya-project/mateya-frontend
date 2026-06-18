@@ -244,6 +244,25 @@ class ApiMyPageRepository implements MyPageRepository {
   }
 
   @override
+  Future<void> logout() async {
+    final refreshToken = _sessionStore.session?.refreshToken;
+    if (refreshToken == null || refreshToken.isEmpty) {
+      _sessionStore.clear();
+      return;
+    }
+
+    try {
+      await _apiClient.postJson(
+        '/api/v1/auth/logout',
+        body: <String, Object?>{'refreshToken': refreshToken},
+      );
+      _sessionStore.clear();
+    } on MateyaApiException catch (error) {
+      throw _mapApiException(error);
+    }
+  }
+
+  @override
   Future<OtherProfileData> fetchOtherProfile({
     required String targetUserId,
   }) async {

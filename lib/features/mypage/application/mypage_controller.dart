@@ -32,6 +32,7 @@ class MyPageController extends ChangeNotifier {
   bool _isUpdatingFriendship = false;
   bool _isSavingBusinessIntroduction = false;
   bool _isSubmittingWithdrawal = false;
+  bool _isLoggingOut = false;
   bool _withdrawalCompleted = false;
   String? _currentOtherProfileUserId;
 
@@ -52,6 +53,7 @@ class MyPageController extends ChangeNotifier {
   bool get isUpdatingFriendship => _isUpdatingFriendship;
   bool get isSavingBusinessIntroduction => _isSavingBusinessIntroduction;
   bool get isSubmittingWithdrawal => _isSubmittingWithdrawal;
+  bool get isLoggingOut => _isLoggingOut;
   bool get withdrawalCompleted => _withdrawalCompleted;
 
   bool get isBusinessMode => flowKind == FlowKind.host;
@@ -382,6 +384,34 @@ class MyPageController extends ChangeNotifier {
               : '탈퇴 요청을 처리하지 못했어요. 잠시 후 다시 시도해 주세요.');
     }
     notifyListeners();
+  }
+
+  Future<bool> logout() async {
+    if (_isLoggingOut) {
+      return false;
+    }
+
+    _isLoggingOut = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      await repository.logout();
+      _phase = MyPageAsyncPhase.success;
+      return true;
+    } on MyPageRepositoryException catch (error) {
+      _phase = MyPageAsyncPhase.validationError;
+      _errorMessage =
+          error.message ??
+          (error.type == MyPageLoadFailureType.network
+              ? '네트워크 연결을 확인한 뒤 다시 시도해 주세요.'
+              : '로그아웃하지 못했어요. 잠시 후 다시 시도해 주세요.');
+      _pushToast(_errorMessage!);
+      return false;
+    } finally {
+      _isLoggingOut = false;
+      notifyListeners();
+    }
   }
 
   Future<void> _loadBundle() async {

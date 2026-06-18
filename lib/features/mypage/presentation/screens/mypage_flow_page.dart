@@ -230,7 +230,11 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
   }
 
   Future<void> _logout() async {
-    AuthSessionStore.instance.clear();
+    final didLogout = await widget.controller.logout();
+    if (!didLogout) {
+      return;
+    }
+
     await AuthSessionStore.instance.flush();
     if (!mounted) {
       return;

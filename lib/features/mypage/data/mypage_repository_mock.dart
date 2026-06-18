@@ -71,6 +71,11 @@ class MockMyPageRepository implements MyPageRepository {
   }
 
   @override
+  Future<void> logout() async {
+    await Future<void>.delayed(const Duration(milliseconds: 220));
+  }
+
+  @override
   Future<OtherProfileData> updateFriendship({
     required String targetUserId,
     required bool isFriend,

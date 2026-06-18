@@ -30,6 +30,8 @@ abstract interface class MyPageRepository {
     String? reason,
   });
 
+  Future<void> logout();
+
   Future<OtherProfileData> updateFriendship({
     required String targetUserId,
     required bool isFriend,
