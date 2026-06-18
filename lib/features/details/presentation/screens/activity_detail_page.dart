@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 
+import '../../../../shared/report/report_repository.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../../shared/widgets/mateya_button.dart';
 import '../../../../shared/widgets/mateya_report_sheet.dart';
@@ -27,6 +29,7 @@ class ActivityDetailPage extends StatefulWidget {
 
 class _ActivityDetailPageState extends State<ActivityDetailPage> {
   final PageController _pageController = PageController();
+  final ReportRepository _reportRepository = ReportRepository();
   int _currentImagePage = 0;
 
   @override
@@ -99,8 +102,31 @@ class _ActivityDetailPageState extends State<ActivityDetailPage> {
     );
   }
 
+  Future<String?> _submitActivityReport(String body, List<XFile> images) async {
+    final detail = widget.controller.detail;
+    if (detail == null) {
+      return '활동 정보를 다시 불러온 뒤 신고해 주세요.';
+    }
+
+    try {
+      await _reportRepository.submitReport(
+        targetType: ReportTargetType.activity,
+        targetId: detail.activity.id,
+        reason: body,
+        images: images,
+      );
+      return null;
+    } on ReportRepositoryException catch (error) {
+      return error.message;
+    }
+  }
+
   Future<void> _openReportSheet(String subjectLabel) {
-    return showMateyaReportSheet(context, subjectLabel: subjectLabel);
+    return showMateyaReportSheet(
+      context,
+      subjectLabel: subjectLabel,
+      onSubmit: _submitActivityReport,
+    );
   }
 
   Future<void> _openOtherProfile(String userId) async {
@@ -288,9 +314,8 @@ class ActivityParticipantRequestPage extends StatelessWidget {
                   onTap: (context) async {
                     if (controller.armedParticipantRemovalId ==
                         participant.id) {
-                      final message = await controller.removeApprovedParticipant(
-                        participant.id,
-                      );
+                      final message = await controller
+                          .removeApprovedParticipant(participant.id);
                       if (!context.mounted) {
                         return;
                       }
@@ -350,9 +375,9 @@ class ActivityParticipantRequestPage extends StatelessWidget {
                     if (message == null) {
                       return;
                     }
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(message)),
-                    );
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(SnackBar(content: Text(message)));
                   },
                   onDismissAttempt: (context) async {
                     final message = await controller.removePendingParticipant(
@@ -367,9 +392,9 @@ class ActivityParticipantRequestPage extends StatelessWidget {
                       ).showSnackBar(SnackBar(content: Text(message)));
                       return false;
                     }
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('신청을 취소했어요.')),
-                    );
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(const SnackBar(content: Text('신청을 취소했어요.')));
                     return true;
                   },
                 ),

@@ -173,6 +173,16 @@ ActivityHistoryEntry _parseActivityHistoryEntry(Object? value) {
   );
 }
 
+BlockedUserSummary _parseBlockedUserSummary(Object? value) {
+  final json = _asMap(value);
+  return BlockedUserSummary(
+    id: '${json['userId'] ?? ''}',
+    name: json['displayName'] as String? ?? '',
+    residence: (json['activityRegionName'] as String?) ?? '활동 지역 미설정',
+    profileImageUrl: json['profileImageUrl'] as String?,
+  );
+}
+
 bool _isActiveWithin30Days(String? isoString) {
   if (isoString == null || isoString.isEmpty) {
     return false;

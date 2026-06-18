@@ -25,6 +25,12 @@ class MockMyPageRepository implements MyPageRepository {
   }
 
   @override
+  Future<List<BlockedUserSummary>> fetchBlockedUsers() async {
+    await Future<void>.delayed(const Duration(milliseconds: 220));
+    return _blockedUsers;
+  }
+
+  @override
   Future<PersonalMyPageData> updatePrimaryPreferences({
     required String displayName,
     required String languageCode,
@@ -97,5 +103,15 @@ class MockMyPageRepository implements MyPageRepository {
   }) async {
     await Future<void>.delayed(const Duration(milliseconds: 260));
     return _otherProfile.copyWith(isFriend: !isFriend);
+  }
+
+  @override
+  Future<void> blockUser({required String targetUserId}) async {
+    await Future<void>.delayed(const Duration(milliseconds: 220));
+  }
+
+  @override
+  Future<void> unblockUser({required String targetUserId}) async {
+    await Future<void>.delayed(const Duration(milliseconds: 220));
   }
 }

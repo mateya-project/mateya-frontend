@@ -18,6 +18,8 @@ abstract interface class MyPageRepository {
 
   Future<OtherProfileData> fetchOtherProfile({required String targetUserId});
 
+  Future<List<BlockedUserSummary>> fetchBlockedUsers();
+
   Future<PersonalMyPageData> updatePrimaryPreferences({
     required String displayName,
     required String languageCode,
@@ -47,4 +49,8 @@ abstract interface class MyPageRepository {
     required String targetUserId,
     required bool isFriend,
   });
+
+  Future<void> blockUser({required String targetUserId});
+
+  Future<void> unblockUser({required String targetUserId});
 }

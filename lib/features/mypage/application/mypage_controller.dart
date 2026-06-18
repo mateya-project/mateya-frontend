@@ -33,6 +33,7 @@ class MyPageController extends ChangeNotifier {
   bool _isSavingBusinessIntroduction = false;
   bool _isUpdatingProfileImage = false;
   bool _isUpdatingActivityRegion = false;
+  bool _isUpdatingBlockedUsers = false;
   bool _isSubmittingWithdrawal = false;
   bool _isLoggingOut = false;
   bool _withdrawalCompleted = false;
@@ -56,6 +57,7 @@ class MyPageController extends ChangeNotifier {
   bool get isSavingBusinessIntroduction => _isSavingBusinessIntroduction;
   bool get isUpdatingProfileImage => _isUpdatingProfileImage;
   bool get isUpdatingActivityRegion => _isUpdatingActivityRegion;
+  bool get isUpdatingBlockedUsers => _isUpdatingBlockedUsers;
   bool get isSubmittingWithdrawal => _isSubmittingWithdrawal;
   bool get isLoggingOut => _isLoggingOut;
   bool get withdrawalCompleted => _withdrawalCompleted;
@@ -259,39 +261,64 @@ class MyPageController extends ChangeNotifier {
     notifyListeners();
   }
 
-  void blockCurrentOtherProfile() {
-    if (_otherProfile == null || _otherProfile!.isBlocked) {
+  Future<void> blockCurrentOtherProfile() async {
+    if (_otherProfile == null ||
+        _otherProfile!.isBlocked ||
+        _currentOtherProfileUserId == null ||
+        _isUpdatingBlockedUsers) {
       return;
     }
 
-    final profile = _otherProfile!.profile;
-    _blockedUsers = <BlockedUserSummary>[
-      BlockedUserSummary(
-        id: profile.id,
-        name: profile.name,
-        residence: profile.residence,
-        profileImageUrl: profile.profileImageUrl,
-      ),
-      ..._blockedUsers.where((user) => user.id != profile.id),
-    ];
-    _otherProfile = _otherProfile!.copyWith(isBlocked: true, isFriend: false);
-    _pushToast('차단 유저 목록에 추가했어요.');
+    _isUpdatingBlockedUsers = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      await repository.blockUser(targetUserId: _currentOtherProfileUserId!);
+      _blockedUsers = await repository.fetchBlockedUsers();
+      _otherProfile = _otherProfile?.copyWith(isBlocked: true, isFriend: false);
+      _phase = MyPageAsyncPhase.success;
+      _isUpdatingBlockedUsers = false;
+      _pushToast('차단 유저 목록에 추가했어요.');
+    } on MyPageRepositoryException catch (error) {
+      _phase = MyPageAsyncPhase.validationError;
+      _isUpdatingBlockedUsers = false;
+      _errorMessage =
+          error.message ??
+          (error.type == MyPageLoadFailureType.network
+              ? '네트워크 연결을 확인한 뒤 다시 시도해 주세요.'
+              : '유저를 차단하지 못했어요. 잠시 후 다시 시도해 주세요.');
+    }
     notifyListeners();
   }
 
-  void unblockUser(String userId) {
-    final target = _blockedUsers.where((user) => user.id == userId).firstOrNull;
-    if (target == null) {
+  Future<void> unblockUser(String userId) async {
+    if (_isUpdatingBlockedUsers) {
       return;
     }
 
-    _blockedUsers = _blockedUsers
-        .where((user) => user.id != userId)
-        .toList(growable: false);
-    if (_otherProfile?.profile.id == userId) {
-      _otherProfile = _otherProfile?.copyWith(isBlocked: false);
+    _isUpdatingBlockedUsers = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      await repository.unblockUser(targetUserId: userId);
+      _blockedUsers = await repository.fetchBlockedUsers();
+      if (_otherProfile?.profile.id == userId) {
+        _otherProfile = _otherProfile?.copyWith(isBlocked: false);
+      }
+      _phase = MyPageAsyncPhase.success;
+      _isUpdatingBlockedUsers = false;
+      _pushToast('차단을 해제하였습니다.');
+    } on MyPageRepositoryException catch (error) {
+      _phase = MyPageAsyncPhase.validationError;
+      _isUpdatingBlockedUsers = false;
+      _errorMessage =
+          error.message ??
+          (error.type == MyPageLoadFailureType.network
+              ? '네트워크 연결을 확인한 뒤 다시 시도해 주세요.'
+              : '차단을 해제하지 못했어요. 잠시 후 다시 시도해 주세요.');
     }
-    _pushToast('차단을 해제하였습니다.');
     notifyListeners();
   }
 

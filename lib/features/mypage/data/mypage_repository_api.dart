@@ -42,6 +42,10 @@ class ApiMyPageRepository implements MyPageRepository {
           requiresAuth: true,
           queryParameters: <String, String>{'limit': '50'},
         ),
+        _apiClient.getJson(
+          '/api/v1/users/me/blocked-users',
+          requiresAuth: true,
+        ),
         if (isBusinessMode)
           _apiClient.getJson('/api/v1/hosts/me', requiresAuth: true),
         if (isBusinessMode)
@@ -60,8 +64,11 @@ class ApiMyPageRepository implements MyPageRepository {
       final historyJson = results[4] is List<Object?>
           ? results[4] as List<Object?>
           : const <Object?>[];
+      final blockedUsersJson = _asMap(results[5]);
       final consentHistoryItems =
           consentHistoryJson['items'] as List<Object?>? ?? const <Object?>[];
+      final blockedUserItems =
+          blockedUsersJson['items'] as List<Object?>? ?? const <Object?>[];
 
       final historyEntries = historyJson
           .map(_parseActivityHistoryEntry)
@@ -101,8 +108,8 @@ class ApiMyPageRepository implements MyPageRepository {
       final businessPage = isBusinessMode
           ? _buildBusinessPage(
               userProfileJson: meProfileJson,
-              hostPageJson: _asMap(results[5]),
-              businessApplicationJson: _asMap(results[6]),
+              hostPageJson: _asMap(results[6]),
+              businessApplicationJson: _asMap(results[7]),
             )
           : _fallbackBusinessPage(meProfileJson);
 
@@ -130,7 +137,9 @@ class ApiMyPageRepository implements MyPageRepository {
         consentHistory: consentHistoryItems
             .map(_parseConsentHistoryEntry)
             .toList(growable: false),
-        blockedUsers: _blockedUsers,
+        blockedUsers: blockedUserItems
+            .map(_parseBlockedUserSummary)
+            .toList(growable: false),
       );
     } on MateyaApiException catch (error) {
       throw _mapApiException(error);
@@ -417,6 +426,21 @@ class ApiMyPageRepository implements MyPageRepository {
   }
 
   @override
+  Future<List<BlockedUserSummary>> fetchBlockedUsers() async {
+    try {
+      final data = await _apiClient.getJson(
+        '/api/v1/users/me/blocked-users',
+        requiresAuth: true,
+      );
+      final json = _asMap(data);
+      final items = json['items'] as List<Object?>? ?? const <Object?>[];
+      return items.map(_parseBlockedUserSummary).toList(growable: false);
+    } on MateyaApiException catch (error) {
+      throw _mapApiException(error);
+    }
+  }
+
+  @override
   Future<OtherProfileData> updateFriendship({
     required String targetUserId,
     required bool isFriend,
@@ -434,6 +458,30 @@ class ApiMyPageRepository implements MyPageRepository {
         );
       }
       return fetchOtherProfile(targetUserId: targetUserId);
+    } on MateyaApiException catch (error) {
+      throw _mapApiException(error);
+    }
+  }
+
+  @override
+  Future<void> blockUser({required String targetUserId}) async {
+    try {
+      await _apiClient.postJson(
+        '/api/v1/users/$targetUserId/block',
+        requiresAuth: true,
+      );
+    } on MateyaApiException catch (error) {
+      throw _mapApiException(error);
+    }
+  }
+
+  @override
+  Future<void> unblockUser({required String targetUserId}) async {
+    try {
+      await _apiClient.deleteJson(
+        '/api/v1/users/$targetUserId/block',
+        requiresAuth: true,
+      );
     } on MateyaApiException catch (error) {
       throw _mapApiException(error);
     }

@@ -137,10 +137,16 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
       MyPageRoute.otherProfile => OtherProfileView(
         key: const ValueKey<String>('other-profile'),
         data: controller.otherProfile!,
-        isBusy: controller.isUpdatingFriendship,
+        isBusy:
+            controller.isUpdatingFriendship ||
+            controller.isUpdatingBlockedUsers,
         onBack: controller.openPersonalHome,
-        onFriendTap: controller.toggleFriendship,
-        onBlockTap: controller.blockCurrentOtherProfile,
+        onFriendTap: () {
+          controller.toggleFriendship();
+        },
+        onBlockTap: () {
+          controller.blockCurrentOtherProfile();
+        },
       ),
       MyPageRoute.recentActivities => RecentActivitiesView(
         key: const ValueKey<String>('recent-activities'),
@@ -169,7 +175,9 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
         key: const ValueKey<String>('blocked-users'),
         users: controller.blockedUsers,
         onBack: controller.openSettings,
-        onUnblock: controller.unblockUser,
+        onUnblock: (userId) {
+          controller.unblockUser(userId);
+        },
       ),
       MyPageRoute.businessHome => BusinessMyPageView(
         key: const ValueKey<String>('business-home'),
