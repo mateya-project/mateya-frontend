@@ -225,10 +225,9 @@ packages:
   flutter_naver_map:
     dependency: "direct main"
     description:
-      name: flutter_naver_map
-      sha256: "5d76331cc9f5c678adfda7089834b99d0377fd365e7c144da9784b876ceed36e"
-      url: "https://pub.dev"
-    source: hosted
+      path: "third_party/plugins/flutter_naver_map"
+      relative: true
+    source: path
     version: "1.4.4"
   flutter_plugin_android_lifecycle:
     dependency: transitive
@@ -561,12 +560,11 @@ packages:
     source: hosted
     version: "2.2.0"
   package_info_plus:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: package_info_plus
-      sha256: "4bf625947f6c7713ee242296a682e23e44823c09cf9d79e4f1238923c92db852"
-      url: "https://pub.dev"
-    source: hosted
+      path: "third_party/plugins/package_info_plus"
+      relative: true
+    source: path
     version: "10.1.0"
   package_info_plus_platform_interface:
     dependency: transitive
