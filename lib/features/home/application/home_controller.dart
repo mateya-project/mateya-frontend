@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
+import '../../../shared/activity_categories/activity_category_repository.dart';
 import '../../onboarding/domain/onboarding_flow.dart';
 import '../data/home_repository.dart';
 import '../domain/home_models.dart';
@@ -9,6 +10,7 @@ import '../domain/home_models.dart';
 class HomeController extends ChangeNotifier {
   HomeController({
     required this._repository,
+    required this.categoryRepository,
     required this._flowKind,
     ExploreFilter? initialFilter,
     this.searchDebounceDuration = const Duration(milliseconds: 350),
@@ -16,24 +18,36 @@ class HomeController extends ChangeNotifier {
        _defaultFilter = initialFilter ?? const ExploreFilter();
 
   final HomeRepository _repository;
+  final ActivityCategoryRepository categoryRepository;
   final FlowKind? _flowKind;
   final ExploreFilter _defaultFilter;
   final Duration searchDebounceDuration;
+  static const ActivityCategory _allCategory = ActivityCategory(
+    id: 'all',
+    label: '전체',
+    isAll: true,
+  );
 
   AsyncPhase _homePhase = AsyncPhase.idle;
   AsyncPhase _explorePhase = AsyncPhase.idle;
+  AsyncPhase _favoritePhase = AsyncPhase.idle;
   HomeSection _section = HomeSection.home;
   HomeSection _favoriteOriginSection = HomeSection.home;
   ExploreFilter _filter;
   String _searchQuery = '';
   List<ActivityItem> _homeActivities = const <ActivityItem>[];
   List<ActivityItem> _exploreActivities = const <ActivityItem>[];
+  List<ActivityItem> _favoriteActivities = const <ActivityItem>[];
+  List<ActivityCategoryMetadata> _categoryMetadata =
+      kFallbackActivityCategories;
   bool _hasLoadedExplore = false;
+  bool _hasLoadedFavorites = false;
   bool _hasNextExplore = false;
   bool _isLoadingMoreExplore = false;
   int? _nextExplorePage;
   String? _homeErrorMessage;
   String? _exploreErrorMessage;
+  String? _favoriteErrorMessage;
   String? _exploreLoadMoreErrorMessage;
   Timer? _searchDebounce;
   int _exploreRequestVersion = 0;
@@ -41,6 +55,7 @@ class HomeController extends ChangeNotifier {
   AsyncPhase get phase => _homePhase;
   AsyncPhase get homePhase => _homePhase;
   AsyncPhase get explorePhase => _explorePhase;
+  AsyncPhase get favoritePhase => _favoritePhase;
   HomeSection get section => _section;
   HomeSection get favoriteOriginSection => _favoriteOriginSection;
   ExploreFilter get filter => _filter;
@@ -50,21 +65,22 @@ class HomeController extends ChangeNotifier {
   String? get errorMessage => _homeErrorMessage;
   String? get homeErrorMessage => _homeErrorMessage;
   String? get exploreErrorMessage => _exploreErrorMessage;
+  String? get favoriteErrorMessage => _favoriteErrorMessage;
   String? get exploreLoadMoreErrorMessage => _exploreLoadMoreErrorMessage;
   List<ActivityItem> get exploreActivities => _exploreActivities;
-  List<ActivityItem> get favoriteActivities {
-    final ordered = <String, ActivityItem>{};
-    for (final activity in <ActivityItem>[
-      ..._homeActivities.where((item) => item.isFeatured),
-      ..._homeActivities.take(2),
-      ..._exploreActivities.take(4),
-    ]) {
-      ordered.putIfAbsent(activity.id, () => activity);
-    }
-    return ordered.values.take(6).toList(growable: false);
-  }
+  List<ActivityItem> get favoriteActivities => _favoriteActivities;
+  List<ActivityCategory> get availableCategories => <ActivityCategory>[
+    _allCategory,
+    ..._categoryMetadata
+        .where((category) => category.active)
+        .map(
+          (category) =>
+              ActivityCategory(id: category.code, label: category.label),
+        ),
+  ];
 
   bool get hasLoadedExplore => _hasLoadedExplore;
+  bool get hasLoadedFavorites => _hasLoadedFavorites;
   bool get hasMoreExplore => _hasNextExplore;
   bool get isLoadingMoreExplore => _isLoadingMoreExplore;
 
@@ -72,12 +88,16 @@ class HomeController extends ChangeNotifier {
     if (_homePhase != AsyncPhase.idle) {
       return;
     }
-    await _loadHomeActivities();
+    await Future.wait<void>(<Future<void>>[
+      _loadCategoryMetadata(),
+      _loadHomeActivities(),
+    ]);
   }
 
   Future<void> retry() {
     return switch (_section) {
       HomeSection.explore => refreshExplore(),
+      HomeSection.favorites => _loadFavoriteActivities(),
       _ => _loadHomeActivities(),
     };
   }
@@ -111,8 +131,8 @@ class HomeController extends ChangeNotifier {
     }
     _section = HomeSection.favorites;
     notifyListeners();
-    if (!_hasLoadedExplore) {
-      unawaited(ensureExploreLoaded());
+    if (!_hasLoadedFavorites) {
+      unawaited(_loadFavoriteActivities());
     }
   }
 
@@ -346,6 +366,57 @@ class HomeController extends ChangeNotifier {
     }
 
     notifyListeners();
+  }
+
+  Future<void> _loadFavoriteActivities() async {
+    _favoritePhase = AsyncPhase.loading;
+    _favoriteErrorMessage = null;
+    notifyListeners();
+
+    try {
+      _favoriteActivities = await _repository.fetchFavoriteActivities();
+      _favoritePhase = AsyncPhase.success;
+      _favoriteErrorMessage = null;
+      _hasLoadedFavorites = true;
+    } on HomeRepositoryException catch (error) {
+      _favoritePhase = error.type == HomeLoadFailureType.network
+          ? AsyncPhase.networkError
+          : AsyncPhase.serverError;
+      _favoriteErrorMessage = error.type == HomeLoadFailureType.network
+          ? '네트워크 연결을 확인한 뒤 다시 시도해 주세요.'
+          : '즐겨찾기 목록을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.';
+    } catch (_) {
+      _favoritePhase = AsyncPhase.serverError;
+      _favoriteErrorMessage = '즐겨찾기 목록을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.';
+    }
+
+    notifyListeners();
+  }
+
+  Future<void> _loadCategoryMetadata() async {
+    final categories = await categoryRepository.fetchActivityCategories();
+    _categoryMetadata = List<ActivityCategoryMetadata>.from(categories)
+      ..sort((left, right) => left.displayOrder.compareTo(right.displayOrder));
+    _reconcileFilterCategories();
+    notifyListeners();
+  }
+
+  void _reconcileFilterCategories() {
+    final validIds = availableCategories
+        .where((category) => !category.isAll)
+        .map((category) => category.id)
+        .toSet();
+    final normalized = _filter.categoryIds
+        .where(
+          (categoryId) => categoryId == 'all' || validIds.contains(categoryId),
+        )
+        .toSet();
+    if (normalized.isEmpty) {
+      normalized.add('all');
+    }
+    if (!setEquals(normalized, _filter.categoryIds)) {
+      _filter = _filter.copyWith(categoryIds: normalized);
+    }
   }
 
   @override

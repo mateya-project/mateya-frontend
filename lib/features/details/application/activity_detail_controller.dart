@@ -18,6 +18,7 @@ class ActivityDetailController extends ChangeNotifier {
 
   AsyncPhase _phase = AsyncPhase.idle;
   bool _isMutatingFavorite = false;
+  bool _isRequestingJoin = false;
   final Set<String> _helpfulReviewIdsInFlight = <String>{};
   bool _isSubmittingReview = false;
   String? _armedParticipantRemovalId;
@@ -31,6 +32,7 @@ class ActivityDetailController extends ChangeNotifier {
   ReviewSortOption get reviewSort => _reviewSort;
   String? get errorMessage => _errorMessage;
   bool get isMutatingFavorite => _isMutatingFavorite;
+  bool get isRequestingJoin => _isRequestingJoin;
   bool get isSubmittingReview => _isSubmittingReview;
   String? get armedParticipantRemovalId => _armedParticipantRemovalId;
   bool isHelpfulMutationInFlight(String reviewId) =>
@@ -156,46 +158,39 @@ class ActivityDetailController extends ChangeNotifier {
     }
   }
 
-  void toggleJoin() {
+  Future<String?> requestJoin() async {
     final current = _detail;
     if (current == null) {
-      return;
+      return '활동 정보를 먼저 불러와야 합니다.';
+    }
+    if (_isRequestingJoin) {
+      return null;
+    }
+    switch (current.participationState) {
+      case ActivityParticipationState.available:
+        break;
+      case ActivityParticipationState.requested:
+        return '이미 참여 신청한 활동입니다.';
+      case ActivityParticipationState.joined:
+        return '이미 참여 중인 활동입니다.';
+      case ActivityParticipationState.host:
+        return '내가 만든 활동입니다.';
     }
 
-    final nextJoined = !current.isJoined;
-    var nextCount = current.activity.participantCount;
-    var nextParticipants = List<ActivityParticipant>.from(current.participants);
-    final hasMe = nextParticipants.any((participant) => participant.id == 'me');
-
-    if (nextJoined) {
-      if (nextCount < current.activity.participantCapacity) {
-        nextCount += 1;
-      }
-      if (!hasMe) {
-        nextParticipants = <ActivityParticipant>[
-          const ActivityParticipant(
-            id: 'me',
-            name: '나',
-            residenceLabel: 'Living in Seoul · My neighborhood',
-          ),
-          ...nextParticipants,
-        ];
-      }
-    } else {
-      if (nextCount > 0) {
-        nextCount -= 1;
-      }
-      nextParticipants = nextParticipants
-          .where((participant) => participant.id != 'me')
-          .toList(growable: false);
-    }
-
-    _detail = current.copyWith(
-      isJoined: nextJoined,
-      activity: current.activity.copyWith(participantCount: nextCount),
-      participants: nextParticipants,
-    );
+    _isRequestingJoin = true;
+    _errorMessage = null;
     notifyListeners();
+
+    try {
+      _detail = await repository.requestJoin(detail: current);
+      return null;
+    } on ActivityDetailRepositoryException catch (error) {
+      _errorMessage = error.message ?? '참여 신청을 완료하지 못했어요. 잠시 후 다시 시도해 주세요.';
+      return _errorMessage;
+    } finally {
+      _isRequestingJoin = false;
+      notifyListeners();
+    }
   }
 
   void armParticipantRemoval(String participantId) {
@@ -205,77 +200,71 @@ class ActivityDetailController extends ChangeNotifier {
     notifyListeners();
   }
 
-  ActivityParticipant? removeApprovedParticipant(String participantId) {
+  Future<String?> removeApprovedParticipant(String participantId) async {
     final current = _detail;
     if (current == null) {
-      return null;
+      return '활동 정보를 먼저 불러와야 합니다.';
     }
-    final target = current.participants
-        .where((participant) => participant.id == participantId)
-        .firstOrNull;
-    if (target == null) {
-      return null;
-    }
-
-    final nextParticipants = current.participants
-        .where((participant) => participant.id != participantId)
-        .toList(growable: false);
-    final nextCount = current.activity.participantCount > 0
-        ? current.activity.participantCount - 1
-        : 0;
-    _detail = current.copyWith(
-      participants: nextParticipants,
-      activity: current.activity.copyWith(participantCount: nextCount),
-    );
-    _armedParticipantRemovalId = null;
+    _errorMessage = null;
     notifyListeners();
-    return target;
+
+    try {
+      _detail = await repository.removeApprovedParticipant(
+        detail: current,
+        participantId: participantId,
+      );
+      _armedParticipantRemovalId = null;
+      return null;
+    } on ActivityDetailRepositoryException catch (error) {
+      _errorMessage = error.message ?? '참여자를 삭제하지 못했어요. 잠시 후 다시 시도해 주세요.';
+      return _errorMessage;
+    } finally {
+      notifyListeners();
+    }
   }
 
-  ActivityParticipant? removePendingParticipant(String participantId) {
+  Future<String?> removePendingParticipant(String participantId) async {
     final current = _detail;
     if (current == null) {
-      return null;
+      return '활동 정보를 먼저 불러와야 합니다.';
     }
-    final target = current.pendingParticipants
-        .where((participant) => participant.id == participantId)
-        .firstOrNull;
-    if (target == null) {
-      return null;
-    }
-
-    _detail = current.copyWith(
-      pendingParticipants: current.pendingParticipants
-          .where((participant) => participant.id != participantId)
-          .toList(growable: false),
-    );
+    _errorMessage = null;
     notifyListeners();
-    return target;
+
+    try {
+      _detail = await repository.removePendingParticipant(
+        detail: current,
+        participantId: participantId,
+      );
+      return null;
+    } on ActivityDetailRepositoryException catch (error) {
+      _errorMessage = error.message ?? '신청을 취소하지 못했어요. 잠시 후 다시 시도해 주세요.';
+      return _errorMessage;
+    } finally {
+      notifyListeners();
+    }
   }
 
-  void approvePendingParticipant(String participantId) {
+  Future<String?> approvePendingParticipant(String participantId) async {
     final current = _detail;
     if (current == null) {
-      return;
+      return '활동 정보를 먼저 불러와야 합니다.';
     }
-    final target = current.pendingParticipants
-        .where((participant) => participant.id == participantId)
-        .firstOrNull;
-    if (target == null) {
-      return;
-    }
-
-    final nextApproved = <ActivityParticipant>[...current.participants, target];
-    _detail = current.copyWith(
-      participants: nextApproved,
-      pendingParticipants: current.pendingParticipants
-          .where((participant) => participant.id != participantId)
-          .toList(growable: false),
-      activity: current.activity.copyWith(
-        participantCount: current.activity.participantCount + 1,
-      ),
-    );
+    _errorMessage = null;
     notifyListeners();
+
+    try {
+      _detail = await repository.approvePendingParticipant(
+        detail: current,
+        participantId: participantId,
+      );
+      return null;
+    } on ActivityDetailRepositoryException catch (error) {
+      _errorMessage = error.message ?? '참여 신청을 승인하지 못했어요. 잠시 후 다시 시도해 주세요.';
+      return _errorMessage;
+    } finally {
+      notifyListeners();
+    }
   }
 
   void restoreApprovedParticipant(ActivityParticipant participant) {

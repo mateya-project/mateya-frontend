@@ -4,6 +4,7 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../../../shared/media/image_picker_lost_data.dart';
 import '../../../../shared/permissions/mateya_permission_dialogs.dart';
+import '../../../../shared/report/report_repository.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../../shared/widgets/mateya_bottom_navigation.dart';
 import '../../../../shared/widgets/mateya_header.dart';
@@ -51,6 +52,7 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
   static const int _maxAttachmentBytes = 10 * 1024 * 1024;
 
   final ImagePicker _imagePicker = ImagePicker();
+  final ReportRepository _reportRepository = ReportRepository();
   final TextEditingController _draftController = TextEditingController();
   final ScrollController _listScrollController = ScrollController();
   final ScrollController _scrollController = ScrollController();
@@ -163,8 +165,30 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
     ).showSnackBar(SnackBar(content: Text(message)));
   }
 
+  Future<String?> _submitChatReport(
+    ChatRoom room,
+    String body,
+    List<XFile> images,
+  ) async {
+    try {
+      await _reportRepository.submitReport(
+        targetType: ReportTargetType.chatMessage,
+        targetId: room.id,
+        reason: body,
+        images: images,
+      );
+      return null;
+    } on ReportRepositoryException catch (error) {
+      return error.message;
+    }
+  }
+
   Future<void> _openReportSheet(ChatRoom room) {
-    return showMateyaReportSheet(context, subjectLabel: room.title);
+    return showMateyaReportSheet(
+      context,
+      subjectLabel: room.title,
+      onSubmit: (body, images) => _submitChatReport(room, body, images),
+    );
   }
 
   Future<void> _restoreLostAttachments() async {

@@ -88,7 +88,7 @@ class DetailsStepView extends StatelessWidget {
         if (controller.flowType == CreateFlowType.group) ...<Widget>[
           SummaryCard(
             title: '선택한 카테고리',
-            body: CreateFormOptions.categories
+            body: controller.availableCategories
                 .where(
                   (category) =>
                       controller.selectedCategoryIds.contains(category.id),

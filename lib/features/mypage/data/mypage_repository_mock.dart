@@ -25,6 +25,12 @@ class MockMyPageRepository implements MyPageRepository {
   }
 
   @override
+  Future<List<BlockedUserSummary>> fetchBlockedUsers() async {
+    await Future<void>.delayed(const Duration(milliseconds: 220));
+    return _blockedUsers;
+  }
+
+  @override
   Future<PersonalMyPageData> updatePrimaryPreferences({
     required String displayName,
     required String languageCode,
@@ -63,11 +69,31 @@ class MockMyPageRepository implements MyPageRepository {
   }
 
   @override
+  Future<String> updateProfileImage({required String imagePath}) async {
+    await Future<void>.delayed(const Duration(milliseconds: 320));
+    return _personalPage.profile.profileImageUrl ??
+        'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80';
+  }
+
+  @override
+  Future<String> updateActivityRegion({
+    required NeighborhoodSelection neighborhood,
+  }) async {
+    await Future<void>.delayed(const Duration(milliseconds: 260));
+    return neighborhood.displayName;
+  }
+
+  @override
   Future<void> submitWithdrawal({
     required String agreementText,
     String? reason,
   }) async {
     await Future<void>.delayed(const Duration(milliseconds: 320));
+  }
+
+  @override
+  Future<void> logout() async {
+    await Future<void>.delayed(const Duration(milliseconds: 220));
   }
 
   @override
@@ -77,5 +103,15 @@ class MockMyPageRepository implements MyPageRepository {
   }) async {
     await Future<void>.delayed(const Duration(milliseconds: 260));
     return _otherProfile.copyWith(isFriend: !isFriend);
+  }
+
+  @override
+  Future<void> blockUser({required String targetUserId}) async {
+    await Future<void>.delayed(const Duration(milliseconds: 220));
+  }
+
+  @override
+  Future<void> unblockUser({required String targetUserId}) async {
+    await Future<void>.delayed(const Duration(milliseconds: 220));
   }
 }

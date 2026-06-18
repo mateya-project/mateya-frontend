@@ -9,11 +9,13 @@ class MyPageProfileHeroCard extends StatelessWidget {
     super.key,
     required this.profile,
     required this.subtitle,
+    this.avatarAction,
     this.trailing,
   });
 
   final ProfileSummary profile;
   final String subtitle;
+  final Widget? avatarAction;
   final Widget? trailing;
 
   @override
@@ -22,7 +24,14 @@ class MyPageProfileHeroCard extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          MyPageAvatarImage(imageUrl: profile.profileImageUrl, size: 72),
+          Stack(
+            clipBehavior: Clip.none,
+            children: <Widget>[
+              MyPageAvatarImage(imageUrl: profile.profileImageUrl, size: 72),
+              if (avatarAction != null)
+                Positioned(right: -4, bottom: -4, child: avatarAction!),
+            ],
+          ),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
@@ -188,11 +197,13 @@ class MyPageRecentActivityPreviewSection extends StatelessWidget {
     super.key,
     required this.activities,
     required this.onViewAll,
+    this.onActivityTap,
     this.showButton = true,
   });
 
   final List<ActivityHistoryEntry> activities;
   final VoidCallback onViewAll;
+  final ValueChanged<ActivityHistoryEntry>? onActivityTap;
   final bool showButton;
 
   @override
@@ -219,7 +230,12 @@ class MyPageRecentActivityPreviewSection extends StatelessWidget {
             index < activities.length;
             index += 1
           ) ...<Widget>[
-            MyPageActivityHistoryCard(activity: activities[index]),
+            MyPageActivityHistoryCard(
+              activity: activities[index],
+              onTap: activities[index].isHostedByMe && onActivityTap != null
+                  ? () => onActivityTap!(activities[index])
+                  : null,
+            ),
             if (index != activities.length - 1) const SizedBox(height: 14),
           ],
         ],

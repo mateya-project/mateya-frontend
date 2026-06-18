@@ -138,6 +138,18 @@ ActivityBadge _parseBadge(Object? value) {
   );
 }
 
+ConsentHistoryEntry _parseConsentHistoryEntry(Object? value) {
+  final json = _asMap(value);
+  final agreedAt = DateTime.tryParse(json['agreedAt'] as String? ?? '');
+  return ConsentHistoryEntry(
+    id: (json['type'] as String? ?? '').toLowerCase(),
+    title: json['title'] as String? ?? '',
+    agreed: json['agreed'] as bool? ?? false,
+    agreedAtLabel: agreedAt == null ? '-' : _formatDate(agreedAt),
+    versionLabel: json['version'] as String? ?? '',
+  );
+}
+
 ActivityHistoryEntry _parseActivityHistoryEntry(Object? value) {
   final json = _asMap(value);
   final startAt = DateTime.parse(json['startAt'] as String);
@@ -158,6 +170,16 @@ ActivityHistoryEntry _parseActivityHistoryEntry(Object? value) {
     imageUrl: json['imageUrl'] as String? ?? '',
     rating: (json['reviewRating'] as num?)?.toDouble(),
     isHostedByMe: json['hostedByMe'] as bool? ?? false,
+  );
+}
+
+BlockedUserSummary _parseBlockedUserSummary(Object? value) {
+  final json = _asMap(value);
+  return BlockedUserSummary(
+    id: '${json['userId'] ?? ''}',
+    name: json['displayName'] as String? ?? '',
+    residence: (json['activityRegionName'] as String?) ?? '활동 지역 미설정',
+    profileImageUrl: json['profileImageUrl'] as String?,
   );
 }
 

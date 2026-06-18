@@ -328,12 +328,14 @@ class DetailBottomBar extends StatelessWidget {
     required this.onFavoriteTap,
     required this.onShareTap,
     required this.onJoinTap,
+    this.isJoinActionInFlight = false,
   });
 
   final ActivityDetail detail;
   final Future<void> Function() onFavoriteTap;
   final VoidCallback onShareTap;
-  final VoidCallback onJoinTap;
+  final Future<void> Function() onJoinTap;
+  final bool isJoinActionInFlight;
 
   @override
   Widget build(BuildContext context) {
@@ -389,11 +391,18 @@ class DetailBottomBar extends StatelessWidget {
               SizedBox(
                 width: 146,
                 child: MateyaButton(
-                  label: detail.isJoined ? '참가중' : '참가하기',
-                  onPressed: onJoinTap,
-                  tone: detail.isJoined
-                      ? MateyaButtonTone.dark
-                      : MateyaButtonTone.brand,
+                  label: isJoinActionInFlight
+                      ? '신청 중...'
+                      : detail.participationState.ctaLabel,
+                  onPressed: () {
+                    onJoinTap();
+                  },
+                  enabled:
+                      detail.participationState.canRequestJoin &&
+                      !isJoinActionInFlight,
+                  tone: detail.participationState.canRequestJoin
+                      ? MateyaButtonTone.brand
+                      : MateyaButtonTone.dark,
                 ),
               ),
             ],

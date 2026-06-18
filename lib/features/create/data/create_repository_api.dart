@@ -19,6 +19,103 @@ class ApiCreateRepository implements CreateRepository {
   final HttpTransport _transport;
 
   @override
+  Future<CreateEditableDraft> fetchEditableDraft({
+    required String id,
+    required CreateFlowType flowType,
+  }) async {
+    try {
+      final data = await _apiClient.getJson(
+        '/api/v1/activities/$id',
+        requiresAuth: true,
+      );
+      final json = _asMap(data);
+      final categoryCode = json['category'] as String?;
+      final categoryId = categoryCode == null
+          ? null
+          : _clientCategoryIdByServerCode[categoryCode];
+      final startAt = DateTime.parse(json['startAt'] as String);
+      final endAt = DateTime.parse(json['endAt'] as String);
+      final deadlineAt = json['recruitmentDeadlineAt'] == null
+          ? null
+          : DateTime.parse(json['recruitmentDeadlineAt'] as String);
+      final imageUrls =
+          ((json['images'] as List<Object?>?) ?? const <Object?>[])
+              .whereType<String>()
+              .toList(growable: false);
+
+      return CreateEditableDraft(
+        activityId: id,
+        flowType: flowType,
+        categoryIds: categoryId == null
+            ? const <String>{}
+            : <String>{categoryId},
+        categoryDetailCode: null,
+        place: CreatePlaceSuggestion(
+          id: '${json['placeId'] ?? id}',
+          name:
+              (json['placeName'] as String?) ??
+              (json['placeAddress'] as String?) ??
+              '',
+          address: json['placeAddress'] as String? ?? '',
+          description: '기존 활동 장소',
+          distanceKm: 0,
+          latitude: (json['latitude'] as num?)?.toDouble(),
+          longitude: (json['longitude'] as num?)?.toDouble(),
+          categoryIds: categoryId == null
+              ? const <String>{}
+              : <String>{categoryId},
+          serverCategoryCode: categoryCode,
+        ),
+        title: json['title'] as String? ?? '',
+        description: json['description'] as String? ?? '',
+        eventDate: DateTime(startAt.year, startAt.month, startAt.day),
+        startTime: TimeOfDay(hour: startAt.hour, minute: startAt.minute),
+        endTime: TimeOfDay(hour: endAt.hour, minute: endAt.minute),
+        participantCapacity: json['capacity'] as int? ?? 2,
+        registrationDeadlineDate: deadlineAt == null
+            ? null
+            : DateTime(deadlineAt.year, deadlineAt.month, deadlineAt.day),
+        registrationDeadlineTime: deadlineAt == null
+            ? null
+            : TimeOfDay(hour: deadlineAt.hour, minute: deadlineAt.minute),
+        languageCodes:
+            ((json['languages'] as List<Object?>?) ?? const <Object?>[])
+                .whereType<String>()
+                .toSet(),
+        priceType: (json['priceType'] as String?) == 'FREE'
+            ? CreatePriceType.free
+            : CreatePriceType.paid,
+        priceText: ((json['priceAmount'] as int?) ?? 0) == 0
+            ? ''
+            : '${json['priceAmount']}',
+        audienceIds:
+            ((json['targets'] as List<Object?>?) ?? const <Object?>[])
+                .whereType<String>()
+                .map(_audienceFromServerValue)
+                .whereType<String>()
+                .toSet(),
+        images: imageUrls
+            .asMap()
+            .entries
+            .map(
+              (entry) => CreateImageAsset(
+                id: 'remote-${entry.key}',
+                path: entry.value,
+                name: _remoteImageName(entry.value),
+                sizeBytes: 0,
+                isPrimary:
+                    entry.value == json['representativeImageUrl'] ||
+                    (json['representativeImageUrl'] == null && entry.key == 0),
+              ),
+            )
+            .toList(growable: false),
+      );
+    } on MateyaApiException catch (error) {
+      throw _mapApiException(error);
+    }
+  }
+
+  @override
   Future<List<CreatePlaceSuggestion>> fetchRecommendedPlaces({
     required CreateFlowType flowType,
     Set<String> categoryIds = const <String>{},
@@ -97,7 +194,10 @@ class ApiCreateRepository implements CreateRepository {
   }
 
   @override
-  Future<CreateSubmitResult> submit(CreateSubmissionDraft draft) async {
+  Future<CreateSubmitResult> submit(
+    CreateSubmissionDraft draft, {
+    String? editingId,
+  }) async {
     final categoryCode = _resolveServerCategoryCode(
       explicitCategoryIds: draft.categoryIds,
       fallbackPlaceCategoryCode: draft.place.serverCategoryCode,
@@ -115,42 +215,47 @@ class ApiCreateRepository implements CreateRepository {
     );
 
     try {
-      final data = await _apiClient.postJson(
-        draft.flowType == CreateFlowType.classRegistration
-            ? '/api/v1/classes'
-            : '/api/v1/activities',
-        requiresAuth: true,
-        body: <String, Object?>{
-          'category': categoryCode,
-          'placeId': int.tryParse(draft.place.id),
-          'placeName': draft.place.name,
-          'placeAddress': draft.place.address,
-          'latitude': draft.place.latitude,
-          'longitude': draft.place.longitude,
-          'title': draft.title,
-          'description': draft.description.isEmpty ? null : draft.description,
-          'startAt': draft.eventStartsAt.toIso8601String(),
-          'endAt': draft.eventEndsAt.toIso8601String(),
-          'recruitmentDeadlineAt':
-              (draft.registrationDeadlineAt ?? draft.eventStartsAt)
-                  .toIso8601String(),
-          'capacity': draft.participantCapacity,
-          'languages': draft.languageCodes.toList(growable: false),
-          'priceType': draft.priceType == CreatePriceType.free
-              ? 'FREE'
-              : 'PAID',
-          'priceAmount': draft.priceType == CreatePriceType.free
-              ? 0
-              : (draft.price ?? 0),
-          'targets': draft.audienceIds
-              .map(_audienceToServerValue)
-              .toList(growable: false),
-          'imageUrls': imageUrls,
-          'representativeImageIndex': representativeImageIndex < 0
-              ? null
-              : representativeImageIndex,
-        },
-      );
+      final requestBody = <String, Object?>{
+        'category': categoryCode,
+        'placeId': int.tryParse(draft.place.id),
+        'placeName': draft.place.name,
+        'placeAddress': draft.place.address,
+        'latitude': draft.place.latitude,
+        'longitude': draft.place.longitude,
+        'title': draft.title,
+        'description': draft.description.isEmpty ? null : draft.description,
+        'startAt': draft.eventStartsAt.toIso8601String(),
+        'endAt': draft.eventEndsAt.toIso8601String(),
+        'recruitmentDeadlineAt':
+            (draft.registrationDeadlineAt ?? draft.eventStartsAt)
+                .toIso8601String(),
+        'capacity': draft.participantCapacity,
+        'languages': draft.languageCodes.toList(growable: false),
+        'priceType': draft.priceType == CreatePriceType.free ? 'FREE' : 'PAID',
+        'priceAmount': draft.priceType == CreatePriceType.free
+            ? 0
+            : (draft.price ?? 0),
+        'targets': draft.audienceIds
+            .map(_audienceToServerValue)
+            .toList(growable: false),
+        'imageUrls': imageUrls,
+        'representativeImageIndex': representativeImageIndex < 0
+            ? null
+            : representativeImageIndex,
+      };
+      final data = editingId == null
+          ? await _apiClient.postJson(
+              draft.flowType == CreateFlowType.classRegistration
+                  ? '/api/v1/classes'
+                  : '/api/v1/activities',
+              requiresAuth: true,
+              body: requestBody,
+            )
+          : await _apiClient.patchJson(
+              '/api/v1/activities/$editingId',
+              requiresAuth: true,
+              body: requestBody,
+            );
       final json = _asMap(data);
       return CreateSubmitResult(
         id: '${json['id']}',
@@ -192,6 +297,11 @@ class ApiCreateRepository implements CreateRepository {
 
     final uploadedUrls = <String>[];
     for (final image in images) {
+      if (image.isRemote) {
+        uploadedUrls.add(image.path);
+        continue;
+      }
+
       final contentType = _contentTypeFor(image.name);
       if (contentType == null) {
         throw const CreateRepositoryException(

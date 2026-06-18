@@ -81,6 +81,9 @@ class CreateImageAsset {
   final int sizeBytes;
   final bool isPrimary;
 
+  bool get isRemote =>
+      path.startsWith('http://') || path.startsWith('https://');
+
   CreateImageAsset copyWith({
     String? id,
     String? path,
@@ -96,6 +99,48 @@ class CreateImageAsset {
       isPrimary: isPrimary ?? this.isPrimary,
     );
   }
+}
+
+class CreateEditableDraft {
+  const CreateEditableDraft({
+    required this.activityId,
+    required this.flowType,
+    required this.categoryIds,
+    required this.place,
+    required this.title,
+    required this.description,
+    required this.eventDate,
+    required this.startTime,
+    required this.endTime,
+    required this.participantCapacity,
+    required this.languageCodes,
+    required this.priceType,
+    required this.priceText,
+    required this.audienceIds,
+    required this.images,
+    this.registrationDeadlineDate,
+    this.registrationDeadlineTime,
+    this.categoryDetailCode,
+  });
+
+  final String activityId;
+  final CreateFlowType flowType;
+  final Set<String> categoryIds;
+  final CreatePlaceSuggestion place;
+  final String title;
+  final String description;
+  final DateTime eventDate;
+  final TimeOfDay startTime;
+  final TimeOfDay endTime;
+  final int participantCapacity;
+  final DateTime? registrationDeadlineDate;
+  final TimeOfDay? registrationDeadlineTime;
+  final Set<String> languageCodes;
+  final CreatePriceType priceType;
+  final String priceText;
+  final Set<String> audienceIds;
+  final List<CreateImageAsset> images;
+  final String? categoryDetailCode;
 }
 
 class CreateSubmissionDraft {
@@ -180,17 +225,6 @@ class CreateSubmitResult {
 }
 
 abstract final class CreateFormOptions {
-  static const List<CreateCategoryOption> categories = <CreateCategoryOption>[
-    CreateCategoryOption(id: 'TOURIST_ATTRACTION', label: '관광지'),
-    CreateCategoryOption(id: 'TRAVEL_COURSE', label: '여행코스'),
-    CreateCategoryOption(id: 'CULTURE_TRADITION', label: '문화/전통'),
-    CreateCategoryOption(id: 'EVENT_PERFORMANCE_FESTIVAL', label: '행사/공연/축제'),
-    CreateCategoryOption(id: 'SPORTS', label: '스포츠'),
-    CreateCategoryOption(id: 'ACTIVITY_LEPORTS', label: '액티비티/레포츠'),
-    CreateCategoryOption(id: 'PUBLIC_FACILITY', label: '공공시설'),
-    CreateCategoryOption(id: 'SHOPPING', label: '쇼핑'),
-  ];
-
   static const List<CreateLanguageOption> languages = <CreateLanguageOption>[
     CreateLanguageOption(code: 'ko', label: '한국어'),
     CreateLanguageOption(code: 'en', label: '영어'),
@@ -221,6 +255,16 @@ extension CreateFlowTypeX on CreateFlowType {
   String get submitLabel => switch (this) {
     CreateFlowType.group => '모임 생성하기',
     CreateFlowType.classRegistration => '클래스 등록하기',
+  };
+
+  String get editLabel => switch (this) {
+    CreateFlowType.group => '모임 수정',
+    CreateFlowType.classRegistration => '클래스 수정',
+  };
+
+  String get updateSubmitLabel => switch (this) {
+    CreateFlowType.group => '모임 수정하기',
+    CreateFlowType.classRegistration => '클래스 수정하기',
   };
 }
 

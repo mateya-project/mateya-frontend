@@ -12,12 +12,18 @@ class PersonalMyPageView extends StatelessWidget {
   const PersonalMyPageView({
     super.key,
     required this.data,
+    required this.isUpdatingProfileImage,
     required this.onOpenRecentActivities,
+    required this.onEditHostedActivity,
+    required this.onEditProfileImage,
     required this.onOpenSettings,
   });
 
   final PersonalMyPageData data;
+  final bool isUpdatingProfileImage;
   final VoidCallback onOpenRecentActivities;
+  final ValueChanged<ActivityHistoryEntry> onEditHostedActivity;
+  final VoidCallback onEditProfileImage;
   final VoidCallback onOpenSettings;
 
   @override
@@ -45,7 +51,15 @@ class PersonalMyPageView extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              _CenteredProfileCard(profile: data.profile),
+              _CenteredProfileCard(
+                profile: data.profile,
+                avatarAction: _AvatarActionButton(
+                  icon: isUpdatingProfileImage
+                      ? Icons.hourglass_top_rounded
+                      : Icons.photo_camera_outlined,
+                  onTap: isUpdatingProfileImage ? null : onEditProfileImage,
+                ),
+              ),
               const SizedBox(height: 16),
               _ProfileMetricStrip(metrics: data.metrics),
               const SizedBox(height: 16),
@@ -54,6 +68,7 @@ class PersonalMyPageView extends StatelessWidget {
               _RecentActivityListSection(
                 activities: data.recentActivities,
                 onViewAll: onOpenRecentActivities,
+                onActivityTap: onEditHostedActivity,
               ),
             ],
           ),
@@ -90,7 +105,7 @@ class OtherProfileView extends StatelessWidget {
             children: <Widget>[
               _CenteredProfileCard(
                 profile: data.profile,
-                addFriendAction: !data.isFriend && !data.isBlocked
+                avatarAction: !data.isFriend && !data.isBlocked
                     ? _AvatarActionButton(
                         icon: Icons.add_rounded,
                         onTap: isBusy ? null : onFriendTap,
@@ -105,6 +120,7 @@ class OtherProfileView extends StatelessWidget {
               _RecentActivityListSection(
                 activities: data.recentActivities,
                 onViewAll: () {},
+                onActivityTap: (_) {},
                 showButton: false,
               ),
               const SizedBox(height: 32),
@@ -139,6 +155,7 @@ class SettingsView extends StatelessWidget {
   const SettingsView({
     super.key,
     required this.profile,
+    required this.onEditActivityRegion,
     required this.onOpenConsentHistory,
     required this.onOpenCustomerSupport,
     required this.onOpenBlockedUsers,
@@ -147,6 +164,7 @@ class SettingsView extends StatelessWidget {
   });
 
   final ProfileSummary profile;
+  final VoidCallback onEditActivityRegion;
   final VoidCallback onOpenConsentHistory;
   final VoidCallback onOpenCustomerSupport;
   final VoidCallback onOpenBlockedUsers;
@@ -194,6 +212,10 @@ class SettingsView extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 18),
+              _SettingsMenuItem(
+                title: '활동 지역 변경하기',
+                onTap: onEditActivityRegion,
+              ),
               _SettingsMenuItem(
                 title: '개인정보 수집·이용 동의 내역',
                 onTap: onOpenConsentHistory,
@@ -380,10 +402,12 @@ class RecentActivitiesView extends StatelessWidget {
     super.key,
     required this.data,
     required this.onBack,
+    required this.onEditHostedActivity,
   });
 
   final RecentActivityData data;
   final VoidCallback onBack;
+  final ValueChanged<ActivityHistoryEntry> onEditHostedActivity;
 
   @override
   Widget build(BuildContext context) {
@@ -428,7 +452,12 @@ class RecentActivitiesView extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               for (final activity in data.activities) ...<Widget>[
-                MyPageActivityHistoryCard(activity: activity),
+                MyPageActivityHistoryCard(
+                  activity: activity,
+                  onTap: activity.isHostedByMe
+                      ? () => onEditHostedActivity(activity)
+                      : null,
+                ),
                 const SizedBox(height: 14),
               ],
             ],
@@ -440,10 +469,10 @@ class RecentActivitiesView extends StatelessWidget {
 }
 
 class _CenteredProfileCard extends StatelessWidget {
-  const _CenteredProfileCard({required this.profile, this.addFriendAction});
+  const _CenteredProfileCard({required this.profile, this.avatarAction});
 
   final ProfileSummary profile;
-  final Widget? addFriendAction;
+  final Widget? avatarAction;
 
   @override
   Widget build(BuildContext context) {
@@ -454,8 +483,8 @@ class _CenteredProfileCard extends StatelessWidget {
             clipBehavior: Clip.none,
             children: <Widget>[
               MyPageAvatarImage(imageUrl: profile.profileImageUrl, size: 96),
-              if (addFriendAction != null)
-                Positioned(right: -4, bottom: -4, child: addFriendAction!),
+              if (avatarAction != null)
+                Positioned(right: -4, bottom: -4, child: avatarAction!),
             ],
           ),
           const SizedBox(height: 20),
@@ -615,11 +644,13 @@ class _RecentActivityListSection extends StatelessWidget {
   const _RecentActivityListSection({
     required this.activities,
     required this.onViewAll,
+    required this.onActivityTap,
     this.showButton = true,
   });
 
   final List<ActivityHistoryEntry> activities;
   final VoidCallback onViewAll;
+  final ValueChanged<ActivityHistoryEntry> onActivityTap;
   final bool showButton;
 
   @override
@@ -641,7 +672,12 @@ class _RecentActivityListSection extends StatelessWidget {
         ),
         const SizedBox(height: 10),
         for (var index = 0; index < activities.length; index += 1) ...<Widget>[
-          _RecentActivityRow(activity: activities[index]),
+          _RecentActivityRow(
+            activity: activities[index],
+            onTap: activities[index].isHostedByMe
+                ? () => onActivityTap(activities[index])
+                : null,
+          ),
           if (index != activities.length - 1) const Divider(height: 28),
         ],
       ],
@@ -650,36 +686,40 @@ class _RecentActivityListSection extends StatelessWidget {
 }
 
 class _RecentActivityRow extends StatelessWidget {
-  const _RecentActivityRow({required this.activity});
+  const _RecentActivityRow({required this.activity, this.onTap});
 
   final ActivityHistoryEntry activity;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        ClipRRect(
-          borderRadius: BorderRadius.circular(12),
-          child: SizedBox(
-            width: 102,
-            height: 102,
-            child: Image.network(
-              activity.imageUrl,
-              fit: BoxFit.cover,
-              errorBuilder: (_, _, _) => Container(
-                color: AppColors.subtleBackground,
-                alignment: Alignment.center,
-                child: const Icon(Icons.image_outlined),
+    return InkWell(
+      borderRadius: BorderRadius.circular(16),
+      onTap: onTap,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: SizedBox(
+              width: 102,
+              height: 102,
+              child: Image.network(
+                activity.imageUrl,
+                fit: BoxFit.cover,
+                errorBuilder: (_, _, _) => Container(
+                  color: AppColors.subtleBackground,
+                  alignment: Alignment.center,
+                  child: const Icon(Icons.image_outlined),
+                ),
               ),
             ),
           ),
-        ),
-        const SizedBox(width: 14),
-        Expanded(
-          child: SizedBox(
-            height: 102,
-            child: Column(
+          const SizedBox(width: 14),
+          Expanded(
+            child: SizedBox(
+              height: 102,
+              child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Text(
@@ -720,10 +760,11 @@ class _RecentActivityRow extends StatelessWidget {
                   ],
                 ),
               ],
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -921,14 +962,24 @@ class BusinessMyPageView extends StatelessWidget {
     required this.data,
     required this.introductionController,
     required this.isSaving,
+    required this.isUpdatingProfileImage,
+    required this.isUpdatingActivityRegion,
     required this.errorText,
+    required this.onEditActivity,
+    required this.onEditProfileImage,
+    required this.onEditActivityRegion,
     required this.onSave,
   });
 
   final BusinessMyPageData data;
   final TextEditingController introductionController;
   final bool isSaving;
+  final bool isUpdatingProfileImage;
+  final bool isUpdatingActivityRegion;
   final String? errorText;
+  final ValueChanged<ActivityHistoryEntry> onEditActivity;
+  final VoidCallback onEditProfileImage;
+  final VoidCallback onEditActivityRegion;
   final VoidCallback onSave;
 
   @override
@@ -943,6 +994,36 @@ class BusinessMyPageView extends StatelessWidget {
               MyPageProfileHeroCard(
                 profile: data.profile,
                 subtitle: data.profile.placeLabel ?? data.profile.residence,
+                avatarAction: _AvatarActionButton(
+                  icon: isUpdatingProfileImage
+                      ? Icons.hourglass_top_rounded
+                      : Icons.photo_camera_outlined,
+                  onTap: isUpdatingProfileImage ? null : onEditProfileImage,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton.icon(
+                  onPressed: isUpdatingActivityRegion
+                      ? null
+                      : onEditActivityRegion,
+                  icon: Icon(
+                    Icons.my_location_rounded,
+                    color: isUpdatingActivityRegion
+                        ? AppColors.textSecondary
+                        : AppColors.brandGreen,
+                  ),
+                  label: Text(
+                    isUpdatingActivityRegion ? '변경 중...' : '활동 지역 변경',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: isUpdatingActivityRegion
+                          ? AppColors.textSecondary
+                          : AppColors.brandGreen,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
               ),
               const SizedBox(height: 16),
               MyPageStatsCard(items: data.metrics),
@@ -999,7 +1080,10 @@ class BusinessMyPageView extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
                     for (final activity in data.activeExperiences) ...<Widget>[
-                      MyPageActivityHistoryCard(activity: activity),
+                      MyPageActivityHistoryCard(
+                        activity: activity,
+                        onTap: () => onEditActivity(activity),
+                      ),
                       const SizedBox(height: 14),
                     ],
                   ],

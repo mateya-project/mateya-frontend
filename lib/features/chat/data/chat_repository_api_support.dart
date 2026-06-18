@@ -2,6 +2,13 @@ part of 'chat_repository.dart';
 
 ChatRoom _parseRoomSummary(Object? value) {
   final json = _asMap(value);
+  final roomType = (json['type'] as String?) == 'DIRECT'
+      ? ChatRoomType.direct
+      : ChatRoomType.group;
+  final roomTitle = _resolveRoomTitle(
+    json['title'] as String?,
+    type: roomType,
+  );
   final preview = json['lastMessagePreview'] as String?;
   final lastMessageAt = json['lastMessageAt'] as String?;
   final messageGroups = preview == null || preview.isEmpty
@@ -11,7 +18,7 @@ ChatRoom _parseRoomSummary(Object? value) {
             id: 'summary-${json['id']}',
             sender: ChatParticipant(
               id: 'summary-${json['id']}',
-              name: json['title'] as String? ?? '',
+              name: roomTitle,
             ),
             sentAt: _parseDateTime(lastMessageAt),
             bubbles: <ChatBubble>[ChatBubble(originalText: preview)],
@@ -20,16 +27,26 @@ ChatRoom _parseRoomSummary(Object? value) {
 
   return ChatRoom(
     id: '${json['id']}',
-    type: (json['type'] as String?) == 'DIRECT'
-        ? ChatRoomType.direct
-        : ChatRoomType.group,
-    title: json['title'] as String? ?? '',
-    imageUrl: '',
+    type: roomType,
+    title: roomTitle,
+    imageUrl: json['counterpartProfileImageUrl'] as String? ?? '',
     participantCount: json['participantCount'] as int? ?? 0,
     lastMessageAt: _parseDateTime(lastMessageAt),
     unreadCount: json['unreadCount'] as int? ?? 0,
     messageGroups: messageGroups,
   );
+}
+
+String _resolveRoomTitle(String? rawTitle, {required ChatRoomType type}) {
+  final trimmed = rawTitle?.trim() ?? '';
+  if (trimmed.isEmpty) {
+    return type == ChatRoomType.direct ? '1:1 채팅' : '채팅방';
+  }
+  if (type == ChatRoomType.direct &&
+      RegExp(r'^direct:\d+:\d+$').hasMatch(trimmed)) {
+    return '1:1 채팅';
+  }
+  return trimmed;
 }
 
 ChatMessageGroup _parseMessageGroup(Object? value) {

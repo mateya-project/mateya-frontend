@@ -68,7 +68,7 @@ class PlaceStepView extends StatelessWidget {
           Wrap(
             spacing: 10,
             runSpacing: 10,
-            children: CreateFormOptions.categories
+            children: controller.availableCategories
                 .map(
                   (category) => SelectableChip(
                     label: category.label,

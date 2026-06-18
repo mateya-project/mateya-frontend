@@ -31,7 +31,11 @@ class MyPageController extends ChangeNotifier {
   bool _isSavingPreferences = false;
   bool _isUpdatingFriendship = false;
   bool _isSavingBusinessIntroduction = false;
+  bool _isUpdatingProfileImage = false;
+  bool _isUpdatingActivityRegion = false;
+  bool _isUpdatingBlockedUsers = false;
   bool _isSubmittingWithdrawal = false;
+  bool _isLoggingOut = false;
   bool _withdrawalCompleted = false;
   String? _currentOtherProfileUserId;
 
@@ -51,7 +55,11 @@ class MyPageController extends ChangeNotifier {
   bool get isSavingPreferences => _isSavingPreferences;
   bool get isUpdatingFriendship => _isUpdatingFriendship;
   bool get isSavingBusinessIntroduction => _isSavingBusinessIntroduction;
+  bool get isUpdatingProfileImage => _isUpdatingProfileImage;
+  bool get isUpdatingActivityRegion => _isUpdatingActivityRegion;
+  bool get isUpdatingBlockedUsers => _isUpdatingBlockedUsers;
   bool get isSubmittingWithdrawal => _isSubmittingWithdrawal;
+  bool get isLoggingOut => _isLoggingOut;
   bool get withdrawalCompleted => _withdrawalCompleted;
 
   bool get isBusinessMode => flowKind == FlowKind.host;
@@ -253,39 +261,64 @@ class MyPageController extends ChangeNotifier {
     notifyListeners();
   }
 
-  void blockCurrentOtherProfile() {
-    if (_otherProfile == null || _otherProfile!.isBlocked) {
+  Future<void> blockCurrentOtherProfile() async {
+    if (_otherProfile == null ||
+        _otherProfile!.isBlocked ||
+        _currentOtherProfileUserId == null ||
+        _isUpdatingBlockedUsers) {
       return;
     }
 
-    final profile = _otherProfile!.profile;
-    _blockedUsers = <BlockedUserSummary>[
-      BlockedUserSummary(
-        id: profile.id,
-        name: profile.name,
-        residence: profile.residence,
-        profileImageUrl: profile.profileImageUrl,
-      ),
-      ..._blockedUsers.where((user) => user.id != profile.id),
-    ];
-    _otherProfile = _otherProfile!.copyWith(isBlocked: true, isFriend: false);
-    _pushToast('차단 유저 목록에 추가했어요.');
+    _isUpdatingBlockedUsers = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      await repository.blockUser(targetUserId: _currentOtherProfileUserId!);
+      _blockedUsers = await repository.fetchBlockedUsers();
+      _otherProfile = _otherProfile?.copyWith(isBlocked: true, isFriend: false);
+      _phase = MyPageAsyncPhase.success;
+      _isUpdatingBlockedUsers = false;
+      _pushToast('차단 유저 목록에 추가했어요.');
+    } on MyPageRepositoryException catch (error) {
+      _phase = MyPageAsyncPhase.validationError;
+      _isUpdatingBlockedUsers = false;
+      _errorMessage =
+          error.message ??
+          (error.type == MyPageLoadFailureType.network
+              ? '네트워크 연결을 확인한 뒤 다시 시도해 주세요.'
+              : '유저를 차단하지 못했어요. 잠시 후 다시 시도해 주세요.');
+    }
     notifyListeners();
   }
 
-  void unblockUser(String userId) {
-    final target = _blockedUsers.where((user) => user.id == userId).firstOrNull;
-    if (target == null) {
+  Future<void> unblockUser(String userId) async {
+    if (_isUpdatingBlockedUsers) {
       return;
     }
 
-    _blockedUsers = _blockedUsers
-        .where((user) => user.id != userId)
-        .toList(growable: false);
-    if (_otherProfile?.profile.id == userId) {
-      _otherProfile = _otherProfile?.copyWith(isBlocked: false);
+    _isUpdatingBlockedUsers = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      await repository.unblockUser(targetUserId: userId);
+      _blockedUsers = await repository.fetchBlockedUsers();
+      if (_otherProfile?.profile.id == userId) {
+        _otherProfile = _otherProfile?.copyWith(isBlocked: false);
+      }
+      _phase = MyPageAsyncPhase.success;
+      _isUpdatingBlockedUsers = false;
+      _pushToast('차단을 해제하였습니다.');
+    } on MyPageRepositoryException catch (error) {
+      _phase = MyPageAsyncPhase.validationError;
+      _isUpdatingBlockedUsers = false;
+      _errorMessage =
+          error.message ??
+          (error.type == MyPageLoadFailureType.network
+              ? '네트워크 연결을 확인한 뒤 다시 시도해 주세요.'
+              : '차단을 해제하지 못했어요. 잠시 후 다시 시도해 주세요.');
     }
-    _pushToast('차단을 해제하였습니다.');
     notifyListeners();
   }
 
@@ -330,6 +363,87 @@ class MyPageController extends ChangeNotifier {
               : '한줄소개를 저장하지 못했어요. 잠시 후 다시 시도해 주세요.');
     }
     notifyListeners();
+  }
+
+  Future<void> updateProfileImage(String imagePath) async {
+    if (_personalPage == null || _isUpdatingProfileImage) {
+      return;
+    }
+
+    _isUpdatingProfileImage = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final imageUrl = await repository.updateProfileImage(
+        imagePath: imagePath,
+      );
+      final updatedPersonalProfile = _personalPage!.profile.copyWith(
+        profileImageUrl: imageUrl,
+      );
+      _personalPage = _personalPage!.copyWith(profile: updatedPersonalProfile);
+      _businessPage = _businessPage?.copyWith(
+        profile: _businessPage!.profile.copyWith(profileImageUrl: imageUrl),
+      );
+      _phase = MyPageAsyncPhase.success;
+      _pushToast('프로필 사진을 저장했어요.');
+    } on MyPageRepositoryException catch (error) {
+      _phase = MyPageAsyncPhase.validationError;
+      _errorMessage =
+          error.message ??
+          (error.type == MyPageLoadFailureType.network
+              ? '네트워크 연결을 확인한 뒤 다시 시도해 주세요.'
+              : '프로필 사진을 저장하지 못했어요. 잠시 후 다시 시도해 주세요.');
+      _pushToast(_errorMessage!);
+    } finally {
+      _isUpdatingProfileImage = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> updateActivityRegion(NeighborhoodSelection neighborhood) async {
+    if (_personalPage == null || _isUpdatingActivityRegion) {
+      return false;
+    }
+
+    final previousResidence = _personalPage!.profile.residence;
+    _isUpdatingActivityRegion = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final regionName = await repository.updateActivityRegion(
+        neighborhood: neighborhood,
+      );
+      _personalPage = _personalPage!.copyWith(
+        profile: _personalPage!.profile.copyWith(residence: regionName),
+      );
+      if (_businessPage != null) {
+        final currentBusinessProfile = _businessPage!.profile;
+        final nextResidence =
+            currentBusinessProfile.residence == previousResidence
+            ? regionName
+            : currentBusinessProfile.residence;
+        _businessPage = _businessPage!.copyWith(
+          profile: currentBusinessProfile.copyWith(residence: nextResidence),
+        );
+      }
+      _phase = MyPageAsyncPhase.success;
+      _pushToast('활동 지역을 저장했어요.');
+      return true;
+    } on MyPageRepositoryException catch (error) {
+      _phase = MyPageAsyncPhase.validationError;
+      _errorMessage =
+          error.message ??
+          (error.type == MyPageLoadFailureType.network
+              ? '네트워크 연결을 확인한 뒤 다시 시도해 주세요.'
+              : '활동 지역을 저장하지 못했어요. 잠시 후 다시 시도해 주세요.');
+      _pushToast(_errorMessage!);
+      return false;
+    } finally {
+      _isUpdatingActivityRegion = false;
+      notifyListeners();
+    }
   }
 
   Future<void> submitWithdrawal({
@@ -382,6 +496,34 @@ class MyPageController extends ChangeNotifier {
               : '탈퇴 요청을 처리하지 못했어요. 잠시 후 다시 시도해 주세요.');
     }
     notifyListeners();
+  }
+
+  Future<bool> logout() async {
+    if (_isLoggingOut) {
+      return false;
+    }
+
+    _isLoggingOut = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      await repository.logout();
+      _phase = MyPageAsyncPhase.success;
+      return true;
+    } on MyPageRepositoryException catch (error) {
+      _phase = MyPageAsyncPhase.validationError;
+      _errorMessage =
+          error.message ??
+          (error.type == MyPageLoadFailureType.network
+              ? '네트워크 연결을 확인한 뒤 다시 시도해 주세요.'
+              : '로그아웃하지 못했어요. 잠시 후 다시 시도해 주세요.');
+      _pushToast(_errorMessage!);
+      return false;
+    } finally {
+      _isLoggingOut = false;
+      notifyListeners();
+    }
   }
 
   Future<void> _loadBundle() async {

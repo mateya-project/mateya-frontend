@@ -4,71 +4,58 @@ import '../../../../shared/theme/app_tokens.dart';
 import '../../domain/mypage_models.dart';
 
 class MyPageActivityHistoryCard extends StatelessWidget {
-  const MyPageActivityHistoryCard({super.key, required this.activity});
+  const MyPageActivityHistoryCard({
+    super.key,
+    required this.activity,
+    this.onTap,
+  });
 
   final ActivityHistoryEntry activity;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.divider),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Stack(
-            children: <Widget>[
-              ClipRRect(
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(16),
-                ),
-                child: SizedBox(
-                  width: double.infinity,
-                  height: 176,
-                  child: Image.network(
-                    activity.imageUrl,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        color: AppColors.subtleBackground,
-                        child: const Center(
-                          child: Icon(
-                            Icons.image_outlined,
-                            size: 34,
-                            color: AppColors.textSecondary,
+    return InkWell(
+      borderRadius: BorderRadius.circular(16),
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.divider),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Stack(
+              children: <Widget>[
+                ClipRRect(
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(16),
+                  ),
+                  child: SizedBox(
+                    width: double.infinity,
+                    height: 176,
+                    child: Image.network(
+                      activity.imageUrl,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          color: AppColors.subtleBackground,
+                          child: const Center(
+                            child: Icon(
+                              Icons.image_outlined,
+                              size: 34,
+                              color: AppColors.textSecondary,
+                            ),
                           ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ),
-              Positioned(
-                left: 12,
-                top: 12,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.92),
-                    borderRadius: BorderRadius.circular(999),
-                  ),
-                  child: Text(
-                    activity.categoryLabel,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: AppColors.textPrimary,
+                        );
+                      },
                     ),
                   ),
                 ),
-              ),
-              if (activity.isHostedByMe)
                 Positioned(
-                  right: 12,
+                  left: 12,
                   top: 12,
                   child: Container(
                     padding: const EdgeInsets.symmetric(
@@ -76,77 +63,123 @@ class MyPageActivityHistoryCard extends StatelessWidget {
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: AppColors.brandGreen,
+                      color: Colors.white.withValues(alpha: 0.92),
                       borderRadius: BorderRadius.circular(999),
                     ),
                     child: Text(
-                      'HOST',
+                      activity.categoryLabel,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w700,
+                        color: AppColors.textPrimary,
                       ),
                     ),
                   ),
                 ),
-            ],
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(14, 14, 14, 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(
-                  activity.title,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleLarge?.copyWith(fontSize: 18),
-                ),
-                const SizedBox(height: 10),
-                Wrap(
-                  spacing: 12,
-                  runSpacing: 8,
-                  children: <Widget>[
-                    MyPageMetaPill(
-                      icon: Icons.calendar_today_rounded,
-                      text: activity.dateLabel,
-                    ),
-                    MyPageMetaPill(
-                      icon: Icons.schedule_rounded,
-                      text: activity.timeLabel,
-                    ),
-                    MyPageMetaPill(
-                      icon: Icons.group_outlined,
-                      text: activity.participantLabel,
-                    ),
-                    MyPageMetaPill(
-                      icon: Icons.payments_outlined,
-                      text: activity.priceLabel,
-                    ),
-                  ],
-                ),
-                if (activity.rating != null) ...<Widget>[
-                  const SizedBox(height: 12),
-                  Row(
-                    children: <Widget>[
-                      const Icon(
-                        Icons.star_rounded,
-                        size: 18,
-                        color: Color(0xFFFFC107),
+                if (activity.isHostedByMe)
+                  Positioned(
+                    right: 12,
+                    top: 12,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 6,
                       ),
-                      const SizedBox(width: 4),
-                      Text(
-                        activity.rating!.toStringAsFixed(1),
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      decoration: BoxDecoration(
+                        color: AppColors.brandGreen,
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: Text(
+                        onTap == null ? 'HOST' : '편집',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Colors.white,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
-                    ],
+                    ),
                   ),
-                ],
+                if (onTap != null)
+                  Positioned(
+                    right: 14,
+                    bottom: 12,
+                    child: Row(
+                      children: <Widget>[
+                        Text(
+                          '수정하기',
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        const Icon(
+                          Icons.chevron_right_rounded,
+                          size: 18,
+                          color: Colors.white,
+                        ),
+                      ],
+                    ),
+                  ),
               ],
             ),
-          ),
-        ],
+            Padding(
+              padding: const EdgeInsets.fromLTRB(14, 14, 14, 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(
+                    activity.title,
+                    style: Theme.of(
+                      context,
+                    ).textTheme.titleLarge?.copyWith(fontSize: 18),
+                  ),
+                  const SizedBox(height: 10),
+                  Wrap(
+                    spacing: 12,
+                    runSpacing: 8,
+                    children: <Widget>[
+                      MyPageMetaPill(
+                        icon: Icons.calendar_today_rounded,
+                        text: activity.dateLabel,
+                      ),
+                      MyPageMetaPill(
+                        icon: Icons.schedule_rounded,
+                        text: activity.timeLabel,
+                      ),
+                      MyPageMetaPill(
+                        icon: Icons.group_outlined,
+                        text: activity.participantLabel,
+                      ),
+                      MyPageMetaPill(
+                        icon: Icons.payments_outlined,
+                        text: activity.priceLabel,
+                      ),
+                    ],
+                  ),
+                  if (activity.rating != null) ...<Widget>[
+                    const SizedBox(height: 12),
+                    Row(
+                      children: <Widget>[
+                        const Icon(
+                          Icons.star_rounded,
+                          size: 18,
+                          color: Color(0xFFFFC107),
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          activity.rating!.toStringAsFixed(1),
+                          style: Theme.of(
+                            context,
+                          ).textTheme.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -217,18 +217,6 @@ const Set<String> kSupportedExploreLanguageCodes = <String>{
   'ja',
 };
 
-const List<ActivityCategory> kExploreCategories = <ActivityCategory>[
-  ActivityCategory(id: 'all', label: '전체', isAll: true),
-  ActivityCategory(id: 'TOURIST_ATTRACTION', label: '관광지'),
-  ActivityCategory(id: 'TRAVEL_COURSE', label: '여행코스'),
-  ActivityCategory(id: 'CULTURE_TRADITION', label: '문화/전통'),
-  ActivityCategory(id: 'EVENT_PERFORMANCE_FESTIVAL', label: '행사/공연/축제'),
-  ActivityCategory(id: 'SPORTS', label: '스포츠'),
-  ActivityCategory(id: 'ACTIVITY_LEPORTS', label: '액티비티/레포츠'),
-  ActivityCategory(id: 'PUBLIC_FACILITY', label: '공공시설'),
-  ActivityCategory(id: 'SHOPPING', label: '쇼핑'),
-];
-
 const List<ActivityLanguageOption> kPrimaryLanguages = <ActivityLanguageOption>[
   ActivityLanguageOption(code: 'ko', label: '한국어'),
   ActivityLanguageOption(code: 'en', label: '영어'),

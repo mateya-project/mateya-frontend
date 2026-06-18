@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../shared/activity_categories/activity_category_repository.dart';
 import '../../onboarding/domain/onboarding_flow.dart';
 import '../data/create_repository.dart';
 import '../domain/create_models.dart';
@@ -14,6 +15,7 @@ part 'create_controller_validation.dart';
 class CreateController extends ChangeNotifier {
   CreateController({
     required this.repository,
+    required this.categoryRepository,
     required this.flowType,
     this.isEditMode = false,
     this.editingId,
@@ -34,6 +36,7 @@ class CreateController extends ChangeNotifier {
   ];
 
   final CreateRepository repository;
+  final ActivityCategoryRepository categoryRepository;
   final CreateFlowType flowType;
   final bool isEditMode;
   final String? editingId;
@@ -43,10 +46,13 @@ class CreateController extends ChangeNotifier {
   AsyncPhase _placePhase = AsyncPhase.idle;
   AsyncPhase _submitPhase = AsyncPhase.idle;
   AsyncPhase _deletePhase = AsyncPhase.idle;
+  AsyncPhase _editDraftPhase = AsyncPhase.idle;
   String _searchQuery = '';
   List<CreatePlaceSuggestion> _searchResults = const <CreatePlaceSuggestion>[];
   List<CreatePlaceSuggestion> _recommendedPlaces =
       const <CreatePlaceSuggestion>[];
+  List<ActivityCategoryMetadata> _categoryMetadata =
+      kFallbackActivityCategories;
   final Set<String> _selectedCategoryIds = <String>{};
   String? _selectedCategoryDetailCode;
   CreatePlaceSuggestion? _selectedPlace;
@@ -69,14 +75,24 @@ class CreateController extends ChangeNotifier {
   String? _toastMessage;
   int _toastVersion = 0;
   CreateSubmitResult? _submitResult;
+  bool _didLoadCategoryMetadata = false;
+  bool _didInitializeEditDraft = false;
 
   CreateStep get step => _step;
   AsyncPhase get placePhase => _placePhase;
   AsyncPhase get submitPhase => _submitPhase;
   AsyncPhase get deletePhase => _deletePhase;
+  AsyncPhase get editDraftPhase => _editDraftPhase;
   String get searchQuery => _searchQuery;
   List<CreatePlaceSuggestion> get searchResults => _searchResults;
   List<CreatePlaceSuggestion> get recommendedPlaces => _recommendedPlaces;
+  List<CreateCategoryOption> get availableCategories => _categoryMetadata
+      .where((category) => category.active)
+      .map(
+        (category) =>
+            CreateCategoryOption(id: category.code, label: category.label),
+      )
+      .toList(growable: false);
   Set<String> get selectedCategoryIds => _selectedCategoryIds;
   String? get selectedCategoryId => _selectedCategoryIds.firstOrNull;
   String? get selectedCategoryDetailCode => _selectedCategoryDetailCode;
@@ -99,8 +115,38 @@ class CreateController extends ChangeNotifier {
   String? get toastMessage => _toastMessage;
   int get toastVersion => _toastVersion;
   CreateSubmitResult? get submitResult => _submitResult;
-  List<CreateCategoryDetailOption> get availableCategoryDetails =>
-      _availableCategoryDetailsFor(this);
+  List<CreateCategoryDetailOption> get availableCategoryDetails {
+    final selectedCategoryId = this.selectedCategoryId;
+    if (selectedCategoryId == null) {
+      return const <CreateCategoryDetailOption>[];
+    }
+    final matchedCategory = _categoryMetadata.where(
+      (category) => category.code == selectedCategoryId,
+    );
+    if (matchedCategory.isEmpty) {
+      return const <CreateCategoryDetailOption>[];
+    }
+    return matchedCategory.first.children
+        .where((detail) => detail.active)
+        .map(
+          (detail) => CreateCategoryDetailOption(
+            code: detail.code,
+            label: detail.label,
+          ),
+        )
+        .toList(growable: false);
+  }
+
+  bool get isInitializingEditDraft => _editDraftPhase == AsyncPhase.loading;
+  bool get didFailInitializingEditDraft =>
+      _editDraftPhase == AsyncPhase.networkError ||
+      _editDraftPhase == AsyncPhase.serverError;
+  String get screenTitle => isEditMode ? flowType.editLabel : flowType.label;
+  String get submitActionLabel =>
+      isEditMode ? flowType.updateSubmitLabel : flowType.submitLabel;
+  String get completedMessage => isEditMode
+      ? '${flowType.entityLabel} 수정이 완료됐어요'
+      : '${flowType.entityLabel} 등록이 완료됐어요';
 
   List<CreateStep> get steps => flowType == CreateFlowType.group
       ? const <CreateStep>[
@@ -129,10 +175,17 @@ class CreateController extends ChangeNotifier {
   String? errorFor(String key) => _fieldErrors[key];
 
   Future<void> initialize() async {
+    await _loadCategoryMetadata();
+    if (isEditMode && !_didInitializeEditDraft) {
+      await _loadEditableDraft();
+      return;
+    }
     if (_step == CreateStep.place && _placePhase == AsyncPhase.idle) {
       await loadRecommendedPlaces();
     }
   }
+
+  Future<void> retryInitializeEditDraft() => _loadEditableDraft();
 
   void clearToast() {
     _toastMessage = null;
@@ -379,7 +432,7 @@ class CreateController extends ChangeNotifier {
     notifyListeners();
 
     try {
-      _submitResult = await repository.submit(draft);
+      _submitResult = await repository.submit(draft, editingId: editingId);
       _submitPhase = AsyncPhase.success;
       _step = CreateStep.completed;
       if (_submitResult?.chatStatus == ChatProvisionStatus.failed) {
@@ -474,6 +527,77 @@ class CreateController extends ChangeNotifier {
   }
 
   void _notifyChanged() {
+    notifyListeners();
+  }
+
+  Future<void> _loadCategoryMetadata() async {
+    if (_didLoadCategoryMetadata) {
+      return;
+    }
+    final categories = await categoryRepository.fetchActivityCategories();
+    _categoryMetadata = List<ActivityCategoryMetadata>.from(categories)
+      ..sort((left, right) => left.displayOrder.compareTo(right.displayOrder));
+    _didLoadCategoryMetadata = true;
+    notifyListeners();
+  }
+
+  Future<void> _loadEditableDraft() async {
+    if (!isEditMode ||
+        editingId == null ||
+        _editDraftPhase == AsyncPhase.loading) {
+      return;
+    }
+
+    _didInitializeEditDraft = true;
+    _editDraftPhase = AsyncPhase.loading;
+    _fieldErrors = <String, String?>{};
+    notifyListeners();
+
+    try {
+      final draft = await repository.fetchEditableDraft(
+        id: editingId!,
+        flowType: flowType,
+      );
+      _selectedCategoryIds
+        ..clear()
+        ..addAll(draft.categoryIds);
+      _selectedCategoryDetailCode = draft.categoryDetailCode;
+      _selectedPlace = draft.place;
+      _manualPlaceName = draft.place.name;
+      _manualPlaceAddress = draft.place.address;
+      _title = draft.title;
+      _description = draft.description;
+      _eventDate = draft.eventDate;
+      _startTime = draft.startTime;
+      _endTime = draft.endTime;
+      _participantCapacity = draft.participantCapacity;
+      _deadlineDate = draft.registrationDeadlineDate;
+      _deadlineTime = draft.registrationDeadlineTime;
+      _languageCodes
+        ..clear()
+        ..addAll(draft.languageCodes);
+      _priceType = draft.priceType;
+      _priceText = draft.priceText;
+      _audienceIds
+        ..clear()
+        ..addAll(draft.audienceIds);
+      _images = List<CreateImageAsset>.from(draft.images);
+      _editDraftPhase = AsyncPhase.success;
+    } on CreateRepositoryException catch (error) {
+      _editDraftPhase = error.type == CreateRepositoryFailureType.network
+          ? AsyncPhase.networkError
+          : AsyncPhase.serverError;
+      _emitToast(
+        error.message ??
+            (error.type == CreateRepositoryFailureType.network
+                ? '${flowType.entityLabel} 정보를 불러오지 못했어요. 네트워크를 확인해 주세요.'
+                : '${flowType.entityLabel} 정보를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.'),
+      );
+    } catch (_) {
+      _editDraftPhase = AsyncPhase.serverError;
+      _emitToast('${flowType.entityLabel} 정보를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.');
+    }
+
     notifyListeners();
   }
 }

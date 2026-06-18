@@ -4,16 +4,19 @@ class ApiMyPageRepository implements MyPageRepository {
   ApiMyPageRepository({
     MateyaApiClient? apiClient,
     AuthSessionStore? sessionStore,
+    HttpTransport? transport,
   }) : _sessionStore = sessionStore ?? AuthSessionStore.instance,
        _apiClient =
            apiClient ??
            MateyaApiClient(
              baseUrl: AppConfig.apiBaseUrl,
              sessionStore: sessionStore ?? AuthSessionStore.instance,
-           );
+           ),
+       _transport = transport ?? createHttpTransport();
 
   final AuthSessionStore _sessionStore;
   final MateyaApiClient _apiClient;
+  final HttpTransport _transport;
 
   @override
   Future<MyPageBundle> fetchBundle({required bool isBusinessMode}) async {
@@ -26,6 +29,10 @@ class ApiMyPageRepository implements MyPageRepository {
       final results = await Future.wait<Object?>(<Future<Object?>>[
         _apiClient.getJson('/api/v1/users/me', requiresAuth: true),
         _apiClient.getJson(
+          '/api/v1/users/me/terms-agreements',
+          requiresAuth: true,
+        ),
+        _apiClient.getJson(
           '/api/v1/users/${sessionUser.id}',
           requiresAuth: true,
         ),
@@ -34,6 +41,10 @@ class ApiMyPageRepository implements MyPageRepository {
           '/api/v1/users/me/activity-history',
           requiresAuth: true,
           queryParameters: <String, String>{'limit': '50'},
+        ),
+        _apiClient.getJson(
+          '/api/v1/users/me/blocked-users',
+          requiresAuth: true,
         ),
         if (isBusinessMode)
           _apiClient.getJson('/api/v1/hosts/me', requiresAuth: true),
@@ -45,13 +56,19 @@ class ApiMyPageRepository implements MyPageRepository {
       ]);
 
       final meProfileJson = _asMap(results[0]);
-      final mePageJson = _asMap(results[1]);
-      final badgesJson = results[2] is List<Object?>
-          ? results[2] as List<Object?>
-          : const <Object?>[];
-      final historyJson = results[3] is List<Object?>
+      final consentHistoryJson = _asMap(results[1]);
+      final mePageJson = _asMap(results[2]);
+      final badgesJson = results[3] is List<Object?>
           ? results[3] as List<Object?>
           : const <Object?>[];
+      final historyJson = results[4] is List<Object?>
+          ? results[4] as List<Object?>
+          : const <Object?>[];
+      final blockedUsersJson = _asMap(results[5]);
+      final consentHistoryItems =
+          consentHistoryJson['items'] as List<Object?>? ?? const <Object?>[];
+      final blockedUserItems =
+          blockedUsersJson['items'] as List<Object?>? ?? const <Object?>[];
 
       final historyEntries = historyJson
           .map(_parseActivityHistoryEntry)
@@ -91,8 +108,8 @@ class ApiMyPageRepository implements MyPageRepository {
       final businessPage = isBusinessMode
           ? _buildBusinessPage(
               userProfileJson: meProfileJson,
-              hostPageJson: _asMap(results[4]),
-              businessApplicationJson: _asMap(results[5]),
+              hostPageJson: _asMap(results[6]),
+              businessApplicationJson: _asMap(results[7]),
             )
           : _fallbackBusinessPage(meProfileJson);
 
@@ -117,8 +134,12 @@ class ApiMyPageRepository implements MyPageRepository {
         businessPage: businessPage,
         languageOptions: kMyPageLanguageOptions,
         countryOptions: kMyPageCountryOptions,
-        consentHistory: _consentHistory,
-        blockedUsers: _blockedUsers,
+        consentHistory: consentHistoryItems
+            .map(_parseConsentHistoryEntry)
+            .toList(growable: false),
+        blockedUsers: blockedUserItems
+            .map(_parseBlockedUserSummary)
+            .toList(growable: false),
       );
     } on MateyaApiException catch (error) {
       throw _mapApiException(error);
@@ -224,6 +245,65 @@ class ApiMyPageRepository implements MyPageRepository {
   }
 
   @override
+  Future<String> updateProfileImage({required String imagePath}) async {
+    try {
+      final uploadedUrl = await _uploadProfileImage(
+        apiClient: _apiClient,
+        transport: _transport,
+        imagePath: imagePath,
+      );
+      final data = await _apiClient.patchJson(
+        '/api/v1/users/me/profile-image',
+        requiresAuth: true,
+        body: <String, Object?>{'profileImageUrl': uploadedUrl},
+      );
+      final profileJson = _asMap(data);
+      _syncSessionUserProfile(profileJson);
+      final resolvedUrl = profileJson['profileImageUrl'] as String?;
+      if (resolvedUrl == null || resolvedUrl.isEmpty) {
+        throw const MyPageRepositoryException(
+          MyPageLoadFailureType.server,
+          message: '프로필 사진 저장 결과를 확인하지 못했어요. 잠시 후 다시 시도해 주세요.',
+        );
+      }
+      return resolvedUrl;
+    } on MateyaApiException catch (error) {
+      throw _mapApiException(error);
+    }
+  }
+
+  @override
+  Future<String> updateActivityRegion({
+    required NeighborhoodSelection neighborhood,
+  }) async {
+    try {
+      final data = await _apiClient.patchJson(
+        '/api/v1/users/me/activity-region',
+        requiresAuth: true,
+        body: <String, Object?>{
+          'regionName': neighborhood.displayName,
+          'latitude': neighborhood.latitude,
+          'longitude': neighborhood.longitude,
+        },
+      );
+      final profileJson = _asMap(data);
+      _syncSessionUserProfile(profileJson);
+      final regionName =
+          profileJson['activityRegionName'] as String? ??
+          neighborhood.displayName;
+      if (regionName.isEmpty) {
+        throw const MyPageRepositoryException(
+          MyPageLoadFailureType.server,
+          message: '활동 지역 저장 결과를 확인하지 못했어요. 잠시 후 다시 시도해 주세요.',
+        );
+      }
+      return regionName;
+    } on MateyaApiException catch (error) {
+      throw _mapApiException(error);
+    }
+  }
+
+  @override
   Future<void> submitWithdrawal({
     required String agreementText,
     String? reason,
@@ -236,6 +316,61 @@ class ApiMyPageRepository implements MyPageRepository {
           'agreementText': agreementText,
           'reason': reason,
         },
+      );
+      _sessionStore.clear();
+    } on MateyaApiException catch (error) {
+      throw _mapApiException(error);
+    }
+  }
+
+  void _syncSessionUserProfile(Map<String, dynamic> profileJson) {
+    final current = _sessionStore.session;
+    if (current == null) {
+      return;
+    }
+
+    final updatedUser = current.user.copyWith(
+      displayName:
+          profileJson['displayName'] as String? ?? current.user.displayName,
+      primaryLanguage:
+          profileJson['primaryLanguage'] as String? ??
+          current.user.primaryLanguage,
+      primaryCountry:
+          profileJson['primaryCountry'] as String? ??
+          current.user.primaryCountry,
+      profileImageUrl: profileJson['profileImageUrl'] as String?,
+      activityRegionName:
+          profileJson['activityRegionName'] as String? ??
+          current.user.activityRegionName,
+      activityLatitude:
+          (profileJson['activityLatitude'] as num?)?.toDouble() ??
+          current.user.activityLatitude,
+      activityLongitude:
+          (profileJson['activityLongitude'] as num?)?.toDouble() ??
+          current.user.activityLongitude,
+      lastLoginAt: profileJson['lastLoginAt'] == null
+          ? current.user.lastLoginAt
+          : DateTime.tryParse(profileJson['lastLoginAt'] as String),
+      createdAt: profileJson['createdAt'] == null
+          ? current.user.createdAt
+          : DateTime.tryParse(profileJson['createdAt'] as String) ??
+                current.user.createdAt,
+    );
+    _sessionStore.save(current.copyWith(user: updatedUser));
+  }
+
+  @override
+  Future<void> logout() async {
+    final refreshToken = _sessionStore.session?.refreshToken;
+    if (refreshToken == null || refreshToken.isEmpty) {
+      _sessionStore.clear();
+      return;
+    }
+
+    try {
+      await _apiClient.postJson(
+        '/api/v1/auth/logout',
+        body: <String, Object?>{'refreshToken': refreshToken},
       );
       _sessionStore.clear();
     } on MateyaApiException catch (error) {
@@ -291,6 +426,21 @@ class ApiMyPageRepository implements MyPageRepository {
   }
 
   @override
+  Future<List<BlockedUserSummary>> fetchBlockedUsers() async {
+    try {
+      final data = await _apiClient.getJson(
+        '/api/v1/users/me/blocked-users',
+        requiresAuth: true,
+      );
+      final json = _asMap(data);
+      final items = json['items'] as List<Object?>? ?? const <Object?>[];
+      return items.map(_parseBlockedUserSummary).toList(growable: false);
+    } on MateyaApiException catch (error) {
+      throw _mapApiException(error);
+    }
+  }
+
+  @override
   Future<OtherProfileData> updateFriendship({
     required String targetUserId,
     required bool isFriend,
@@ -308,6 +458,30 @@ class ApiMyPageRepository implements MyPageRepository {
         );
       }
       return fetchOtherProfile(targetUserId: targetUserId);
+    } on MateyaApiException catch (error) {
+      throw _mapApiException(error);
+    }
+  }
+
+  @override
+  Future<void> blockUser({required String targetUserId}) async {
+    try {
+      await _apiClient.postJson(
+        '/api/v1/users/$targetUserId/block',
+        requiresAuth: true,
+      );
+    } on MateyaApiException catch (error) {
+      throw _mapApiException(error);
+    }
+  }
+
+  @override
+  Future<void> unblockUser({required String targetUserId}) async {
+    try {
+      await _apiClient.deleteJson(
+        '/api/v1/users/$targetUserId/block',
+        requiresAuth: true,
+      );
     } on MateyaApiException catch (error) {
       throw _mapApiException(error);
     }

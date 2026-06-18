@@ -16,7 +16,6 @@ class MockActivityDetailRepository implements ActivityDetailRepository {
       pendingParticipants: _pendingParticipantsFor(activity),
       reviews: _reviewsFor(activity),
       isFavorite: activity.isFeatured,
-      isJoined: activity.participantCount >= activity.participantCapacity,
     );
   }
 
@@ -27,6 +26,68 @@ class MockActivityDetailRepository implements ActivityDetailRepository {
   }) async {
     await Future<void>.delayed(const Duration(milliseconds: 120));
     return !isFavorite;
+  }
+
+  @override
+  Future<ActivityDetail> requestJoin({required ActivityDetail detail}) async {
+    await Future<void>.delayed(const Duration(milliseconds: 180));
+    return detail.copyWith(
+      participationState: ActivityParticipationState.requested,
+    );
+  }
+
+  @override
+  Future<ActivityDetail> approvePendingParticipant({
+    required ActivityDetail detail,
+    required String participantId,
+  }) async {
+    await Future<void>.delayed(const Duration(milliseconds: 180));
+    final target = detail.pendingParticipants
+        .where((participant) => participant.id == participantId)
+        .firstOrNull;
+    if (target == null) {
+      return detail;
+    }
+    return detail.copyWith(
+      activity: detail.activity.copyWith(
+        participantCount: detail.activity.participantCount + 1,
+      ),
+      participants: <ActivityParticipant>[...detail.participants, target],
+      pendingParticipants: detail.pendingParticipants
+          .where((participant) => participant.id != participantId)
+          .toList(growable: false),
+    );
+  }
+
+  @override
+  Future<ActivityDetail> removeApprovedParticipant({
+    required ActivityDetail detail,
+    required String participantId,
+  }) async {
+    await Future<void>.delayed(const Duration(milliseconds: 180));
+    return detail.copyWith(
+      activity: detail.activity.copyWith(
+        participantCount: detail.activity.participantCount > 0
+            ? detail.activity.participantCount - 1
+            : 0,
+      ),
+      participants: detail.participants
+          .where((participant) => participant.id != participantId)
+          .toList(growable: false),
+    );
+  }
+
+  @override
+  Future<ActivityDetail> removePendingParticipant({
+    required ActivityDetail detail,
+    required String participantId,
+  }) async {
+    await Future<void>.delayed(const Duration(milliseconds: 180));
+    return detail.copyWith(
+      pendingParticipants: detail.pendingParticipants
+          .where((participant) => participant.id != participantId)
+          .toList(growable: false),
+    );
   }
 
   @override

@@ -89,6 +89,25 @@ class ApiHomeRepository implements HomeRepository {
     }
   }
 
+  @override
+  Future<List<ActivityItem>> fetchFavoriteActivities() async {
+    try {
+      final data = await _apiClient.getJson(
+        '/api/v1/users/me/favorite-activities',
+        requiresAuth: true,
+      );
+      final items = data is List<Object?> ? data : const <Object?>[];
+      return items
+          .map((entry) => _parseActivityCard(entry, isFeatured: false))
+          .toList(growable: false);
+    } on MateyaApiException catch (error) {
+      if (error.type == ApiFailureType.network) {
+        throw const HomeRepositoryException(HomeLoadFailureType.network);
+      }
+      throw const HomeRepositoryException(HomeLoadFailureType.server);
+    }
+  }
+
   Map<String, List<String>> _buildExploreQueryParametersAll({
     required int page,
     required String keyword,
@@ -160,8 +179,10 @@ class ApiHomeRepository implements HomeRepository {
     if (user?.activityLatitude != null && user?.activityLongitude != null) {
       queryParameters['latitude'] = <String>['${user!.activityLatitude!}'];
       queryParameters['longitude'] = <String>['${user.activityLongitude!}'];
+      queryParameters['radiusKm'] = <String>[
+        '${filter.distance.maxDistanceKm}',
+      ];
     }
-    queryParameters['radiusKm'] = <String>['${filter.distance.maxDistanceKm}'];
 
     return queryParameters;
   }

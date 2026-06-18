@@ -1,34 +1,5 @@
 part of 'create_controller.dart';
 
-List<CreateCategoryDetailOption> _availableCategoryDetailsFor(
-  CreateController controller,
-) {
-  final selectedCategoryId = controller.selectedCategoryId;
-  if (selectedCategoryId == null) {
-    return const <CreateCategoryDetailOption>[];
-  }
-
-  final options = <CreateCategoryDetailOption>[];
-  final seenCodes = <String>{};
-  for (final place in <CreatePlaceSuggestion>[
-    ...controller._recommendedPlaces,
-    ...controller._searchResults,
-  ]) {
-    if (!place.categoryIds.contains(selectedCategoryId)) {
-      continue;
-    }
-    final code = place.categoryDetailCode;
-    final label = place.categoryDetailName;
-    if (code == null || code.isEmpty || label == null || label.isEmpty) {
-      continue;
-    }
-    if (seenCodes.add(code)) {
-      options.add(CreateCategoryDetailOption(code: code, label: label));
-    }
-  }
-  return options;
-}
-
 CreateSubmissionDraft? _buildDraftFor(CreateController controller) {
   final eventDate = controller._eventDate;
   final startTime = controller._startTime;

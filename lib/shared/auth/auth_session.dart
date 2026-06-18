@@ -34,6 +34,46 @@ class AuthUserProfile {
   final DateTime? lastLoginAt;
   final DateTime createdAt;
 
+  AuthUserProfile copyWith({
+    int? id,
+    String? phoneNumber,
+    String? displayName,
+    String? role,
+    String? primaryLanguage,
+    String? primaryCountry,
+    Object? profileImageUrl = _authSessionSentinel,
+    Object? activityRegionName = _authSessionSentinel,
+    Object? activityLatitude = _authSessionSentinel,
+    Object? activityLongitude = _authSessionSentinel,
+    Object? lastLoginAt = _authSessionSentinel,
+    DateTime? createdAt,
+  }) {
+    return AuthUserProfile(
+      id: id ?? this.id,
+      phoneNumber: phoneNumber ?? this.phoneNumber,
+      displayName: displayName ?? this.displayName,
+      role: role ?? this.role,
+      primaryLanguage: primaryLanguage ?? this.primaryLanguage,
+      primaryCountry: primaryCountry ?? this.primaryCountry,
+      profileImageUrl: profileImageUrl == _authSessionSentinel
+          ? this.profileImageUrl
+          : profileImageUrl as String?,
+      activityRegionName: activityRegionName == _authSessionSentinel
+          ? this.activityRegionName
+          : activityRegionName as String?,
+      activityLatitude: activityLatitude == _authSessionSentinel
+          ? this.activityLatitude
+          : activityLatitude as double?,
+      activityLongitude: activityLongitude == _authSessionSentinel
+          ? this.activityLongitude
+          : activityLongitude as double?,
+      lastLoginAt: lastLoginAt == _authSessionSentinel
+          ? this.lastLoginAt
+          : lastLoginAt as DateTime?,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
+
   Map<String, Object?> toJson() {
     return <String, Object?>{
       'id': id,
@@ -89,6 +129,26 @@ class AuthSession {
   final int refreshExpiresIn;
   final DateTime refreshExpiresAt;
   final AuthUserProfile user;
+
+  AuthSession copyWith({
+    String? accessToken,
+    String? refreshToken,
+    String? tokenType,
+    int? expiresIn,
+    int? refreshExpiresIn,
+    DateTime? refreshExpiresAt,
+    AuthUserProfile? user,
+  }) {
+    return AuthSession(
+      accessToken: accessToken ?? this.accessToken,
+      refreshToken: refreshToken ?? this.refreshToken,
+      tokenType: tokenType ?? this.tokenType,
+      expiresIn: expiresIn ?? this.expiresIn,
+      refreshExpiresIn: refreshExpiresIn ?? this.refreshExpiresIn,
+      refreshExpiresAt: refreshExpiresAt ?? this.refreshExpiresAt,
+      user: user ?? this.user,
+    );
+  }
 
   Map<String, Object?> toJson() {
     return <String, Object?>{
@@ -245,3 +305,5 @@ class AuthSessionStore {
     };
   }
 }
+
+const Object _authSessionSentinel = Object();
