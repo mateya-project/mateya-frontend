@@ -29,6 +29,10 @@ class ApiMyPageRepository implements MyPageRepository {
       final results = await Future.wait<Object?>(<Future<Object?>>[
         _apiClient.getJson('/api/v1/users/me', requiresAuth: true),
         _apiClient.getJson(
+          '/api/v1/users/me/terms-agreements',
+          requiresAuth: true,
+        ),
+        _apiClient.getJson(
           '/api/v1/users/${sessionUser.id}',
           requiresAuth: true,
         ),
@@ -48,13 +52,16 @@ class ApiMyPageRepository implements MyPageRepository {
       ]);
 
       final meProfileJson = _asMap(results[0]);
-      final mePageJson = _asMap(results[1]);
-      final badgesJson = results[2] is List<Object?>
-          ? results[2] as List<Object?>
-          : const <Object?>[];
-      final historyJson = results[3] is List<Object?>
+      final consentHistoryJson = _asMap(results[1]);
+      final mePageJson = _asMap(results[2]);
+      final badgesJson = results[3] is List<Object?>
           ? results[3] as List<Object?>
           : const <Object?>[];
+      final historyJson = results[4] is List<Object?>
+          ? results[4] as List<Object?>
+          : const <Object?>[];
+      final consentHistoryItems =
+          consentHistoryJson['items'] as List<Object?>? ?? const <Object?>[];
 
       final historyEntries = historyJson
           .map(_parseActivityHistoryEntry)
@@ -94,8 +101,8 @@ class ApiMyPageRepository implements MyPageRepository {
       final businessPage = isBusinessMode
           ? _buildBusinessPage(
               userProfileJson: meProfileJson,
-              hostPageJson: _asMap(results[4]),
-              businessApplicationJson: _asMap(results[5]),
+              hostPageJson: _asMap(results[5]),
+              businessApplicationJson: _asMap(results[6]),
             )
           : _fallbackBusinessPage(meProfileJson);
 
@@ -120,7 +127,9 @@ class ApiMyPageRepository implements MyPageRepository {
         businessPage: businessPage,
         languageOptions: kMyPageLanguageOptions,
         countryOptions: kMyPageCountryOptions,
-        consentHistory: _consentHistory,
+        consentHistory: consentHistoryItems
+            .map(_parseConsentHistoryEntry)
+            .toList(growable: false),
         blockedUsers: _blockedUsers,
       );
     } on MateyaApiException catch (error) {
