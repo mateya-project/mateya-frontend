@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../../shared/widgets/mateya_button.dart';
 import '../../application/create_controller.dart';
-import '../../domain/create_models.dart';
 import 'create_form_fields.dart';
 import 'create_form_primitives.dart';
 import 'create_formatters.dart';
@@ -85,7 +84,7 @@ class CategoryStepView extends StatelessWidget {
         Wrap(
           spacing: 10,
           runSpacing: 10,
-          children: CreateFormOptions.categories
+          children: controller.availableCategories
               .map(
                 (category) => SelectableChip(
                   label: category.label,

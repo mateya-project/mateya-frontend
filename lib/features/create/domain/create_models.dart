@@ -81,7 +81,8 @@ class CreateImageAsset {
   final int sizeBytes;
   final bool isPrimary;
 
-  bool get isRemote => path.startsWith('http://') || path.startsWith('https://');
+  bool get isRemote =>
+      path.startsWith('http://') || path.startsWith('https://');
 
   CreateImageAsset copyWith({
     String? id,
@@ -224,17 +225,6 @@ class CreateSubmitResult {
 }
 
 abstract final class CreateFormOptions {
-  static const List<CreateCategoryOption> categories = <CreateCategoryOption>[
-    CreateCategoryOption(id: 'TOURIST_ATTRACTION', label: '관광지'),
-    CreateCategoryOption(id: 'TRAVEL_COURSE', label: '여행코스'),
-    CreateCategoryOption(id: 'CULTURE_TRADITION', label: '문화/전통'),
-    CreateCategoryOption(id: 'EVENT_PERFORMANCE_FESTIVAL', label: '행사/공연/축제'),
-    CreateCategoryOption(id: 'SPORTS', label: '스포츠'),
-    CreateCategoryOption(id: 'ACTIVITY_LEPORTS', label: '액티비티/레포츠'),
-    CreateCategoryOption(id: 'PUBLIC_FACILITY', label: '공공시설'),
-    CreateCategoryOption(id: 'SHOPPING', label: '쇼핑'),
-  ];
-
   static const List<CreateLanguageOption> languages = <CreateLanguageOption>[
     CreateLanguageOption(code: 'ko', label: '한국어'),
     CreateLanguageOption(code: 'en', label: '영어'),

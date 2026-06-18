@@ -123,10 +123,12 @@ class HomeSearchBar extends StatelessWidget {
 class ExploreCategoryStrip extends StatelessWidget {
   const ExploreCategoryStrip({
     super.key,
+    required this.categories,
     required this.selectedCategoryIds,
     required this.onSelectCategory,
   });
 
+  final List<ActivityCategory> categories;
   final Set<String> selectedCategoryIds;
   final ValueChanged<String> onSelectCategory;
 
@@ -137,7 +139,7 @@ class ExploreCategoryStrip extends StatelessWidget {
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemBuilder: (context, index) {
-          final category = kExploreCategories[index];
+          final category = categories[index];
           final isSelected = category.isAll
               ? selectedCategoryIds.contains('all')
               : selectedCategoryIds.contains(category.id);
@@ -160,7 +162,7 @@ class ExploreCategoryStrip extends StatelessWidget {
           );
         },
         separatorBuilder: (_, _) => const SizedBox(width: 8),
-        itemCount: kExploreCategories.length,
+        itemCount: categories.length,
       ),
     );
   }

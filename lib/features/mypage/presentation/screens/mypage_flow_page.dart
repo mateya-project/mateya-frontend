@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../../app/app_config.dart';
+import '../../../../shared/activity_categories/activity_category_repository.dart';
 import '../../../../shared/auth/auth_session.dart';
 import '../../../../shared/network/mateya_api_client.dart';
 import '../../../../shared/permissions/mateya_permission_dialogs.dart';
@@ -269,6 +270,9 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
             repository: hasSession
                 ? ApiCreateRepository()
                 : MockCreateRepository(),
+            categoryRepository: hasSession
+                ? ApiActivityCategoryRepository()
+                : MockActivityCategoryRepository(),
             flowType: flowType,
             isEditMode: true,
             editingId: activity.id,

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../../../../shared/activity_categories/activity_category_repository.dart';
 import '../../../../shared/auth/auth_session.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../../shared/widgets/mateya_bottom_navigation.dart';
@@ -41,6 +42,7 @@ class _HomeFlowPageState extends State<HomeFlowPage> {
   late final ChatController _chatController;
   late final MyPageController _myPageController;
   late final ActivityDetailRepository _activityDetailRepository;
+  late final ActivityCategoryRepository _activityCategoryRepository;
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
 
@@ -48,6 +50,9 @@ class _HomeFlowPageState extends State<HomeFlowPage> {
   void initState() {
     super.initState();
     final hasSession = AuthSessionStore.instance.hasSession;
+    _activityCategoryRepository = hasSession
+        ? ApiActivityCategoryRepository()
+        : MockActivityCategoryRepository();
     final defaultLanguage = AuthSessionStore
         .instance
         .session
@@ -56,6 +61,7 @@ class _HomeFlowPageState extends State<HomeFlowPage> {
         .toLowerCase();
     _controller = HomeController(
       repository: hasSession ? ApiHomeRepository() : MockHomeRepository(),
+      categoryRepository: _activityCategoryRepository,
       flowKind: widget.flowKind,
       initialFilter: ExploreFilter(
         languages: kSupportedExploreLanguageCodes.contains(defaultLanguage)
@@ -94,6 +100,7 @@ class _HomeFlowPageState extends State<HomeFlowPage> {
       backgroundColor: Colors.transparent,
       builder: (context) {
         return ExploreFilterSheet(
+          categories: _controller.availableCategories,
           initialFilter: _controller.filter,
           defaultFilter: _controller.defaultFilter,
           validator: _controller.validateFilterDraft,
@@ -127,6 +134,7 @@ class _HomeFlowPageState extends State<HomeFlowPage> {
             repository: hasSession
                 ? ApiCreateRepository()
                 : MockCreateRepository(),
+            categoryRepository: _activityCategoryRepository,
             flowType: flowType,
           ),
         ),

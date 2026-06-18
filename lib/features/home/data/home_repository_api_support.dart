@@ -1,33 +1,27 @@
 part of 'home_repository.dart';
 
-const ActivityCategory _fallbackCategory = ActivityCategory(
+final ActivityCategory _fallbackCategory = ActivityCategory(
   id: 'PUBLIC_FACILITY',
-  label: '공공시설',
+  label: _fallbackCategoryLabel('PUBLIC_FACILITY'),
 );
 
-const Map<String, ActivityCategory> _categoryByServerCode =
-    <String, ActivityCategory>{
-      'TOURIST_ATTRACTION': ActivityCategory(
-        id: 'TOURIST_ATTRACTION',
-        label: '관광지',
-      ),
-      'TRAVEL_COURSE': ActivityCategory(id: 'TRAVEL_COURSE', label: '여행코스'),
-      'CULTURE_TRADITION': ActivityCategory(
-        id: 'CULTURE_TRADITION',
-        label: '문화/전통',
-      ),
-      'EVENT_PERFORMANCE_FESTIVAL': ActivityCategory(
-        id: 'EVENT_PERFORMANCE_FESTIVAL',
-        label: '행사/공연/축제',
-      ),
-      'SPORTS': ActivityCategory(id: 'SPORTS', label: '스포츠'),
-      'ACTIVITY_LEPORTS': ActivityCategory(
-        id: 'ACTIVITY_LEPORTS',
-        label: '액티비티/레포츠',
-      ),
-      'PUBLIC_FACILITY': ActivityCategory(id: 'PUBLIC_FACILITY', label: '공공시설'),
-      'SHOPPING': ActivityCategory(id: 'SHOPPING', label: '쇼핑'),
-    };
+final Map<String, ActivityCategory> _categoryByServerCode =
+    Map<String, ActivityCategory>.unmodifiable(<String, ActivityCategory>{
+      for (final category in kFallbackActivityCategories)
+        category.code: ActivityCategory(
+          id: category.code,
+          label: category.label,
+        ),
+    });
+
+String _fallbackCategoryLabel(String code) {
+  for (final category in kFallbackActivityCategories) {
+    if (category.code == code) {
+      return category.label;
+    }
+  }
+  return '공공시설';
+}
 
 String _sortToServerValue(ActivitySortOption value) => switch (value) {
   ActivitySortOption.recommended => 'recommended',

@@ -137,6 +137,7 @@ class ExploreScreen extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           ExploreCategoryStrip(
+            categories: controller.availableCategories,
             selectedCategoryIds: controller.filter.categoryIds,
             onSelectCategory: (categoryId) {
               final current = Set<String>.from(controller.filter.categoryIds);
@@ -254,7 +255,8 @@ class FavoritesScreen extends StatelessWidget {
             child: switch (controller.favoritePhase) {
               AsyncPhase.loading || AsyncPhase.idle => const ExploreSkeleton(),
               AsyncPhase.networkError || AsyncPhase.serverError => RetryState(
-                message: controller.favoriteErrorMessage ?? '즐겨찾기 목록을 불러오지 못했어요.',
+                message:
+                    controller.favoriteErrorMessage ?? '즐겨찾기 목록을 불러오지 못했어요.',
                 onRetry: controller.retry,
               ),
               AsyncPhase.success || AsyncPhase.validationError => Builder(
@@ -274,9 +276,8 @@ class FavoritesScreen extends StatelessWidget {
                             const SizedBox(height: 8),
                             Text(
                               '당신의 관심을 세상과 공유하세요.',
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: AppColors.textSecondary,
-                              ),
+                              style: Theme.of(context).textTheme.bodyMedium
+                                  ?.copyWith(color: AppColors.textSecondary),
                             ),
                           ],
                         ),
@@ -286,22 +287,23 @@ class FavoritesScreen extends StatelessWidget {
                             Icon(
                               Icons.favorite_border_rounded,
                               size: 40,
-                              color: AppColors.textSecondary.withValues(alpha: 0.7),
+                              color: AppColors.textSecondary.withValues(
+                                alpha: 0.7,
+                              ),
                             ),
                             const SizedBox(height: 12),
                             Text(
                               '아직 즐겨찾기한 활동이 없어요.',
-                              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                fontSize: 18,
-                              ),
+                              style: Theme.of(
+                                context,
+                              ).textTheme.titleLarge?.copyWith(fontSize: 18),
                             ),
                             const SizedBox(height: 8),
                             Text(
                               '마음에 드는 활동을 저장하면 여기서 다시 볼 수 있어요.',
                               textAlign: TextAlign.center,
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: AppColors.textSecondary,
-                              ),
+                              style: Theme.of(context).textTheme.bodyMedium
+                                  ?.copyWith(color: AppColors.textSecondary),
                             ),
                           ],
                         ),
@@ -326,9 +328,8 @@ class FavoritesScreen extends StatelessWidget {
                             const SizedBox(height: 8),
                             Text(
                               '당신의 관심을 세상과 공유하세요.',
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: AppColors.textSecondary,
-                              ),
+                              style: Theme.of(context).textTheme.bodyMedium
+                                  ?.copyWith(color: AppColors.textSecondary),
                             ),
                           ],
                         );

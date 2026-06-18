@@ -8,11 +8,13 @@ import 'home_formatters.dart';
 class ExploreFilterSheet extends StatefulWidget {
   const ExploreFilterSheet({
     super.key,
+    required this.categories,
     required this.initialFilter,
     required this.defaultFilter,
     required this.validator,
   });
 
+  final List<ActivityCategory> categories;
   final ExploreFilter initialFilter;
   final ExploreFilter defaultFilter;
   final String? Function(ExploreFilter filter) validator;
@@ -118,7 +120,7 @@ class _ExploreFilterSheetState extends State<ExploreFilterSheet> {
                           child: Wrap(
                             spacing: 8,
                             runSpacing: 8,
-                            children: kExploreCategories.map((category) {
+                            children: widget.categories.map((category) {
                               final selected = category.isAll
                                   ? _draft.categoryIds.contains('all')
                                   : _draft.categoryIds.contains(category.id);

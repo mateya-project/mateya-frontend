@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
+import '../../../shared/activity_categories/activity_category_repository.dart';
 import '../../onboarding/domain/onboarding_flow.dart';
 import '../data/home_repository.dart';
 import '../domain/home_models.dart';
@@ -9,6 +10,7 @@ import '../domain/home_models.dart';
 class HomeController extends ChangeNotifier {
   HomeController({
     required this._repository,
+    required this.categoryRepository,
     required this._flowKind,
     ExploreFilter? initialFilter,
     this.searchDebounceDuration = const Duration(milliseconds: 350),
@@ -16,9 +18,15 @@ class HomeController extends ChangeNotifier {
        _defaultFilter = initialFilter ?? const ExploreFilter();
 
   final HomeRepository _repository;
+  final ActivityCategoryRepository categoryRepository;
   final FlowKind? _flowKind;
   final ExploreFilter _defaultFilter;
   final Duration searchDebounceDuration;
+  static const ActivityCategory _allCategory = ActivityCategory(
+    id: 'all',
+    label: '전체',
+    isAll: true,
+  );
 
   AsyncPhase _homePhase = AsyncPhase.idle;
   AsyncPhase _explorePhase = AsyncPhase.idle;
@@ -30,6 +38,8 @@ class HomeController extends ChangeNotifier {
   List<ActivityItem> _homeActivities = const <ActivityItem>[];
   List<ActivityItem> _exploreActivities = const <ActivityItem>[];
   List<ActivityItem> _favoriteActivities = const <ActivityItem>[];
+  List<ActivityCategoryMetadata> _categoryMetadata =
+      kFallbackActivityCategories;
   bool _hasLoadedExplore = false;
   bool _hasLoadedFavorites = false;
   bool _hasNextExplore = false;
@@ -59,6 +69,15 @@ class HomeController extends ChangeNotifier {
   String? get exploreLoadMoreErrorMessage => _exploreLoadMoreErrorMessage;
   List<ActivityItem> get exploreActivities => _exploreActivities;
   List<ActivityItem> get favoriteActivities => _favoriteActivities;
+  List<ActivityCategory> get availableCategories => <ActivityCategory>[
+    _allCategory,
+    ..._categoryMetadata
+        .where((category) => category.active)
+        .map(
+          (category) =>
+              ActivityCategory(id: category.code, label: category.label),
+        ),
+  ];
 
   bool get hasLoadedExplore => _hasLoadedExplore;
   bool get hasLoadedFavorites => _hasLoadedFavorites;
@@ -69,7 +88,10 @@ class HomeController extends ChangeNotifier {
     if (_homePhase != AsyncPhase.idle) {
       return;
     }
-    await _loadHomeActivities();
+    await Future.wait<void>(<Future<void>>[
+      _loadCategoryMetadata(),
+      _loadHomeActivities(),
+    ]);
   }
 
   Future<void> retry() {
@@ -369,6 +391,32 @@ class HomeController extends ChangeNotifier {
     }
 
     notifyListeners();
+  }
+
+  Future<void> _loadCategoryMetadata() async {
+    final categories = await categoryRepository.fetchActivityCategories();
+    _categoryMetadata = List<ActivityCategoryMetadata>.from(categories)
+      ..sort((left, right) => left.displayOrder.compareTo(right.displayOrder));
+    _reconcileFilterCategories();
+    notifyListeners();
+  }
+
+  void _reconcileFilterCategories() {
+    final validIds = availableCategories
+        .where((category) => !category.isAll)
+        .map((category) => category.id)
+        .toSet();
+    final normalized = _filter.categoryIds
+        .where(
+          (categoryId) => categoryId == 'all' || validIds.contains(categoryId),
+        )
+        .toSet();
+    if (normalized.isEmpty) {
+      normalized.add('all');
+    }
+    if (!setEquals(normalized, _filter.categoryIds)) {
+      _filter = _filter.copyWith(categoryIds: normalized);
+    }
   }
 
   @override
