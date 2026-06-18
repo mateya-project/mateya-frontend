@@ -4,16 +4,19 @@ class ApiMyPageRepository implements MyPageRepository {
   ApiMyPageRepository({
     MateyaApiClient? apiClient,
     AuthSessionStore? sessionStore,
+    HttpTransport? transport,
   }) : _sessionStore = sessionStore ?? AuthSessionStore.instance,
        _apiClient =
            apiClient ??
            MateyaApiClient(
              baseUrl: AppConfig.apiBaseUrl,
              sessionStore: sessionStore ?? AuthSessionStore.instance,
-           );
+           ),
+       _transport = transport ?? createHttpTransport();
 
   final AuthSessionStore _sessionStore;
   final MateyaApiClient _apiClient;
+  final HttpTransport _transport;
 
   @override
   Future<MyPageBundle> fetchBundle({required bool isBusinessMode}) async {
@@ -224,6 +227,34 @@ class ApiMyPageRepository implements MyPageRepository {
   }
 
   @override
+  Future<String> updateProfileImage({required String imagePath}) async {
+    try {
+      final uploadedUrl = await _uploadProfileImage(
+        apiClient: _apiClient,
+        transport: _transport,
+        imagePath: imagePath,
+      );
+      final data = await _apiClient.patchJson(
+        '/api/v1/users/me/profile-image',
+        requiresAuth: true,
+        body: <String, Object?>{'profileImageUrl': uploadedUrl},
+      );
+      final profileJson = _asMap(data);
+      _syncSessionUserProfile(profileJson);
+      final resolvedUrl = profileJson['profileImageUrl'] as String?;
+      if (resolvedUrl == null || resolvedUrl.isEmpty) {
+        throw const MyPageRepositoryException(
+          MyPageLoadFailureType.server,
+          message: '프로필 사진 저장 결과를 확인하지 못했어요. 잠시 후 다시 시도해 주세요.',
+        );
+      }
+      return resolvedUrl;
+    } on MateyaApiException catch (error) {
+      throw _mapApiException(error);
+    }
+  }
+
+  @override
   Future<void> submitWithdrawal({
     required String agreementText,
     String? reason,
@@ -241,6 +272,42 @@ class ApiMyPageRepository implements MyPageRepository {
     } on MateyaApiException catch (error) {
       throw _mapApiException(error);
     }
+  }
+
+  void _syncSessionUserProfile(Map<String, dynamic> profileJson) {
+    final current = _sessionStore.session;
+    if (current == null) {
+      return;
+    }
+
+    final updatedUser = current.user.copyWith(
+      displayName:
+          profileJson['displayName'] as String? ?? current.user.displayName,
+      primaryLanguage:
+          profileJson['primaryLanguage'] as String? ??
+          current.user.primaryLanguage,
+      primaryCountry:
+          profileJson['primaryCountry'] as String? ??
+          current.user.primaryCountry,
+      profileImageUrl: profileJson['profileImageUrl'] as String?,
+      activityRegionName:
+          profileJson['activityRegionName'] as String? ??
+          current.user.activityRegionName,
+      activityLatitude:
+          (profileJson['activityLatitude'] as num?)?.toDouble() ??
+          current.user.activityLatitude,
+      activityLongitude:
+          (profileJson['activityLongitude'] as num?)?.toDouble() ??
+          current.user.activityLongitude,
+      lastLoginAt: profileJson['lastLoginAt'] == null
+          ? current.user.lastLoginAt
+          : DateTime.tryParse(profileJson['lastLoginAt'] as String),
+      createdAt: profileJson['createdAt'] == null
+          ? current.user.createdAt
+          : DateTime.tryParse(profileJson['createdAt'] as String) ??
+                current.user.createdAt,
+    );
+    _sessionStore.save(current.copyWith(user: updatedUser));
   }
 
   @override

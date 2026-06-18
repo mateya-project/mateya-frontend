@@ -9,11 +9,13 @@ class MyPageProfileHeroCard extends StatelessWidget {
     super.key,
     required this.profile,
     required this.subtitle,
+    this.avatarAction,
     this.trailing,
   });
 
   final ProfileSummary profile;
   final String subtitle;
+  final Widget? avatarAction;
   final Widget? trailing;
 
   @override
@@ -22,7 +24,14 @@ class MyPageProfileHeroCard extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          MyPageAvatarImage(imageUrl: profile.profileImageUrl, size: 72),
+          Stack(
+            clipBehavior: Clip.none,
+            children: <Widget>[
+              MyPageAvatarImage(imageUrl: profile.profileImageUrl, size: 72),
+              if (avatarAction != null)
+                Positioned(right: -4, bottom: -4, child: avatarAction!),
+            ],
+          ),
           const SizedBox(width: 16),
           Expanded(
             child: Column(

@@ -2,8 +2,6 @@
 
 - P2: Upgrade `flutter_naver_map` and `package_info_plus` to versions compatible with Flutter Built-in Kotlin migration.
   Reason: `flutter build apk --debug` succeeds, but Flutter warns these plugins still apply the legacy Kotlin Gradle Plugin and future Flutter releases may fail builds.
-- P1: Add a real profile-image edit flow and connect it to `PATCH /api/v1/users/me/profile-image`.
-  Reason: Swagger already exposes a dedicated profile-image update endpoint, but the current My Page UI only renders the avatar and has no upload/update path.
 - P1: Add a post-signup activity-region update flow and connect it to `PATCH /api/v1/users/me/activity-region`.
   Reason: Initial signup stores neighborhood data, but there is no frontend path to re-auth or change the saved activity region after account creation.
 - P1: Wire the existing create/edit controller scaffolding into an actual activity edit entry flow.

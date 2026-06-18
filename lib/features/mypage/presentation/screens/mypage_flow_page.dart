@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../../../app/app_config.dart';
 import '../../../../shared/auth/auth_session.dart';
 import '../../../../shared/network/mateya_api_client.dart';
+import '../../../../shared/permissions/mateya_permission_dialogs.dart';
 import '../../../../shared/platform/external_url_launcher.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../onboarding/application/onboarding_controller.dart';
@@ -25,6 +27,7 @@ class MyPageFlowPage extends StatefulWidget {
 }
 
 class _MyPageFlowPageState extends State<MyPageFlowPage> {
+  final ImagePicker _imagePicker = ImagePicker();
   final TextEditingController _businessIntroductionController =
       TextEditingController();
   final TextEditingController _withdrawalSignatureController =
@@ -113,7 +116,9 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
       MyPageRoute.personalHome => PersonalMyPageView(
         key: const ValueKey<String>('personal-home'),
         data: controller.personalPage!,
+        isUpdatingProfileImage: controller.isUpdatingProfileImage,
         onOpenRecentActivities: controller.openRecentActivities,
+        onEditProfileImage: _pickProfileImage,
         onOpenSettings: controller.openSettings,
       ),
       MyPageRoute.otherProfile => OtherProfileView(
@@ -154,9 +159,11 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
         data: controller.businessPage!,
         introductionController: _businessIntroductionController,
         isSaving: controller.isSavingBusinessIntroduction,
+        isUpdatingProfileImage: controller.isUpdatingProfileImage,
         errorText: controller.phase == MyPageAsyncPhase.validationError
             ? controller.errorMessage
             : null,
+        onEditProfileImage: _pickProfileImage,
         onSave: () {
           controller.updateBusinessIntroduction(
             _businessIntroductionController.text,
@@ -227,6 +234,58 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(const SnackBar(content: Text('문의 링크를 열지 못해 주소를 복사했어요.')));
+  }
+
+  Future<void> _pickProfileImage() async {
+    if (widget.controller.isUpdatingProfileImage) {
+      return;
+    }
+
+    final shouldContinue = await showMateyaPermissionNoticeDialog(
+      context,
+      title: '사진 권한 안내',
+      message: '프로필 사진을 변경하려면 사진 보관함 접근 권한이 필요합니다. 권한을 거부하면 현재 프로필 사진은 유지됩니다.',
+      confirmLabel: '사진 선택하기',
+      cancelLabel: '나중에',
+    );
+    if (!mounted || !shouldContinue) {
+      return;
+    }
+
+    try {
+      final pickedFile = await _imagePicker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 88,
+        maxWidth: 2400,
+      );
+      if (!mounted || pickedFile == null) {
+        return;
+      }
+      await widget.controller.updateProfileImage(pickedFile.path);
+    } on PlatformException catch (error) {
+      if (!mounted) {
+        return;
+      }
+      if (error.code == 'photo_access_denied') {
+        final action = await showMateyaPermissionRecoveryDialog(
+          context,
+          title: '사진 권한이 필요해요',
+          message:
+              '프로필 사진을 변경하려면 사진 보관함 접근 권한이 필요합니다. 다시 시도하거나 앱 설정에서 권한을 허용할 수 있습니다.',
+          retryLabel: '다시 시도',
+        );
+        if (!mounted) {
+          return;
+        }
+        if (action == MateyaPermissionRecoveryAction.retry) {
+          await _pickProfileImage();
+          return;
+        }
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('프로필 사진을 불러오지 못했어요. 권한과 파일 상태를 확인해 주세요.')),
+      );
+    }
   }
 
   Future<void> _logout() async {

@@ -1,9 +1,13 @@
+import 'dart:io';
+
 import '../../../app/app_config.dart';
 import '../../../shared/auth/auth_session.dart';
+import '../../../shared/network/http_transport.dart';
 import '../../../shared/network/mateya_api_client.dart';
 import '../domain/mypage_models.dart';
 
 part 'mypage_repository_api.dart';
+part 'mypage_repository_api_upload_support.dart';
 part 'mypage_repository_mock.dart';
 part 'mypage_repository_api_support.dart';
 part 'mypage_repository_mock_support.dart';
@@ -24,6 +28,8 @@ abstract interface class MyPageRepository {
     String? placeName,
     String? placeAddress,
   });
+
+  Future<String> updateProfileImage({required String imagePath});
 
   Future<void> submitWithdrawal({
     required String agreementText,

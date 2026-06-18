@@ -12,12 +12,16 @@ class PersonalMyPageView extends StatelessWidget {
   const PersonalMyPageView({
     super.key,
     required this.data,
+    required this.isUpdatingProfileImage,
     required this.onOpenRecentActivities,
+    required this.onEditProfileImage,
     required this.onOpenSettings,
   });
 
   final PersonalMyPageData data;
+  final bool isUpdatingProfileImage;
   final VoidCallback onOpenRecentActivities;
+  final VoidCallback onEditProfileImage;
   final VoidCallback onOpenSettings;
 
   @override
@@ -45,7 +49,15 @@ class PersonalMyPageView extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              _CenteredProfileCard(profile: data.profile),
+              _CenteredProfileCard(
+                profile: data.profile,
+                avatarAction: _AvatarActionButton(
+                  icon: isUpdatingProfileImage
+                      ? Icons.hourglass_top_rounded
+                      : Icons.photo_camera_outlined,
+                  onTap: isUpdatingProfileImage ? null : onEditProfileImage,
+                ),
+              ),
               const SizedBox(height: 16),
               _ProfileMetricStrip(metrics: data.metrics),
               const SizedBox(height: 16),
@@ -90,7 +102,7 @@ class OtherProfileView extends StatelessWidget {
             children: <Widget>[
               _CenteredProfileCard(
                 profile: data.profile,
-                addFriendAction: !data.isFriend && !data.isBlocked
+                avatarAction: !data.isFriend && !data.isBlocked
                     ? _AvatarActionButton(
                         icon: Icons.add_rounded,
                         onTap: isBusy ? null : onFriendTap,
@@ -440,10 +452,10 @@ class RecentActivitiesView extends StatelessWidget {
 }
 
 class _CenteredProfileCard extends StatelessWidget {
-  const _CenteredProfileCard({required this.profile, this.addFriendAction});
+  const _CenteredProfileCard({required this.profile, this.avatarAction});
 
   final ProfileSummary profile;
-  final Widget? addFriendAction;
+  final Widget? avatarAction;
 
   @override
   Widget build(BuildContext context) {
@@ -454,8 +466,8 @@ class _CenteredProfileCard extends StatelessWidget {
             clipBehavior: Clip.none,
             children: <Widget>[
               MyPageAvatarImage(imageUrl: profile.profileImageUrl, size: 96),
-              if (addFriendAction != null)
-                Positioned(right: -4, bottom: -4, child: addFriendAction!),
+              if (avatarAction != null)
+                Positioned(right: -4, bottom: -4, child: avatarAction!),
             ],
           ),
           const SizedBox(height: 20),
@@ -921,14 +933,18 @@ class BusinessMyPageView extends StatelessWidget {
     required this.data,
     required this.introductionController,
     required this.isSaving,
+    required this.isUpdatingProfileImage,
     required this.errorText,
+    required this.onEditProfileImage,
     required this.onSave,
   });
 
   final BusinessMyPageData data;
   final TextEditingController introductionController;
   final bool isSaving;
+  final bool isUpdatingProfileImage;
   final String? errorText;
+  final VoidCallback onEditProfileImage;
   final VoidCallback onSave;
 
   @override
@@ -943,6 +959,12 @@ class BusinessMyPageView extends StatelessWidget {
               MyPageProfileHeroCard(
                 profile: data.profile,
                 subtitle: data.profile.placeLabel ?? data.profile.residence,
+                avatarAction: _AvatarActionButton(
+                  icon: isUpdatingProfileImage
+                      ? Icons.hourglass_top_rounded
+                      : Icons.photo_camera_outlined,
+                  onTap: isUpdatingProfileImage ? null : onEditProfileImage,
+                ),
               ),
               const SizedBox(height: 16),
               MyPageStatsCard(items: data.metrics),

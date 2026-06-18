@@ -31,6 +31,7 @@ class MyPageController extends ChangeNotifier {
   bool _isSavingPreferences = false;
   bool _isUpdatingFriendship = false;
   bool _isSavingBusinessIntroduction = false;
+  bool _isUpdatingProfileImage = false;
   bool _isSubmittingWithdrawal = false;
   bool _isLoggingOut = false;
   bool _withdrawalCompleted = false;
@@ -52,6 +53,7 @@ class MyPageController extends ChangeNotifier {
   bool get isSavingPreferences => _isSavingPreferences;
   bool get isUpdatingFriendship => _isUpdatingFriendship;
   bool get isSavingBusinessIntroduction => _isSavingBusinessIntroduction;
+  bool get isUpdatingProfileImage => _isUpdatingProfileImage;
   bool get isSubmittingWithdrawal => _isSubmittingWithdrawal;
   bool get isLoggingOut => _isLoggingOut;
   bool get withdrawalCompleted => _withdrawalCompleted;
@@ -332,6 +334,42 @@ class MyPageController extends ChangeNotifier {
               : '한줄소개를 저장하지 못했어요. 잠시 후 다시 시도해 주세요.');
     }
     notifyListeners();
+  }
+
+  Future<void> updateProfileImage(String imagePath) async {
+    if (_personalPage == null || _isUpdatingProfileImage) {
+      return;
+    }
+
+    _isUpdatingProfileImage = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final imageUrl = await repository.updateProfileImage(
+        imagePath: imagePath,
+      );
+      final updatedPersonalProfile = _personalPage!.profile.copyWith(
+        profileImageUrl: imageUrl,
+      );
+      _personalPage = _personalPage!.copyWith(profile: updatedPersonalProfile);
+      _businessPage = _businessPage?.copyWith(
+        profile: _businessPage!.profile.copyWith(profileImageUrl: imageUrl),
+      );
+      _phase = MyPageAsyncPhase.success;
+      _pushToast('프로필 사진을 저장했어요.');
+    } on MyPageRepositoryException catch (error) {
+      _phase = MyPageAsyncPhase.validationError;
+      _errorMessage =
+          error.message ??
+          (error.type == MyPageLoadFailureType.network
+              ? '네트워크 연결을 확인한 뒤 다시 시도해 주세요.'
+              : '프로필 사진을 저장하지 못했어요. 잠시 후 다시 시도해 주세요.');
+      _pushToast(_errorMessage!);
+    } finally {
+      _isUpdatingProfileImage = false;
+      notifyListeners();
+    }
   }
 
   Future<void> submitWithdrawal({

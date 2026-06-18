@@ -63,6 +63,13 @@ class MockMyPageRepository implements MyPageRepository {
   }
 
   @override
+  Future<String> updateProfileImage({required String imagePath}) async {
+    await Future<void>.delayed(const Duration(milliseconds: 320));
+    return _personalPage.profile.profileImageUrl ??
+        'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80';
+  }
+
+  @override
   Future<void> submitWithdrawal({
     required String agreementText,
     String? reason,
