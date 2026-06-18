@@ -67,10 +67,10 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('서비스 이용 약관'), findsOneWidget);
+      expect(find.text('서비스 이용 약관'), findsWidgets);
       expect(find.text('회원가입 및 계정 관리'), findsOneWidget);
 
-      await tester.tap(find.byIcon(Icons.arrow_back_rounded));
+      await tester.tap(find.byIcon(Icons.close_rounded));
       await tester.pumpAndSettle();
 
       expect(agreementState.service, isTrue);

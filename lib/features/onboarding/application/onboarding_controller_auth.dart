@@ -80,7 +80,10 @@ Future<void> _submitVerificationCode(OnboardingController controller) async {
       controller._authSessionStore.save(existingUserSession);
       controller._completionMode = AuthCompletionMode.login;
       controller._authPhase = AsyncPhase.success;
-      controller._step = OnboardingStep.completed;
+      controller._locationPhase = AsyncPhase.idle;
+      controller._locationFailure = null;
+      controller._selectedNeighborhood = null;
+      controller._step = OnboardingStep.neighborhoodAuto;
       controller._notifyChanged();
       return;
     }

@@ -5,6 +5,10 @@ ActivityParticipant _parseParticipant(Object? value) {
   return ActivityParticipant(
     id: '${json['userId']}',
     name: json['displayName'] as String? ?? '',
+    residenceLabel:
+        json['activityRegionName'] as String? ??
+        json['residence'] as String? ??
+        'Living in Seoul',
     avatarUrl: json['profileImageUrl'] as String?,
   );
 }

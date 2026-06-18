@@ -7,6 +7,7 @@ import '../../../../shared/widgets/mateya_header.dart';
 import '../../../../shared/widgets/mateya_text_field.dart';
 import '../../../home/presentation/screens/home_flow_page.dart';
 import '../../application/onboarding_controller.dart';
+import '../../domain/onboarding_flow.dart';
 
 class HostBusinessStepView extends StatefulWidget {
   const HostBusinessStepView({super.key, required this.controller});
@@ -269,6 +270,7 @@ class CompletedStepView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isReturning = controller.completionMode == AuthCompletionMode.login;
 
     return Column(
       children: <Widget>[
@@ -279,6 +281,16 @@ class CompletedStepView extends StatelessWidget {
             child: Column(
               children: <Widget>[
                 const Spacer(flex: 3),
+                if (isReturning) ...<Widget>[
+                  Text(
+                    '돌아오신걸 환영해요',
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                ],
                 Container(
                   width: 70,
                   height: 70,
@@ -294,7 +306,9 @@ class CompletedStepView extends StatelessWidget {
                 ),
                 const SizedBox(height: 24),
                 Text(
-                  controller.completionHeadline,
+                  isReturning
+                      ? '${controller.completedName}님\n메이트야 복귀를 완료했어요'
+                      : controller.completionHeadline,
                   textAlign: TextAlign.center,
                   style: theme.textTheme.titleLarge?.copyWith(
                     fontSize: 18,

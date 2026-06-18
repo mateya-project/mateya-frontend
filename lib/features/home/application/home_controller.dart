@@ -23,6 +23,7 @@ class HomeController extends ChangeNotifier {
   AsyncPhase _homePhase = AsyncPhase.idle;
   AsyncPhase _explorePhase = AsyncPhase.idle;
   HomeSection _section = HomeSection.home;
+  HomeSection _favoriteOriginSection = HomeSection.home;
   ExploreFilter _filter;
   String _searchQuery = '';
   List<ActivityItem> _homeActivities = const <ActivityItem>[];
@@ -41,6 +42,7 @@ class HomeController extends ChangeNotifier {
   AsyncPhase get homePhase => _homePhase;
   AsyncPhase get explorePhase => _explorePhase;
   HomeSection get section => _section;
+  HomeSection get favoriteOriginSection => _favoriteOriginSection;
   ExploreFilter get filter => _filter;
   ExploreFilter get defaultFilter => _defaultFilter;
   String get searchQuery => _searchQuery;
@@ -50,6 +52,18 @@ class HomeController extends ChangeNotifier {
   String? get exploreErrorMessage => _exploreErrorMessage;
   String? get exploreLoadMoreErrorMessage => _exploreLoadMoreErrorMessage;
   List<ActivityItem> get exploreActivities => _exploreActivities;
+  List<ActivityItem> get favoriteActivities {
+    final ordered = <String, ActivityItem>{};
+    for (final activity in <ActivityItem>[
+      ..._homeActivities.where((item) => item.isFeatured),
+      ..._homeActivities.take(2),
+      ..._exploreActivities.take(4),
+    ]) {
+      ordered.putIfAbsent(activity.id, () => activity);
+    }
+    return ordered.values.take(6).toList(growable: false);
+  }
+
   bool get hasLoadedExplore => _hasLoadedExplore;
   bool get hasMoreExplore => _hasNextExplore;
   bool get isLoadingMoreExplore => _isLoadingMoreExplore;
@@ -89,6 +103,17 @@ class HomeController extends ChangeNotifier {
   void openChat() {
     _section = HomeSection.chat;
     notifyListeners();
+  }
+
+  void openFavorites() {
+    if (_section == HomeSection.home || _section == HomeSection.explore) {
+      _favoriteOriginSection = _section;
+    }
+    _section = HomeSection.favorites;
+    notifyListeners();
+    if (!_hasLoadedExplore) {
+      unawaited(ensureExploreLoaded());
+    }
   }
 
   void openProfile() {

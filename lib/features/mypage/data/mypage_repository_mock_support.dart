@@ -9,8 +9,6 @@ const PersonalMyPageData _personalPage = PersonalMyPageData(
     primaryLanguageLabel: '한국어',
     primaryCountryCode: 'kr',
     primaryCountryLabel: '대한민국',
-    profileImageUrl:
-        'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=900&q=80',
     isActiveWithin30Days: true,
   ),
   metrics: <ProfileMetric>[
@@ -139,6 +137,61 @@ const OtherProfileData _otherProfile = OtherProfileData(
   ],
   isFriend: false,
 );
+
+const List<ConsentHistoryEntry> _consentHistory = <ConsentHistoryEntry>[
+  ConsentHistoryEntry(
+    id: 'service-terms',
+    title: '서비스 이용 약관',
+    agreed: true,
+    agreedAtLabel: '2026.06.18',
+    versionLabel: 'v1',
+  ),
+  ConsentHistoryEntry(
+    id: 'privacy-third-party',
+    title: '개인정보 수집·이용 동의',
+    agreed: true,
+    agreedAtLabel: '2026.06.18',
+    versionLabel: 'v1',
+  ),
+  ConsentHistoryEntry(
+    id: 'location-based-service',
+    title: '위치기반 서비스 이용 동의',
+    agreed: true,
+    agreedAtLabel: '2026.06.18',
+    versionLabel: 'v1',
+  ),
+  ConsentHistoryEntry(
+    id: 'age-over-14',
+    title: '만 14세 이상 확인',
+    agreed: true,
+    agreedAtLabel: '2026.06.18',
+    versionLabel: 'v1',
+  ),
+];
+
+const List<BlockedUserSummary> _blockedUsers = <BlockedUserSummary>[
+  BlockedUserSummary(
+    id: 'blocked-1',
+    name: 'Lee MinJi 이민지',
+    residence: 'Living in Seoul · Shindang dong',
+    profileImageUrl:
+        'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=240&q=80',
+  ),
+  BlockedUserSummary(
+    id: 'blocked-2',
+    name: 'Park Jun 박준',
+    residence: 'Living in Seoul · Yeouido dong',
+    profileImageUrl:
+        'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=240&q=80',
+  ),
+  BlockedUserSummary(
+    id: 'blocked-3',
+    name: 'Chloe 윤채',
+    residence: 'Living in Seoul · Hapjeong dong',
+    profileImageUrl:
+        'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=240&q=80',
+  ),
+];
 
 const RecentActivityData _recentActivity = RecentActivityData(
   stats: RecentActivityStats(

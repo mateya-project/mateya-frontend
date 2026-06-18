@@ -82,6 +82,13 @@ Future<void> _completeNeighborhood(OnboardingController controller) async {
     }
   }
 
+  if (controller._completionMode == AuthCompletionMode.login) {
+    controller._authPhase = AsyncPhase.success;
+    controller._step = OnboardingStep.completed;
+    controller._notifyChanged();
+    return;
+  }
+
   await _completeGuestSignup(
     controller,
     neighborhood: controller._selectedNeighborhood!,

@@ -24,7 +24,7 @@ void main() {
   });
 
   group('OnboardingController', () {
-    test('existing guest logs in immediately after sms verification', () async {
+    test('existing guest moves to neighborhood verification after sms verification', () async {
       AuthSessionStore.instance.clear();
       final controller = OnboardingController(
         locationRepository: _FakeLocationRepository.success(),
@@ -44,9 +44,10 @@ void main() {
 
       await controller.submitVerificationCode();
 
-      expect(controller.step, OnboardingStep.completed);
+      expect(controller.step, OnboardingStep.neighborhoodAuto);
       expect(controller.completionMode, AuthCompletionMode.login);
       expect(controller.completionHeadline, contains('로그인을 완료했어요'));
+      expect(controller.previousNeighborhoodLabel, '우만동');
       expect(AuthSessionStore.instance.session?.user.displayName, '기존회원');
     });
 
@@ -325,6 +326,7 @@ class _FakeOnboardingAuthRepository implements OnboardingAuthRepository {
           role: 'USER',
           primaryLanguage: 'ko',
           primaryCountry: 'KR',
+          activityRegionName: '우만동',
           createdAt: DateTime(2026, 6, 14),
         ),
       );

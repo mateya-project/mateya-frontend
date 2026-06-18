@@ -144,6 +144,14 @@ class OnboardingController extends ChangeNotifier {
     AuthCompletionMode.signup => '$completedName님\n메이트야 가입을 완료했어요',
   };
 
+  String get neighborhoodHeadline => switch (_completionMode) {
+    AuthCompletionMode.login => '돌아오신걸 환영해요\n$completedName님!\n동네 정보를 인증해주세요',
+    AuthCompletionMode.signup => '동네 정보를 인증해주세요',
+  };
+
+  String? get previousNeighborhoodLabel =>
+      _authSessionStore.session?.user.activityRegionName;
+
   String get resolvedNeighborhoodMessage {
     final neighborhood = _selectedNeighborhood?.displayName ?? '동네';
     return '현재 위치가 “$neighborhood”에 있어요.';

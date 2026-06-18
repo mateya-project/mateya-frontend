@@ -23,6 +23,8 @@ class MyPageController extends ChangeNotifier {
   BusinessMyPageData? _businessPage;
   List<SelectionOption> _languageOptions = const <SelectionOption>[];
   List<SelectionOption> _countryOptions = const <SelectionOption>[];
+  List<ConsentHistoryEntry> _consentHistory = const <ConsentHistoryEntry>[];
+  List<BlockedUserSummary> _blockedUsers = const <BlockedUserSummary>[];
   String? _errorMessage;
   String? _toastMessage;
   int _toastVersion = 0;
@@ -41,6 +43,8 @@ class MyPageController extends ChangeNotifier {
   BusinessMyPageData? get businessPage => _businessPage;
   List<SelectionOption> get languageOptions => _languageOptions;
   List<SelectionOption> get countryOptions => _countryOptions;
+  List<ConsentHistoryEntry> get consentHistory => _consentHistory;
+  List<BlockedUserSummary> get blockedUsers => _blockedUsers;
   String? get errorMessage => _errorMessage;
   String? get toastMessage => _toastMessage;
   int get toastVersion => _toastVersion;
@@ -128,15 +132,31 @@ class MyPageController extends ChangeNotifier {
     notifyListeners();
   }
 
-  void openPrimaryPreferences() {
+  void openSettings() {
     _clearErrorWithoutNotify();
-    _route = MyPageRoute.primaryPreferences;
+    _route = MyPageRoute.settings;
     notifyListeners();
+  }
+
+  void openConsentHistory() {
+    _clearErrorWithoutNotify();
+    _route = MyPageRoute.consentHistory;
+    notifyListeners();
+  }
+
+  void openBlockedUsers() {
+    _clearErrorWithoutNotify();
+    _route = MyPageRoute.blockedUsers;
+    notifyListeners();
+  }
+
+  void openPrimaryPreferences() {
+    openSettings();
   }
 
   void openWithdrawal() {
     _clearErrorWithoutNotify();
-    _route = MyPageRoute.withdrawal;
+    _route = MyPageRoute.settings;
     notifyListeners();
   }
 
@@ -203,6 +223,7 @@ class MyPageController extends ChangeNotifier {
   Future<void> toggleFriendship() async {
     if (_otherProfile == null ||
         _isUpdatingFriendship ||
+        _otherProfile!.isBlocked ||
         _currentOtherProfileUserId == null) {
       return;
     }
@@ -229,6 +250,42 @@ class MyPageController extends ChangeNotifier {
               ? '네트워크 연결을 확인한 뒤 다시 시도해 주세요.'
               : '친구 상태를 변경하지 못했어요. 잠시 후 다시 시도해 주세요.');
     }
+    notifyListeners();
+  }
+
+  void blockCurrentOtherProfile() {
+    if (_otherProfile == null || _otherProfile!.isBlocked) {
+      return;
+    }
+
+    final profile = _otherProfile!.profile;
+    _blockedUsers = <BlockedUserSummary>[
+      BlockedUserSummary(
+        id: profile.id,
+        name: profile.name,
+        residence: profile.residence,
+        profileImageUrl: profile.profileImageUrl,
+      ),
+      ..._blockedUsers.where((user) => user.id != profile.id),
+    ];
+    _otherProfile = _otherProfile!.copyWith(isBlocked: true, isFriend: false);
+    _pushToast('차단 유저 목록에 추가했어요.');
+    notifyListeners();
+  }
+
+  void unblockUser(String userId) {
+    final target = _blockedUsers.where((user) => user.id == userId).firstOrNull;
+    if (target == null) {
+      return;
+    }
+
+    _blockedUsers = _blockedUsers
+        .where((user) => user.id != userId)
+        .toList(growable: false);
+    if (_otherProfile?.profile.id == userId) {
+      _otherProfile = _otherProfile?.copyWith(isBlocked: false);
+    }
+    _pushToast('차단을 해제하였습니다.');
     notifyListeners();
   }
 
@@ -345,6 +402,8 @@ class MyPageController extends ChangeNotifier {
       _businessPage = bundle.businessPage;
       _languageOptions = bundle.languageOptions;
       _countryOptions = bundle.countryOptions;
+      _consentHistory = bundle.consentHistory;
+      _blockedUsers = bundle.blockedUsers;
       _phase = MyPageAsyncPhase.success;
       _errorMessage = null;
     } on MyPageRepositoryException catch (error) {

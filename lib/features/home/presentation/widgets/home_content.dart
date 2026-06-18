@@ -222,3 +222,70 @@ class ExploreScreen extends StatelessWidget {
     );
   }
 }
+
+class FavoritesScreen extends StatelessWidget {
+  const FavoritesScreen({
+    super.key,
+    required this.activities,
+    required this.onBack,
+    required this.onActivityTap,
+  });
+
+  final List<ActivityItem> activities;
+  final VoidCallback onBack;
+  final ValueChanged<ActivityItem> onActivityTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+      child: Column(
+        children: <Widget>[
+          const SizedBox(height: 12),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: IconButton(
+              onPressed: onBack,
+              icon: const Icon(Icons.arrow_back_rounded),
+              color: AppColors.textPrimary,
+            ),
+          ),
+          Expanded(
+            child: ListView.separated(
+              padding: const EdgeInsets.only(top: 4, bottom: 24),
+              itemCount: activities.length + 1,
+              separatorBuilder: (_, _) =>
+                  Divider(height: 26, color: AppColors.divider),
+              itemBuilder: (context, index) {
+                if (index == 0) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        '즐겨찾기 목록',
+                        style: Theme.of(context).textTheme.headlineMedium,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        '당신의 관심을 세상과 공유하세요.',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  );
+                }
+
+                final activity = activities[index - 1];
+                return CompactActivityRow(
+                  activity: activity,
+                  onTap: () => onActivityTap(activity),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

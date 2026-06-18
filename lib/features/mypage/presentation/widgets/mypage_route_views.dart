@@ -13,16 +13,12 @@ class PersonalMyPageView extends StatelessWidget {
     super.key,
     required this.data,
     required this.onOpenRecentActivities,
-    required this.onOpenPreferences,
-    required this.onOpenOtherProfile,
-    required this.onOpenWithdrawal,
+    required this.onOpenSettings,
   });
 
   final PersonalMyPageData data;
   final VoidCallback onOpenRecentActivities;
-  final VoidCallback onOpenPreferences;
-  final VoidCallback onOpenOtherProfile;
-  final VoidCallback onOpenWithdrawal;
+  final VoidCallback onOpenSettings;
 
   @override
   Widget build(BuildContext context) {
@@ -33,47 +29,29 @@ class PersonalMyPageView extends StatelessWidget {
           child: ListView(
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
             children: <Widget>[
-              MyPageProfileHeroCard(
-                profile: data.profile,
-                subtitle:
-                    '${data.profile.primaryLanguageLabel} · ${data.profile.primaryCountryLabel}',
+              Align(
+                alignment: Alignment.centerRight,
+                child: IconButton(
+                  onPressed: onOpenSettings,
+                  icon: const Icon(Icons.settings_outlined),
+                  color: AppColors.textPrimary,
+                  style: IconButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      side: const BorderSide(color: AppColors.divider),
+                    ),
+                  ),
+                ),
               ),
               const SizedBox(height: 16),
-              MyPageMetricSection(metrics: data.metrics),
+              _CenteredProfileCard(profile: data.profile),
               const SizedBox(height: 16),
-              MyPageActionSection(
-                items: <MyPageActionItem>[
-                  MyPageActionItem(
-                    icon: Icons.history_rounded,
-                    title: '최근 활동 보기',
-                    subtitle: '전체 활동 기록과 통계를 확인합니다.',
-                    onTap: onOpenRecentActivities,
-                  ),
-                  MyPageActionItem(
-                    icon: Icons.language_rounded,
-                    title: '대표 언어/나라 설정',
-                    subtitle: '프로필 상단 노출 정보를 변경합니다.',
-                    onTap: onOpenPreferences,
-                  ),
-                  MyPageActionItem(
-                    icon: Icons.person_add_alt_1_rounded,
-                    title: '다른 사람 페이지',
-                    subtitle: '친구 추가/삭제 흐름을 미리 확인합니다.',
-                    onTap: onOpenOtherProfile,
-                  ),
-                  MyPageActionItem(
-                    icon: Icons.no_accounts_rounded,
-                    title: '회원 탈퇴',
-                    subtitle: 'soft delete 정책과 서명 입력 팝업을 확인합니다.',
-                    isDanger: true,
-                    onTap: onOpenWithdrawal,
-                  ),
-                ],
-              ),
+              _ProfileMetricStrip(metrics: data.metrics),
               const SizedBox(height: 16),
-              MyPageBadgeSection(badges: data.badges),
-              const SizedBox(height: 16),
-              MyPageRecentActivityPreviewSection(
+              _BadgeGridSection(badges: data.badges),
+              const SizedBox(height: 32),
+              _RecentActivityListSection(
                 activities: data.recentActivities,
                 onViewAll: onOpenRecentActivities,
               ),
@@ -92,12 +70,14 @@ class OtherProfileView extends StatelessWidget {
     required this.isBusy,
     required this.onBack,
     required this.onFriendTap,
+    required this.onBlockTap,
   });
 
   final OtherProfileData data;
   final bool isBusy;
   final VoidCallback onBack;
   final VoidCallback onFriendTap;
+  final VoidCallback onBlockTap;
 
   @override
   Widget build(BuildContext context) {
@@ -108,36 +88,285 @@ class OtherProfileView extends StatelessWidget {
           child: ListView(
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
             children: <Widget>[
-              MyPageProfileHeroCard(
+              _CenteredProfileCard(
                 profile: data.profile,
-                subtitle:
-                    '${data.profile.primaryLanguageLabel} · ${data.profile.primaryCountryLabel}',
-                trailing: SizedBox(
-                  width: 132,
-                  child: MateyaButton(
-                    label: isBusy
-                        ? '처리 중...'
-                        : data.isFriend
-                        ? '친구 삭제'
-                        : '친구 추가',
-                    enabled: !isBusy,
-                    tone: data.isFriend
-                        ? MateyaButtonTone.dark
-                        : MateyaButtonTone.brand,
-                    onPressed: onFriendTap,
-                  ),
-                ),
+                addFriendAction: !data.isFriend && !data.isBlocked
+                    ? _AvatarActionButton(
+                        icon: Icons.add_rounded,
+                        onTap: isBusy ? null : onFriendTap,
+                      )
+                    : null,
               ),
               const SizedBox(height: 16),
-              MyPageMetricSection(metrics: data.metrics),
+              _ProfileMetricStrip(metrics: data.metrics),
               const SizedBox(height: 16),
-              MyPageBadgeSection(badges: data.badges),
+              _BadgeGridSection(badges: data.badges),
               const SizedBox(height: 16),
-              MyPageRecentActivityPreviewSection(
+              _RecentActivityListSection(
                 activities: data.recentActivities,
                 onViewAll: () {},
                 showButton: false,
               ),
+              const SizedBox(height: 32),
+              if (data.isFriend)
+                MateyaButton(
+                  label: isBusy ? '처리 중...' : '친구 삭제하기',
+                  enabled: !isBusy,
+                  onPressed: onFriendTap,
+                )
+              else
+                Center(
+                  child: TextButton(
+                    onPressed: data.isBlocked ? null : onBlockTap,
+                    child: Text(
+                      data.isBlocked ? '차단됨' : '유저차단하기',
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        color: AppColors.textMuted,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class SettingsView extends StatelessWidget {
+  const SettingsView({
+    super.key,
+    required this.profile,
+    required this.onOpenConsentHistory,
+    required this.onOpenCustomerSupport,
+    required this.onOpenBlockedUsers,
+    required this.onLogout,
+    required this.onWithdrawal,
+  });
+
+  final ProfileSummary profile;
+  final VoidCallback onOpenConsentHistory;
+  final VoidCallback onOpenCustomerSupport;
+  final VoidCallback onOpenBlockedUsers;
+  final VoidCallback onLogout;
+  final VoidCallback onWithdrawal;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: <Widget>[
+        const MateyaHeader.noBackArrow(),
+        Expanded(
+          child: Column(
+            children: <Widget>[
+              _SettingsTitleBar(title: '나의 메이트야'),
+              Container(
+                width: double.infinity,
+                color: Colors.white,
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
+                child: Row(
+                  children: <Widget>[
+                    MyPageAvatarImage(
+                      imageUrl: profile.profileImageUrl,
+                      size: 56,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text(
+                            profile.name,
+                            style: Theme.of(context).textTheme.titleLarge,
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            profile.residence,
+                            style: Theme.of(context).textTheme.bodyMedium
+                                ?.copyWith(color: AppColors.textSecondary),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 18),
+              _SettingsMenuItem(
+                title: '개인정보 수집·이용 동의 내역',
+                onTap: onOpenConsentHistory,
+              ),
+              _SettingsMenuItem(
+                title: '고객센터 문의하기',
+                onTap: onOpenCustomerSupport,
+              ),
+              _SettingsMenuItem(
+                title: '차단 유저 목록 보기',
+                onTap: onOpenBlockedUsers,
+              ),
+              _SettingsMenuItem(title: '로그아웃 하기', onTap: onLogout),
+              const Spacer(),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 24),
+                child: TextButton(
+                  onPressed: onWithdrawal,
+                  child: Text(
+                    '회원 탈퇴하기',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: AppColors.textMuted,
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class ConsentHistoryView extends StatelessWidget {
+  const ConsentHistoryView({
+    super.key,
+    required this.entries,
+    required this.onBack,
+  });
+
+  final List<ConsentHistoryEntry> entries;
+  final VoidCallback onBack;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: <Widget>[
+        MateyaHeader.backArrow(onBack: onBack),
+        Expanded(
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(20, 22, 20, 24),
+            children: <Widget>[
+              Text(
+                '개인정보 수집·이용 동의 내역',
+                style: Theme.of(context).textTheme.headlineMedium,
+              ),
+              const SizedBox(height: 10),
+              Text(
+                '약관명, 동의 여부, 동의 날짜를 확인할 수 있어요.',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+              ),
+              const SizedBox(height: 24),
+              for (final entry in entries) ...<Widget>[
+                MyPageSectionCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        entry.title,
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                      const SizedBox(height: 12),
+                      _DetailRow(label: '약관', value: entry.versionLabel),
+                      const SizedBox(height: 8),
+                      _DetailRow(
+                        label: '동의여부',
+                        value: entry.agreed ? '동의' : '미동의',
+                      ),
+                      const SizedBox(height: 8),
+                      _DetailRow(label: '동의날짜', value: entry.agreedAtLabel),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 14),
+              ],
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class BlockedUsersView extends StatelessWidget {
+  const BlockedUsersView({
+    super.key,
+    required this.users,
+    required this.onBack,
+    required this.onUnblock,
+  });
+
+  final List<BlockedUserSummary> users;
+  final VoidCallback onBack;
+  final ValueChanged<String> onUnblock;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: <Widget>[
+        MateyaHeader.backArrow(onBack: onBack),
+        Expanded(
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(20, 22, 20, 24),
+            children: <Widget>[
+              Text(
+                '차단한 유저 목록',
+                style: Theme.of(context).textTheme.headlineMedium,
+              ),
+              const SizedBox(height: 20),
+              if (users.isEmpty)
+                MyPageSectionCard(
+                  child: Text(
+                    '차단한 유저가 없어요.',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                )
+              else
+                for (final user in users) ...<Widget>[
+                  MyPageSectionCard(
+                    child: Row(
+                      children: <Widget>[
+                        MyPageAvatarImage(
+                          imageUrl: user.profileImageUrl,
+                          size: 48,
+                        ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Text(
+                                user.name,
+                                style: Theme.of(
+                                  context,
+                                ).textTheme.titleLarge?.copyWith(fontSize: 18),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                user.residence,
+                                style: Theme.of(context).textTheme.bodyMedium
+                                    ?.copyWith(color: AppColors.textSecondary),
+                              ),
+                            ],
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () => onUnblock(user.id),
+                          icon: const Icon(Icons.remove_rounded),
+                          color: Colors.white,
+                          style: IconButton.styleFrom(
+                            backgroundColor: const Color(0xFFC73E19),
+                            fixedSize: const Size(34, 34),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                ],
             ],
           ),
         ),
@@ -204,6 +433,385 @@ class RecentActivitiesView extends StatelessWidget {
               ],
             ],
           ),
+        ),
+      ],
+    );
+  }
+}
+
+class _CenteredProfileCard extends StatelessWidget {
+  const _CenteredProfileCard({required this.profile, this.addFriendAction});
+
+  final ProfileSummary profile;
+  final Widget? addFriendAction;
+
+  @override
+  Widget build(BuildContext context) {
+    return MyPageSectionCard(
+      child: Column(
+        children: <Widget>[
+          Stack(
+            clipBehavior: Clip.none,
+            children: <Widget>[
+              MyPageAvatarImage(imageUrl: profile.profileImageUrl, size: 96),
+              if (addFriendAction != null)
+                Positioned(right: -4, bottom: -4, child: addFriendAction!),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Text(
+            profile.name,
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              fontSize: 22,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            profile.residence,
+            textAlign: TextAlign.center,
+            style: Theme.of(
+              context,
+            ).textTheme.bodyLarge?.copyWith(color: AppColors.textSecondary),
+          ),
+          const SizedBox(height: 14),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+            decoration: BoxDecoration(
+              color: AppColors.softGreenBorder,
+              borderRadius: BorderRadius.circular(999),
+            ),
+            child: Text(
+              profile.isActiveWithin30Days
+                  ? 'Active member'
+                  : 'Inactive member',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: AppColors.brandGreen,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          const SizedBox(height: 10),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+            decoration: BoxDecoration(
+              color: AppColors.subtleBackground,
+              borderRadius: BorderRadius.circular(999),
+            ),
+            child: Text(
+              profile.primaryLanguageLabel,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ProfileMetricStrip extends StatelessWidget {
+  const _ProfileMetricStrip({required this.metrics});
+
+  final List<ProfileMetric> metrics;
+
+  @override
+  Widget build(BuildContext context) {
+    return MyPageSectionCard(
+      child: Row(
+        children: metrics
+            .map(
+              (metric) => Expanded(
+                child: Column(
+                  children: <Widget>[
+                    Text(
+                      metric.value,
+                      style: Theme.of(context).textTheme.headlineMedium
+                          ?.copyWith(color: AppColors.brandGreen),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      metric.label,
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  ],
+                ),
+              ),
+            )
+            .toList(growable: false),
+      ),
+    );
+  }
+}
+
+class _BadgeGridSection extends StatelessWidget {
+  const _BadgeGridSection({required this.badges});
+
+  final List<ActivityBadge> badges;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Row(
+          children: <Widget>[
+            Expanded(
+              child: Text(
+                'My Badges',
+                style: Theme.of(context).textTheme.headlineMedium,
+              ),
+            ),
+            Text(
+              '${badges.length}/7',
+              style: Theme.of(
+                context,
+              ).textTheme.headlineSmall?.copyWith(color: AppColors.brandGreen),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        Wrap(
+          spacing: 8,
+          runSpacing: 10,
+          children: badges
+              .map(
+                (badge) => Container(
+                  width: (MediaQuery.sizeOf(context).width - 64) / 3,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 18,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(28),
+                    boxShadow: const <BoxShadow>[
+                      BoxShadow(
+                        color: Color(0x12000000),
+                        blurRadius: 18,
+                        offset: Offset(0, 10),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    children: <Widget>[
+                      Text(
+                        badge.label,
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.bodyLarge,
+                      ),
+                    ],
+                  ),
+                ),
+              )
+              .toList(growable: false),
+        ),
+      ],
+    );
+  }
+}
+
+class _RecentActivityListSection extends StatelessWidget {
+  const _RecentActivityListSection({
+    required this.activities,
+    required this.onViewAll,
+    this.showButton = true,
+  });
+
+  final List<ActivityHistoryEntry> activities;
+  final VoidCallback onViewAll;
+  final bool showButton;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Row(
+          children: <Widget>[
+            Expanded(
+              child: Text(
+                'Recent Activities',
+                style: Theme.of(context).textTheme.headlineMedium,
+              ),
+            ),
+            if (showButton)
+              TextButton(onPressed: onViewAll, child: const Text('See all')),
+          ],
+        ),
+        const SizedBox(height: 10),
+        for (var index = 0; index < activities.length; index += 1) ...<Widget>[
+          _RecentActivityRow(activity: activities[index]),
+          if (index != activities.length - 1) const Divider(height: 28),
+        ],
+      ],
+    );
+  }
+}
+
+class _RecentActivityRow extends StatelessWidget {
+  const _RecentActivityRow({required this.activity});
+
+  final ActivityHistoryEntry activity;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: SizedBox(
+            width: 102,
+            height: 102,
+            child: Image.network(
+              activity.imageUrl,
+              fit: BoxFit.cover,
+              errorBuilder: (_, _, _) => Container(
+                color: AppColors.subtleBackground,
+                alignment: Alignment.center,
+                child: const Icon(Icons.image_outlined),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 14),
+        Expanded(
+          child: SizedBox(
+            height: 102,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  activity.title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.bodyLarge,
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  activity.dateLabel,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+                Text(
+                  activity.timeLabel,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+                const Spacer(),
+                Row(
+                  children: <Widget>[
+                    Text(
+                      activity.priceLabel,
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
+                    const Spacer(),
+                    if (activity.rating != null) ...<Widget>[
+                      const Icon(Icons.star_rounded, size: 18),
+                      const SizedBox(width: 4),
+                      Text(
+                        activity.rating!.toStringAsFixed(2),
+                        style: Theme.of(context).textTheme.bodyLarge,
+                      ),
+                    ],
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _AvatarActionButton extends StatelessWidget {
+  const _AvatarActionButton({required this.icon, this.onTap});
+
+  final IconData icon;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(18),
+      child: Container(
+        width: 36,
+        height: 36,
+        decoration: const BoxDecoration(
+          color: AppColors.brandGreen,
+          shape: BoxShape.circle,
+        ),
+        child: Icon(icon, color: Colors.white, size: 22),
+      ),
+    );
+  }
+}
+
+class _SettingsTitleBar extends StatelessWidget {
+  const _SettingsTitleBar({required this.title});
+
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      color: const Color(0xFFF3F4F6),
+      padding: const EdgeInsets.fromLTRB(20, 14, 20, 6),
+      child: Text(title, style: Theme.of(context).textTheme.headlineMedium),
+    );
+  }
+}
+
+class _SettingsMenuItem extends StatelessWidget {
+  const _SettingsMenuItem({required this.title, required this.onTap});
+
+  final String title;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.white,
+      child: InkWell(
+        onTap: onTap,
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 22),
+          margin: const EdgeInsets.only(bottom: 12),
+          child: Text(title, style: Theme.of(context).textTheme.titleLarge),
+        ),
+      ),
+    );
+  }
+}
+
+class _DetailRow extends StatelessWidget {
+  const _DetailRow({required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: <Widget>[
+        SizedBox(
+          width: 74,
+          child: Text(
+            label,
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
+          ),
+        ),
+        Expanded(
+          child: Text(value, style: Theme.of(context).textTheme.bodyLarge),
         ),
       ],
     );

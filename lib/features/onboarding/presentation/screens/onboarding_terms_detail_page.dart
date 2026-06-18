@@ -11,68 +11,74 @@ class OnboardingTermsDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
         child: Column(
           children: <Widget>[
             MateyaHeader.backArrow(onBack: () => Navigator.of(context).pop()),
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(
-                  AppSpacing.screenHorizontal,
-                  24,
-                  AppSpacing.screenHorizontal,
-                  32,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.subtleBackground,
-                        borderRadius: BorderRadius.circular(999),
-                      ),
-                      child: Text(
-                        '필수 약관',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: AppColors.textSecondary,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(document.title, style: theme.textTheme.headlineLarge),
-                    const SizedBox(height: 12),
-                    Text(
-                      document.summary,
-                      style: theme.textTheme.bodyLarge?.copyWith(
-                        color: AppColors.textSecondary,
-                        height: 1.5,
-                      ),
-                    ),
-                    const SizedBox(height: 28),
-                    for (
-                      int index = 0;
-                      index < document.sections.length;
-                      index++
-                    ) ...<Widget>[
-                      _TermsSectionView(section: document.sections[index]),
-                      if (index != document.sections.length - 1)
-                        const SizedBox(height: 24),
-                    ],
-                  ],
-                ),
-              ),
-            ),
+            Expanded(child: OnboardingTermsDetailContent(document: document)),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class OnboardingTermsDetailContent extends StatelessWidget {
+  const OnboardingTermsDetailContent({super.key, required this.document});
+
+  final OnboardingTermsDocument document;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.screenHorizontal,
+        24,
+        AppSpacing.screenHorizontal,
+        32,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: AppColors.subtleBackground,
+              borderRadius: BorderRadius.circular(999),
+            ),
+            child: Text(
+              '필수 약관',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: AppColors.textSecondary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(document.title, style: theme.textTheme.headlineLarge),
+          const SizedBox(height: 12),
+          Text(
+            document.summary,
+            style: theme.textTheme.bodyLarge?.copyWith(
+              color: AppColors.textSecondary,
+              height: 1.5,
+            ),
+          ),
+          const SizedBox(height: 28),
+          for (
+            int index = 0;
+            index < document.sections.length;
+            index++
+          ) ...<Widget>[
+            _TermsSectionView(section: document.sections[index]),
+            if (index != document.sections.length - 1)
+              const SizedBox(height: 24),
+          ],
+        ],
       ),
     );
   }

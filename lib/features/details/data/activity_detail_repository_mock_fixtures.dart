@@ -4,60 +4,70 @@ const List<ActivityParticipant> _participantPool = <ActivityParticipant>[
   ActivityParticipant(
     id: 'p1',
     name: 'Min',
+    residenceLabel: 'Living in Seoul · Shindang dong',
     avatarUrl:
         'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=240&q=80',
   ),
   ActivityParticipant(
     id: 'p2',
     name: 'Jisu',
+    residenceLabel: 'Living in Seoul · Yongsan dong',
     avatarUrl:
         'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=240&q=80',
   ),
   ActivityParticipant(
     id: 'p3',
     name: 'Daniel',
+    residenceLabel: 'Living in Seoul · Seongsu dong',
     avatarUrl:
         'https://images.unsplash.com/photo-1504593811423-6dd665756598?auto=format&fit=crop&w=240&q=80',
   ),
   ActivityParticipant(
     id: 'p4',
     name: 'Ari',
+    residenceLabel: 'Living in Seoul · Hannam dong',
     avatarUrl:
         'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=240&q=80',
   ),
   ActivityParticipant(
     id: 'p5',
     name: 'Yuna',
+    residenceLabel: 'Living in Seoul · Mangwon dong',
     avatarUrl:
         'https://images.unsplash.com/photo-1521119989659-a83eee488004?auto=format&fit=crop&w=240&q=80',
   ),
   ActivityParticipant(
     id: 'p6',
     name: 'Jun',
+    residenceLabel: 'Living in Seoul · Yeouido dong',
     avatarUrl:
         'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=240&q=80',
   ),
   ActivityParticipant(
     id: 'p7',
     name: 'Mia',
+    residenceLabel: 'Living in Seoul · Hapjeong dong',
     avatarUrl:
         'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=240&q=80',
   ),
   ActivityParticipant(
     id: 'p8',
     name: 'Leo',
+    residenceLabel: 'Living in Seoul · Itaewon dong',
     avatarUrl:
         'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=240&q=80',
   ),
   ActivityParticipant(
     id: 'p9',
     name: 'Hana',
+    residenceLabel: 'Living in Seoul · Jamsil dong',
     avatarUrl:
         'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=240&q=80',
   ),
   ActivityParticipant(
     id: 'p10',
     name: 'Chris',
+    residenceLabel: 'Living in Seoul · Sindang dong',
     avatarUrl:
         'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=240&q=80',
   ),

@@ -120,9 +120,18 @@ class _FakeActivityDetailRepository implements ActivityDetailRepository {
       description: '상세 설명',
       shareUrl: 'https://mateya.app/activities/test-1',
       participants: const <ActivityParticipant>[
-        ActivityParticipant(id: 'p1', name: 'A'),
-        ActivityParticipant(id: 'p2', name: 'B'),
+        ActivityParticipant(
+          id: 'p1',
+          name: 'A',
+          residenceLabel: 'Living in Seoul · A-dong',
+        ),
+        ActivityParticipant(
+          id: 'p2',
+          name: 'B',
+          residenceLabel: 'Living in Seoul · B-dong',
+        ),
       ],
+      pendingParticipants: const <ActivityParticipant>[],
       reviews: <ActivityReview>[
         for (var index = 0; index < 9; index += 1)
           ActivityReview(

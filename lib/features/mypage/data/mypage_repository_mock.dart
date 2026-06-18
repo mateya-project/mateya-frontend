@@ -11,6 +11,8 @@ class MockMyPageRepository implements MyPageRepository {
       businessPage: _businessPage,
       languageOptions: kMyPageLanguageOptions,
       countryOptions: kMyPageCountryOptions,
+      consentHistory: _consentHistory,
+      blockedUsers: _blockedUsers,
     );
   }
 

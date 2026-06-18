@@ -20,6 +20,7 @@ class ActivityDetailController extends ChangeNotifier {
   bool _isMutatingFavorite = false;
   final Set<String> _helpfulReviewIdsInFlight = <String>{};
   bool _isSubmittingReview = false;
+  String? _armedParticipantRemovalId;
   ActivityDetail? _detail;
   ReviewSortOption _reviewSort = ReviewSortOption.latest;
   int _visibleReviewCount = reviewPageSize;
@@ -31,6 +32,7 @@ class ActivityDetailController extends ChangeNotifier {
   String? get errorMessage => _errorMessage;
   bool get isMutatingFavorite => _isMutatingFavorite;
   bool get isSubmittingReview => _isSubmittingReview;
+  String? get armedParticipantRemovalId => _armedParticipantRemovalId;
   bool isHelpfulMutationInFlight(String reviewId) =>
       _helpfulReviewIdsInFlight.contains(reviewId);
 
@@ -171,7 +173,11 @@ class ActivityDetailController extends ChangeNotifier {
       }
       if (!hasMe) {
         nextParticipants = <ActivityParticipant>[
-          const ActivityParticipant(id: 'me', name: '나'),
+          const ActivityParticipant(
+            id: 'me',
+            name: '나',
+            residenceLabel: 'Living in Seoul · My neighborhood',
+          ),
           ...nextParticipants,
         ];
       }
@@ -188,6 +194,114 @@ class ActivityDetailController extends ChangeNotifier {
       isJoined: nextJoined,
       activity: current.activity.copyWith(participantCount: nextCount),
       participants: nextParticipants,
+    );
+    notifyListeners();
+  }
+
+  void armParticipantRemoval(String participantId) {
+    _armedParticipantRemovalId = _armedParticipantRemovalId == participantId
+        ? null
+        : participantId;
+    notifyListeners();
+  }
+
+  ActivityParticipant? removeApprovedParticipant(String participantId) {
+    final current = _detail;
+    if (current == null) {
+      return null;
+    }
+    final target = current.participants
+        .where((participant) => participant.id == participantId)
+        .firstOrNull;
+    if (target == null) {
+      return null;
+    }
+
+    final nextParticipants = current.participants
+        .where((participant) => participant.id != participantId)
+        .toList(growable: false);
+    final nextCount = current.activity.participantCount > 0
+        ? current.activity.participantCount - 1
+        : 0;
+    _detail = current.copyWith(
+      participants: nextParticipants,
+      activity: current.activity.copyWith(participantCount: nextCount),
+    );
+    _armedParticipantRemovalId = null;
+    notifyListeners();
+    return target;
+  }
+
+  ActivityParticipant? removePendingParticipant(String participantId) {
+    final current = _detail;
+    if (current == null) {
+      return null;
+    }
+    final target = current.pendingParticipants
+        .where((participant) => participant.id == participantId)
+        .firstOrNull;
+    if (target == null) {
+      return null;
+    }
+
+    _detail = current.copyWith(
+      pendingParticipants: current.pendingParticipants
+          .where((participant) => participant.id != participantId)
+          .toList(growable: false),
+    );
+    notifyListeners();
+    return target;
+  }
+
+  void approvePendingParticipant(String participantId) {
+    final current = _detail;
+    if (current == null) {
+      return;
+    }
+    final target = current.pendingParticipants
+        .where((participant) => participant.id == participantId)
+        .firstOrNull;
+    if (target == null) {
+      return;
+    }
+
+    final nextApproved = <ActivityParticipant>[...current.participants, target];
+    _detail = current.copyWith(
+      participants: nextApproved,
+      pendingParticipants: current.pendingParticipants
+          .where((participant) => participant.id != participantId)
+          .toList(growable: false),
+      activity: current.activity.copyWith(
+        participantCount: current.activity.participantCount + 1,
+      ),
+    );
+    notifyListeners();
+  }
+
+  void restoreApprovedParticipant(ActivityParticipant participant) {
+    final current = _detail;
+    if (current == null) {
+      return;
+    }
+    _detail = current.copyWith(
+      participants: <ActivityParticipant>[participant, ...current.participants],
+      activity: current.activity.copyWith(
+        participantCount: current.activity.participantCount + 1,
+      ),
+    );
+    notifyListeners();
+  }
+
+  void restorePendingParticipant(ActivityParticipant participant) {
+    final current = _detail;
+    if (current == null) {
+      return;
+    }
+    _detail = current.copyWith(
+      pendingParticipants: <ActivityParticipant>[
+        participant,
+        ...current.pendingParticipants,
+      ],
     );
     notifyListeners();
   }
