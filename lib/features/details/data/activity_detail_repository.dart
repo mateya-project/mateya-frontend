@@ -22,6 +22,8 @@ abstract interface class ActivityDetailRepository {
     required bool isFavorite,
   });
 
+  Future<ActivityDetail> requestJoin({required ActivityDetail detail});
+
   Future<HelpfulToggleState> toggleHelpful({required String reviewId});
 
   Future<ActivityReview> submitReview({

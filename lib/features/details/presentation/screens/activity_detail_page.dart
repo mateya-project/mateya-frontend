@@ -72,6 +72,16 @@ class _ActivityDetailPageState extends State<ActivityDetailPage> {
     ).showSnackBar(SnackBar(content: Text(message)));
   }
 
+  Future<void> _handleJoinTap() async {
+    final message = await widget.controller.requestJoin();
+    if (!mounted || message == null) {
+      return;
+    }
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
+  }
+
   Future<void> _openReviewList() async {
     await Navigator.of(context).push(
       MaterialPageRoute<void>(
@@ -171,7 +181,9 @@ class _ActivityDetailPageState extends State<ActivityDetailPage> {
                             detail: detail,
                             onFavoriteTap: _handleFavoriteTap,
                             onShareTap: () => _copyShareUrl(detail.shareUrl),
-                            onJoinTap: widget.controller.toggleJoin,
+                            onJoinTap: _handleJoinTap,
+                            isJoinActionInFlight:
+                                widget.controller.isRequestingJoin,
                           ),
                         ),
                       ],

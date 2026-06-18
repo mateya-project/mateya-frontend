@@ -4,6 +4,8 @@ enum ActivityDetailLoadFailureType { network, validation, server }
 
 enum ReviewSortOption { latest, oldest, highestRating, lowestRating }
 
+enum ActivityParticipationState { available, requested, joined, host }
+
 class ActivityParticipant {
   const ActivityParticipant({
     required this.id,
@@ -136,7 +138,7 @@ class ActivityDetail {
     required this.reviews,
     this.serverReviewSummary,
     this.isFavorite = false,
-    this.isJoined = false,
+    this.participationState = ActivityParticipationState.available,
   });
 
   final ActivityItem activity;
@@ -150,7 +152,12 @@ class ActivityDetail {
   final List<ActivityReview> reviews;
   final ReviewSummary? serverReviewSummary;
   final bool isFavorite;
-  final bool isJoined;
+  final ActivityParticipationState participationState;
+
+  bool get isJoined => participationState == ActivityParticipationState.joined;
+  bool get isParticipationRequested =>
+      participationState == ActivityParticipationState.requested;
+  bool get isHostedByMe => participationState == ActivityParticipationState.host;
 
   ActivityDetail copyWith({
     ActivityItem? activity,
@@ -164,7 +171,7 @@ class ActivityDetail {
     List<ActivityReview>? reviews,
     Object? serverReviewSummary = _detailSentinel,
     bool? isFavorite,
-    bool? isJoined,
+    ActivityParticipationState? participationState,
   }) {
     return ActivityDetail(
       activity: activity ?? this.activity,
@@ -180,7 +187,7 @@ class ActivityDetail {
           ? this.serverReviewSummary
           : serverReviewSummary as ReviewSummary?,
       isFavorite: isFavorite ?? this.isFavorite,
-      isJoined: isJoined ?? this.isJoined,
+      participationState: participationState ?? this.participationState,
     );
   }
 }
@@ -217,6 +224,17 @@ extension ReviewSortOptionX on ReviewSortOption {
     ReviewSortOption.oldest => '오래된순',
     ReviewSortOption.highestRating => '평점 높은순',
     ReviewSortOption.lowestRating => '평점 낮은순',
+  };
+}
+
+extension ActivityParticipationStateX on ActivityParticipationState {
+  bool get canRequestJoin => this == ActivityParticipationState.available;
+
+  String get ctaLabel => switch (this) {
+    ActivityParticipationState.available => '참가하기',
+    ActivityParticipationState.requested => '신청 완료',
+    ActivityParticipationState.joined => '참가중',
+    ActivityParticipationState.host => '내 모임',
   };
 }
 

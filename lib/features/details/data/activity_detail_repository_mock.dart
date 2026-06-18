@@ -16,7 +16,6 @@ class MockActivityDetailRepository implements ActivityDetailRepository {
       pendingParticipants: _pendingParticipantsFor(activity),
       reviews: _reviewsFor(activity),
       isFavorite: activity.isFeatured,
-      isJoined: activity.participantCount >= activity.participantCapacity,
     );
   }
 
@@ -27,6 +26,14 @@ class MockActivityDetailRepository implements ActivityDetailRepository {
   }) async {
     await Future<void>.delayed(const Duration(milliseconds: 120));
     return !isFavorite;
+  }
+
+  @override
+  Future<ActivityDetail> requestJoin({required ActivityDetail detail}) async {
+    await Future<void>.delayed(const Duration(milliseconds: 180));
+    return detail.copyWith(
+      participationState: ActivityParticipationState.requested,
+    );
   }
 
   @override
