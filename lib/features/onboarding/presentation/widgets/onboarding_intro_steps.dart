@@ -260,10 +260,40 @@ Future<void> _openTermsDetail(
   BuildContext context,
   OnboardingTermsDocument document,
 ) {
-  return Navigator.of(context).push<void>(
-    MaterialPageRoute<void>(
-      builder: (_) => OnboardingTermsDetailPage(document: document),
-    ),
+  return showDialog<void>(
+    context: context,
+    builder: (dialogContext) {
+      return Dialog(
+        insetPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxHeight: 640),
+          child: Column(
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.fromLTRB(12, 12, 8, 0),
+                child: Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: Text(
+                        document.title,
+                        style: Theme.of(context).textTheme.headlineMedium,
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () => Navigator.of(dialogContext).pop(),
+                      icon: const Icon(Icons.close_rounded),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(child: OnboardingTermsDetailContent(document: document)),
+            ],
+          ),
+        ),
+      );
+    },
   );
 }
 

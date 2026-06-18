@@ -13,6 +13,7 @@ class MockActivityDetailRepository implements ActivityDetailRepository {
       description: _descriptionFor(activity),
       shareUrl: 'https://mateya.app/activities/${activity.id}',
       participants: _participantsFor(activity),
+      pendingParticipants: _pendingParticipantsFor(activity),
       reviews: _reviewsFor(activity),
       isFavorite: activity.isFeatured,
       isJoined: activity.participantCount >= activity.participantCapacity,

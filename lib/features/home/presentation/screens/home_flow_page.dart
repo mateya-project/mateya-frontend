@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../../../../shared/auth/auth_session.dart';
+import '../../../../shared/theme/app_tokens.dart';
 import '../../../../shared/widgets/mateya_bottom_navigation.dart';
 import '../../../../shared/widgets/mateya_header.dart';
 import '../../../chat/application/chat_controller.dart';
@@ -159,7 +160,10 @@ class _HomeFlowPageState extends State<HomeFlowPage> {
             onHomeTap: _controller.openHome,
             onExploreTap: _controller.openExplore,
             onPlusTap: _openCreateFlow,
-            onProfileTap: _controller.openProfile,
+            onProfileTap: () {
+              _controller.openProfile();
+              _myPageController.openRoot();
+            },
           );
         }
         if (_controller.section == HomeSection.profile) {
@@ -172,7 +176,10 @@ class _HomeFlowPageState extends State<HomeFlowPage> {
                 onExploreTap: _controller.openExplore,
                 onPlusTap: _openCreateFlow,
                 onChatTap: _controller.openChat,
-                onProfileTap: _controller.openProfile,
+                onProfileTap: () {
+                  _controller.openProfile();
+                  _myPageController.openRoot();
+                },
               ),
             ],
           );
@@ -183,16 +190,18 @@ class _HomeFlowPageState extends State<HomeFlowPage> {
                 ? MateyaHeader.backArrow(onBack: widget.onBack)
                 : const MateyaHeader.noBackArrow(),
             Expanded(
-              child: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 260),
-                child: _controller.section == HomeSection.home
-                    ? HomeScreen(
+              child: Stack(
+                children: <Widget>[
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 260),
+                    child: switch (_controller.section) {
+                      HomeSection.home => HomeScreen(
                         key: const ValueKey<String>('home-screen'),
                         controller: _controller,
                         onSearchTap: _openExploreAndFocus,
                         onActivityTap: _openActivityDetail,
-                      )
-                    : ExploreScreen(
+                      ),
+                      HomeSection.explore => ExploreScreen(
                         key: const ValueKey<String>('explore-screen'),
                         controller: _controller,
                         searchController: _searchController,
@@ -200,17 +209,61 @@ class _HomeFlowPageState extends State<HomeFlowPage> {
                         onOpenFilter: _openFilterSheet,
                         onActivityTap: _openActivityDetail,
                       ),
+                      HomeSection.favorites => FavoritesScreen(
+                        key: const ValueKey<String>('favorites-screen'),
+                        activities: _controller.favoriteActivities,
+                        onBack:
+                            _controller.favoriteOriginSection ==
+                                HomeSection.explore
+                            ? _controller.openExplore
+                            : _controller.openHome,
+                        onActivityTap: _openActivityDetail,
+                      ),
+                      _ => const SizedBox.shrink(),
+                    },
+                  ),
+                  if (_controller.section == HomeSection.home ||
+                      _controller.section == HomeSection.explore)
+                    Positioned(
+                      right: 20,
+                      bottom: 18,
+                      child: GestureDetector(
+                        onTap: _controller.openFavorites,
+                        child: Container(
+                          width: 48,
+                          height: 48,
+                          decoration: const BoxDecoration(
+                            color: AppColors.brandGreen,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.favorite_border_rounded,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
               ),
             ),
             MateyaBottomNavigation(
-              currentTab: _controller.section == HomeSection.home
-                  ? MateyaBottomTab.home
-                  : MateyaBottomTab.explore,
+              currentTab: switch (_controller.section) {
+                HomeSection.home => MateyaBottomTab.home,
+                HomeSection.explore => MateyaBottomTab.explore,
+                HomeSection.favorites =>
+                  _controller.favoriteOriginSection == HomeSection.explore
+                      ? MateyaBottomTab.explore
+                      : MateyaBottomTab.home,
+                _ => MateyaBottomTab.home,
+              },
               onHomeTap: _controller.openHome,
               onExploreTap: _controller.openExplore,
               onPlusTap: _openCreateFlow,
               onChatTap: _controller.openChat,
-              onProfileTap: _controller.openProfile,
+              onProfileTap: () {
+                _controller.openProfile();
+                _myPageController.openRoot();
+              },
             ),
           ],
         );

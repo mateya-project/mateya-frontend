@@ -7,6 +7,7 @@ import '../../../../shared/widgets/mateya_report_sheet.dart';
 import '../../../mypage/application/mypage_controller.dart';
 import '../../../mypage/data/mypage_repository.dart';
 import '../../../mypage/presentation/screens/mypage_flow_page.dart';
+import '../../../mypage/presentation/widgets/mypage_activity_widgets.dart';
 import '../../../onboarding/domain/onboarding_flow.dart';
 import '../../application/activity_detail_controller.dart';
 import '../../domain/activity_detail_models.dart';
@@ -79,6 +80,15 @@ class _ActivityDetailPageState extends State<ActivityDetailPage> {
     );
   }
 
+  Future<void> _openParticipantRequests() async {
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) =>
+            ActivityParticipantRequestPage(controller: widget.controller),
+      ),
+    );
+  }
+
   Future<void> _openReportSheet(String subjectLabel) {
     return showMateyaReportSheet(context, subjectLabel: subjectLabel);
   }
@@ -145,6 +155,8 @@ class _ActivityDetailPageState extends State<ActivityDetailPage> {
                                 detail: detail,
                                 controller: widget.controller,
                                 onOpenReviews: _openReviewList,
+                                onOpenParticipantRequests:
+                                    _openParticipantRequests,
                                 onHelpfulTap: _handleHelpfulTap,
                                 onOpenOtherProfile: _openOtherProfile,
                               ),
@@ -178,6 +190,264 @@ class ActivityReviewListPage extends StatefulWidget {
 
   @override
   State<ActivityReviewListPage> createState() => _ActivityReviewListPageState();
+}
+
+class ActivityParticipantRequestPage extends StatelessWidget {
+  const ActivityParticipantRequestPage({super.key, required this.controller});
+
+  final ActivityDetailController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: controller,
+      builder: (context, _) {
+        final detail = controller.detail!;
+        final remaining =
+            detail.activity.participantCapacity -
+            detail.activity.participantCount;
+        return Scaffold(
+          backgroundColor: AppColors.background,
+          appBar: AppBar(
+            backgroundColor: Colors.white,
+            elevation: 0,
+            foregroundColor: AppColors.textPrimary,
+            title: Text(
+              detail.activity.title,
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+          ),
+          body: ListView(
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
+            children: <Widget>[
+              MyPageSectionCard(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Row(
+                      children: <Widget>[
+                        Text(
+                          '${detail.activity.participantCount}명 참여중',
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
+                        const Spacer(),
+                        Text(
+                          remaining > 0 ? '$remaining명 남았어요' : '모집 마감',
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(color: AppColors.brandGreen),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 18),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(999),
+                      child: LinearProgressIndicator(
+                        value: detail.activity.participantCapacity == 0
+                            ? 0
+                            : detail.activity.participantCount /
+                                  detail.activity.participantCapacity,
+                        minHeight: 10,
+                        backgroundColor: AppColors.divider,
+                        valueColor: const AlwaysStoppedAnimation<Color>(
+                          AppColors.brandGreen,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 22),
+              Text(
+                '참여 유저 목록',
+                style: Theme.of(context).textTheme.headlineMedium,
+              ),
+              const SizedBox(height: 14),
+              for (final participant in detail.participants) ...<Widget>[
+                _ParticipantCard(
+                  participant: participant,
+                  actionIcon:
+                      controller.armedParticipantRemovalId == participant.id
+                      ? Icons.remove_rounded
+                      : Icons.check_rounded,
+                  actionColor:
+                      controller.armedParticipantRemovalId == participant.id
+                      ? const Color(0xFFC73E19)
+                      : AppColors.brandGreen,
+                  onTap: () {
+                    if (controller.armedParticipantRemovalId ==
+                        participant.id) {
+                      final removed = controller.removeApprovedParticipant(
+                        participant.id,
+                      );
+                      if (removed == null) {
+                        return;
+                      }
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: const Text('참여자를 삭제했어요.'),
+                          duration: const Duration(seconds: 3),
+                          action: SnackBarAction(
+                            label: '실행취소',
+                            onPressed: () =>
+                                controller.restoreApprovedParticipant(removed),
+                          ),
+                        ),
+                      );
+                    } else {
+                      controller.armParticipantRemoval(participant.id);
+                    }
+                  },
+                  onDismissed: () {
+                    final removed = controller.removeApprovedParticipant(
+                      participant.id,
+                    );
+                    if (removed == null) {
+                      return;
+                    }
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: const Text('참여자를 삭제했어요.'),
+                        duration: const Duration(seconds: 3),
+                        action: SnackBarAction(
+                          label: '실행취소',
+                          onPressed: () =>
+                              controller.restoreApprovedParticipant(removed),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 14),
+              ],
+              const SizedBox(height: 16),
+              Text(
+                '신청 유저 목록',
+                style: Theme.of(context).textTheme.headlineMedium,
+              ),
+              const SizedBox(height: 14),
+              for (final participant in detail.pendingParticipants) ...<Widget>[
+                _ParticipantCard(
+                  participant: participant,
+                  backgroundColor: AppColors.softGreenBorder,
+                  actionIcon: Icons.add_rounded,
+                  actionColor: AppColors.brandGreen,
+                  onTap: () =>
+                      controller.approvePendingParticipant(participant.id),
+                  onDismissed: () {
+                    final removed = controller.removePendingParticipant(
+                      participant.id,
+                    );
+                    if (removed == null) {
+                      return;
+                    }
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: const Text('신청을 취소했어요.'),
+                        duration: const Duration(seconds: 3),
+                        action: SnackBarAction(
+                          label: '실행취소',
+                          onPressed: () =>
+                              controller.restorePendingParticipant(removed),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 14),
+              ],
+              const SizedBox(height: 8),
+              Text(
+                '슬라이드 해서 삭제하거나 취소할 수 있어요',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _ParticipantCard extends StatelessWidget {
+  const _ParticipantCard({
+    required this.participant,
+    required this.actionIcon,
+    required this.actionColor,
+    required this.onTap,
+    required this.onDismissed,
+    this.backgroundColor = Colors.white,
+  });
+
+  final ActivityParticipant participant;
+  final IconData actionIcon;
+  final Color actionColor;
+  final VoidCallback onTap;
+  final VoidCallback onDismissed;
+  final Color backgroundColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return Dismissible(
+      key: ValueKey<String>('participant-${participant.id}-$actionIcon'),
+      background: const SizedBox.shrink(),
+      secondaryBackground: const SizedBox.shrink(),
+      confirmDismiss: (_) async {
+        onDismissed();
+        return false;
+      },
+      child: MyPageSectionCard(
+        child: Container(
+          color: backgroundColor,
+          child: Row(
+            children: <Widget>[
+              CircleAvatar(
+                radius: 24,
+                backgroundImage: participant.avatarUrl == null
+                    ? null
+                    : NetworkImage(participant.avatarUrl!),
+                child: participant.avatarUrl == null
+                    ? const Icon(Icons.person_outline_rounded)
+                    : null,
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                      participant.name,
+                      style: Theme.of(
+                        context,
+                      ).textTheme.titleLarge?.copyWith(fontSize: 18),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      participant.residenceLabel,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              IconButton(
+                onPressed: onTap,
+                icon: Icon(actionIcon),
+                color: Colors.white,
+                style: IconButton.styleFrom(
+                  backgroundColor: actionColor,
+                  fixedSize: const Size(34, 34),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 class _ActivityReviewListPageState extends State<ActivityReviewListPage> {

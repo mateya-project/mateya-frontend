@@ -1,6 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
+import '../../../../app/app_config.dart';
+import '../../../../shared/auth/auth_session.dart';
+import '../../../../shared/network/mateya_api_client.dart';
+import '../../../../shared/platform/external_url_launcher.dart';
 import '../../../../shared/theme/app_tokens.dart';
+import '../../../onboarding/application/onboarding_controller.dart';
+import '../../../onboarding/data/auth_repository.dart';
+import '../../../onboarding/data/location_repository.dart';
+import '../../../onboarding/presentation/screens/onboarding_flow_page.dart';
 import '../../application/mypage_controller.dart';
 import '../../domain/mypage_models.dart';
 import '../widgets/mypage_route_views.dart';
@@ -23,8 +32,6 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
 
   int _lastToastVersion = 0;
   bool _withdrawalAgreement = false;
-  String? _selectedLanguageCode;
-  String? _selectedCountryCode;
 
   @override
   void initState() {
@@ -107,9 +114,7 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
         key: const ValueKey<String>('personal-home'),
         data: controller.personalPage!,
         onOpenRecentActivities: controller.openRecentActivities,
-        onOpenPreferences: controller.openPrimaryPreferences,
-        onOpenOtherProfile: controller.openOtherProfile,
-        onOpenWithdrawal: _openWithdrawalDialog,
+        onOpenSettings: controller.openSettings,
       ),
       MyPageRoute.otherProfile => OtherProfileView(
         key: const ValueKey<String>('other-profile'),
@@ -117,35 +122,32 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
         isBusy: controller.isUpdatingFriendship,
         onBack: controller.openPersonalHome,
         onFriendTap: controller.toggleFriendship,
+        onBlockTap: controller.blockCurrentOtherProfile,
       ),
       MyPageRoute.recentActivities => RecentActivitiesView(
         key: const ValueKey<String>('recent-activities'),
         data: controller.recentActivity!,
         onBack: controller.openPersonalHome,
       ),
-      MyPageRoute.primaryPreferences => PrimaryPreferencesView(
-        key: const ValueKey<String>('primary-preferences'),
-        currentLanguageCode: _selectedLanguageCode,
-        currentCountryCode: _selectedCountryCode,
-        languageOptions: controller.languageOptions,
-        countryOptions: controller.countryOptions,
-        isSaving: controller.isSavingPreferences,
-        errorText: controller.phase == MyPageAsyncPhase.validationError
-            ? controller.errorMessage
-            : null,
-        onBack: controller.openPersonalHome,
-        onLanguageChanged: (value) => setState(() {
-          _selectedLanguageCode = value;
-        }),
-        onCountryChanged: (value) => setState(() {
-          _selectedCountryCode = value;
-        }),
-        onSave: () {
-          controller.updatePrimaryPreferences(
-            languageCode: _selectedLanguageCode ?? '',
-            countryCode: _selectedCountryCode ?? '',
-          );
-        },
+      MyPageRoute.settings => SettingsView(
+        key: const ValueKey<String>('settings'),
+        profile: controller.personalPage!.profile,
+        onOpenConsentHistory: controller.openConsentHistory,
+        onOpenCustomerSupport: _openCustomerSupport,
+        onOpenBlockedUsers: controller.openBlockedUsers,
+        onLogout: _logout,
+        onWithdrawal: _openWithdrawalDialog,
+      ),
+      MyPageRoute.consentHistory => ConsentHistoryView(
+        key: const ValueKey<String>('consent-history'),
+        entries: controller.consentHistory,
+        onBack: controller.openSettings,
+      ),
+      MyPageRoute.blockedUsers => BlockedUsersView(
+        key: const ValueKey<String>('blocked-users'),
+        users: controller.blockedUsers,
+        onBack: controller.openSettings,
+        onUnblock: controller.unblockUser,
       ),
       MyPageRoute.businessHome => BusinessMyPageView(
         key: const ValueKey<String>('business-home'),
@@ -161,17 +163,10 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
           );
         },
       ),
-      MyPageRoute.withdrawal => const SizedBox.shrink(),
     };
   }
 
   void _syncFormValues() {
-    final personalProfile = widget.controller.personalPage?.profile;
-    if (personalProfile != null) {
-      _selectedLanguageCode ??= personalProfile.primaryLanguageCode;
-      _selectedCountryCode ??= personalProfile.primaryCountryCode;
-    }
-
     final businessIntroduction =
         widget.controller.businessPage?.profile.oneLineIntroduction ?? '';
     if (_businessIntroductionController.text != businessIntroduction) {
@@ -215,6 +210,48 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
           ),
         );
       },
+    );
+  }
+
+  Future<void> _openCustomerSupport() async {
+    const url = 'https://pf.kakao.com/_EPxmXX/friend';
+    final opened = await openExternalUrl(url);
+    if (opened || !mounted) {
+      return;
+    }
+
+    await Clipboard.setData(const ClipboardData(text: url));
+    if (!mounted) {
+      return;
+    }
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('문의 링크를 열지 못해 주소를 복사했어요.')));
+  }
+
+  Future<void> _logout() async {
+    AuthSessionStore.instance.clear();
+    await AuthSessionStore.instance.flush();
+    if (!mounted) {
+      return;
+    }
+
+    await Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute<void>(
+        builder: (_) => OnboardingFlowPage(
+          controller: OnboardingController(
+            locationRepository: DeviceNeighborhoodLocationRepository(),
+            authRepository: ApiOnboardingAuthRepository(
+              apiClient: MateyaApiClient(
+                baseUrl: AppConfig.apiBaseUrl,
+                sessionStore: AuthSessionStore.instance,
+              ),
+            ),
+            authSessionStore: AuthSessionStore.instance,
+          ),
+        ),
+      ),
+      (_) => false,
     );
   }
 }

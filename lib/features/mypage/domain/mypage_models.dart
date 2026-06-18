@@ -11,8 +11,9 @@ enum MyPageRoute {
   personalHome,
   otherProfile,
   recentActivities,
-  primaryPreferences,
-  withdrawal,
+  settings,
+  consentHistory,
+  blockedUsers,
   businessHome,
 }
 
@@ -160,6 +161,7 @@ class OtherProfileData {
     required this.badges,
     required this.recentActivities,
     required this.isFriend,
+    this.isBlocked = false,
   });
 
   final ProfileSummary profile;
@@ -167,6 +169,7 @@ class OtherProfileData {
   final List<ActivityBadge> badges;
   final List<ActivityHistoryEntry> recentActivities;
   final bool isFriend;
+  final bool isBlocked;
 
   OtherProfileData copyWith({
     ProfileSummary? profile,
@@ -174,6 +177,7 @@ class OtherProfileData {
     List<ActivityBadge>? badges,
     List<ActivityHistoryEntry>? recentActivities,
     bool? isFriend,
+    bool? isBlocked,
   }) {
     return OtherProfileData(
       profile: profile ?? this.profile,
@@ -181,8 +185,39 @@ class OtherProfileData {
       badges: badges ?? this.badges,
       recentActivities: recentActivities ?? this.recentActivities,
       isFriend: isFriend ?? this.isFriend,
+      isBlocked: isBlocked ?? this.isBlocked,
     );
   }
+}
+
+class ConsentHistoryEntry {
+  const ConsentHistoryEntry({
+    required this.id,
+    required this.title,
+    required this.agreed,
+    required this.agreedAtLabel,
+    required this.versionLabel,
+  });
+
+  final String id;
+  final String title;
+  final bool agreed;
+  final String agreedAtLabel;
+  final String versionLabel;
+}
+
+class BlockedUserSummary {
+  const BlockedUserSummary({
+    required this.id,
+    required this.name,
+    required this.residence,
+    this.profileImageUrl,
+  });
+
+  final String id;
+  final String name;
+  final String residence;
+  final String? profileImageUrl;
 }
 
 class RecentActivityStats {
@@ -245,6 +280,8 @@ class MyPageBundle {
     required this.businessPage,
     required this.languageOptions,
     required this.countryOptions,
+    required this.consentHistory,
+    required this.blockedUsers,
   });
 
   final PersonalMyPageData personalPage;
@@ -253,6 +290,8 @@ class MyPageBundle {
   final BusinessMyPageData businessPage;
   final List<SelectionOption> languageOptions;
   final List<SelectionOption> countryOptions;
+  final List<ConsentHistoryEntry> consentHistory;
+  final List<BlockedUserSummary> blockedUsers;
 }
 
 class MyPageRepositoryException implements Exception {

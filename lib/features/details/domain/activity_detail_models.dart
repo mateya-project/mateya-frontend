@@ -8,11 +8,13 @@ class ActivityParticipant {
   const ActivityParticipant({
     required this.id,
     required this.name,
+    required this.residenceLabel,
     this.avatarUrl,
   });
 
   final String id;
   final String name;
+  final String residenceLabel;
   final String? avatarUrl;
 }
 
@@ -130,6 +132,7 @@ class ActivityDetail {
     required this.description,
     required this.shareUrl,
     required this.participants,
+    required this.pendingParticipants,
     required this.reviews,
     this.serverReviewSummary,
     this.isFavorite = false,
@@ -143,6 +146,7 @@ class ActivityDetail {
   final String description;
   final String shareUrl;
   final List<ActivityParticipant> participants;
+  final List<ActivityParticipant> pendingParticipants;
   final List<ActivityReview> reviews;
   final ReviewSummary? serverReviewSummary;
   final bool isFavorite;
@@ -156,6 +160,7 @@ class ActivityDetail {
     String? description,
     String? shareUrl,
     List<ActivityParticipant>? participants,
+    List<ActivityParticipant>? pendingParticipants,
     List<ActivityReview>? reviews,
     Object? serverReviewSummary = _detailSentinel,
     bool? isFavorite,
@@ -169,6 +174,7 @@ class ActivityDetail {
       description: description ?? this.description,
       shareUrl: shareUrl ?? this.shareUrl,
       participants: participants ?? this.participants,
+      pendingParticipants: pendingParticipants ?? this.pendingParticipants,
       reviews: reviews ?? this.reviews,
       serverReviewSummary: serverReviewSummary == _detailSentinel
           ? this.serverReviewSummary

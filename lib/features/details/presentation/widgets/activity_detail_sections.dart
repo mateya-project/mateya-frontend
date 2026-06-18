@@ -115,6 +115,7 @@ class DetailBody extends StatelessWidget {
     required this.detail,
     required this.controller,
     required this.onOpenReviews,
+    required this.onOpenParticipantRequests,
     required this.onHelpfulTap,
     required this.onOpenOtherProfile,
   });
@@ -122,6 +123,7 @@ class DetailBody extends StatelessWidget {
   final ActivityDetail detail;
   final ActivityDetailController controller;
   final VoidCallback onOpenReviews;
+  final VoidCallback onOpenParticipantRequests;
   final Future<void> Function(String reviewId)? onHelpfulTap;
   final Future<void> Function(String userId) onOpenOtherProfile;
 
@@ -191,6 +193,11 @@ class DetailBody extends StatelessWidget {
                             : AppColors.error,
                         fontWeight: FontWeight.w600,
                       ),
+                    ),
+                    const SizedBox(width: 10),
+                    TextButton(
+                      onPressed: onOpenParticipantRequests,
+                      child: const Text('참여내역'),
                     ),
                   ],
                 ),

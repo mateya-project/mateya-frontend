@@ -42,6 +42,16 @@ List<ActivityParticipant> _participantsFor(ActivityItem activity) {
   );
 }
 
+List<ActivityParticipant> _pendingParticipantsFor(ActivityItem activity) {
+  final pendingCount = activity.participantCapacity > activity.participantCount
+      ? 2
+      : 0;
+  return _participantPool
+      .skip(activity.participantCount)
+      .take(pendingCount)
+      .toList(growable: false);
+}
+
 List<ActivityReview> _reviewsFor(ActivityItem activity) {
   final custom = _reviewSeedsById[activity.id];
   if (custom != null) {

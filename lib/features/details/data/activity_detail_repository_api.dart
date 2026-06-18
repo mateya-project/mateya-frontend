@@ -95,6 +95,7 @@ class ApiActivityDetailRepository implements ActivityDetailRepository {
             '',
         shareUrl: 'https://mateya.app/activities/${activity.id}',
         participants: participants,
+        pendingParticipants: const <ActivityParticipant>[],
         reviews: reviews,
         serverReviewSummary: _parseReviewSummary(statsJson),
       );

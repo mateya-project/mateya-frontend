@@ -117,6 +117,8 @@ class ApiMyPageRepository implements MyPageRepository {
         businessPage: businessPage,
         languageOptions: kMyPageLanguageOptions,
         countryOptions: kMyPageCountryOptions,
+        consentHistory: _consentHistory,
+        blockedUsers: _blockedUsers,
       );
     } on MateyaApiException catch (error) {
       throw _mapApiException(error);

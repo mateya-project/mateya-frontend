@@ -346,7 +346,10 @@ class _NeighborhoodAutoStepViewState extends State<NeighborhoodAutoStepView> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 const SizedBox(height: 46),
-                Text('동네 정보를 인증해주세요', style: theme.textTheme.headlineLarge),
+                Text(
+                  controller.neighborhoodHeadline,
+                  style: theme.textTheme.headlineLarge,
+                ),
                 const SizedBox(height: 16),
                 Expanded(
                   child: Column(
@@ -359,7 +362,10 @@ class _NeighborhoodAutoStepViewState extends State<NeighborhoodAutoStepView> {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        controller.selectedNeighborhood != null
+                        controller.completionMode == AuthCompletionMode.login &&
+                                controller.previousNeighborhoodLabel != null
+                            ? '이전에 "${controller.previousNeighborhoodLabel}"으로 등록했어요.'
+                            : controller.selectedNeighborhood != null
                             ? controller.resolvedNeighborhoodMessage
                             : controller.locationFailure?.message ??
                                   '현재 위치를 확인하고 있어요.',
@@ -369,7 +375,7 @@ class _NeighborhoodAutoStepViewState extends State<NeighborhoodAutoStepView> {
                   ),
                 ),
                 MateyaButton(
-                  label: controller.isAuthLoading ? '가입 처리 중...' : '동네인증 완료하기',
+                  label: controller.isAuthLoading ? '처리 중...' : '동네인증 완료하기',
                   enabled:
                       controller.canCompleteNeighborhood &&
                       !controller.isAuthLoading,
@@ -475,7 +481,10 @@ class _NeighborhoodManualStepViewState
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 const SizedBox(height: 46),
-                Text('동네 정보를 인증해주세요', style: theme.textTheme.headlineLarge),
+                Text(
+                  controller.neighborhoodHeadline,
+                  style: theme.textTheme.headlineLarge,
+                ),
                 const SizedBox(height: 16),
                 NeighborhoodMapCard(
                   selection: controller.selectedNeighborhood,
@@ -500,9 +509,7 @@ class _NeighborhoodManualStepViewState
                 Padding(
                   padding: const EdgeInsets.only(bottom: 26),
                   child: MateyaButton(
-                    label: controller.isAuthLoading
-                        ? '가입 처리 중...'
-                        : '동네인증 완료하기',
+                    label: controller.isAuthLoading ? '처리 중...' : '동네인증 완료하기',
                     enabled:
                         controller.canCompleteNeighborhood &&
                         !controller.isAuthLoading,
