@@ -203,7 +203,11 @@ class ApiActivityDetailRepository implements ActivityDetailRepository {
       pendingParticipants: const <ActivityParticipant>[],
       reviews: reviews,
       serverReviewSummary: reviewSummary,
-      participationState: _resolveInitialParticipationState(hostJson),
+      isFavorite: detailJson['favorited'] as bool? ?? false,
+      participationState: _resolveParticipationState(
+        detailJson: detailJson,
+        hostJson: hostJson,
+      ),
     );
   }
 
@@ -267,19 +271,40 @@ class ApiActivityDetailRepository implements ActivityDetailRepository {
           (detailJson['originalDescription'] as String?) ??
           current.description,
       participants: participants,
-      participationState: participationState,
+      isFavorite: detailJson['favorited'] as bool? ?? current.isFavorite,
+      participationState: _resolveParticipationState(
+        detailJson: detailJson,
+        hostJson: hostJson,
+        fallback: participationState,
+      ),
     );
   }
 
-  ActivityParticipationState _resolveInitialParticipationState(
-    Map<String, dynamic> hostJson,
-  ) {
+  ActivityParticipationState _resolveParticipationState({
+    required Map<String, dynamic> detailJson,
+    required Map<String, dynamic> hostJson,
+    ActivityParticipationState? fallback,
+  }) {
+    final hostedByMe = detailJson['hostedByMe'] as bool?;
+    if (hostedByMe == true) {
+      return ActivityParticipationState.host;
+    }
+    final status = (detailJson['participationStatus'] as String?)?.toUpperCase();
+    switch (status) {
+      case 'PENDING':
+        return ActivityParticipationState.requested;
+      case 'JOINED':
+        return ActivityParticipationState.joined;
+      case 'NONE':
+        return ActivityParticipationState.available;
+    }
+
     final viewerUserId = _sessionStore.session?.user.id;
     if (viewerUserId == null) {
-      return ActivityParticipationState.available;
+      return fallback ?? ActivityParticipationState.available;
     }
     return '${hostJson['userId']}' == '$viewerUserId'
         ? ActivityParticipationState.host
-        : ActivityParticipationState.available;
+        : fallback ?? ActivityParticipationState.available;
   }
 }
