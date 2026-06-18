@@ -8,7 +8,5 @@
   Reason: Initial signup stores neighborhood data, but there is no frontend path to re-auth or change the saved activity region after account creation.
 - P1: Wire the existing create/edit controller scaffolding into an actual activity edit entry flow.
   Reason: `CreateController` already supports `isEditMode`, `editingId`, and delete behavior, but current navigation always opens create in new-item mode.
-- P1: Normalize language enum request/response handling against the backend contract.
-  Reason: The frontend currently sends and stores language values like `ko/en/ja/zh`, while several backend query/body bindings use Spring enum binding directly. Add a shared mapper so request params/bodies and parsed response values stay consistent.
 - P2: Reduce reliance on local-only join/favorite toggles in activity detail until server state is available.
   Reason: The current detail screen initializes `isFavorite` and `isJoined` as local defaults and mutates join state without a server round-trip, which can misrepresent the actual participant/favorite state.
