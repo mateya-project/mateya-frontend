@@ -3,6 +3,7 @@ import 'package:mateya_app/features/home/application/home_controller.dart';
 import 'package:mateya_app/features/home/data/home_repository.dart';
 import 'package:mateya_app/features/home/domain/home_models.dart';
 import 'package:mateya_app/features/onboarding/domain/onboarding_flow.dart';
+import 'package:mateya_app/shared/activity_categories/activity_category_repository.dart';
 
 void main() {
   group('HomeController', () {
@@ -11,6 +12,7 @@ void main() {
       () async {
         final controller = HomeController(
           repository: _FakeHomeRepository.success(),
+          categoryRepository: MockActivityCategoryRepository(),
           flowKind: FlowKind.guest,
           searchDebounceDuration: Duration.zero,
         );
@@ -29,6 +31,7 @@ void main() {
     test('loadMoreExplore appends the next server page', () async {
       final controller = HomeController(
         repository: _FakeHomeRepository.success(),
+        categoryRepository: MockActivityCategoryRepository(),
         flowKind: FlowKind.guest,
         searchDebounceDuration: Duration.zero,
       );
@@ -47,6 +50,7 @@ void main() {
       () async {
         final controller = HomeController(
           repository: _FakeHomeRepository.success(),
+          categoryRepository: MockActivityCategoryRepository(),
           flowKind: FlowKind.guest,
           searchDebounceDuration: Duration.zero,
         );
@@ -71,6 +75,7 @@ void main() {
     test('unsupported explore languages return validation error', () async {
       final controller = HomeController(
         repository: _FakeHomeRepository.success(),
+        categoryRepository: MockActivityCategoryRepository(),
         flowKind: FlowKind.host,
         searchDebounceDuration: Duration.zero,
       );
@@ -87,6 +92,7 @@ void main() {
     test('maps repository failure to network phase', () async {
       final controller = HomeController(
         repository: _FakeHomeRepository.failure(HomeLoadFailureType.network),
+        categoryRepository: MockActivityCategoryRepository(),
         flowKind: FlowKind.host,
         searchDebounceDuration: Duration.zero,
       );
@@ -173,6 +179,15 @@ class _FakeHomeRepository implements HomeRepository {
       hasNext: hasNext,
       nextPage: hasNext ? page + 1 : null,
     );
+  }
+
+  @override
+  Future<List<ActivityItem>> fetchFavoriteActivities() async {
+    if (_failureType != null) {
+      throw HomeRepositoryException(_failureType);
+    }
+
+    return _exploreActivities.take(3).toList(growable: false);
   }
 
   ActivityItem _activity({

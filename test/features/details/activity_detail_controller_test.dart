@@ -155,6 +155,53 @@ class _FakeActivityDetailRepository implements ActivityDetailRepository {
   }
 
   @override
+  Future<ActivityDetail> requestJoin({required ActivityDetail detail}) async {
+    return detail.copyWith(
+      participationState: ActivityParticipationState.requested,
+    );
+  }
+
+  @override
+  Future<ActivityDetail> approvePendingParticipant({
+    required ActivityDetail detail,
+    required String participantId,
+  }) async {
+    final target = detail.pendingParticipants.firstWhere(
+      (participant) => participant.id == participantId,
+    );
+    return detail.copyWith(
+      participants: <ActivityParticipant>[...detail.participants, target],
+      pendingParticipants: detail.pendingParticipants
+          .where((participant) => participant.id != participantId)
+          .toList(growable: false),
+    );
+  }
+
+  @override
+  Future<ActivityDetail> removeApprovedParticipant({
+    required ActivityDetail detail,
+    required String participantId,
+  }) async {
+    return detail.copyWith(
+      participants: detail.participants
+          .where((participant) => participant.id != participantId)
+          .toList(growable: false),
+    );
+  }
+
+  @override
+  Future<ActivityDetail> removePendingParticipant({
+    required ActivityDetail detail,
+    required String participantId,
+  }) async {
+    return detail.copyWith(
+      pendingParticipants: detail.pendingParticipants
+          .where((participant) => participant.id != participantId)
+          .toList(growable: false),
+    );
+  }
+
+  @override
   Future<HelpfulToggleState> toggleHelpful({required String reviewId}) async {
     return const HelpfulToggleState(helpful: true, helpfulCount: 17);
   }

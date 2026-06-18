@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mateya_app/features/create/application/create_controller.dart';
 import 'package:mateya_app/features/create/data/create_repository.dart';
 import 'package:mateya_app/features/create/domain/create_models.dart';
+import 'package:mateya_app/shared/activity_categories/activity_category_repository.dart';
 
 void main() {
   group('CreateController', () {
@@ -12,6 +13,7 @@ void main() {
       () async {
         final controller = CreateController(
           repository: MockCreateRepository(),
+          categoryRepository: MockActivityCategoryRepository(),
           flowType: CreateFlowType.group,
           now: () => DateTime(2026, 6, 14, 9),
         );
@@ -33,6 +35,7 @@ void main() {
     test('class flow can submit after required fields are filled', () async {
       final controller = CreateController(
         repository: MockCreateRepository(),
+        categoryRepository: MockActivityCategoryRepository(),
         flowType: CreateFlowType.classRegistration,
         now: () => DateTime(2026, 6, 14, 9),
       );
@@ -70,6 +73,7 @@ void main() {
     test('manual class place requires a category selection', () async {
       final controller = CreateController(
         repository: MockCreateRepository(),
+        categoryRepository: MockActivityCategoryRepository(),
         flowType: CreateFlowType.classRegistration,
         now: () => DateTime(2026, 6, 14, 9),
       );
@@ -91,6 +95,7 @@ void main() {
         final repository = _FakeCreateRepository();
         final controller = CreateController(
           repository: repository,
+          categoryRepository: MockActivityCategoryRepository(),
           flowType: CreateFlowType.classRegistration,
           now: () => DateTime(2026, 6, 14, 9),
         );
