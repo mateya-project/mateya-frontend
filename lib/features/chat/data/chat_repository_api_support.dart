@@ -5,7 +5,10 @@ ChatRoom _parseRoomSummary(Object? value) {
   final roomType = (json['type'] as String?) == 'DIRECT'
       ? ChatRoomType.direct
       : ChatRoomType.group;
-  final roomTitle = _resolveRoomTitle(json['title'] as String?, type: roomType);
+  final roomTitle = _resolveRoomTitle(
+    json['title'] as String?,
+    type: roomType,
+  );
   final preview = json['lastMessagePreview'] as String?;
   final lastMessageAt = json['lastMessageAt'] as String?;
   final messageGroups = preview == null || preview.isEmpty
@@ -26,7 +29,7 @@ ChatRoom _parseRoomSummary(Object? value) {
     id: '${json['id']}',
     type: roomType,
     title: roomTitle,
-    imageUrl: '',
+    imageUrl: json['counterpartProfileImageUrl'] as String? ?? '',
     participantCount: json['participantCount'] as int? ?? 0,
     lastMessageAt: _parseDateTime(lastMessageAt),
     unreadCount: json['unreadCount'] as int? ?? 0,
