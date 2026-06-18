@@ -22,18 +22,22 @@ class HomeController extends ChangeNotifier {
 
   AsyncPhase _homePhase = AsyncPhase.idle;
   AsyncPhase _explorePhase = AsyncPhase.idle;
+  AsyncPhase _favoritePhase = AsyncPhase.idle;
   HomeSection _section = HomeSection.home;
   HomeSection _favoriteOriginSection = HomeSection.home;
   ExploreFilter _filter;
   String _searchQuery = '';
   List<ActivityItem> _homeActivities = const <ActivityItem>[];
   List<ActivityItem> _exploreActivities = const <ActivityItem>[];
+  List<ActivityItem> _favoriteActivities = const <ActivityItem>[];
   bool _hasLoadedExplore = false;
+  bool _hasLoadedFavorites = false;
   bool _hasNextExplore = false;
   bool _isLoadingMoreExplore = false;
   int? _nextExplorePage;
   String? _homeErrorMessage;
   String? _exploreErrorMessage;
+  String? _favoriteErrorMessage;
   String? _exploreLoadMoreErrorMessage;
   Timer? _searchDebounce;
   int _exploreRequestVersion = 0;
@@ -41,6 +45,7 @@ class HomeController extends ChangeNotifier {
   AsyncPhase get phase => _homePhase;
   AsyncPhase get homePhase => _homePhase;
   AsyncPhase get explorePhase => _explorePhase;
+  AsyncPhase get favoritePhase => _favoritePhase;
   HomeSection get section => _section;
   HomeSection get favoriteOriginSection => _favoriteOriginSection;
   ExploreFilter get filter => _filter;
@@ -50,21 +55,13 @@ class HomeController extends ChangeNotifier {
   String? get errorMessage => _homeErrorMessage;
   String? get homeErrorMessage => _homeErrorMessage;
   String? get exploreErrorMessage => _exploreErrorMessage;
+  String? get favoriteErrorMessage => _favoriteErrorMessage;
   String? get exploreLoadMoreErrorMessage => _exploreLoadMoreErrorMessage;
   List<ActivityItem> get exploreActivities => _exploreActivities;
-  List<ActivityItem> get favoriteActivities {
-    final ordered = <String, ActivityItem>{};
-    for (final activity in <ActivityItem>[
-      ..._homeActivities.where((item) => item.isFeatured),
-      ..._homeActivities.take(2),
-      ..._exploreActivities.take(4),
-    ]) {
-      ordered.putIfAbsent(activity.id, () => activity);
-    }
-    return ordered.values.take(6).toList(growable: false);
-  }
+  List<ActivityItem> get favoriteActivities => _favoriteActivities;
 
   bool get hasLoadedExplore => _hasLoadedExplore;
+  bool get hasLoadedFavorites => _hasLoadedFavorites;
   bool get hasMoreExplore => _hasNextExplore;
   bool get isLoadingMoreExplore => _isLoadingMoreExplore;
 
@@ -78,6 +75,7 @@ class HomeController extends ChangeNotifier {
   Future<void> retry() {
     return switch (_section) {
       HomeSection.explore => refreshExplore(),
+      HomeSection.favorites => _loadFavoriteActivities(),
       _ => _loadHomeActivities(),
     };
   }
@@ -111,8 +109,8 @@ class HomeController extends ChangeNotifier {
     }
     _section = HomeSection.favorites;
     notifyListeners();
-    if (!_hasLoadedExplore) {
-      unawaited(ensureExploreLoaded());
+    if (!_hasLoadedFavorites) {
+      unawaited(_loadFavoriteActivities());
     }
   }
 
@@ -343,6 +341,31 @@ class HomeController extends ChangeNotifier {
     } catch (_) {
       _homePhase = AsyncPhase.serverError;
       _homeErrorMessage = '데이터를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.';
+    }
+
+    notifyListeners();
+  }
+
+  Future<void> _loadFavoriteActivities() async {
+    _favoritePhase = AsyncPhase.loading;
+    _favoriteErrorMessage = null;
+    notifyListeners();
+
+    try {
+      _favoriteActivities = await _repository.fetchFavoriteActivities();
+      _favoritePhase = AsyncPhase.success;
+      _favoriteErrorMessage = null;
+      _hasLoadedFavorites = true;
+    } on HomeRepositoryException catch (error) {
+      _favoritePhase = error.type == HomeLoadFailureType.network
+          ? AsyncPhase.networkError
+          : AsyncPhase.serverError;
+      _favoriteErrorMessage = error.type == HomeLoadFailureType.network
+          ? '네트워크 연결을 확인한 뒤 다시 시도해 주세요.'
+          : '즐겨찾기 목록을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.';
+    } catch (_) {
+      _favoritePhase = AsyncPhase.serverError;
+      _favoriteErrorMessage = '즐겨찾기 목록을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.';
     }
 
     notifyListeners();

@@ -211,7 +211,7 @@ class _HomeFlowPageState extends State<HomeFlowPage> {
                       ),
                       HomeSection.favorites => FavoritesScreen(
                         key: const ValueKey<String>('favorites-screen'),
-                        activities: _controller.favoriteActivities,
+                        controller: _controller,
                         onBack:
                             _controller.favoriteOriginSection ==
                                 HomeSection.explore

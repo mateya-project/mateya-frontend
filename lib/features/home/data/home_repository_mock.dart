@@ -46,4 +46,13 @@ class MockHomeRepository implements HomeRepository {
       nextPage: hasNext ? page + 1 : null,
     );
   }
+
+  @override
+  Future<List<ActivityItem>> fetchFavoriteActivities() async {
+    await Future<void>.delayed(const Duration(milliseconds: 220));
+    return <ActivityItem>[
+      ..._mockActivities.where((item) => item.isFeatured).take(1),
+      ..._mockActivities.where((item) => !item.isFeatured).take(5),
+    ].toList(growable: false);
+  }
 }

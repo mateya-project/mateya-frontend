@@ -16,4 +16,6 @@ abstract interface class HomeRepository {
     required String keyword,
     required ExploreFilter filter,
   });
+
+  Future<List<ActivityItem>> fetchFavoriteActivities();
 }
