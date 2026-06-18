@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:flutter/material.dart';
+
 import '../../../app/app_config.dart';
 import '../../../shared/auth/auth_session.dart';
 import '../../../shared/network/http_transport.dart';
@@ -12,6 +14,11 @@ part 'create_repository_api_support.dart';
 part 'create_repository_mock_support.dart';
 
 abstract interface class CreateRepository {
+  Future<CreateEditableDraft> fetchEditableDraft({
+    required String id,
+    required CreateFlowType flowType,
+  });
+
   Future<List<CreatePlaceSuggestion>> fetchRecommendedPlaces({
     required CreateFlowType flowType,
     Set<String> categoryIds = const <String>{},
@@ -25,7 +32,10 @@ abstract interface class CreateRepository {
     String? categoryDetailCode,
   });
 
-  Future<CreateSubmitResult> submit(CreateSubmissionDraft draft);
+  Future<CreateSubmitResult> submit(
+    CreateSubmissionDraft draft, {
+    String? editingId,
+  });
 
   Future<void> delete({required String id, required CreateFlowType flowType});
 }

@@ -155,13 +155,15 @@ class CompletedStepView extends StatelessWidget {
           ),
           const SizedBox(height: 24),
           Text(
-            '${controller.flowType.entityLabel} 등록이 완료됐어요',
+            controller.completedMessage,
             style: theme.textTheme.headlineMedium,
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 12),
           Text(
-            '백엔드 연결 전 단계라 완료 후에는 홈으로 복귀하도록 구성했고, 생성 결과 요약은 프론트 상태로 먼저 보여줍니다.',
+            controller.isEditMode
+                ? '수정한 내용을 저장했고, 확인 후 이전 화면으로 돌아갈 수 있습니다.'
+                : '등록한 내용을 저장했고, 확인 후 홈으로 돌아갈 수 있습니다.',
             style: theme.textTheme.bodyMedium?.copyWith(
               color: AppColors.textSecondary,
             ),
@@ -175,7 +177,10 @@ class CompletedStepView extends StatelessWidget {
                   '${result.placeName}\n${formatCreateDate(result.eventStartsAt)}',
             ),
           const Spacer(),
-          MateyaButton(label: '홈으로 돌아가기', onPressed: onDone),
+          MateyaButton(
+            label: controller.isEditMode ? '이전 화면으로 돌아가기' : '홈으로 돌아가기',
+            onPressed: onDone,
+          ),
         ],
       ),
     );

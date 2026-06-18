@@ -151,11 +151,25 @@ class ImageTile extends StatelessWidget {
             borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
             child: Stack(
               children: <Widget>[
-                Image.file(
-                  File(image.path),
+                Image(
+                  image: image.isRemote
+                      ? NetworkImage(image.path)
+                      : FileImage(File(image.path)) as ImageProvider,
                   width: 144,
                   height: 112,
                   fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      width: 144,
+                      height: 112,
+                      color: AppColors.subtleBackground,
+                      alignment: Alignment.center,
+                      child: const Icon(
+                        Icons.image_outlined,
+                        color: AppColors.textSecondary,
+                      ),
+                    );
+                  },
                 ),
                 Positioned(
                   top: 8,

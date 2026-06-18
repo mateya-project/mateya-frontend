@@ -324,13 +324,67 @@ class _CreateFlowPageState extends State<CreateFlowPage> {
     return AnimatedBuilder(
       animation: widget.controller,
       builder: (context, _) {
+        if (widget.controller.isEditMode &&
+            widget.controller.isInitializingEditDraft) {
+          return const Scaffold(
+            backgroundColor: AppColors.background,
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+        if (widget.controller.isEditMode &&
+            widget.controller.didFailInitializingEditDraft) {
+          return Scaffold(
+            backgroundColor: AppColors.background,
+            body: SafeArea(
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      const Icon(
+                        Icons.error_outline_rounded,
+                        size: 52,
+                        color: AppColors.textSecondary,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        '${widget.controller.flowType.entityLabel} 정보를 불러오지 못했어요.',
+                        style: Theme.of(context).textTheme.titleLarge,
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        '잠시 후 다시 시도하거나 이전 화면으로 돌아가 주세요.',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 20),
+                      MateyaButton(
+                        label: '다시 시도',
+                        onPressed: widget.controller.retryInitializeEditDraft,
+                      ),
+                      const SizedBox(height: 10),
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: const Text('뒤로 가기'),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
+        }
         return Scaffold(
           backgroundColor: AppColors.background,
           body: SafeArea(
             child: Column(
               children: <Widget>[
                 CreateFlowHeader(
-                  title: widget.controller.flowType.label,
+                  title: widget.controller.screenTitle,
                   progressLabel: widget.controller.step == CreateStep.completed
                       ? '완료'
                       : '${widget.controller.currentStepNumber}/${widget.controller.totalStepCount}',
@@ -375,9 +429,11 @@ class _CreateFlowPageState extends State<CreateFlowPage> {
   String _submitButtonLabel() {
     if (widget.controller.step == CreateStep.details) {
       if (widget.controller.submitPhase == AsyncPhase.loading) {
-        return '${widget.controller.flowType.entityLabel} 등록 중...';
+        return widget.controller.isEditMode
+            ? '${widget.controller.flowType.entityLabel} 저장 중...'
+            : '${widget.controller.flowType.entityLabel} 등록 중...';
       }
-      return widget.controller.flowType.submitLabel;
+      return widget.controller.submitActionLabel;
     }
     return '다음';
   }

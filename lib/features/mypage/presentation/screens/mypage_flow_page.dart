@@ -9,6 +9,10 @@ import '../../../../shared/permissions/mateya_permission_dialogs.dart';
 import '../../../../shared/platform/external_url_launcher.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../../shared/widgets/mateya_text_field.dart';
+import '../../../create/application/create_controller.dart';
+import '../../../create/data/create_repository.dart';
+import '../../../create/domain/create_models.dart';
+import '../../../create/presentation/screens/create_flow_page.dart';
 import '../../../onboarding/application/onboarding_controller.dart';
 import '../../../onboarding/data/auth_repository.dart';
 import '../../../onboarding/data/location_repository.dart';
@@ -123,6 +127,9 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
         data: controller.personalPage!,
         isUpdatingProfileImage: controller.isUpdatingProfileImage,
         onOpenRecentActivities: controller.openRecentActivities,
+        onEditHostedActivity: (activity) {
+          _openActivityEditFlow(activity, CreateFlowType.group);
+        },
         onEditProfileImage: _pickProfileImage,
         onOpenSettings: controller.openSettings,
       ),
@@ -138,6 +145,9 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
         key: const ValueKey<String>('recent-activities'),
         data: controller.recentActivity!,
         onBack: controller.openPersonalHome,
+        onEditHostedActivity: (activity) {
+          _openActivityEditFlow(activity, CreateFlowType.group);
+        },
       ),
       MyPageRoute.settings => SettingsView(
         key: const ValueKey<String>('settings'),
@@ -170,6 +180,9 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
         errorText: controller.phase == MyPageAsyncPhase.validationError
             ? controller.errorMessage
             : null,
+        onEditActivity: (activity) {
+          _openActivityEditFlow(activity, CreateFlowType.classRegistration);
+        },
         onEditProfileImage: _pickProfileImage,
         onEditActivityRegion: _openActivityRegionDialog,
         onSave: () {
@@ -242,6 +255,31 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(const SnackBar(content: Text('문의 링크를 열지 못해 주소를 복사했어요.')));
+  }
+
+  Future<void> _openActivityEditFlow(
+    ActivityHistoryEntry activity,
+    CreateFlowType flowType,
+  ) async {
+    final hasSession = AuthSessionStore.instance.hasSession;
+    final didChange = await Navigator.of(context).push<bool>(
+      MaterialPageRoute<bool>(
+        builder: (_) => CreateFlowPage(
+          controller: CreateController(
+            repository: hasSession
+                ? ApiCreateRepository()
+                : MockCreateRepository(),
+            flowType: flowType,
+            isEditMode: true,
+            editingId: activity.id,
+          ),
+        ),
+      ),
+    );
+    if (!mounted || didChange != true) {
+      return;
+    }
+    await widget.controller.retry();
   }
 
   Future<void> _pickProfileImage() async {

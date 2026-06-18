@@ -32,6 +32,15 @@ String _audienceToServerValue(String audienceId) => switch (audienceId) {
   _ => 'ANYONE',
 };
 
+String? _audienceFromServerValue(String value) => switch (value) {
+  'ANYONE' => 'everyone',
+  'FOREIGNER_WELCOME' => 'foreigner',
+  'KOREAN_WELCOME' => 'korean',
+  'TOURIST_RECOMMENDED' => 'tourist',
+  'BEGINNER_WELCOME' => 'beginner',
+  _ => null,
+};
+
 CreatePlaceSuggestion _parsePlaceSuggestion(Object? value) {
   final json = _asMap(value);
   final serverCategoryCode = json['category'] as String?;
@@ -119,6 +128,14 @@ String? _contentTypeFor(String fileName) {
     return 'image/gif';
   }
   return null;
+}
+
+String _remoteImageName(String imageUrl) {
+  final uri = Uri.tryParse(imageUrl);
+  final segment = uri?.pathSegments.isNotEmpty == true
+      ? uri!.pathSegments.last
+      : imageUrl.split('/').last;
+  return segment.isEmpty ? 'image' : segment;
 }
 
 CreateRepositoryException _mapApiException(MateyaApiException error) {

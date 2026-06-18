@@ -197,11 +197,13 @@ class MyPageRecentActivityPreviewSection extends StatelessWidget {
     super.key,
     required this.activities,
     required this.onViewAll,
+    this.onActivityTap,
     this.showButton = true,
   });
 
   final List<ActivityHistoryEntry> activities;
   final VoidCallback onViewAll;
+  final ValueChanged<ActivityHistoryEntry>? onActivityTap;
   final bool showButton;
 
   @override
@@ -228,7 +230,12 @@ class MyPageRecentActivityPreviewSection extends StatelessWidget {
             index < activities.length;
             index += 1
           ) ...<Widget>[
-            MyPageActivityHistoryCard(activity: activities[index]),
+            MyPageActivityHistoryCard(
+              activity: activities[index],
+              onTap: activities[index].isHostedByMe && onActivityTap != null
+                  ? () => onActivityTap!(activities[index])
+                  : null,
+            ),
             if (index != activities.length - 1) const SizedBox(height: 14),
           ],
         ],
