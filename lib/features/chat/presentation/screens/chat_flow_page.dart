@@ -22,7 +22,7 @@ class ChatFlowPage extends StatefulWidget {
   const ChatFlowPage({
     super.key,
     required this.controller,
-    required this.onBack,
+    this.onBack,
     required this.onHomeTap,
     required this.onExploreTap,
     required this.onPlusTap,
@@ -30,7 +30,7 @@ class ChatFlowPage extends StatefulWidget {
   });
 
   final ChatController controller;
-  final VoidCallback onBack;
+  final VoidCallback? onBack;
   final VoidCallback onHomeTap;
   final VoidCallback onExploreTap;
   final VoidCallback onPlusTap;
@@ -425,7 +425,9 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
   Widget _buildListScreen(BuildContext context) {
     return Column(
       children: <Widget>[
-        MateyaHeader.backArrow(onBack: widget.onBack),
+        widget.onBack == null
+            ? const MateyaHeader.noBackArrow()
+            : MateyaHeader.backArrow(onBack: widget.onBack),
         const SizedBox(height: 24),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),

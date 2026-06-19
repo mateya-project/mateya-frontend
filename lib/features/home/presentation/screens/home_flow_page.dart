@@ -28,10 +28,10 @@ import '../widgets/explore_filter_sheet.dart';
 import '../widgets/home_content.dart';
 
 class HomeFlowPage extends StatefulWidget {
-  const HomeFlowPage({super.key, required this.flowKind, required this.onBack});
+  const HomeFlowPage({super.key, required this.flowKind, this.onBack});
 
   final FlowKind? flowKind;
-  final VoidCallback onBack;
+  final VoidCallback? onBack;
 
   @override
   State<HomeFlowPage> createState() => _HomeFlowPageState();
@@ -194,7 +194,7 @@ class _HomeFlowPageState extends State<HomeFlowPage> {
         }
         return Column(
           children: <Widget>[
-            _controller.section == HomeSection.home
+            _controller.section == HomeSection.home && widget.onBack != null
                 ? MateyaHeader.backArrow(onBack: widget.onBack)
                 : const MateyaHeader.noBackArrow(),
             Expanded(

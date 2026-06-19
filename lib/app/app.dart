@@ -21,17 +21,25 @@ class MateyaApp extends StatefulWidget {
 
 class _MateyaAppState extends State<MateyaApp> with WidgetsBindingObserver {
   final AppLogger _logger = AppLogger.instance;
+  late final MateyaApiClient _apiClient;
+  FlowKind? _initialFlowKind;
+  bool _isResolvingInitialRoute = true;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    _apiClient = MateyaApiClient(
+      baseUrl: AppConfig.apiBaseUrl,
+      sessionStore: AuthSessionStore.instance,
+    );
     _logger.info(
       'Mateya app mounted',
       context: <String, Object?>{
         'hasSession': AuthSessionStore.instance.hasSession,
       },
     );
+    _resolveInitialRoute();
   }
 
   @override
@@ -48,6 +56,70 @@ class _MateyaAppState extends State<MateyaApp> with WidgetsBindingObserver {
     super.dispose();
   }
 
+  Future<void> _resolveInitialRoute() async {
+    final session = AuthSessionStore.instance.session;
+    if (session == null) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _initialFlowKind = null;
+        _isResolvingInitialRoute = false;
+      });
+      return;
+    }
+
+    final flowKind = await _resolveFlowKind(session);
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _initialFlowKind = flowKind;
+      _isResolvingInitialRoute = false;
+    });
+  }
+
+  Future<FlowKind> _resolveFlowKind(AuthSession session) async {
+    if (_isHostRole(session.user.role)) {
+      return FlowKind.host;
+    }
+
+    try {
+      await _apiClient.getJson('/api/v1/hosts/me', requiresAuth: true);
+      final refreshedSession = AuthSessionStore.instance.session;
+      if (refreshedSession != null &&
+          !_isHostRole(refreshedSession.user.role)) {
+        AuthSessionStore.instance.save(
+          refreshedSession.copyWith(
+            user: refreshedSession.user.copyWith(role: 'BUSINESS'),
+          ),
+        );
+      }
+      _logger.info('Resolved host flow during bootstrap');
+      return FlowKind.host;
+    } on MateyaApiException catch (error) {
+      if (error.type == ApiFailureType.network) {
+        _logger.warning(
+          'Failed to verify host flow during bootstrap',
+          error: error,
+          context: <String, Object?>{
+            'statusCode': error.statusCode,
+            'fallbackFlowKind': FlowKind.guest.name,
+          },
+        );
+      } else {
+        _logger.info(
+          'Falling back to guest flow during bootstrap',
+          context: <String, Object?>{
+            'statusCode': error.statusCode,
+            'path': error.path,
+          },
+        );
+      }
+      return FlowKind.guest;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final session = AuthSessionStore.instance.session;
@@ -55,13 +127,10 @@ class _MateyaAppState extends State<MateyaApp> with WidgetsBindingObserver {
       title: 'MateYa',
       debugShowCheckedModeBanner: false,
       theme: buildMateyaTheme(),
-      home: session != null
-          ? HomeFlowPage(
-              flowKind: session.user.role == 'BUSINESS'
-                  ? FlowKind.host
-                  : FlowKind.guest,
-              onBack: () {},
-            )
+      home: _isResolvingInitialRoute
+          ? const _AppBootstrapLoadingView()
+          : session != null
+          ? HomeFlowPage(flowKind: _initialFlowKind ?? FlowKind.guest)
           : OnboardingFlowPage(
               controller: OnboardingController(
                 locationRepository: DeviceNeighborhoodLocationRepository(),
@@ -75,5 +144,19 @@ class _MateyaAppState extends State<MateyaApp> with WidgetsBindingObserver {
               ),
             ),
     );
+  }
+}
+
+bool _isHostRole(String role) {
+  final normalizedRole = role.trim().toUpperCase();
+  return normalizedRole == 'BUSINESS' || normalizedRole == 'HOST';
+}
+
+class _AppBootstrapLoadingView extends StatelessWidget {
+  const _AppBootstrapLoadingView();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(body: Center(child: CircularProgressIndicator()));
   }
 }
