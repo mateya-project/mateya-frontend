@@ -256,10 +256,12 @@ class ConsentHistoryView extends StatelessWidget {
     super.key,
     required this.entries,
     required this.onBack,
+    required this.onOpenDetail,
   });
 
   final List<ConsentHistoryEntry> entries;
   final VoidCallback onBack;
+  final ValueChanged<ConsentHistoryEntry> onOpenDetail;
 
   @override
   Widget build(BuildContext context) {
@@ -276,35 +278,51 @@ class ConsentHistoryView extends StatelessWidget {
               ),
               const SizedBox(height: 10),
               Text(
-                '약관명, 동의 여부, 동의 날짜를 확인할 수 있어요.',
+                '약관명, 동의 여부, 동의 날짜를 확인하고 상세 약관도 다시 볼 수 있어요.',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: AppColors.textSecondary,
                 ),
               ),
               const SizedBox(height: 24),
-              for (final entry in entries) ...<Widget>[
+              if (entries.isEmpty)
                 MyPageSectionCard(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Text(
-                        entry.title,
-                        style: Theme.of(context).textTheme.titleLarge,
-                      ),
-                      const SizedBox(height: 12),
-                      _DetailRow(label: '약관', value: entry.versionLabel),
-                      const SizedBox(height: 8),
-                      _DetailRow(
-                        label: '동의여부',
-                        value: entry.agreed ? '동의' : '미동의',
-                      ),
-                      const SizedBox(height: 8),
-                      _DetailRow(label: '동의날짜', value: entry.agreedAtLabel),
-                    ],
+                  child: Text(
+                    '확인할 동의 내역이 아직 없어요.',
+                    style: Theme.of(context).textTheme.bodyMedium,
                   ),
-                ),
-                const SizedBox(height: 14),
-              ],
+                )
+              else
+                for (final entry in entries) ...<Widget>[
+                  MyPageSectionCard(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(
+                          entry.title,
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
+                        const SizedBox(height: 12),
+                        _DetailRow(label: '약관', value: entry.versionLabel),
+                        const SizedBox(height: 8),
+                        _DetailRow(
+                          label: '동의여부',
+                          value: entry.agreed ? '동의' : '미동의',
+                        ),
+                        const SizedBox(height: 8),
+                        _DetailRow(label: '동의날짜', value: entry.agreedAtLabel),
+                        const SizedBox(height: 14),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: TextButton(
+                            onPressed: () => onOpenDetail(entry),
+                            child: const Text('상세보기'),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                ],
             ],
           ),
         ),
@@ -720,46 +738,46 @@ class _RecentActivityRow extends StatelessWidget {
             child: SizedBox(
               height: 102,
               child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(
-                  activity.title,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.bodyLarge,
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  activity.dateLabel,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppColors.textSecondary,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(
+                    activity.title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.bodyLarge,
                   ),
-                ),
-                Text(
-                  activity.timeLabel,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-                const Spacer(),
-                Row(
-                  children: <Widget>[
-                    Text(
-                      activity.priceLabel,
-                      style: Theme.of(context).textTheme.bodyLarge,
+                  const SizedBox(height: 6),
+                  Text(
+                    activity.dateLabel,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: AppColors.textSecondary,
                     ),
-                    const Spacer(),
-                    if (activity.rating != null) ...<Widget>[
-                      const Icon(Icons.star_rounded, size: 18),
-                      const SizedBox(width: 4),
+                  ),
+                  Text(
+                    activity.timeLabel,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                  const Spacer(),
+                  Row(
+                    children: <Widget>[
                       Text(
-                        activity.rating!.toStringAsFixed(2),
+                        activity.priceLabel,
                         style: Theme.of(context).textTheme.bodyLarge,
                       ),
+                      const Spacer(),
+                      if (activity.rating != null) ...<Widget>[
+                        const Icon(Icons.star_rounded, size: 18),
+                        const SizedBox(width: 4),
+                        Text(
+                          activity.rating!.toStringAsFixed(2),
+                          style: Theme.of(context).textTheme.bodyLarge,
+                        ),
+                      ],
                     ],
-                  ],
-                ),
-              ],
+                  ),
+                ],
               ),
             ),
           ),

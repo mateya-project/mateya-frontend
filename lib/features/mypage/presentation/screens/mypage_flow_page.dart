@@ -18,7 +18,9 @@ import '../../../onboarding/application/onboarding_controller.dart';
 import '../../../onboarding/data/auth_repository.dart';
 import '../../../onboarding/data/location_repository.dart';
 import '../../../onboarding/domain/onboarding_flow.dart';
+import '../../../onboarding/domain/onboarding_terms.dart';
 import '../../../onboarding/presentation/screens/onboarding_flow_page.dart';
+import '../../../onboarding/presentation/screens/onboarding_terms_detail_page.dart';
 import '../../../onboarding/presentation/widgets/onboarding_shared_widgets.dart';
 import '../../application/mypage_controller.dart';
 import '../../domain/mypage_models.dart';
@@ -170,6 +172,7 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
         key: const ValueKey<String>('consent-history'),
         entries: controller.consentHistory,
         onBack: controller.openSettings,
+        onOpenDetail: _openConsentHistoryDetail,
       ),
       MyPageRoute.blockedUsers => BlockedUsersView(
         key: const ValueKey<String>('blocked-users'),
@@ -212,6 +215,25 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
         selection: TextSelection.collapsed(offset: businessIntroduction.length),
       );
     }
+  }
+
+  Future<void> _openConsentHistoryDetail(ConsentHistoryEntry entry) async {
+    final document = onboardingTermsDocumentForConsent(
+      consentId: entry.id,
+      title: entry.title,
+    );
+    if (document == null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('상세 약관을 아직 준비하지 못했어요.')));
+      return;
+    }
+
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (context) => OnboardingTermsDetailPage(document: document),
+      ),
+    );
   }
 
   Future<void> _openWithdrawalDialog() async {

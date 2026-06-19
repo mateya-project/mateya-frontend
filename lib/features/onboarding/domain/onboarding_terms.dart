@@ -167,3 +167,68 @@ OnboardingTermsDocument onboardingTermsDocumentForType(
     (document) => document.type == type,
   );
 }
+
+OnboardingTermsDocument? onboardingTermsDocumentForConsent({
+  required String consentId,
+  required String title,
+}) {
+  final normalizedConsentId = _normalizeTermsLookupKey(consentId);
+  final normalizedTitle = _normalizeTermsLookupKey(title);
+
+  for (final document in kRequiredOnboardingTermsDocuments) {
+    final aliases = _termsLookupAliases[document.type] ?? const <String>{};
+    final normalizedDocumentTitle = _normalizeTermsLookupKey(document.title);
+    if (normalizedConsentId == normalizedDocumentTitle ||
+        normalizedTitle == normalizedDocumentTitle) {
+      return document;
+    }
+    for (final alias in aliases) {
+      final normalizedAlias = _normalizeTermsLookupKey(alias);
+      if (normalizedConsentId == normalizedAlias ||
+          normalizedTitle == normalizedAlias) {
+        return document;
+      }
+    }
+  }
+
+  return null;
+}
+
+String _normalizeTermsLookupKey(String value) {
+  return value
+      .trim()
+      .toLowerCase()
+      .replaceAll(RegExp(r'[\s·.,()\[\]{}]'), '')
+      .replaceAll('_', '')
+      .replaceAll('-', '');
+}
+
+const Map<OnboardingTermsType, Set<String>> _termsLookupAliases =
+    <OnboardingTermsType, Set<String>>{
+      OnboardingTermsType.serviceTerms: <String>{
+        'SERVICE_TERMS',
+        'service_terms',
+        'service-terms',
+        '서비스 이용 약관',
+      },
+      OnboardingTermsType.privacyThirdParty: <String>{
+        'PRIVACY_THIRD_PARTY',
+        'privacy_third_party',
+        'privacy-third-party',
+        '개인정보 제3자 제공 동의',
+        '개인정보 수집·이용 동의',
+      },
+      OnboardingTermsType.locationBasedService: <String>{
+        'LOCATION_BASED_SERVICE',
+        'location_based_service',
+        'location-based-service',
+        '위치기반서비스 이용약관',
+        '위치기반 서비스 이용 동의',
+      },
+      OnboardingTermsType.ageOver14: <String>{
+        'AGE_OVER_14',
+        'age_over_14',
+        'age-over-14',
+        '만 14세 이상 확인',
+      },
+    };
