@@ -18,7 +18,9 @@ import '../../../onboarding/application/onboarding_controller.dart';
 import '../../../onboarding/data/auth_repository.dart';
 import '../../../onboarding/data/location_repository.dart';
 import '../../../onboarding/domain/onboarding_flow.dart';
+import '../../../onboarding/domain/onboarding_terms.dart';
 import '../../../onboarding/presentation/screens/onboarding_flow_page.dart';
+import '../../../onboarding/presentation/screens/onboarding_terms_detail_page.dart';
 import '../../../onboarding/presentation/widgets/onboarding_shared_widgets.dart';
 import '../../application/mypage_controller.dart';
 import '../../domain/mypage_models.dart';
@@ -161,6 +163,7 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
         profile: controller.personalPage!.profile,
         onEditActivityRegion: _openActivityRegionDialog,
         onOpenConsentHistory: controller.openConsentHistory,
+        onOpenPrivacyPolicy: _openPrivacyPolicy,
         onOpenCustomerSupport: _openCustomerSupport,
         onOpenBlockedUsers: controller.openBlockedUsers,
         onLogout: _logout,
@@ -170,6 +173,7 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
         key: const ValueKey<String>('consent-history'),
         entries: controller.consentHistory,
         onBack: controller.openSettings,
+        onOpenDetail: _openConsentHistoryDetail,
       ),
       MyPageRoute.blockedUsers => BlockedUsersView(
         key: const ValueKey<String>('blocked-users'),
@@ -214,6 +218,25 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
     }
   }
 
+  Future<void> _openConsentHistoryDetail(ConsentHistoryEntry entry) async {
+    final document = onboardingTermsDocumentForConsent(
+      consentId: entry.id,
+      title: entry.title,
+    );
+    if (document == null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('상세 약관을 아직 준비하지 못했어요.')));
+      return;
+    }
+
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (context) => OnboardingTermsDetailPage(document: document),
+      ),
+    );
+  }
+
   Future<void> _openWithdrawalDialog() async {
     widget.controller.clearError();
     _withdrawalAgreement = false;
@@ -251,19 +274,35 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
   }
 
   Future<void> _openCustomerSupport() async {
-    const url = 'https://pf.kakao.com/_EPxmXX/friend';
+    await _openExternalLinkWithCopyFallback(
+      AppConfig.customerSupportUrl,
+      failureMessage: '문의 링크를 열지 못해 주소를 복사했어요.',
+    );
+  }
+
+  Future<void> _openPrivacyPolicy() async {
+    await _openExternalLinkWithCopyFallback(
+      AppConfig.privacyPolicyUrl,
+      failureMessage: '개인정보처리방침 링크를 열지 못해 주소를 복사했어요.',
+    );
+  }
+
+  Future<void> _openExternalLinkWithCopyFallback(
+    String url, {
+    required String failureMessage,
+  }) async {
     final opened = await openExternalUrl(url);
     if (opened || !mounted) {
       return;
     }
 
-    await Clipboard.setData(const ClipboardData(text: url));
+    await Clipboard.setData(ClipboardData(text: url));
     if (!mounted) {
       return;
     }
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(const SnackBar(content: Text('문의 링크를 열지 못해 주소를 복사했어요.')));
+    ).showSnackBar(SnackBar(content: Text(failureMessage)));
   }
 
   Future<void> _openActivityEditFlow(

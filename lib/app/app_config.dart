@@ -9,6 +9,16 @@ abstract final class AppConfig {
     defaultValue: 'io8sqad7yn',
   );
 
+  static const String customerSupportUrl = String.fromEnvironment(
+    'MATEYA_CUSTOMER_SUPPORT_URL',
+    defaultValue: 'https://pf.kakao.com/_EPxmXX/friend',
+  );
+
+  static const String privacyPolicyUrl = String.fromEnvironment(
+    'MATEYA_PRIVACY_POLICY_URL',
+    defaultValue: 'https://app.notion.com/p/38458d06892d801185d8eca4faec6e8b',
+  );
+
   static const List<String> supportedCarriers = <String>[
     'SKT',
     'KT',
