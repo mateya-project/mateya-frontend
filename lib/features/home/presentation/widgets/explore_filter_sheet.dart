@@ -12,12 +12,14 @@ class ExploreFilterSheet extends StatefulWidget {
     required this.initialFilter,
     required this.defaultFilter,
     required this.validator,
+    this.activityRegionName,
   });
 
   final List<ActivityCategory> categories;
   final ExploreFilter initialFilter;
   final ExploreFilter defaultFilter;
   final String? Function(ExploreFilter filter) validator;
+  final String? activityRegionName;
 
   @override
   State<ExploreFilterSheet> createState() => _ExploreFilterSheetState();
@@ -184,7 +186,7 @@ class _ExploreFilterSheetState extends State<ExploreFilterSheet> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
                               Text(
-                                '우만동과 근처 지역 34개',
+                                _buildDistanceSummary(),
                                 style: Theme.of(context).textTheme.bodyMedium
                                     ?.copyWith(
                                       decoration: TextDecoration.underline,
@@ -205,7 +207,8 @@ class _ExploreFilterSheetState extends State<ExploreFilterSheet> {
                                   value: _draft.distance.index.toDouble(),
                                   divisions:
                                       DistanceRangeOption.values.length - 1,
-                                  max: 3,
+                                  max: (DistanceRangeOption.values.length - 1)
+                                      .toDouble(),
                                   min: 0,
                                   onChanged: (value) {
                                     setState(() {
@@ -466,5 +469,20 @@ class _ExploreFilterSheetState extends State<ExploreFilterSheet> {
       return null;
     }
     return int.tryParse(normalized);
+  }
+
+  String _buildDistanceSummary() {
+    final regionName = widget.activityRegionName?.trim();
+    final targetLabel = switch (_draft.distance) {
+      DistanceRangeOption.local => '내 지역',
+      DistanceRangeOption.within1km => '1km 이내',
+      DistanceRangeOption.within5km => '5km 이내',
+      DistanceRangeOption.within10km => '10km 이내',
+    };
+
+    if (regionName == null || regionName.isEmpty) {
+      return '활동 지역 기준 $targetLabel';
+    }
+    return '$regionName 기준 $targetLabel';
   }
 }

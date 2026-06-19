@@ -161,6 +161,7 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
       MyPageRoute.settings => SettingsView(
         key: const ValueKey<String>('settings'),
         profile: controller.personalPage!.profile,
+        onBack: controller.openPersonalHome,
         onEditActivityRegion: _openActivityRegionDialog,
         onOpenConsentHistory: controller.openConsentHistory,
         onOpenPrivacyPolicy: _openPrivacyPolicy,

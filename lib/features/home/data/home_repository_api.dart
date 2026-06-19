@@ -211,7 +211,7 @@ class ApiHomeRepository implements HomeRepository {
       rating: (json['reviewRating'] as num?)?.toDouble() ?? 0,
       participantCount: json['participantCount'] as int? ?? 0,
       participantCapacity: json['capacity'] as int? ?? 0,
-      distanceKm: 0,
+      distanceKm: ((json['distanceKm'] as num?) ?? 0).round(),
       audiences: const <ActivityAudienceOption>{
         ActivityAudienceOption.everyone,
       },

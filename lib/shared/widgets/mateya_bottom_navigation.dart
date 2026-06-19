@@ -24,80 +24,83 @@ class MateyaBottomNavigation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border(top: BorderSide(color: AppColors.divider)),
-      ),
-      child: SafeArea(
-        top: false,
-        child: Row(
-          children: <Widget>[
-            Expanded(
-              child: _BottomItem(
-                label: 'Home',
-                icon: Icons.home_rounded,
-                active: currentTab == MateyaBottomTab.home,
-                onTap: onHomeTap,
+    return Material(
+      color: Colors.white,
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border(top: BorderSide(color: AppColors.divider)),
+        ),
+        child: SafeArea(
+          top: false,
+          child: Row(
+            children: <Widget>[
+              Expanded(
+                child: _BottomItem(
+                  label: 'Home',
+                  icon: Icons.home_rounded,
+                  active: currentTab == MateyaBottomTab.home,
+                  onTap: onHomeTap,
+                ),
               ),
-            ),
-            Expanded(
-              child: _BottomItem(
-                label: 'Explore',
-                icon: Icons.explore_rounded,
-                active: currentTab == MateyaBottomTab.explore,
-                onTap: onExploreTap,
+              Expanded(
+                child: _BottomItem(
+                  label: 'Explore',
+                  icon: Icons.explore_rounded,
+                  active: currentTab == MateyaBottomTab.explore,
+                  onTap: onExploreTap,
+                ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: GestureDetector(
-                onTap: onPlusTap,
-                child: Container(
-                  width: 56,
-                  height: 56,
-                  decoration: const BoxDecoration(
-                    color: AppColors.brandGreenLight,
-                    shape: BoxShape.circle,
-                    boxShadow: <BoxShadow>[
-                      BoxShadow(
-                        color: Color(0x14000000),
-                        blurRadius: 2,
-                        offset: Offset(0, 0),
-                      ),
-                      BoxShadow(
-                        color: Color(0x1F000000),
-                        blurRadius: 8,
-                        offset: Offset(0, 8),
-                      ),
-                    ],
-                  ),
-                  child: const Icon(
-                    Icons.add_rounded,
-                    color: Colors.white,
-                    size: 30,
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: GestureDetector(
+                  onTap: onPlusTap,
+                  child: Container(
+                    width: 56,
+                    height: 56,
+                    decoration: const BoxDecoration(
+                      color: AppColors.brandGreenLight,
+                      shape: BoxShape.circle,
+                      boxShadow: <BoxShadow>[
+                        BoxShadow(
+                          color: Color(0x14000000),
+                          blurRadius: 2,
+                          offset: Offset(0, 0),
+                        ),
+                        BoxShadow(
+                          color: Color(0x1F000000),
+                          blurRadius: 8,
+                          offset: Offset(0, 8),
+                        ),
+                      ],
+                    ),
+                    child: const Icon(
+                      Icons.add_rounded,
+                      color: Colors.white,
+                      size: 30,
+                    ),
                   ),
                 ),
               ),
-            ),
-            Expanded(
-              child: _BottomItem(
-                label: 'Chat',
-                icon: Icons.chat_bubble_rounded,
-                active: currentTab == MateyaBottomTab.chat,
-                onTap: onChatTap,
+              Expanded(
+                child: _BottomItem(
+                  label: 'Chat',
+                  icon: Icons.chat_bubble_rounded,
+                  active: currentTab == MateyaBottomTab.chat,
+                  onTap: onChatTap,
+                ),
               ),
-            ),
-            Expanded(
-              child: _BottomItem(
-                label: 'Profile',
-                icon: Icons.person_rounded,
-                active: currentTab == MateyaBottomTab.profile,
-                onTap: onProfileTap,
+              Expanded(
+                child: _BottomItem(
+                  label: 'Profile',
+                  icon: Icons.person_rounded,
+                  active: currentTab == MateyaBottomTab.profile,
+                  onTap: onProfileTap,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

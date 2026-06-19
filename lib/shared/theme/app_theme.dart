@@ -58,6 +58,7 @@ ThemeData buildMateyaTheme() {
       backgroundColor: AppColors.darkButton,
       contentTextStyle: baseTextTheme.bodyMedium?.copyWith(color: Colors.white),
       behavior: SnackBarBehavior.floating,
+      insetPadding: const EdgeInsets.fromLTRB(20, 0, 20, 112),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
     ),
   );

@@ -340,9 +340,6 @@ class HomePlaceholderStepView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return HomeFlowPage(
-      flowKind: controller.flowKind,
-      onBack: controller.goBack,
-    );
+    return HomeFlowPage(flowKind: controller.flowKind);
   }
 }

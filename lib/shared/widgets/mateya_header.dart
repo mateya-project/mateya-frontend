@@ -267,15 +267,19 @@ class _HeaderGlyphButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkResponse(
-      onTap: onTap,
-      radius: 24,
-      highlightShape: BoxShape.circle,
-      child: SizedBox(
-        width: 40,
-        height: 40,
-        child: Center(
-          child: Icon(icon, size: size, color: color),
+    return Material(
+      color: Colors.transparent,
+      shape: const CircleBorder(),
+      child: InkResponse(
+        onTap: onTap,
+        radius: 24,
+        highlightShape: BoxShape.circle,
+        child: SizedBox(
+          width: 40,
+          height: 40,
+          child: Center(
+            child: Icon(icon, size: size, color: color),
+          ),
         ),
       ),
     );

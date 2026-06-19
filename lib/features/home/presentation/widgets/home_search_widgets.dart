@@ -7,7 +7,7 @@ import '../../application/home_controller.dart';
 import '../../domain/home_models.dart';
 import 'home_feedback_states.dart';
 
-class HomeSearchBar extends StatelessWidget {
+class HomeSearchBar extends StatefulWidget {
   const HomeSearchBar({
     super.key,
     this.controller,
@@ -30,7 +30,75 @@ class HomeSearchBar extends StatelessWidget {
   final VoidCallback onFilterTap;
 
   @override
+  State<HomeSearchBar> createState() => _HomeSearchBarState();
+}
+
+class _HomeSearchBarState extends State<HomeSearchBar> {
+  late FocusNode _focusNode;
+  late bool _ownsFocusNode;
+  TextEditingController? _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _attachFocusNode(widget.focusNode);
+    _attachController(widget.controller);
+  }
+
+  @override
+  void didUpdateWidget(covariant HomeSearchBar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.focusNode != widget.focusNode) {
+      _detachFocusNode();
+      _attachFocusNode(widget.focusNode);
+    }
+    if (oldWidget.controller != widget.controller) {
+      _detachController();
+      _attachController(widget.controller);
+    }
+  }
+
+  @override
+  void dispose() {
+    _detachFocusNode();
+    _detachController();
+    super.dispose();
+  }
+
+  void _attachFocusNode(FocusNode? focusNode) {
+    _ownsFocusNode = focusNode == null;
+    _focusNode = focusNode ?? FocusNode();
+    _focusNode.addListener(_handleStateChanged);
+  }
+
+  void _detachFocusNode() {
+    _focusNode.removeListener(_handleStateChanged);
+    if (_ownsFocusNode) {
+      _focusNode.dispose();
+    }
+  }
+
+  void _attachController(TextEditingController? controller) {
+    _controller = controller;
+    _controller?.addListener(_handleStateChanged);
+  }
+
+  void _detachController() {
+    _controller?.removeListener(_handleStateChanged);
+    _controller = null;
+  }
+
+  void _handleStateChanged() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final shouldHidePlaceholder =
+        _focusNode.hasFocus || (widget.controller?.text.isNotEmpty ?? false);
+
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -52,7 +120,7 @@ class HomeSearchBar extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(100),
-          onTap: onTap,
+          onTap: widget.onTap,
           child: Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 8, 8),
             child: Row(
@@ -65,37 +133,41 @@ class HomeSearchBar extends StatelessWidget {
                 const SizedBox(width: 10),
                 Expanded(
                   child: IgnorePointer(
-                    ignoring: readOnly,
+                    ignoring: widget.readOnly,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         TextField(
-                          controller: controller,
-                          focusNode: focusNode,
-                          readOnly: readOnly,
-                          onTap: onTap,
-                          onChanged: onChanged,
+                          controller: widget.controller,
+                          focusNode: _focusNode,
+                          readOnly: widget.readOnly,
+                          onTap: widget.onTap,
+                          onChanged: widget.onChanged,
                           decoration: InputDecoration(
                             isCollapsed: true,
                             border: InputBorder.none,
-                            hintText: hintText,
+                            hintText: shouldHidePlaceholder
+                                ? null
+                                : widget.hintText,
                             hintStyle: Theme.of(context).textTheme.bodyMedium
                                 ?.copyWith(color: AppColors.textPrimary),
                           ),
                           style: Theme.of(context).textTheme.bodyMedium
                               ?.copyWith(color: AppColors.textPrimary),
                         ),
-                        const SizedBox(height: 2),
-                        Text(
-                          helperText,
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
+                        if (!shouldHidePlaceholder) ...<Widget>[
+                          const SizedBox(height: 2),
+                          Text(
+                            widget.helperText,
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        ],
                       ],
                     ),
                   ),
                 ),
                 IconButton(
-                  onPressed: onFilterTap,
+                  onPressed: widget.onFilterTap,
                   icon: Container(
                     width: 38,
                     height: 38,

@@ -228,126 +228,109 @@ class FavoritesScreen extends StatelessWidget {
   const FavoritesScreen({
     super.key,
     required this.controller,
-    required this.onBack,
     required this.onActivityTap,
   });
 
   final HomeController controller;
-  final VoidCallback onBack;
   final ValueChanged<ActivityItem> onActivityTap;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
-      child: Column(
-        children: <Widget>[
-          const SizedBox(height: 12),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: IconButton(
-              onPressed: onBack,
-              icon: const Icon(Icons.arrow_back_rounded),
-              color: AppColors.textPrimary,
-            ),
-          ),
-          Expanded(
-            child: switch (controller.favoritePhase) {
-              AsyncPhase.loading || AsyncPhase.idle => const ExploreSkeleton(),
-              AsyncPhase.networkError || AsyncPhase.serverError => RetryState(
-                message:
-                    controller.favoriteErrorMessage ?? '즐겨찾기 목록을 불러오지 못했어요.',
-                onRetry: controller.retry,
-              ),
-              AsyncPhase.success || AsyncPhase.validationError => Builder(
-                builder: (context) {
-                  final activities = controller.favoriteActivities;
-                  if (activities.isEmpty) {
-                    return ListView(
-                      padding: const EdgeInsets.only(top: 4, bottom: 24),
-                      children: <Widget>[
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Text(
-                              '즐겨찾기 목록',
-                              style: Theme.of(context).textTheme.headlineMedium,
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              '당신의 관심을 세상과 공유하세요.',
-                              style: Theme.of(context).textTheme.bodyMedium
-                                  ?.copyWith(color: AppColors.textSecondary),
-                            ),
-                          ],
+      child: switch (controller.favoritePhase) {
+        AsyncPhase.loading || AsyncPhase.idle => const ExploreSkeleton(),
+        AsyncPhase.networkError || AsyncPhase.serverError => RetryState(
+          message: controller.favoriteErrorMessage ?? '즐겨찾기 목록을 불러오지 못했어요.',
+          onRetry: controller.retry,
+        ),
+        AsyncPhase.success || AsyncPhase.validationError => Builder(
+          builder: (context) {
+            final activities = controller.favoriteActivities;
+            if (activities.isEmpty) {
+              return ListView(
+                padding: const EdgeInsets.only(top: 4, bottom: 24),
+                children: <Widget>[
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        '즐겨찾기 목록',
+                        style: Theme.of(context).textTheme.headlineMedium,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        '당신의 관심을 세상과 공유하세요.',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: AppColors.textSecondary,
                         ),
-                        const SizedBox(height: 48),
-                        Column(
-                          children: <Widget>[
-                            Icon(
-                              Icons.favorite_border_rounded,
-                              size: 40,
-                              color: AppColors.textSecondary.withValues(
-                                alpha: 0.7,
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                            Text(
-                              '아직 즐겨찾기한 활동이 없어요.',
-                              style: Theme.of(
-                                context,
-                              ).textTheme.titleLarge?.copyWith(fontSize: 18),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              '마음에 드는 활동을 저장하면 여기서 다시 볼 수 있어요.',
-                              textAlign: TextAlign.center,
-                              style: Theme.of(context).textTheme.bodyMedium
-                                  ?.copyWith(color: AppColors.textSecondary),
-                            ),
-                          ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 48),
+                  Column(
+                    children: <Widget>[
+                      Icon(
+                        Icons.favorite_border_rounded,
+                        size: 40,
+                        color: AppColors.textSecondary.withValues(alpha: 0.7),
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        '아직 즐겨찾기한 활동이 없어요.',
+                        style: Theme.of(
+                          context,
+                        ).textTheme.titleLarge?.copyWith(fontSize: 18),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        '마음에 드는 활동을 저장하면 여기서 다시 볼 수 있어요.',
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: AppColors.textSecondary,
                         ),
-                      ],
-                    );
-                  }
+                      ),
+                    ],
+                  ),
+                ],
+              );
+            }
 
-                  return ListView.separated(
-                    padding: const EdgeInsets.only(top: 4, bottom: 24),
-                    itemCount: activities.length + 1,
-                    separatorBuilder: (_, _) =>
-                        Divider(height: 26, color: AppColors.divider),
-                    itemBuilder: (context, index) {
-                      if (index == 0) {
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Text(
-                              '즐겨찾기 목록',
-                              style: Theme.of(context).textTheme.headlineMedium,
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              '당신의 관심을 세상과 공유하세요.',
-                              style: Theme.of(context).textTheme.bodyMedium
-                                  ?.copyWith(color: AppColors.textSecondary),
-                            ),
-                          ],
-                        );
-                      }
-
-                      final activity = activities[index - 1];
-                      return CompactActivityRow(
-                        activity: activity,
-                        onTap: () => onActivityTap(activity),
-                      );
-                    },
+            return ListView.separated(
+              padding: const EdgeInsets.only(top: 4, bottom: 24),
+              itemCount: activities.length + 1,
+              separatorBuilder: (_, _) =>
+                  Divider(height: 26, color: AppColors.divider),
+              itemBuilder: (context, index) {
+                if (index == 0) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        '즐겨찾기 목록',
+                        style: Theme.of(context).textTheme.headlineMedium,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        '당신의 관심을 세상과 공유하세요.',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
                   );
-                },
-              ),
-            },
-          ),
-        ],
-      ),
+                }
+
+                final activity = activities[index - 1];
+                return CompactActivityRow(
+                  activity: activity,
+                  onTap: () => onActivityTap(activity),
+                );
+              },
+            );
+          },
+        ),
+      },
     );
   }
 }
