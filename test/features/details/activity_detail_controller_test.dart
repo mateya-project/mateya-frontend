@@ -155,6 +155,35 @@ class _FakeActivityDetailRepository implements ActivityDetailRepository {
   }
 
   @override
+  Future<ActivityDetail> requestJoin({required ActivityDetail detail}) async {
+    return detail;
+  }
+
+  @override
+  Future<ActivityDetail> approvePendingParticipant({
+    required ActivityDetail detail,
+    required String participantId,
+  }) async {
+    return detail;
+  }
+
+  @override
+  Future<ActivityDetail> removeApprovedParticipant({
+    required ActivityDetail detail,
+    required String participantId,
+  }) async {
+    return detail;
+  }
+
+  @override
+  Future<ActivityDetail> removePendingParticipant({
+    required ActivityDetail detail,
+    required String participantId,
+  }) async {
+    return detail;
+  }
+
+  @override
   Future<HelpfulToggleState> toggleHelpful({required String reviewId}) async {
     return const HelpfulToggleState(helpful: true, helpfulCount: 17);
   }
