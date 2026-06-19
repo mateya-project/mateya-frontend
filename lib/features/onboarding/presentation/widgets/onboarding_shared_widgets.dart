@@ -23,11 +23,15 @@ class _NeighborhoodMapCardState extends State<NeighborhoodMapCard> {
   static const String _markerId = 'selected-neighborhood';
 
   NaverMapController? _mapController;
-  bool _isMapLoaded = false;
+  bool _isMapReady = false;
 
   @override
   void didUpdateWidget(covariant NeighborhoodMapCard oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (_selectionKey(oldWidget.selection) != _selectionKey(widget.selection)) {
+      _mapController = null;
+      _isMapReady = false;
+    }
     if (oldWidget.selection != widget.selection) {
       _syncSelectionToMap();
     }
@@ -38,6 +42,7 @@ class _NeighborhoodMapCardState extends State<NeighborhoodMapCard> {
     final target = widget.selection != null
         ? NLatLng(widget.selection!.latitude, widget.selection!.longitude)
         : const NLatLng(37.5666, 126.9790);
+    final mapKey = ValueKey<String>(_selectionKey(widget.selection));
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(12),
@@ -48,7 +53,7 @@ class _NeighborhoodMapCardState extends State<NeighborhoodMapCard> {
           fit: StackFit.expand,
           children: <Widget>[
             NaverMap(
-              key: const ValueKey<String>('neighborhood-map'),
+              key: mapKey,
               options: NaverMapViewOptions(
                 initialCameraPosition: NCameraPosition(
                   target: target,
@@ -57,11 +62,15 @@ class _NeighborhoodMapCardState extends State<NeighborhoodMapCard> {
               ),
               onMapReady: (mapController) async {
                 _mapController = mapController;
+                if (mounted && !_isMapReady) {
+                  setState(() {
+                    _isMapReady = true;
+                  });
+                }
                 await _syncSelectionToMap();
               },
-              onMapLoaded: _handleMapLoaded,
             ),
-            if (widget.isLoading || !_isMapLoaded)
+            if (widget.isLoading || !_isMapReady)
               const Positioned.fill(child: MateyaMapSkeleton()),
           ],
         ),
@@ -69,13 +78,11 @@ class _NeighborhoodMapCardState extends State<NeighborhoodMapCard> {
     );
   }
 
-  void _handleMapLoaded() {
-    if (!mounted) {
-      return;
+  String _selectionKey(NeighborhoodSelection? selection) {
+    if (selection == null) {
+      return 'neighborhood-map-empty';
     }
-    setState(() {
-      _isMapLoaded = true;
-    });
+    return 'neighborhood-map-${selection.latitude}-${selection.longitude}-${selection.displayName}';
   }
 
   Future<void> _syncSelectionToMap() async {

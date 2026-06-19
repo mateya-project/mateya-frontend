@@ -249,81 +249,18 @@ class _NeighborhoodAutoStepViewState extends State<NeighborhoodAutoStepView> {
   Future<bool> _showOnboardingLocationPermissionDialog(
     BuildContext context,
   ) async {
-    final theme = Theme.of(context);
     final shouldContinue = await showDialog<bool>(
       context: context,
       barrierDismissible: false,
       builder: (dialogContext) {
         return Dialog(
-          insetPadding: const EdgeInsets.symmetric(horizontal: 24),
+          insetPadding: const EdgeInsets.symmetric(horizontal: 16),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(28),
           ),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(24, 28, 24, 24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                Container(
-                  width: 56,
-                  height: 56,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFE9F8EE),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.location_on_rounded,
-                    color: AppColors.brandGreen,
-                    size: 30,
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Text(
-                  '위치 권한 안내',
-                  style: theme.textTheme.headlineMedium,
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  '동네 인증 및 내 주변 활동 추천을 위해 위치 정보가 필요합니다. 위치 권한을 허용하지 않아도 동네를 직접 입력하여 가입을 계속할 수 있습니다.',
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: AppColors.textMuted,
-                    height: 1.5,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 24),
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton(
-                    onPressed: () => Navigator.of(dialogContext).pop(false),
-                    style: OutlinedButton.styleFrom(
-                      minimumSize: const Size.fromHeight(
-                        AppSpacing.buttonHeight,
-                      ),
-                      side: const BorderSide(color: AppColors.fieldBorderLight),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(
-                          AppSpacing.fieldRadius,
-                        ),
-                      ),
-                    ),
-                    child: Text(
-                      '직접 입력하기',
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        color: AppColors.textPrimary,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                MateyaButton(
-                  label: '현재 위치로 인증하기',
-                  onPressed: () => Navigator.of(dialogContext).pop(true),
-                ),
-              ],
-            ),
+          child: OnboardingLocationPermissionDialogContent(
+            onManualInput: () => Navigator.of(dialogContext).pop(false),
+            onUseCurrentLocation: () => Navigator.of(dialogContext).pop(true),
           ),
         );
       },
@@ -462,6 +399,103 @@ class _NeighborhoodAutoStepViewState extends State<NeighborhoodAutoStepView> {
           ),
         ),
       ],
+    );
+  }
+}
+
+class OnboardingLocationPermissionDialogContent extends StatelessWidget {
+  const OnboardingLocationPermissionDialogContent({
+    super.key,
+    required this.onManualInput,
+    required this.onUseCurrentLocation,
+  });
+
+  final VoidCallback onManualInput;
+  final VoidCallback onUseCurrentLocation;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(22, 24, 22, 20),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Container(
+            width: 52,
+            height: 52,
+            decoration: const BoxDecoration(
+              color: Color(0xFFE7F6EA),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.location_on_rounded,
+              color: AppColors.brandGreen,
+              size: 28,
+            ),
+          ),
+          const SizedBox(height: 18),
+          Text(
+            '위치 권한 안내',
+            style: theme.textTheme.headlineMedium?.copyWith(
+              fontWeight: FontWeight.w700,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 12),
+          Text(
+            '동네 인증 및 내 주변 활동 추천을 위해 위치 정보가 필요합니다. 위치 권한을 허용하지 않아도 동네를 직접 입력하여 가입을 계속할 수 있습니다.',
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: AppColors.textMuted,
+              height: 1.6,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 22),
+          SizedBox(
+            width: double.infinity,
+            height: 50,
+            child: OutlinedButton(
+              onPressed: onManualInput,
+              style: OutlinedButton.styleFrom(
+                backgroundColor: Colors.white,
+                side: const BorderSide(color: Color(0xFFD0D0D0)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+              ),
+              child: Text(
+                '직접 입력하기',
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            height: 50,
+            child: ElevatedButton(
+              onPressed: onUseCurrentLocation,
+              style: ElevatedButton.styleFrom(
+                elevation: 0,
+                backgroundColor: AppColors.brandGreen,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                textStyle: theme.textTheme.bodyLarge?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                ),
+              ),
+              child: const Text('현재 위치로 인증하기'),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

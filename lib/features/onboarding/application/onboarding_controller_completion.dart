@@ -176,12 +176,42 @@ bool _shouldRetrySignupWithFreshToken(
   if (controller._verificationCode.length != 6) {
     return false;
   }
-  final message = error.message.toLowerCase();
-  final mentionsInvalidSmsToken =
-      message.contains('sms') &&
-      message.contains('토큰') &&
-      message.contains('유효하지');
-  return mentionsInvalidSmsToken || message.contains('verification token');
+
+  if (_hasVerificationCredentialFieldError(error)) {
+    return true;
+  }
+
+  final normalizedErrorText = _normalizedVerificationErrorText(error);
+  final mentionsVerificationContext =
+      normalizedErrorText.contains('verification token') ||
+      normalizedErrorText.contains('verification code') ||
+      normalizedErrorText.contains('인증번호') ||
+      normalizedErrorText.contains('인증 토큰') ||
+      normalizedErrorText.contains('sms');
+  final mentionsExpiredOrInvalid =
+      normalizedErrorText.contains('expired') ||
+      normalizedErrorText.contains('만료') ||
+      normalizedErrorText.contains('invalid') ||
+      normalizedErrorText.contains('유효하지');
+
+  return mentionsVerificationContext && mentionsExpiredOrInvalid;
+}
+
+bool _hasVerificationCredentialFieldError(MateyaApiException error) {
+  return error.fieldErrors.keys.any((field) {
+    final normalizedField = field.toLowerCase();
+    return normalizedField.contains('verification') ||
+        normalizedField.contains('sms') ||
+        normalizedField.contains('code');
+  });
+}
+
+String _normalizedVerificationErrorText(MateyaApiException error) {
+  return <String>[
+    if (error.title != null) error.title!,
+    error.message,
+    ...error.fieldErrors.values,
+  ].join(' ').toLowerCase();
 }
 
 Future<String?> _refreshVerificationTokenForSignup(
