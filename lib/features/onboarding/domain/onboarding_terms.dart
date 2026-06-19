@@ -10,22 +10,29 @@ enum OnboardingTermsType {
 }
 
 class OnboardingTermsSection {
-  const OnboardingTermsSection({required this.title, required this.body});
+  const OnboardingTermsSection({
+    required this.title,
+    required this.body,
+    this.points = const <String>[],
+  });
 
   final String title;
   final String body;
+  final List<String> points;
 }
 
 class OnboardingTermsDocument {
   const OnboardingTermsDocument({
     required this.type,
     required this.title,
+    required this.effectiveDateLabel,
     required this.summary,
     required this.sections,
   });
 
   final OnboardingTermsType type;
   final String title;
+  final String effectiveDateLabel;
   final String summary;
   final List<OnboardingTermsSection> sections;
 }
@@ -35,6 +42,7 @@ kRequiredOnboardingTermsDocuments = <OnboardingTermsDocument>[
   OnboardingTermsDocument(
     type: OnboardingTermsType.serviceTerms,
     title: '서비스 이용 약관',
+    effectiveDateLabel: '확인 중',
     summary: '메이트야 서비스 이용을 위한 기본 조건, 이용자 책임, 서비스 운영 기준을 안내합니다.',
     sections: <OnboardingTermsSection>[
       OnboardingTermsSection(
@@ -77,6 +85,7 @@ kRequiredOnboardingTermsDocuments = <OnboardingTermsDocument>[
   OnboardingTermsDocument(
     type: OnboardingTermsType.privacyThirdParty,
     title: '개인정보 제3자 제공 동의',
+    effectiveDateLabel: '확인 중',
     summary: '활동 운영, 예약 진행, 고객 응대에 필요한 범위에서 개인정보가 제3자에게 제공되는 기준을 설명합니다.',
     sections: <OnboardingTermsSection>[
       OnboardingTermsSection(
@@ -106,41 +115,50 @@ kRequiredOnboardingTermsDocuments = <OnboardingTermsDocument>[
   OnboardingTermsDocument(
     type: OnboardingTermsType.locationBasedService,
     title: '위치기반서비스 이용약관',
+    effectiveDateLabel: '확인 중',
     summary: '현재 위치와 활동 지역 정보를 활용해 주변 모임과 추천 결과를 제공하는 방식 및 보호 기준을 안내합니다.',
     sections: <OnboardingTermsSection>[
       OnboardingTermsSection(
-        title: '위치정보 수집 목적',
-        body: '주변 활동 추천, 동네 인증, 거리 기반 정렬, 지역 맞춤형 콘텐츠 제공을 위해 위치정보를 수집할 수 있습니다.',
-      ),
-      OnboardingTermsSection(
-        title: '위치정보 이용 범위',
+        title: '목적',
         body:
-            '수집된 위치정보는 회원이 요청한 기능 제공 범위 안에서만 사용되며, 광고 추적이나 무관한 목적으로 사용하지 않습니다.',
+            '본 약관은 메이트야가 제공하는 위치기반서비스의 이용조건과 절차, 회사와 이용자의 권리 및 의무, 위치정보 보호 기준을 안내하는 데 목적이 있습니다.',
       ),
       OnboardingTermsSection(
-        title: '위치정보 보관 기간',
+        title: '위치정보 수집 및 이용',
         body:
-            '즉시성 기능에 필요한 실시간 위치는 기능 처리 후 보관하지 않으며, 활동 지역 인증 결과는 서비스 운영상 필요한 기간 동안 계정 정보와 함께 관리됩니다.',
+            '회사는 이용자가 요청한 기능 범위 안에서 현재 위치 또는 활동 지역 정보를 활용하며, 다음 목적에 한해 위치정보를 이용합니다.',
+        points: <String>[
+          '동네 인증과 활동 지역 확인',
+          '주변 모임 추천 및 거리 기반 정렬',
+          '지역 맞춤형 콘텐츠와 안전한 참여 경험 제공',
+        ],
       ),
       OnboardingTermsSection(
-        title: '위치정보 제3자 제공 여부',
-        body: '회원의 별도 동의 또는 법령상 근거가 없는 한 개인 위치정보를 제3자에게 제공하지 않습니다.',
-      ),
-      OnboardingTermsSection(
-        title: '동의 철회 방법',
+        title: '보유 및 이용기간',
         body:
-            '회원은 단말기 설정에서 위치 권한을 변경하거나 앱 내 설정 변경을 통해 위치기반서비스 이용 동의를 철회할 수 있습니다. 철회 시 일부 추천 기능이 제한될 수 있습니다.',
+            '실시간 위치정보는 즉시성 기능 처리 후 보관하지 않습니다. 다만 활동 지역 인증 결과와 같이 서비스 운영에 필요한 최소 정보는 관련 법령 또는 내부 운영 기준에 따라 필요한 기간 동안 보관한 뒤 지체 없이 삭제하거나 익명화합니다.',
       ),
       OnboardingTermsSection(
-        title: '문의처 및 보호 책임',
+        title: '이용자의 권리',
         body:
-            '위치정보 이용과 관련한 문의 또는 민원은 메이트야 고객지원 채널로 접수할 수 있으며, 회사는 관련 법령에 따라 위치정보 보호 책임 체계를 운영합니다.',
+            '이용자는 언제든지 단말기 설정 또는 앱 내 권한 설정을 통해 위치정보 제공 동의를 철회할 수 있으며, 위치기반서비스 이용 여부를 선택할 수 있습니다. 동의 철회 시 일부 추천 기능이나 동네 인증 기능 이용이 제한될 수 있습니다.',
+      ),
+      OnboardingTermsSection(
+        title: '회사의 의무',
+        body:
+            '회사는 위치정보를 관련 법령과 내부 보안 기준에 따라 안전하게 관리하며, 이용 목적 범위를 벗어난 사용이나 별도 동의 없는 제3자 제공을 하지 않습니다. 또한 이용자의 문의와 민원을 신속하게 확인하고 필요한 조치를 안내합니다.',
+      ),
+      OnboardingTermsSection(
+        title: '문의처',
+        body:
+            '위치기반서비스 이용과 관련한 문의는 앱 내 고객지원 채널 또는 운영팀 문의 창구를 통해 접수할 수 있습니다. 접수된 문의는 내부 정책에 따라 순차적으로 처리됩니다.',
       ),
     ],
   ),
   OnboardingTermsDocument(
     type: OnboardingTermsType.ageOver14,
     title: '만 14세 이상 확인',
+    effectiveDateLabel: '확인 중',
     summary: '메이트야 회원가입은 만 14세 이상만 가능하며, 연령 확인과 관련한 이용 제한 기준을 안내합니다.',
     sections: <OnboardingTermsSection>[
       OnboardingTermsSection(

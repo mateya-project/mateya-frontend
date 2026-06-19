@@ -82,6 +82,10 @@ class _MateyaLanguageDialogState extends State<_MateyaLanguageDialog> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final selectedOption = kMateyaLanguageOptions.firstWhere(
+      (option) => option.code == _selectedLanguageCode,
+      orElse: () => kMateyaLanguageOptions.first,
+    );
 
     return SafeArea(
       child: Center(
@@ -123,9 +127,10 @@ class _MateyaLanguageDialogState extends State<_MateyaLanguageDialog> {
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              'globe 팝업 UI만 먼저 구현되어 있으며 실제 언어 전환은 아직 연결되지 않았습니다.',
+                              '앱에서 사용할 언어를 선택할 수 있습니다. 현재 선택값은 팝업 안에서만 미리보기로 반영됩니다.',
                               style: theme.textTheme.bodyMedium?.copyWith(
                                 color: AppColors.textSecondary,
+                                height: 1.5,
                               ),
                             ),
                           ],
@@ -147,67 +152,98 @@ class _MateyaLanguageDialogState extends State<_MateyaLanguageDialog> {
                     ],
                   ),
                   const SizedBox(height: 24),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: AppColors.subtleBackground,
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                    child: Row(
+                      children: <Widget>[
+                        Container(
+                          width: 44,
+                          height: 44,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          child: const Icon(
+                            Icons.language_rounded,
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Text(
+                                '현재 선택',
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                selectedOption.nativeLabel,
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                              Text(
+                                selectedOption.label,
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 18),
                   Text(
                     '지원 언어',
                     style: theme.textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
-                  const SizedBox(height: 10),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    decoration: BoxDecoration(
-                      color: AppColors.subtleBackground,
-                      borderRadius: BorderRadius.circular(
-                        AppSpacing.fieldRadius,
-                      ),
-                      border: Border.all(color: AppColors.fieldBorderLight),
+                  const SizedBox(height: 12),
+                  for (
+                    int index = 0;
+                    index < kMateyaLanguageOptions.length;
+                    index++
+                  ) ...<Widget>[
+                    _LanguageOptionTile(
+                      option: kMateyaLanguageOptions[index],
+                      selected:
+                          kMateyaLanguageOptions[index].code ==
+                          _selectedLanguageCode,
+                      onTap: () {
+                        setState(() {
+                          _selectedLanguageCode =
+                              kMateyaLanguageOptions[index].code;
+                        });
+                      },
                     ),
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton<String>(
-                        value: _selectedLanguageCode,
-                        isExpanded: true,
-                        borderRadius: BorderRadius.circular(
-                          AppSpacing.fieldRadius,
-                        ),
-                        icon: const Icon(
-                          Icons.keyboard_arrow_down_rounded,
-                          color: AppColors.textSecondary,
-                        ),
-                        items: kMateyaLanguageOptions.map((option) {
-                          return DropdownMenuItem<String>(
-                            value: option.code,
-                            child: Text(
-                              '${option.nativeLabel} (${option.label})',
-                              style: theme.textTheme.bodyLarge?.copyWith(
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          );
-                        }).toList(),
-                        onChanged: (value) {
-                          if (value == null) {
-                            return;
-                          }
-                          setState(() {
-                            _selectedLanguageCode = value;
-                          });
-                        },
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 14),
+                    if (index != kMateyaLanguageOptions.length - 1)
+                      const SizedBox(height: 10),
+                  ],
+                  const SizedBox(height: 16),
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
                       color: AppColors.appSurface,
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius: BorderRadius.circular(16),
                     ),
                     child: Text(
-                      '선택값은 현재 팝업 내부에서만 유지됩니다.',
+                      '실제 앱 언어 전환은 아직 연결되지 않았습니다. 이번 변경은 팝업 디자인과 선택 경험을 우선 정리한 상태입니다.',
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: AppColors.textMuted,
+                        height: 1.5,
                       ),
                     ),
                   ),
@@ -248,6 +284,84 @@ class _MateyaLanguageDialogState extends State<_MateyaLanguageDialog> {
               ),
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _LanguageOptionTile extends StatelessWidget {
+  const _LanguageOptionTile({
+    required this.option,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final MateyaLanguageOption option;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(18),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 160),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
+        decoration: BoxDecoration(
+          color: selected ? const Color(0xFFF0F8F3) : Colors.white,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(
+            color: selected ? AppColors.brandGreen : AppColors.fieldBorderLight,
+          ),
+        ),
+        child: Row(
+          children: <Widget>[
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(
+                    option.nativeLabel,
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    option.label,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 160),
+              width: 24,
+              height: 24,
+              decoration: BoxDecoration(
+                color: selected ? AppColors.brandGreen : Colors.transparent,
+                borderRadius: BorderRadius.circular(999),
+                border: Border.all(
+                  color: selected
+                      ? AppColors.brandGreen
+                      : AppColors.fieldBorderLight,
+                ),
+              ),
+              child: selected
+                  ? const Icon(
+                      Icons.check_rounded,
+                      color: Colors.white,
+                      size: 16,
+                    )
+                  : null,
+            ),
+          ],
         ),
       ),
     );

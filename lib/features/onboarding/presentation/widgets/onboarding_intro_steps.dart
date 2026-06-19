@@ -274,21 +274,14 @@ Future<void> _openTermsDetail(
           constraints: const BoxConstraints(maxHeight: 640),
           child: Column(
             children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.fromLTRB(12, 12, 8, 0),
-                child: Row(
-                  children: <Widget>[
-                    Expanded(
-                      child: Text(
-                        document.title,
-                        style: Theme.of(context).textTheme.headlineMedium,
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () => Navigator.of(dialogContext).pop(),
-                      icon: const Icon(Icons.close_rounded),
-                    ),
-                  ],
+              Align(
+                alignment: Alignment.topRight,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 10, 8, 0),
+                  child: IconButton(
+                    onPressed: () => Navigator.of(dialogContext).pop(),
+                    icon: const Icon(Icons.close_rounded),
+                  ),
                 ),
               ),
               Expanded(child: OnboardingTermsDetailContent(document: document)),

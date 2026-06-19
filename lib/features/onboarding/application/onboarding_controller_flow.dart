@@ -91,6 +91,7 @@ void _restartOnboarding(OnboardingController controller) {
   controller._resendCount = 0;
   controller._smsCodeExpiresAt = null;
   controller._expectedVerificationCode = null;
+  controller._verificationNotice = null;
   controller._verificationToken = null;
   controller._verificationTokenExpiresAt = null;
   controller._businessVerificationToken = null;

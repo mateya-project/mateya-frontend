@@ -37,46 +37,76 @@ class OnboardingTermsDetailContent extends StatelessWidget {
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.screenHorizontal,
-        24,
+        20,
         AppSpacing.screenHorizontal,
-        32,
+        40,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: AppColors.subtleBackground,
-              borderRadius: BorderRadius.circular(999),
-            ),
-            child: Text(
-              '필수 약관',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: AppColors.textSecondary,
-                fontWeight: FontWeight.w600,
-              ),
+          Text(
+            document.title,
+            style: theme.textTheme.headlineLarge?.copyWith(
+              fontWeight: FontWeight.w700,
             ),
           ),
-          const SizedBox(height: 16),
-          Text(document.title, style: theme.textTheme.headlineLarge),
-          const SizedBox(height: 12),
           Text(
-            document.summary,
-            style: theme.textTheme.bodyLarge?.copyWith(
+            '시행일: ${document.effectiveDateLabel}',
+            style: theme.textTheme.bodyMedium?.copyWith(
               color: AppColors.textSecondary,
-              height: 1.5,
+            ),
+          ),
+          const SizedBox(height: 24),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: AppColors.subtleBackground,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  '목차',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 14),
+                for (int index = 0; index < document.sections.length; index++)
+                  Padding(
+                    padding: EdgeInsets.only(
+                      bottom: index == document.sections.length - 1 ? 0 : 10,
+                    ),
+                    child: Text(
+                      '제${index + 1}조 ${document.sections[index].title}',
+                      style: theme.textTheme.bodyMedium?.copyWith(height: 1.5),
+                    ),
+                  ),
+              ],
             ),
           ),
           const SizedBox(height: 28),
+          Text(
+            document.summary,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: AppColors.textSecondary,
+              height: 1.7,
+            ),
+          ),
+          const SizedBox(height: 32),
           for (
             int index = 0;
             index < document.sections.length;
             index++
           ) ...<Widget>[
-            _TermsSectionView(section: document.sections[index]),
+            _TermsSectionView(
+              index: index + 1,
+              section: document.sections[index],
+            ),
             if (index != document.sections.length - 1)
-              const SizedBox(height: 24),
+              const SizedBox(height: 28),
           ],
         ],
       ),
@@ -85,41 +115,54 @@ class OnboardingTermsDetailContent extends StatelessWidget {
 }
 
 class _TermsSectionView extends StatelessWidget {
-  const _TermsSectionView({required this.section});
+  const _TermsSectionView({required this.index, required this.section});
 
+  final int index;
   final OnboardingTermsSection section;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.fieldBorderLight),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text(
-            section.title,
-            style: theme.textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.w700,
-            ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Text(
+          '제$index조 ${section.title}',
+          style: theme.textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.w700,
           ),
-          const SizedBox(height: 10),
-          Text(
-            section.body,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: AppColors.textSecondary,
-              height: 1.6,
-            ),
+        ),
+        const SizedBox(height: 12),
+        Text(
+          section.body,
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: AppColors.textSecondary,
+            height: 1.75,
           ),
+        ),
+        if (section.points.isNotEmpty) ...<Widget>[
+          const SizedBox(height: 14),
+          for (
+            int pointIndex = 0;
+            pointIndex < section.points.length;
+            pointIndex++
+          )
+            Padding(
+              padding: EdgeInsets.only(
+                left: 4,
+                bottom: pointIndex == section.points.length - 1 ? 0 : 8,
+              ),
+              child: Text(
+                '${pointIndex + 1}. ${section.points[pointIndex]}',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: AppColors.textSecondary,
+                  height: 1.7,
+                ),
+              ),
+            ),
         ],
-      ),
+      ],
     );
   }
 }

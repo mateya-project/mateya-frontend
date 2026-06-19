@@ -138,6 +138,15 @@ class _PhoneStepViewState extends State<PhoneStepView> {
                       ),
                     ],
                   ),
+                  if (controller.verificationNotice != null) ...<Widget>[
+                    const SizedBox(height: 8),
+                    Text(
+                      controller.verificationNotice!,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
                   if (controller.debugVerificationCode != null) ...<Widget>[
                     const SizedBox(height: 12),
                     Text(

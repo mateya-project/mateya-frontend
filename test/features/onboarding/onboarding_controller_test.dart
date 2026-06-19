@@ -296,6 +296,60 @@ void main() {
       },
     );
 
+    test(
+      'sms verification without debug code still calls verify api',
+      () async {
+        final authRepository = _FakeOnboardingAuthRepository(
+          smsDebugCode: null,
+        );
+        final controller = OnboardingController(
+          locationRepository: _FakeLocationRepository.success(),
+          authRepository: authRepository,
+          authSessionStore: AuthSessionStore.instance,
+        );
+
+        controller.startGuestFlow();
+        controller.toggleAllAgreements(true);
+        controller.confirmConsent();
+        controller.updateName('홍길동');
+        controller.submitName();
+        controller.updatePhoneNumber('01012345678');
+
+        await controller.sendVerificationCode();
+        controller.updateVerificationCode('123456');
+        await controller.submitVerificationCode();
+
+        expect(authRepository.verifySmsCodeCallCount, 1);
+        expect(controller.errorFor('verification'), isNull);
+        expect(controller.step, OnboardingStep.neighborhoodAuto);
+      },
+    );
+
+    test('resend updates inline notice without phone field error', () async {
+      final controller = OnboardingController(
+        locationRepository: _FakeLocationRepository.success(),
+        authRepository: _FakeOnboardingAuthRepository(),
+        authSessionStore: AuthSessionStore.instance,
+      );
+
+      controller.startGuestFlow();
+      controller.toggleAllAgreements(true);
+      controller.confirmConsent();
+      controller.updateName('홍길동');
+      controller.submitName();
+      controller.updatePhoneNumber('01012345678');
+
+      await controller.sendVerificationCode();
+      await controller.resendVerificationCode();
+
+      expect(controller.resendCount, 2);
+      expect(controller.errorFor('phone'), isNull);
+      expect(
+        controller.verificationNotice,
+        '인증번호는 하루 최대 5번까지 다시 받을 수 있어요. 현재 2회 요청했어요.',
+      );
+    });
+
     test('guest plus destination opens group creation placeholder', () {
       final controller = OnboardingController(
         locationRepository: _FakeLocationRepository.success(),

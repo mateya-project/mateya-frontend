@@ -48,6 +48,7 @@ class OnboardingController extends ChangeNotifier {
   int _resendCount = 0;
   DateTime? _smsCodeExpiresAt;
   String? _expectedVerificationCode;
+  String? _verificationNotice;
   String? _verificationToken;
   DateTime? _verificationTokenExpiresAt;
   String? _businessVerificationToken;
@@ -81,6 +82,7 @@ class OnboardingController extends ChangeNotifier {
   int get remainingSeconds => _remainingSeconds;
   int get resendCount => _resendCount;
   String? get debugVerificationCode => _expectedVerificationCode;
+  String? get verificationNotice => _verificationNotice;
   String get manualNeighborhoodQuery => _manualNeighborhoodQuery;
   String get businessName => _businessName;
   String get businessOwner => _businessOwner;
@@ -99,7 +101,8 @@ class OnboardingController extends ChangeNotifier {
   bool get canContinueName => _name.trim().isNotEmpty;
   bool get canSendVerificationCode =>
       OnboardingValidators.validatePhoneNumber(_phoneNumber) == null;
-  bool get hasSentVerificationCode => _smsCodeExpiresAt != null;
+  bool get hasSentVerificationCode =>
+      _smsCodeExpiresAt?.isAfter(DateTime.now()) ?? false;
   bool get canSubmitVerificationCode => _verificationCode.length == 6;
   bool get canCompleteNeighborhood => _selectedNeighborhood != null;
   bool get canCompleteBusiness =>

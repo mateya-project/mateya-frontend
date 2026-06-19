@@ -67,15 +67,17 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('서비스 이용 약관'), findsWidgets);
-      expect(find.text('회원가입 및 계정 관리'), findsOneWidget);
+      expect(find.text('서비스 이용 약관'), findsOneWidget);
+      expect(find.text('시행일: 확인 중'), findsOneWidget);
+      expect(find.text('목차'), findsOneWidget);
+      expect(find.text('제2조 회원가입 및 계정 관리'), findsWidgets);
 
       await tester.tap(find.byIcon(Icons.close_rounded));
       await tester.pumpAndSettle();
 
       expect(agreementState.service, isTrue);
       expect(find.text('(필수) 서비스 이용 약관'), findsOneWidget);
-      expect(find.text('회원가입 및 계정 관리'), findsNothing);
+      expect(find.text('목차'), findsNothing);
     },
   );
 }

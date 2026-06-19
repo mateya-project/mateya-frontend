@@ -1,6 +1,13 @@
 part of 'onboarding_controller.dart';
 
 Future<void> _sendVerificationCode(OnboardingController controller) async {
+  await _requestVerificationCode(controller, isResend: false);
+}
+
+Future<void> _requestVerificationCode(
+  OnboardingController controller, {
+  required bool isResend,
+}) async {
   final phoneError = OnboardingValidators.validatePhoneNumber(
     controller._phoneNumber,
   );
@@ -13,6 +20,7 @@ Future<void> _sendVerificationCode(OnboardingController controller) async {
 
   controller._authPhase = AsyncPhase.loading;
   controller._fieldErrors.remove('verification');
+  controller._verificationNotice = null;
   controller._notifyChanged();
 
   try {
@@ -23,10 +31,18 @@ Future<void> _sendVerificationCode(OnboardingController controller) async {
     controller._smsCodeExpiresAt = result.expiresAt;
     controller._expectedVerificationCode = result.debugCode;
     controller._verificationCode = '';
+    controller._resendCount = isResend ? controller._resendCount + 1 : 1;
+    controller._verificationNotice = isResend
+        ? '인증번호는 하루 최대 5번까지 다시 받을 수 있어요. 현재 ${controller._resendCount}회 요청했어요.'
+        : null;
     _startVerificationCountdown(controller, result.expiresAt);
-    controller._emitToast('인증번호를 발송했어요.');
+    controller._emitToast(isResend ? '인증번호를 다시 보냈어요.' : '인증번호를 발송했어요.');
   } on MateyaApiException catch (error) {
-    _applyApiError(controller, error, preferredField: 'phone');
+    _applyApiError(
+      controller,
+      error,
+      preferredField: isResend ? null : 'phone',
+    );
   }
 
   controller._notifyChanged();
@@ -38,14 +54,11 @@ Future<void> _resendVerificationCode(OnboardingController controller) async {
     return;
   }
   if (controller._resendCount >= 5) {
-    controller._emitToast('인증번호는 하루 최대 5번까지 다시 받을 수 있어요.');
+    controller._verificationNotice = '인증번호는 하루 최대 5번까지 다시 받을 수 있어요.';
+    controller._notifyChanged();
     return;
   }
-  await _sendVerificationCode(controller);
-  if (controller._authPhase == AsyncPhase.success) {
-    controller._resendCount += 1;
-    controller._notifyChanged();
-  }
+  await _requestVerificationCode(controller, isResend: true);
 }
 
 Future<void> _submitVerificationCode(OnboardingController controller) async {
@@ -117,7 +130,11 @@ void _startVerificationCountdown(
     if (controller._remainingSeconds <= 1) {
       controller._remainingSeconds = 0;
       timer.cancel();
-      controller._smsCodeExpiresAt = expiresAt;
+      controller._smsCodeExpiresAt = null;
+      controller._expectedVerificationCode = null;
+      controller._verificationCode = '';
+      controller._verificationNotice = null;
+      controller._fieldErrors.remove('verification');
     } else {
       controller._remainingSeconds -= 1;
     }

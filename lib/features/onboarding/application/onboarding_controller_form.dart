@@ -22,8 +22,20 @@ void _submitName(OnboardingController controller) {
 }
 
 void _updatePhoneNumber(OnboardingController controller, String value) {
-  controller._phoneNumber = value.replaceAll(RegExp(r'\D'), '');
+  final nextPhoneNumber = value.replaceAll(RegExp(r'\D'), '');
+  final phoneNumberChanged = nextPhoneNumber != controller._phoneNumber;
+  controller._phoneNumber = nextPhoneNumber;
   controller._clearError('phone');
+  if (phoneNumberChanged) {
+    controller._verificationTimer?.cancel();
+    controller._remainingSeconds = 0;
+    controller._resendCount = 0;
+    controller._smsCodeExpiresAt = null;
+    controller._expectedVerificationCode = null;
+    controller._verificationCode = '';
+    controller._verificationNotice = null;
+    controller._fieldErrors.remove('verification');
+  }
   controller._notifyChanged();
 }
 
