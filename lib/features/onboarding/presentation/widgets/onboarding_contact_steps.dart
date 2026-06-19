@@ -86,20 +86,31 @@ class _PhoneStepViewState extends State<PhoneStepView> {
                   errorText: controller.errorFor('phone'),
                   onChanged: controller.updatePhoneNumber,
                 ),
-                if (hasSentVerificationCode) ...<Widget>[
-                  const SizedBox(height: 46),
-                  Text('인증번호', style: theme.textTheme.titleLarge),
-                  const SizedBox(height: 21),
-                  MateyaTextField(
-                    controller: _verificationController,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: <TextInputFormatter>[
-                      FilteringTextInputFormatter.digitsOnly,
-                      LengthLimitingTextInputFormatter(6),
-                    ],
-                    errorText: controller.errorFor('verification'),
-                    onChanged: controller.updateVerificationCode,
+                const SizedBox(height: 8),
+                Text(
+                  '휴대폰 번호를 입력하면 인증번호를 받을 수 있어요.',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: AppColors.textSecondary,
                   ),
+                ),
+                const SizedBox(height: 46),
+                Text('인증번호', style: theme.textTheme.titleLarge),
+                const SizedBox(height: 21),
+                MateyaTextField(
+                  controller: _verificationController,
+                  readOnly: !hasSentVerificationCode,
+                  hintText: hasSentVerificationCode
+                      ? null
+                      : '인증번호 받기를 누르면 입력할 수 있어요.',
+                  keyboardType: TextInputType.number,
+                  inputFormatters: <TextInputFormatter>[
+                    FilteringTextInputFormatter.digitsOnly,
+                    LengthLimitingTextInputFormatter(6),
+                  ],
+                  errorText: controller.errorFor('verification'),
+                  onChanged: controller.updateVerificationCode,
+                ),
+                if (hasSentVerificationCode) ...<Widget>[
                   const SizedBox(height: 12),
                   Row(
                     children: <Widget>[
@@ -137,14 +148,7 @@ class _PhoneStepViewState extends State<PhoneStepView> {
                     ),
                   ],
                 ],
-                SizedBox(height: hasSentVerificationCode ? 120 : 220),
-                if (!hasSentVerificationCode)
-                  Text(
-                    '휴대폰 번호를 입력하면 인증번호를 받을 수 있어요.',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
+                const SizedBox(height: 120),
               ],
             ),
           ),
@@ -210,13 +214,8 @@ class _NeighborhoodAutoStepViewState extends State<NeighborhoodAutoStepView> {
 
     if (showNotice && !_didStartPermissionFlow) {
       _didStartPermissionFlow = true;
-      final shouldContinue = await showMateyaPermissionNoticeDialog(
+      final shouldContinue = await _showOnboardingLocationPermissionDialog(
         context,
-        title: '위치 권한 안내',
-        message:
-            '회원가입 중 동네 인증과 내 주변 활동 추천을 위해 현재 위치 권한이 필요합니다. 권한을 거부하셔도 동네를 직접 입력해 가입을 계속할 수 있습니다.',
-        confirmLabel: '현재 위치로 인증하기',
-        cancelLabel: '직접 입력하기',
       );
 
       if (!mounted) {
@@ -236,6 +235,92 @@ class _NeighborhoodAutoStepViewState extends State<NeighborhoodAutoStepView> {
     }
 
     await _handleLocationFailure();
+  }
+
+  Future<bool> _showOnboardingLocationPermissionDialog(
+    BuildContext context,
+  ) async {
+    final theme = Theme.of(context);
+    final shouldContinue = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        return Dialog(
+          insetPadding: const EdgeInsets.symmetric(horizontal: 24),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(28),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(24, 28, 24, 24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Container(
+                  width: 56,
+                  height: 56,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFE9F8EE),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.location_on_rounded,
+                    color: AppColors.brandGreen,
+                    size: 30,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  '위치 권한 안내',
+                  style: theme.textTheme.headlineMedium,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  '동네 인증 및 내 주변 활동 추천을 위해 위치 정보가 필요합니다. 위치 권한을 허용하지 않아도 동네를 직접 입력하여 가입을 계속할 수 있습니다.',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: AppColors.textMuted,
+                    height: 1.5,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.of(dialogContext).pop(false),
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size.fromHeight(
+                        AppSpacing.buttonHeight,
+                      ),
+                      side: const BorderSide(color: AppColors.fieldBorderLight),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                          AppSpacing.fieldRadius,
+                        ),
+                      ),
+                    ),
+                    child: Text(
+                      '직접 입력하기',
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        color: AppColors.textPrimary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                MateyaButton(
+                  label: '현재 위치로 인증하기',
+                  onPressed: () => Navigator.of(dialogContext).pop(true),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
+    return shouldContinue ?? false;
   }
 
   Future<void> _handleLocationFailure() async {
