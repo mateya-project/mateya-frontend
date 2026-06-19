@@ -359,7 +359,12 @@ class _ExploreFilterSheetState extends State<ExploreFilterSheet> {
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                               ),
-                              child: const Text('초기화'),
+                              child: const Text(
+                                '초기화',
+                                style: TextStyle(
+                                  decoration: TextDecoration.underline,
+                                ),
+                              ),
                             ),
                             const Spacer(),
                             SizedBox(

@@ -177,6 +177,12 @@ class SettingsView extends StatelessWidget {
               const SliverToBoxAdapter(
                 child: _SettingsTitleBar(title: '나의 메이트야'),
               ),
+              const SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  child: Divider(height: 1, color: AppColors.divider),
+                ),
+              ),
               SliverToBoxAdapter(
                 child: Container(
                   width: double.infinity,
@@ -726,12 +732,12 @@ class _BadgeGridSection extends StatelessWidget {
   const _BadgeGridSection({required this.badges});
 
   final List<ActivityBadge> badges;
+  static const double _badgeSpacing = 8;
 
   @override
   Widget build(BuildContext context) {
     final badgeSlots = buildMyPageBadgeSlots(badges);
     final earnedBadgeCount = badgeSlots.where((slot) => slot.isEarned).length;
-    final badgeWidth = (MediaQuery.sizeOf(context).width - 64) / 3;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -753,17 +759,23 @@ class _BadgeGridSection extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 16),
-        Wrap(
-          spacing: 8,
-          runSpacing: 10,
-          children: badgeSlots
-              .map(
-                (badgeSlot) => SizedBox(
-                  width: badgeWidth,
-                  child: _BadgeGridTile(slot: badgeSlot),
-                ),
-              )
-              .toList(growable: false),
+        LayoutBuilder(
+          builder: (BuildContext context, BoxConstraints constraints) {
+            final badgeWidth = (constraints.maxWidth - (_badgeSpacing * 2)) / 3;
+
+            return Wrap(
+              spacing: _badgeSpacing,
+              runSpacing: 10,
+              children: badgeSlots
+                  .map(
+                    (badgeSlot) => SizedBox(
+                      width: badgeWidth,
+                      child: _BadgeGridTile(slot: badgeSlot),
+                    ),
+                  )
+                  .toList(growable: false),
+            );
+          },
         ),
       ],
     );
@@ -774,46 +786,73 @@ class _BadgeGridTile extends StatelessWidget {
   const _BadgeGridTile({required this.slot});
 
   final MyPageBadgeDisplaySlot slot;
-
-  static const ColorFilter _grayscaleFilter = ColorFilter.matrix(<double>[
-    0.2126,
-    0.7152,
-    0.0722,
-    0,
-    0,
-    0.2126,
-    0.7152,
-    0.0722,
-    0,
-    0,
-    0.2126,
-    0.7152,
-    0.0722,
-    0,
-    0,
-    0,
-    0,
-    0,
-    1,
-    0,
-  ]);
+  static const double _badgeAspectRatio = 118 / 140;
+  static const double _badgeRadius = 20;
 
   @override
   Widget build(BuildContext context) {
-    Widget badgeImage = Image.asset(
-      slot.visual.assetPath,
-      fit: BoxFit.fitWidth,
-      excludeFromSemantics: true,
+    final badgeImage = AspectRatio(
+      aspectRatio: _badgeAspectRatio,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(_badgeRadius),
+        child: Image.asset(
+          slot.visual.assetPathFor(slot.isEarned),
+          fit: BoxFit.cover,
+          filterQuality: FilterQuality.medium,
+          excludeFromSemantics: true,
+          errorBuilder:
+              (BuildContext context, Object error, StackTrace? stackTrace) =>
+                  _BadgeGridTileFallback(slot: slot),
+        ),
+      ),
     );
 
-    if (!slot.isEarned) {
-      badgeImage = Opacity(
-        opacity: 0.42,
-        child: ColorFiltered(colorFilter: _grayscaleFilter, child: badgeImage),
-      );
-    }
-
     return Semantics(label: slot.visual.label, child: badgeImage);
+  }
+}
+
+class _BadgeGridTileFallback extends StatelessWidget {
+  const _BadgeGridTileFallback({required this.slot});
+
+  final MyPageBadgeDisplaySlot slot;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(_BadgeGridTile._badgeRadius),
+        border: Border.all(color: AppColors.divider),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 14),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Icon(
+              Icons.workspace_premium_outlined,
+              color: slot.isEarned
+                  ? AppColors.brandGreen
+                  : AppColors.textSecondary,
+              size: 28,
+            ),
+            const SizedBox(height: 10),
+            Text(
+              slot.visual.label,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: slot.isEarned
+                    ? AppColors.textPrimary
+                    : AppColors.textSecondary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 
@@ -954,17 +993,23 @@ class _AvatarActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(18),
-      child: Container(
+    return Material(
+      color: Colors.transparent,
+      shape: const CircleBorder(),
+      child: SizedBox(
         width: 36,
         height: 36,
-        decoration: const BoxDecoration(
-          color: AppColors.brandGreen,
-          shape: BoxShape.circle,
+        child: InkWell(
+          onTap: onTap,
+          customBorder: const CircleBorder(),
+          child: Ink(
+            decoration: const BoxDecoration(
+              color: AppColors.brandGreen,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: Colors.white, size: 22),
+          ),
         ),
-        child: Icon(icon, color: Colors.white, size: 22),
       ),
     );
   }
@@ -978,18 +1023,24 @@ class _CardCornerActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
+    return Material(
+      color: Colors.transparent,
       borderRadius: BorderRadius.circular(14),
-      child: Container(
+      child: SizedBox(
         width: 36,
         height: 36,
-        decoration: BoxDecoration(
-          color: Colors.white,
+        child: InkWell(
+          onTap: onTap,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: AppColors.divider),
+          child: Ink(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: AppColors.divider),
+            ),
+            child: Icon(icon, color: AppColors.textPrimary, size: 20),
+          ),
         ),
-        child: Icon(icon, color: AppColors.textPrimary, size: 20),
       ),
     );
   }
@@ -1004,8 +1055,8 @@ class _SettingsTitleBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      color: const Color(0xFFF3F4F6),
-      padding: const EdgeInsets.fromLTRB(20, 14, 20, 6),
+      color: Colors.white,
+      padding: const EdgeInsets.fromLTRB(20, 14, 20, 12),
       child: Text(title, style: Theme.of(context).textTheme.headlineMedium),
     );
   }

@@ -104,10 +104,11 @@ class MyPageActivityHistoryCard extends StatelessWidget {
                       children: <Widget>[
                         Text(
                           '수정하기',
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w700,
-                          ),
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w700,
+                              ),
                         ),
                         const SizedBox(width: 4),
                         const Icon(
@@ -166,11 +167,8 @@ class MyPageActivityHistoryCard extends StatelessWidget {
                         const SizedBox(width: 4),
                         Text(
                           activity.rating!.toStringAsFixed(1),
-                          style: Theme.of(
-                            context,
-                          ).textTheme.bodyMedium?.copyWith(
-                            fontWeight: FontWeight.w700,
-                          ),
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(fontWeight: FontWeight.w700),
                         ),
                       ],
                     ),
@@ -253,21 +251,25 @@ class MyPageSectionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.divider),
-        boxShadow: const <BoxShadow>[
-          BoxShadow(
-            color: Color(0x08000000),
-            blurRadius: 18,
-            offset: Offset(0, 10),
-          ),
-        ],
+    final decoration = BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(18),
+      border: Border.all(color: AppColors.divider),
+      boxShadow: const <BoxShadow>[
+        BoxShadow(
+          color: Color(0x08000000),
+          blurRadius: 18,
+          offset: Offset(0, 10),
+        ),
+      ],
+    );
+
+    return Material(
+      color: Colors.transparent,
+      child: Ink(
+        decoration: decoration,
+        child: Padding(padding: const EdgeInsets.all(16), child: child),
       ),
-      child: child,
     );
   }
 }

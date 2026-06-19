@@ -71,9 +71,7 @@ class ChatController extends ChangeNotifier {
       ChatListFilter.direct =>
         _rooms.where((room) => room.type == ChatRoomType.direct).toList(),
     };
-    filtered.sort(
-      (left, right) => right.lastMessageAt.compareTo(left.lastMessageAt),
-    );
+    filtered.sort(_chatRoomSortByLatest);
     return filtered;
   }
 

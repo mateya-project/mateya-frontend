@@ -97,4 +97,17 @@ void _chatReplaceRoom(
 }
 
 int _chatRoomSortByLatest(ChatRoom left, ChatRoom right) =>
-    right.lastMessageAt.compareTo(left.lastMessageAt);
+    _compareNullableDateDesc(left.lastMessageAt, right.lastMessageAt);
+
+int _compareNullableDateDesc(DateTime? left, DateTime? right) {
+  if (left == null && right == null) {
+    return 0;
+  }
+  if (left == null) {
+    return 1;
+  }
+  if (right == null) {
+    return -1;
+  }
+  return right.compareTo(left);
+}

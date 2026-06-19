@@ -49,10 +49,13 @@ void _chatMergeRealtimeMessage(
     nextGroups.add(message);
   }
 
+  final nextLastMessageAt =
+      room.lastMessageAt == null || message.sentAt.isAfter(room.lastMessageAt!)
+      ? message.sentAt
+      : room.lastMessageAt;
+
   final updatedRoom = room.copyWith(
-    lastMessageAt: message.sentAt.isAfter(room.lastMessageAt)
-        ? message.sentAt
-        : room.lastMessageAt,
+    lastMessageAt: nextLastMessageAt,
     unreadCount: 0,
     messageGroups: nextGroups,
   );

@@ -85,7 +85,11 @@ class _MateyaAppState extends State<MateyaApp> with WidgetsBindingObserver {
     }
 
     try {
-      await _apiClient.getJson('/api/v1/hosts/me', requiresAuth: true);
+      await _apiClient.getJson(
+        '/api/v1/hosts/me',
+        requiresAuth: true,
+        logFailure: false,
+      );
       final refreshedSession = AuthSessionStore.instance.session;
       if (refreshedSession != null &&
           !_isHostRole(refreshedSession.user.role)) {
@@ -109,10 +113,11 @@ class _MateyaAppState extends State<MateyaApp> with WidgetsBindingObserver {
         );
       } else {
         _logger.info(
-          'Falling back to guest flow during bootstrap',
+          'Host flow probe fell back to guest during bootstrap',
           context: <String, Object?>{
             'statusCode': error.statusCode,
             'path': error.path,
+            if (error.code != null) 'code': error.code,
           },
         );
       }
