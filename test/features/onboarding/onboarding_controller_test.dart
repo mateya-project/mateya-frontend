@@ -54,6 +54,44 @@ void main() {
     );
 
     test(
+      'login neighborhood completion syncs verified coordinates to session',
+      () async {
+        AuthSessionStore.instance.clear();
+        final controller = OnboardingController(
+          locationRepository: _FakeLocationRepository.success(),
+          authRepository: _FakeOnboardingAuthRepository.existingUser(),
+          authSessionStore: AuthSessionStore.instance,
+        );
+
+        controller.startGuestFlow();
+        controller.toggleAllAgreements(true);
+        controller.confirmConsent();
+        controller.updateName('임시이름');
+        controller.submitName();
+        controller.updatePhoneNumber('01012345678');
+        await controller.sendVerificationCode();
+        controller.updateVerificationCode(controller.debugVerificationCode!);
+        await controller.submitVerificationCode();
+        await controller.startAutomaticNeighborhoodVerification();
+        await controller.completeNeighborhood();
+
+        expect(controller.step, OnboardingStep.completed);
+        expect(
+          AuthSessionStore.instance.session?.user.activityRegionName,
+          '우만동',
+        );
+        expect(
+          AuthSessionStore.instance.session?.user.activityLatitude,
+          37.2907,
+        );
+        expect(
+          AuthSessionStore.instance.session?.user.activityLongitude,
+          127.0416,
+        );
+      },
+    );
+
+    test(
       'new guest flow moves to automatic neighborhood verification',
       () async {
         AuthSessionStore.instance.clear();
