@@ -104,6 +104,8 @@ class _HomeFlowPageState extends State<HomeFlowPage> {
           initialFilter: _controller.filter,
           defaultFilter: _controller.defaultFilter,
           validator: _controller.validateFilterDraft,
+          activityRegionName:
+              AuthSessionStore.instance.session?.user.activityRegionName,
         );
       },
     );
@@ -157,125 +159,134 @@ class _HomeFlowPageState extends State<HomeFlowPage> {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, _) {
-        _syncSearchController();
-        if (_controller.section == HomeSection.chat) {
-          return ChatFlowPage(
-            controller: _chatController,
-            onBack: widget.onBack,
-            onHomeTap: _controller.openHome,
-            onExploreTap: _controller.openExplore,
-            onPlusTap: _openCreateFlow,
-            onProfileTap: () {
-              _controller.openProfile();
-              _myPageController.openRoot();
-            },
-          );
-        }
-        if (_controller.section == HomeSection.profile) {
-          return Column(
-            children: <Widget>[
-              Expanded(child: MyPageFlowPage(controller: _myPageController)),
-              MateyaBottomNavigation(
-                currentTab: MateyaBottomTab.profile,
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      body: SafeArea(
+        bottom: false,
+        child: AnimatedBuilder(
+          animation: _controller,
+          builder: (context, _) {
+            _syncSearchController();
+            if (_controller.section == HomeSection.chat) {
+              return ChatFlowPage(
+                controller: _chatController,
+                onBack: widget.onBack,
                 onHomeTap: _controller.openHome,
                 onExploreTap: _controller.openExplore,
                 onPlusTap: _openCreateFlow,
-                onChatTap: _controller.openChat,
                 onProfileTap: () {
                   _controller.openProfile();
                   _myPageController.openRoot();
                 },
-              ),
-            ],
-          );
-        }
-        return Column(
-          children: <Widget>[
-            _controller.section == HomeSection.home && widget.onBack != null
-                ? MateyaHeader.backArrow(onBack: widget.onBack)
-                : const MateyaHeader.noBackArrow(),
-            Expanded(
-              child: Stack(
+              );
+            }
+            if (_controller.section == HomeSection.profile) {
+              return Column(
                 children: <Widget>[
-                  AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 260),
-                    child: switch (_controller.section) {
-                      HomeSection.home => HomeScreen(
-                        key: const ValueKey<String>('home-screen'),
-                        controller: _controller,
-                        onSearchTap: _openExploreAndFocus,
-                        onActivityTap: _openActivityDetail,
-                      ),
-                      HomeSection.explore => ExploreScreen(
-                        key: const ValueKey<String>('explore-screen'),
-                        controller: _controller,
-                        searchController: _searchController,
-                        searchFocusNode: _searchFocusNode,
-                        onOpenFilter: _openFilterSheet,
-                        onActivityTap: _openActivityDetail,
-                      ),
-                      HomeSection.favorites => FavoritesScreen(
-                        key: const ValueKey<String>('favorites-screen'),
-                        controller: _controller,
-                        onBack:
-                            _controller.favoriteOriginSection ==
-                                HomeSection.explore
-                            ? _controller.openExplore
-                            : _controller.openHome,
-                        onActivityTap: _openActivityDetail,
-                      ),
-                      _ => const SizedBox.shrink(),
+                  Expanded(
+                    child: MyPageFlowPage(controller: _myPageController),
+                  ),
+                  MateyaBottomNavigation(
+                    currentTab: MateyaBottomTab.profile,
+                    onHomeTap: _controller.openHome,
+                    onExploreTap: _controller.openExplore,
+                    onPlusTap: _openCreateFlow,
+                    onChatTap: _controller.openChat,
+                    onProfileTap: () {
+                      _controller.openProfile();
+                      _myPageController.openRoot();
                     },
                   ),
-                  if (_controller.section == HomeSection.home ||
-                      _controller.section == HomeSection.explore)
-                    Positioned(
-                      right: 20,
-                      bottom: 18,
-                      child: GestureDetector(
-                        onTap: _controller.openFavorites,
-                        child: Container(
-                          width: 48,
-                          height: 48,
-                          decoration: const BoxDecoration(
-                            color: AppColors.brandGreen,
-                            shape: BoxShape.circle,
+                ],
+              );
+            }
+            return Column(
+              children: <Widget>[
+                switch (_controller.section) {
+                  HomeSection.favorites => MateyaHeader.backArrow(
+                    onBack:
+                        _controller.favoriteOriginSection == HomeSection.explore
+                        ? _controller.openExplore
+                        : _controller.openHome,
+                  ),
+                  _ => const MateyaHeader.noBackArrow(),
+                },
+                Expanded(
+                  child: Stack(
+                    children: <Widget>[
+                      AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 260),
+                        child: switch (_controller.section) {
+                          HomeSection.home => HomeScreen(
+                            key: const ValueKey<String>('home-screen'),
+                            controller: _controller,
+                            onSearchTap: _openExploreAndFocus,
+                            onActivityTap: _openActivityDetail,
                           ),
-                          child: const Icon(
-                            Icons.favorite_border_rounded,
-                            color: Colors.white,
+                          HomeSection.explore => ExploreScreen(
+                            key: const ValueKey<String>('explore-screen'),
+                            controller: _controller,
+                            searchController: _searchController,
+                            searchFocusNode: _searchFocusNode,
+                            onOpenFilter: _openFilterSheet,
+                            onActivityTap: _openActivityDetail,
+                          ),
+                          HomeSection.favorites => FavoritesScreen(
+                            key: const ValueKey<String>('favorites-screen'),
+                            controller: _controller,
+                            onActivityTap: _openActivityDetail,
+                          ),
+                          _ => const SizedBox.shrink(),
+                        },
+                      ),
+                      if (_controller.section == HomeSection.home ||
+                          _controller.section == HomeSection.explore)
+                        Positioned(
+                          right: 20,
+                          bottom: 18,
+                          child: GestureDetector(
+                            onTap: _controller.openFavorites,
+                            child: Container(
+                              width: 48,
+                              height: 48,
+                              decoration: const BoxDecoration(
+                                color: AppColors.brandGreen,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.favorite_border_rounded,
+                                color: Colors.white,
+                              ),
+                            ),
                           ),
                         ),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-            MateyaBottomNavigation(
-              currentTab: switch (_controller.section) {
-                HomeSection.home => MateyaBottomTab.home,
-                HomeSection.explore => MateyaBottomTab.explore,
-                HomeSection.favorites =>
-                  _controller.favoriteOriginSection == HomeSection.explore
-                      ? MateyaBottomTab.explore
-                      : MateyaBottomTab.home,
-                _ => MateyaBottomTab.home,
-              },
-              onHomeTap: _controller.openHome,
-              onExploreTap: _controller.openExplore,
-              onPlusTap: _openCreateFlow,
-              onChatTap: _controller.openChat,
-              onProfileTap: () {
-                _controller.openProfile();
-                _myPageController.openRoot();
-              },
-            ),
-          ],
-        );
-      },
+                    ],
+                  ),
+                ),
+                MateyaBottomNavigation(
+                  currentTab: switch (_controller.section) {
+                    HomeSection.home => MateyaBottomTab.home,
+                    HomeSection.explore => MateyaBottomTab.explore,
+                    HomeSection.favorites =>
+                      _controller.favoriteOriginSection == HomeSection.explore
+                          ? MateyaBottomTab.explore
+                          : MateyaBottomTab.home,
+                    _ => MateyaBottomTab.home,
+                  },
+                  onHomeTap: _controller.openHome,
+                  onExploreTap: _controller.openExplore,
+                  onPlusTap: _openCreateFlow,
+                  onChatTap: _controller.openChat,
+                  onProfileTap: () {
+                    _controller.openProfile();
+                    _myPageController.openRoot();
+                  },
+                ),
+              ],
+            );
+          },
+        ),
+      ),
     );
   }
 

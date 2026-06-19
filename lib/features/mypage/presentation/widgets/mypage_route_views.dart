@@ -155,6 +155,7 @@ class SettingsView extends StatelessWidget {
   const SettingsView({
     super.key,
     required this.profile,
+    required this.onBack,
     required this.onEditActivityRegion,
     required this.onOpenConsentHistory,
     required this.onOpenPrivacyPolicy,
@@ -165,6 +166,7 @@ class SettingsView extends StatelessWidget {
   });
 
   final ProfileSummary profile;
+  final VoidCallback onBack;
   final VoidCallback onEditActivityRegion;
   final VoidCallback onOpenConsentHistory;
   final VoidCallback onOpenPrivacyPolicy;
@@ -177,74 +179,96 @@ class SettingsView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: <Widget>[
-        const MateyaHeader.noBackArrow(),
+        MateyaHeader.backArrow(onBack: onBack),
         Expanded(
-          child: Column(
-            children: <Widget>[
-              _SettingsTitleBar(title: '나의 메이트야'),
-              Container(
-                width: double.infinity,
-                color: Colors.white,
-                padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
-                child: Row(
-                  children: <Widget>[
-                    MyPageAvatarImage(
-                      imageUrl: profile.profileImageUrl,
-                      size: 56,
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text(
-                            profile.name,
-                            style: Theme.of(context).textTheme.titleLarge,
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            profile.residence,
-                            style: Theme.of(context).textTheme.bodyMedium
-                                ?.copyWith(color: AppColors.textSecondary),
-                          ),
-                        ],
+          child: CustomScrollView(
+            slivers: <Widget>[
+              const SliverToBoxAdapter(
+                child: _SettingsTitleBar(title: '나의 메이트야'),
+              ),
+              SliverToBoxAdapter(
+                child: Container(
+                  width: double.infinity,
+                  color: Colors.white,
+                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
+                  child: Row(
+                    children: <Widget>[
+                      MyPageAvatarImage(
+                        imageUrl: profile.profileImageUrl,
+                        size: 56,
                       ),
-                    ),
-                  ],
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Text(
+                              profile.name,
+                              style: Theme.of(context).textTheme.titleLarge,
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              profile.residence,
+                              style: Theme.of(context).textTheme.bodyMedium
+                                  ?.copyWith(color: AppColors.textSecondary),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-              const SizedBox(height: 18),
-              _SettingsMenuItem(
-                title: '활동 지역 변경하기',
-                onTap: onEditActivityRegion,
+              const SliverToBoxAdapter(child: SizedBox(height: 18)),
+              SliverToBoxAdapter(
+                child: _SettingsMenuItem(
+                  title: '활동 지역 변경하기',
+                  onTap: onEditActivityRegion,
+                ),
               ),
-              _SettingsMenuItem(
-                title: '개인정보 수집·이용 동의 내역',
-                onTap: onOpenConsentHistory,
+              SliverToBoxAdapter(
+                child: _SettingsMenuItem(
+                  title: '개인정보 수집·이용 동의 내역',
+                  onTap: onOpenConsentHistory,
+                ),
               ),
-              _SettingsMenuItem(
-                title: '개인정보처리방침 보기',
-                onTap: onOpenPrivacyPolicy,
+              SliverToBoxAdapter(
+                child: _SettingsMenuItem(
+                  title: '개인정보처리방침 보기',
+                  onTap: onOpenPrivacyPolicy,
+                ),
               ),
-              _SettingsMenuItem(
-                title: '고객센터 문의하기',
-                onTap: onOpenCustomerSupport,
+              SliverToBoxAdapter(
+                child: _SettingsMenuItem(
+                  title: '고객센터 문의하기',
+                  onTap: onOpenCustomerSupport,
+                ),
               ),
-              _SettingsMenuItem(
-                title: '차단 유저 목록 보기',
-                onTap: onOpenBlockedUsers,
+              SliverToBoxAdapter(
+                child: _SettingsMenuItem(
+                  title: '차단 유저 목록 보기',
+                  onTap: onOpenBlockedUsers,
+                ),
               ),
-              _SettingsMenuItem(title: '로그아웃 하기', onTap: onLogout),
-              const Spacer(),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 24),
-                child: TextButton(
-                  onPressed: onWithdrawal,
-                  child: Text(
-                    '회원 탈퇴하기',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: AppColors.textMuted,
-                      decoration: TextDecoration.underline,
+              SliverToBoxAdapter(
+                child: _SettingsMenuItem(title: '로그아웃 하기', onTap: onLogout),
+              ),
+              SliverFillRemaining(
+                hasScrollBody: false,
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 24),
+                  child: Align(
+                    alignment: Alignment.bottomCenter,
+                    child: TextButton(
+                      onPressed: onWithdrawal,
+                      child: Text(
+                        '회원 탈퇴하기',
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(
+                              color: AppColors.textMuted,
+                              decoration: TextDecoration.underline,
+                            ),
+                      ),
                     ),
                   ),
                 ),

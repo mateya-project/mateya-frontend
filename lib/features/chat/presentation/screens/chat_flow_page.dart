@@ -160,9 +160,16 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
   }
 
   void _showPendingMessage(String message) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(message)));
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+      final messenger = ScaffoldMessenger.maybeOf(context);
+      if (messenger == null) {
+        return;
+      }
+      messenger.showSnackBar(SnackBar(content: Text(message)));
+    });
   }
 
   Future<String?> _submitChatReport(

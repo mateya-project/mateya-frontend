@@ -78,6 +78,7 @@ class _PhoneStepViewState extends State<PhoneStepView> {
                 MateyaTextField(
                   controller: _phoneController,
                   readOnly: hasSentVerificationCode,
+                  hintText: '예)01012341234',
                   keyboardType: TextInputType.phone,
                   inputFormatters: <TextInputFormatter>[
                     FilteringTextInputFormatter.digitsOnly,

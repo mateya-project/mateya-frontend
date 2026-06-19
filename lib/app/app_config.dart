@@ -16,7 +16,8 @@ abstract final class AppConfig {
 
   static const String privacyPolicyUrl = String.fromEnvironment(
     'MATEYA_PRIVACY_POLICY_URL',
-    defaultValue: 'https://app.notion.com/p/38458d06892d801185d8eca4faec6e8b',
+    defaultValue:
+        'https://app.notion.com/p/Mateya-38458d06892d801185d8eca4faec6e8b?source=copy_link',
   );
 
   static const List<String> supportedCarriers = <String>[

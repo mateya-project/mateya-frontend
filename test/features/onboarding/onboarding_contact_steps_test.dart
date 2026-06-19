@@ -34,6 +34,7 @@ void main() {
       expect(find.text('휴대폰 번호를 입력해주세요'), findsOneWidget);
       expect(find.text('인증번호'), findsOneWidget);
       expect(find.text('휴대폰 번호를 입력하면 인증번호를 받을 수 있어요.'), findsOneWidget);
+      expect(find.text('예)01012341234'), findsOneWidget);
       expect(find.text('인증번호 받기'), findsOneWidget);
 
       await tester.enterText(find.byType(TextField).first, '01012345678');

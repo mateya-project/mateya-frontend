@@ -25,15 +25,40 @@ class MainActivity : FlutterActivity() {
         return@setMethodCallHandler
       }
 
-      val intent = Intent(Intent.ACTION_VIEW, Uri.parse(rawUrl)).apply {
-        addCategory(Intent.CATEGORY_BROWSABLE)
+      val targetUri = Uri.parse(rawUrl)
+      val browserCandidates = packageManager.queryIntentActivities(
+        Intent(Intent.ACTION_VIEW, Uri.parse("https://www.google.com")).apply {
+          addCategory(Intent.CATEGORY_BROWSABLE)
+        },
+        0,
+      ).map { resolveInfo ->
+        Intent(Intent.ACTION_VIEW, targetUri).apply {
+          addCategory(Intent.CATEGORY_BROWSABLE)
+          `package` = resolveInfo.activityInfo.packageName
+        }
       }
+
+      val intent =
+        when {
+          browserCandidates.isEmpty() -> Intent(Intent.ACTION_VIEW, targetUri).apply {
+            addCategory(Intent.CATEGORY_BROWSABLE)
+          }
+          browserCandidates.size == 1 -> browserCandidates.first()
+          else -> Intent.createChooser(
+            browserCandidates.first(),
+            "브라우저 선택",
+          ).apply {
+            putExtra(
+              Intent.EXTRA_INITIAL_INTENTS,
+              browserCandidates.drop(1).toTypedArray(),
+            )
+          }
+        }
 
       if (intent.resolveActivity(packageManager) == null) {
         result.success(false)
         return@setMethodCallHandler
       }
-
       startActivity(intent)
       result.success(true)
     }
