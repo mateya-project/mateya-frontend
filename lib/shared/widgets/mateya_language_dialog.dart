@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_tokens.dart';
-import 'mateya_button.dart';
 
 class MateyaLanguageOption {
   const MateyaLanguageOption({
@@ -22,7 +21,7 @@ const List<MateyaLanguageOption> kMateyaLanguageOptions =
       MateyaLanguageOption(
         code: 'zh-Hans',
         label: 'Chinese (Simplified)',
-        nativeLabel: '중국어(간체)',
+        nativeLabel: '중국어(간체자)',
       ),
       MateyaLanguageOption(code: 'ja', label: 'Japanese', nativeLabel: '일본어'),
     ];
@@ -66,7 +65,13 @@ class _MateyaLanguageDialog extends StatefulWidget {
 }
 
 class _MateyaLanguageDialogState extends State<_MateyaLanguageDialog> {
+  static const double _dropdownControlHeight = 52;
+
   late String _selectedLanguageCode;
+  final LayerLink _dropdownLayerLink = LayerLink();
+  final GlobalKey _dropdownFieldKey = GlobalKey();
+  OverlayEntry? _dropdownOverlayEntry;
+  double _dropdownWidth = 0;
 
   @override
   void initState() {
@@ -80,31 +85,42 @@ class _MateyaLanguageDialogState extends State<_MateyaLanguageDialog> {
   }
 
   @override
+  void dispose() {
+    _removeDropdownOverlay();
+    super.dispose();
+  }
+
+  bool get _isDropdownExpanded => _dropdownOverlayEntry != null;
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final selectedOption = kMateyaLanguageOptions.firstWhere(
       (option) => option.code == _selectedLanguageCode,
       orElse: () => kMateyaLanguageOptions.first,
     );
+    final remainingOptions = kMateyaLanguageOptions
+        .where((option) => option.code != _selectedLanguageCode)
+        .toList(growable: false);
 
     return SafeArea(
       child: Center(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
+          padding: const EdgeInsets.symmetric(horizontal: 14),
           child: Material(
             color: Colors.transparent,
             child: Container(
               width: double.infinity,
-              constraints: const BoxConstraints(maxWidth: 360),
-              padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
+              constraints: const BoxConstraints(maxWidth: 390),
+              padding: const EdgeInsets.fromLTRB(18, 20, 18, 20),
               decoration: BoxDecoration(
                 color: AppColors.background,
-                borderRadius: BorderRadius.circular(24),
+                borderRadius: BorderRadius.circular(16),
                 boxShadow: const <BoxShadow>[
                   BoxShadow(
-                    color: Color(0x1A111111),
-                    blurRadius: 28,
-                    offset: Offset(0, 18),
+                    color: Color(0x14111111),
+                    blurRadius: 20,
+                    offset: Offset(0, 12),
                   ),
                 ],
               ),
@@ -113,172 +129,226 @@ class _MateyaLanguageDialogState extends State<_MateyaLanguageDialog> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Text(
-                              '언어 설정',
-                              style: theme.textTheme.titleLarge?.copyWith(
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              '앱에서 사용할 언어를 선택할 수 있습니다. 현재 선택값은 팝업 안에서만 미리보기로 반영됩니다.',
-                              style: theme.textTheme.bodyMedium?.copyWith(
-                                color: AppColors.textSecondary,
-                                height: 1.5,
-                              ),
-                            ),
-                          ],
+                        child: Text(
+                          '언어 변경',
+                          style: theme.textTheme.headlineLarge?.copyWith(
+                            fontSize: 24,
+                            fontWeight: FontWeight.w800,
+                          ),
                         ),
                       ),
-                      const SizedBox(width: 12),
-                      InkResponse(
-                        onTap: () => Navigator.of(context).pop(),
-                        radius: 20,
-                        child: const SizedBox(
-                          width: 32,
-                          height: 32,
-                          child: Icon(
-                            Icons.close_rounded,
-                            color: AppColors.textSecondary,
+                      Material(
+                        color: Colors.transparent,
+                        shape: const CircleBorder(),
+                        clipBehavior: Clip.antiAlias,
+                        child: InkWell(
+                          key: const ValueKey<String>('language-dialog-close'),
+                          onTap: () => Navigator.of(context).pop(),
+                          customBorder: const CircleBorder(),
+                          splashColor: Colors.black.withValues(alpha: 0.08),
+                          highlightColor: Colors.black.withValues(alpha: 0.04),
+                          child: const SizedBox(
+                            width: 36,
+                            height: 36,
+                            child: Icon(
+                              Icons.close_rounded,
+                              size: 30,
+                              color: AppColors.textPrimary,
+                            ),
                           ),
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 24),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: AppColors.subtleBackground,
-                      borderRadius: BorderRadius.circular(18),
-                    ),
-                    child: Row(
-                      children: <Widget>[
-                        Container(
-                          width: 44,
-                          height: 44,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                          child: const Icon(
-                            Icons.language_rounded,
-                            color: AppColors.textPrimary,
-                          ),
-                        ),
-                        const SizedBox(width: 14),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Text(
-                                '현재 선택',
-                                style: theme.textTheme.bodySmall?.copyWith(
-                                  color: AppColors.textSecondary,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                selectedOption.nativeLabel,
-                                style: theme.textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                              Text(
-                                selectedOption.label,
-                                style: theme.textTheme.bodySmall?.copyWith(
-                                  color: AppColors.textSecondary,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 18),
+                  const SizedBox(height: 22),
                   Text(
                     '지원 언어',
-                    style: theme.textTheme.bodyMedium?.copyWith(
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontSize: 16,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-                  const SizedBox(height: 12),
-                  for (
-                    int index = 0;
-                    index < kMateyaLanguageOptions.length;
-                    index++
-                  ) ...<Widget>[
-                    _LanguageOptionTile(
-                      option: kMateyaLanguageOptions[index],
-                      selected:
-                          kMateyaLanguageOptions[index].code ==
-                          _selectedLanguageCode,
-                      onTap: () {
-                        setState(() {
-                          _selectedLanguageCode =
-                              kMateyaLanguageOptions[index].code;
-                        });
-                      },
-                    ),
-                    if (index != kMateyaLanguageOptions.length - 1)
-                      const SizedBox(height: 10),
-                  ],
-                  const SizedBox(height: 16),
-                  Container(
+                  const SizedBox(height: 14),
+                  _LanguageDropdown(
+                    fieldKey: _dropdownFieldKey,
+                    layerLink: _dropdownLayerLink,
+                    selectedOption: selectedOption,
+                    expanded: _isDropdownExpanded,
+                    controlHeight: _dropdownControlHeight,
+                    onToggle: () => _toggleDropdown(remainingOptions),
+                  ),
+                  const SizedBox(height: 32),
+                  SizedBox(
                     width: double.infinity,
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      color: AppColors.appSurface,
-                      borderRadius: BorderRadius.circular(16),
+                    height: 56,
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      style: ElevatedButton.styleFrom(
+                        elevation: 0,
+                        backgroundColor: Colors.black,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        textStyle: theme.textTheme.titleLarge?.copyWith(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                        ),
+                      ),
+                      child: const Text('확인'),
                     ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _toggleDropdown(List<MateyaLanguageOption> remainingOptions) {
+    if (_isDropdownExpanded) {
+      _removeDropdownOverlay();
+      setState(() {});
+      return;
+    }
+    _updateDropdownMetrics();
+    _dropdownOverlayEntry = _buildDropdownOverlay(remainingOptions);
+    Overlay.of(context, rootOverlay: true).insert(_dropdownOverlayEntry!);
+    setState(() {});
+  }
+
+  void _removeDropdownOverlay() {
+    _dropdownOverlayEntry?.remove();
+    _dropdownOverlayEntry = null;
+  }
+
+  OverlayEntry _buildDropdownOverlay(
+    List<MateyaLanguageOption> remainingOptions,
+  ) {
+    return OverlayEntry(
+      builder: (context) {
+        return Stack(
+          children: <Widget>[
+            Positioned.fill(
+              child: GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onTap: () {
+                  _removeDropdownOverlay();
+                  if (mounted) {
+                    setState(() {});
+                  }
+                },
+              ),
+            ),
+            CompositedTransformFollower(
+              link: _dropdownLayerLink,
+              showWhenUnlinked: false,
+              offset: const Offset(0, _dropdownControlHeight - 1),
+              child: Material(
+                color: Colors.transparent,
+                child: SizedBox(
+                  width: _dropdownWidth,
+                  child: _LanguageDropdownPanel(
+                    options: remainingOptions,
+                    controlHeight: _dropdownControlHeight,
+                    onSelect: (option) {
+                      setState(() {
+                        _selectedLanguageCode = option.code;
+                      });
+                      _removeDropdownOverlay();
+                      if (mounted) {
+                        setState(() {});
+                      }
+                    },
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _updateDropdownMetrics() {
+    final box =
+        _dropdownFieldKey.currentContext?.findRenderObject() as RenderBox?;
+    if (box == null) {
+      return;
+    }
+    _dropdownWidth = box.size.width;
+  }
+}
+
+class _LanguageDropdown extends StatelessWidget {
+  const _LanguageDropdown({
+    required this.fieldKey,
+    required this.layerLink,
+    required this.selectedOption,
+    required this.expanded,
+    required this.controlHeight,
+    required this.onToggle,
+  });
+
+  final Key fieldKey;
+  final LayerLink layerLink;
+  final MateyaLanguageOption selectedOption;
+  final bool expanded;
+  final double controlHeight;
+  final VoidCallback onToggle;
+
+  @override
+  Widget build(BuildContext context) {
+    final borderRadius = expanded
+        ? const BorderRadius.only(
+            topLeft: Radius.circular(14),
+            topRight: Radius.circular(14),
+          )
+        : BorderRadius.circular(14);
+
+    return CompositedTransformTarget(
+      link: layerLink,
+      child: Material(
+        key: fieldKey,
+        color: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: borderRadius,
+          side: BorderSide(
+            color: AppColors.textPrimary.withValues(alpha: 0.45),
+          ),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: SizedBox(
+          height: controlHeight,
+          child: InkWell(
+            key: const ValueKey<String>('language-dropdown-toggle'),
+            onTap: onToggle,
+            splashColor: Colors.black.withValues(alpha: 0.06),
+            highlightColor: Colors.black.withValues(alpha: 0.03),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14),
+              child: Row(
+                children: <Widget>[
+                  Expanded(
                     child: Text(
-                      '실제 앱 언어 전환은 아직 연결되지 않았습니다. 이번 변경은 팝업 디자인과 선택 경험을 우선 정리한 상태입니다.',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: AppColors.textMuted,
-                        height: 1.5,
+                      selectedOption.nativeLabel,
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ),
-                  const SizedBox(height: 20),
-                  Row(
-                    children: <Widget>[
-                      Expanded(
-                        child: SizedBox(
-                          height: 50,
-                          child: OutlinedButton(
-                            onPressed: () => Navigator.of(context).pop(),
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: AppColors.textPrimary,
-                              side: const BorderSide(
-                                color: AppColors.fieldBorderLight,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(
-                                  AppSpacing.fieldRadius,
-                                ),
-                              ),
-                            ),
-                            child: const Text('닫기'),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: MateyaButton(
-                          label: '확인',
-                          onPressed: () => Navigator.of(context).pop(),
-                          tone: MateyaButtonTone.dark,
-                        ),
-                      ),
-                    ],
+                  Icon(
+                    expanded
+                        ? Icons.keyboard_arrow_up_rounded
+                        : Icons.keyboard_arrow_down_rounded,
+                    size: 28,
+                    color: AppColors.textPrimary,
                   ),
                 ],
               ),
@@ -290,79 +360,63 @@ class _MateyaLanguageDialogState extends State<_MateyaLanguageDialog> {
   }
 }
 
-class _LanguageOptionTile extends StatelessWidget {
-  const _LanguageOptionTile({
-    required this.option,
-    required this.selected,
-    required this.onTap,
+class _LanguageDropdownPanel extends StatelessWidget {
+  const _LanguageDropdownPanel({
+    required this.options,
+    required this.controlHeight,
+    required this.onSelect,
   });
 
-  final MateyaLanguageOption option;
-  final bool selected;
-  final VoidCallback onTap;
+  final List<MateyaLanguageOption> options;
+  final double controlHeight;
+  final ValueChanged<MateyaLanguageOption> onSelect;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(18),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 160),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
-        decoration: BoxDecoration(
-          color: selected ? const Color(0xFFF0F8F3) : Colors.white,
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(
-            color: selected ? AppColors.brandGreen : AppColors.fieldBorderLight,
-          ),
+    return Material(
+      key: const ValueKey<String>('language-dropdown-panel'),
+      color: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(14),
+          bottomRight: Radius.circular(14),
         ),
-        child: Row(
-          children: <Widget>[
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text(
-                    option.nativeLabel,
-                    style: theme.textTheme.bodyLarge?.copyWith(
-                      fontWeight: FontWeight.w700,
+        side: BorderSide(color: AppColors.textPrimary.withValues(alpha: 0.45)),
+      ),
+      clipBehavior: Clip.antiAlias,
+      elevation: 6,
+      shadowColor: const Color(0x14111111),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          for (int index = 0; index < options.length; index++) ...<Widget>[
+            InkWell(
+              key: ValueKey<String>('language-option-${options[index].code}'),
+              onTap: () => onSelect(options[index]),
+              splashColor: Colors.black.withValues(alpha: 0.06),
+              highlightColor: Colors.black.withValues(alpha: 0.03),
+              child: SizedBox(
+                width: double.infinity,
+                height: controlHeight,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 14),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      options[index].nativeLabel,
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    option.label,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 160),
-              width: 24,
-              height: 24,
-              decoration: BoxDecoration(
-                color: selected ? AppColors.brandGreen : Colors.transparent,
-                borderRadius: BorderRadius.circular(999),
-                border: Border.all(
-                  color: selected
-                      ? AppColors.brandGreen
-                      : AppColors.fieldBorderLight,
                 ),
               ),
-              child: selected
-                  ? const Icon(
-                      Icons.check_rounded,
-                      color: Colors.white,
-                      size: 16,
-                    )
-                  : null,
             ),
+            if (index != options.length - 1)
+              const Divider(height: 1, thickness: 1, color: Color(0xFFB9B1A4)),
           ],
-        ),
+        ],
       ),
     );
   }
