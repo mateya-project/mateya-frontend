@@ -460,13 +460,19 @@ class _CreateFlowPageState extends State<CreateFlowPage> {
           body: SafeArea(
             child: Column(
               children: <Widget>[
-                CreateFlowHeader(
-                  title: widget.controller.screenTitle,
-                  progressLabel: widget.controller.step == CreateStep.completed
-                      ? '완료'
-                      : '${widget.controller.currentStepNumber}/${widget.controller.totalStepCount}',
-                  onBack: _handleBack,
-                ),
+                if (widget.controller.step == CreateStep.completed)
+                  CreateFlowHeader(
+                    title: widget.controller.screenTitle,
+                    progressLabel: '완료',
+                    onBack: _handleBack,
+                  )
+                else
+                  CreateFlowProgressHeader(
+                    flowType: widget.controller.flowType,
+                    steps: widget.controller.steps,
+                    currentStep: widget.controller.step,
+                    onBack: _handleBack,
+                  ),
                 Expanded(
                   child: AnimatedSwitcher(
                     duration: const Duration(milliseconds: 260),
