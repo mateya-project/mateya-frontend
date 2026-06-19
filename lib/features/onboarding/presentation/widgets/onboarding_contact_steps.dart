@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -148,7 +149,8 @@ class _PhoneStepViewState extends State<PhoneStepView> {
                       ),
                     ),
                   ],
-                  if (controller.debugVerificationCode != null) ...<Widget>[
+                  if (kDebugMode &&
+                      controller.debugVerificationCode != null) ...<Widget>[
                     const SizedBox(height: 12),
                     Text(
                       '테스트용 인증번호: ${controller.debugVerificationCode}',

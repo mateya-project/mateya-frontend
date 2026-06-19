@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 
-import '../../../../shared/media/image_picker_lost_data.dart';
-import '../../../../shared/permissions/mateya_permission_dialogs.dart';
+import '../../../../shared/media/mateya_gallery_picker.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../../shared/widgets/mateya_button.dart';
 import '../../../onboarding/domain/onboarding_flow.dart';
@@ -23,6 +21,17 @@ class CreateFlowPage extends StatefulWidget {
 }
 
 class _CreateFlowPageState extends State<CreateFlowPage> {
+  static const MateyaGalleryPickerMessages
+  _galleryPickerMessages = MateyaGalleryPickerMessages(
+    noticeMessage:
+        '활동 대표 이미지를 등록하기 위해 사진 보관함 접근 권한이 필요합니다. 권한을 거부하셔도 활동 정보 입력은 계속 진행할 수 있습니다.',
+    recoveryMessage:
+        '대표 이미지를 추가하려면 사진 보관함 접근 권한이 필요합니다. 권한이 없어도 활동 정보 입력은 계속할 수 있고, 다시 시도하거나 앱 설정에서 권한을 허용할 수 있습니다.',
+    failureMessage: '이미지를 불러오지 못했어요. 권한과 파일 상태를 확인해 주세요.',
+    restoreFallbackErrorMessage: '이전에 선택하던 이미지를 복구하지 못했어요. 다시 선택해 주세요.',
+    restoredCountMessage: _createRestoredCountMessage,
+  );
+
   final ImagePicker _imagePicker = ImagePicker();
   final ScrollController _detailsScrollController = ScrollController();
   final Map<String, GlobalKey> _detailSectionKeys = <String, GlobalKey>{
@@ -124,41 +133,15 @@ class _CreateFlowPageState extends State<CreateFlowPage> {
   }
 
   Future<void> _restoreLostImages({bool suppressErrorMessage = false}) async {
-    final recovery = await recoverLostImagePickerData(
-      _imagePicker.retrieveLostData,
-      fallbackErrorMessage: '이전에 선택하던 이미지를 복구하지 못했어요. 다시 선택해 주세요.',
+    await restoreLostMateyaGalleryImages(
+      context: context,
+      readLostData: _imagePicker.retrieveLostData,
+      availableSlots:
+          CreateController.maxImageCount - widget.controller.images.length,
+      messages: _galleryPickerMessages,
+      suppressErrorMessage: suppressErrorMessage,
+      onRestored: widget.controller.addImages,
     );
-    if (!mounted || recovery.isEmpty) {
-      return;
-    }
-    if (recovery.errorMessage != null) {
-      if (suppressErrorMessage) {
-        return;
-      }
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(recovery.errorMessage!)));
-      return;
-    }
-
-    final available =
-        CreateController.maxImageCount - widget.controller.images.length;
-    if (available <= 0) {
-      return;
-    }
-
-    final beforeCount = widget.controller.images.length;
-    await widget.controller.addImages(recovery.files.take(available).toList());
-    if (!mounted) {
-      return;
-    }
-
-    final restoredCount = widget.controller.images.length - beforeCount;
-    if (restoredCount > 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('이전에 선택하던 이미지 $restoredCount장을 복구했어요.')),
-      );
-    }
   }
 
   Future<void> _pickImages() async {
@@ -168,60 +151,17 @@ class _CreateFlowPageState extends State<CreateFlowPage> {
       return;
     }
 
-    final shouldContinue = await showMateyaPermissionNoticeDialog(
+    final picked = await pickMateyaGalleryImages(
       context,
-      title: '사진 권한 안내',
-      message:
-          '활동 대표 이미지를 등록하기 위해 사진 보관함 접근 권한이 필요합니다. 권한을 거부하셔도 활동 정보 입력은 계속 진행할 수 있습니다.',
-      confirmLabel: '사진 선택하기',
-      cancelLabel: '나중에',
-      rememberKey: 'permission.notice.photo_library',
+      imagePicker: _imagePicker,
+      availableSlots: remaining,
+      messages: _galleryPickerMessages,
+      maxWidth: 2400,
     );
-
-    if (!mounted || !shouldContinue) {
+    if (!mounted || picked.isEmpty) {
       return;
     }
-
-    try {
-      final picked = await _imagePicker.pickMultiImage(
-        imageQuality: 88,
-        maxWidth: 2400,
-      );
-      if (!mounted || picked.isEmpty) {
-        return;
-      }
-      await widget.controller.addImages(picked.take(remaining).toList());
-    } on PlatformException catch (error) {
-      if (!mounted) {
-        return;
-      }
-      if (error.code == 'photo_access_denied') {
-        final action = await showMateyaPermissionRecoveryDialog(
-          context,
-          title: '사진 권한이 필요해요',
-          message:
-              '대표 이미지를 추가하려면 사진 보관함 접근 권한이 필요합니다. 권한이 없어도 활동 정보 입력은 계속할 수 있고, 다시 시도하거나 앱 설정에서 권한을 허용할 수 있습니다.',
-          retryLabel: '다시 시도',
-        );
-        if (!mounted) {
-          return;
-        }
-        if (action == MateyaPermissionRecoveryAction.retry) {
-          await _pickImages();
-          return;
-        }
-      }
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('이미지를 불러오지 못했어요. 권한과 파일 상태를 확인해 주세요.')),
-      );
-    } catch (_) {
-      if (!mounted) {
-        return;
-      }
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('이미지를 불러오지 못했어요. 권한과 파일 상태를 확인해 주세요.')),
-      );
-    }
+    await widget.controller.addImages(picked);
   }
 
   Future<void> _pickEventDate() async {
@@ -569,4 +509,8 @@ class _CreateFlowPageState extends State<CreateFlowPage> {
       ),
     };
   }
+}
+
+String _createRestoredCountMessage(int restoredCount) {
+  return '이전에 선택하던 이미지 $restoredCount장을 복구했어요.';
 }

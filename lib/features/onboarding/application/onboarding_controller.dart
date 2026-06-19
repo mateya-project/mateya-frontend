@@ -83,7 +83,8 @@ class OnboardingController extends ChangeNotifier {
   String get verificationCode => _verificationCode;
   int get remainingSeconds => _remainingSeconds;
   int get resendCount => _resendCount;
-  String? get debugVerificationCode => _expectedVerificationCode;
+  String? get debugVerificationCode =>
+      kDebugMode ? _expectedVerificationCode : null;
   String? get verificationNotice => _verificationNotice;
   String get manualNeighborhoodQuery => _manualNeighborhoodQuery;
   String get businessName => _businessName;

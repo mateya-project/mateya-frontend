@@ -1,1 +1,2 @@
 - [high] 호스트 온보딩 활동 지역 저장 흐름 정리: `signupHost`는 `activityRegionName/activityLatitude/activityLongitude` 없이 가입되어 거리 기반 기능이 세션 좌표에 의존할 때 비어 있을 수 있음. 제품 흐름 합의 후 초기 활동 지역 입력 또는 프로필 동기화 단계가 필요함.
+- [high] Android release signing 설정 필요: `android/app/build.gradle.kts`의 `release`가 아직 `signingConfigs.getByName("debug")`를 사용 중이라 실제 Play 배포용 서명 구성이 없다. 운영 키스토어/서명 속성 주입 방식을 확정하고 릴리즈 빌드 검증이 필요함.
