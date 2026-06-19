@@ -215,6 +215,40 @@ void main() {
       },
     );
 
+    test(
+      'guest signup retries with a fresh verification token when signup reports an expired verification code',
+      () async {
+        AuthSessionStore.instance.clear();
+        final authRepository = _FakeOnboardingAuthRepository(
+          firstGuestSignupErrorMessage: '인증번호가 만료되었습니다.',
+        );
+        final controller = OnboardingController(
+          locationRepository: _FakeLocationRepository.success(),
+          authRepository: authRepository,
+          authSessionStore: AuthSessionStore.instance,
+        );
+
+        controller.startGuestFlow();
+        controller.toggleAllAgreements(true);
+        controller.confirmConsent();
+        controller.updateName('홍길동');
+        controller.submitName();
+        controller.updatePhoneNumber('01012345678');
+        await controller.sendVerificationCode();
+        controller.updateVerificationCode(controller.debugVerificationCode!);
+        await controller.submitVerificationCode();
+        await controller.startAutomaticNeighborhoodVerification();
+        await controller.completeNeighborhood();
+
+        expect(controller.step, OnboardingStep.completed);
+        expect(authRepository.signupGuestAttemptCount, 2);
+        expect(
+          authRepository.lastGuestSignupVerificationToken,
+          'verification-token-2',
+        );
+      },
+    );
+
     test('host business validation blocks invalid number', () {
       final controller = OnboardingController(
         locationRepository: _FakeLocationRepository.success(),
@@ -421,11 +455,13 @@ class _FakeOnboardingAuthRepository implements OnboardingAuthRepository {
   _FakeOnboardingAuthRepository({
     this.smsDebugCode = '123456',
     this.failFirstGuestSignupWithInvalidToken = false,
+    this.firstGuestSignupErrorMessage,
   }) : loginSession = null;
 
   _FakeOnboardingAuthRepository.existingUser()
     : smsDebugCode = '123456',
       failFirstGuestSignupWithInvalidToken = false,
+      firstGuestSignupErrorMessage = null,
       loginSession = AuthSession(
         accessToken: 'logged-in-access',
         refreshToken: 'logged-in-refresh',
@@ -448,6 +484,7 @@ class _FakeOnboardingAuthRepository implements OnboardingAuthRepository {
   final AuthSession? loginSession;
   final String? smsDebugCode;
   final bool failFirstGuestSignupWithInvalidToken;
+  final String? firstGuestSignupErrorMessage;
   String? lastBusinessVerificationToken;
   String? lastBusinessName;
   String? lastGuestSignupVerificationToken;
@@ -510,10 +547,12 @@ class _FakeOnboardingAuthRepository implements OnboardingAuthRepository {
   }) async {
     signupGuestAttemptCount += 1;
     lastGuestSignupVerificationToken = verificationToken;
-    if (failFirstGuestSignupWithInvalidToken && signupGuestAttemptCount == 1) {
-      throw const MateyaApiException(
+    if ((failFirstGuestSignupWithInvalidToken ||
+            firstGuestSignupErrorMessage != null) &&
+        signupGuestAttemptCount == 1) {
+      throw MateyaApiException(
         type: ApiFailureType.validation,
-        message: 'sms인증 토큰이 유효하지 않아요.',
+        message: firstGuestSignupErrorMessage ?? 'sms인증 토큰이 유효하지 않아요.',
         code: 'validation-failed',
         statusCode: 400,
       );
