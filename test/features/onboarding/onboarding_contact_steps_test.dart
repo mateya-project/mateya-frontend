@@ -68,6 +68,21 @@ void main() {
     expect(find.text('위치 권한 안내'), findsOneWidget);
     expect(find.text('직접 입력하기'), findsOneWidget);
     expect(find.text('현재 위치로 인증하기'), findsOneWidget);
+    expect(find.byIcon(Icons.location_on_rounded), findsNothing);
+    expect(
+      tester.getTopLeft(find.text('현재 위치로 인증하기')).dy,
+      lessThan(tester.getTopLeft(find.text('직접 입력하기')).dy),
+    );
+    expect(
+      tester
+          .getSize(find.byType(OnboardingLocationPermissionDialogContent))
+          .width,
+      lessThanOrEqualTo(360),
+    );
+    expect(
+      tester.getSize(find.widgetWithText(ElevatedButton, '현재 위치로 인증하기')).height,
+      62,
+    );
 
     await tester.tap(find.text('직접 입력하기'));
     await tester.pump();
