@@ -4,7 +4,6 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
-import '../../../app/app_config.dart';
 import '../../../shared/auth/auth_session.dart';
 import '../../../shared/network/mateya_api_client.dart';
 import '../data/auth_repository.dart';
@@ -47,6 +46,7 @@ class OnboardingController extends ChangeNotifier {
   Timer? _manualLookupDebounce;
   int _remainingSeconds = 0;
   int _resendCount = 0;
+  DateTime? _smsCodeExpiresAt;
   String? _expectedVerificationCode;
   String? _verificationToken;
   DateTime? _verificationTokenExpiresAt;
@@ -54,8 +54,6 @@ class OnboardingController extends ChangeNotifier {
   DateTime? _businessVerificationExpiresAt;
 
   String _name = '';
-  String _carrier = '';
-  String _countryCode = '+82';
   String _phoneNumber = '';
   String _verificationCode = '';
   String _manualNeighborhoodQuery = '';
@@ -78,8 +76,6 @@ class OnboardingController extends ChangeNotifier {
   NeighborhoodSelection? get selectedNeighborhood => _selectedNeighborhood;
   LocationFailure? get locationFailure => _locationFailure;
   String get name => _name;
-  String get carrier => _carrier;
-  String get countryCode => _countryCode;
   String get phoneNumber => _phoneNumber;
   String get verificationCode => _verificationCode;
   int get remainingSeconds => _remainingSeconds;
@@ -95,8 +91,6 @@ class OnboardingController extends ChangeNotifier {
   String? get toastMessage => _toastMessage;
   int get toastVersion => _toastVersion;
   HomePreviewSection get homePreviewSection => _homePreviewSection;
-  List<String> get carriers => AppConfig.supportedCarriers;
-  List<String> get countryCodes => AppConfig.supportedCountryCodes;
   bool get isAuthLoading => _authPhase == AsyncPhase.loading;
 
   String? errorFor(String fieldName) => _fieldErrors[fieldName];
@@ -104,10 +98,8 @@ class OnboardingController extends ChangeNotifier {
   bool get isConsentComplete => _agreementState.isAllChecked;
   bool get canContinueName => _name.trim().isNotEmpty;
   bool get canSendVerificationCode =>
-      _carrier.isNotEmpty &&
-      _countryCode.isNotEmpty &&
       OnboardingValidators.validatePhoneNumber(_phoneNumber) == null;
-  bool get hasSentVerificationCode => _expectedVerificationCode != null;
+  bool get hasSentVerificationCode => _smsCodeExpiresAt != null;
   bool get canSubmitVerificationCode => _verificationCode.length == 6;
   bool get canCompleteNeighborhood => _selectedNeighborhood != null;
   bool get canCompleteBusiness =>
@@ -188,10 +180,6 @@ class OnboardingController extends ChangeNotifier {
 
   void submitName() => _submitName(this);
 
-  void selectCarrier(String value) => _selectCarrier(this, value);
-
-  void selectCountryCode(String value) => _selectCountryCode(this, value);
-
   void updatePhoneNumber(String value) => _updatePhoneNumber(this, value);
 
   void updateVerificationCode(String value) {
@@ -271,18 +259,7 @@ class OnboardingController extends ChangeNotifier {
     notifyListeners();
   }
 
-  String get _resolvedPrimaryLanguage => switch (_countryCode) {
-    '+81' => 'ja',
-    '+1' => 'en',
-    '+86' => 'zh',
-    _ => 'ko',
-  };
+  String get _resolvedPrimaryLanguage => 'ko';
 
-  String get _resolvedPrimaryCountry => switch (_countryCode) {
-    '+81' => 'JP',
-    '+1' => 'US',
-    '+84' => 'VN',
-    '+86' => 'CN',
-    _ => 'KR',
-  };
+  String get _resolvedPrimaryCountry => 'KR';
 }

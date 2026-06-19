@@ -24,32 +24,34 @@ void main() {
   });
 
   group('OnboardingController', () {
-    test('existing guest moves to neighborhood verification after sms verification', () async {
-      AuthSessionStore.instance.clear();
-      final controller = OnboardingController(
-        locationRepository: _FakeLocationRepository.success(),
-        authRepository: _FakeOnboardingAuthRepository.existingUser(),
-        authSessionStore: AuthSessionStore.instance,
-      );
+    test(
+      'existing guest moves to neighborhood verification after sms verification',
+      () async {
+        AuthSessionStore.instance.clear();
+        final controller = OnboardingController(
+          locationRepository: _FakeLocationRepository.success(),
+          authRepository: _FakeOnboardingAuthRepository.existingUser(),
+          authSessionStore: AuthSessionStore.instance,
+        );
 
-      controller.startGuestFlow();
-      controller.toggleAllAgreements(true);
-      controller.confirmConsent();
-      controller.updateName('임시이름');
-      controller.submitName();
-      controller.selectCarrier('LG U+');
-      controller.updatePhoneNumber('01012345678');
-      await controller.sendVerificationCode();
-      controller.updateVerificationCode(controller.debugVerificationCode!);
+        controller.startGuestFlow();
+        controller.toggleAllAgreements(true);
+        controller.confirmConsent();
+        controller.updateName('임시이름');
+        controller.submitName();
+        controller.updatePhoneNumber('01012345678');
+        await controller.sendVerificationCode();
+        controller.updateVerificationCode(controller.debugVerificationCode!);
 
-      await controller.submitVerificationCode();
+        await controller.submitVerificationCode();
 
-      expect(controller.step, OnboardingStep.neighborhoodAuto);
-      expect(controller.completionMode, AuthCompletionMode.login);
-      expect(controller.completionHeadline, contains('로그인을 완료했어요'));
-      expect(controller.previousNeighborhoodLabel, '우만동');
-      expect(AuthSessionStore.instance.session?.user.displayName, '기존회원');
-    });
+        expect(controller.step, OnboardingStep.neighborhoodAuto);
+        expect(controller.completionMode, AuthCompletionMode.login);
+        expect(controller.completionHeadline, contains('로그인을 완료했어요'));
+        expect(controller.previousNeighborhoodLabel, '우만동');
+        expect(AuthSessionStore.instance.session?.user.displayName, '기존회원');
+      },
+    );
 
     test(
       'new guest flow moves to automatic neighborhood verification',
@@ -66,7 +68,6 @@ void main() {
         controller.confirmConsent();
         controller.updateName('홍길동');
         controller.submitName();
-        controller.selectCarrier('LG U+');
         controller.updatePhoneNumber('01012345678');
         await controller.sendVerificationCode();
         controller.updateVerificationCode(controller.debugVerificationCode!);
@@ -106,7 +107,6 @@ void main() {
       controller.confirmConsent();
       controller.updateName('홍길동');
       controller.submitName();
-      controller.selectCarrier('LG U+');
       controller.updatePhoneNumber('01012345678');
       await controller.sendVerificationCode();
       controller.updateVerificationCode(controller.debugVerificationCode!);
@@ -133,7 +133,6 @@ void main() {
         controller.confirmConsent();
         controller.updateName('홍길동');
         controller.submitName();
-        controller.selectCarrier('LG U+');
         controller.updatePhoneNumber('01012345678');
         await controller.sendVerificationCode();
         controller.updateVerificationCode(controller.debugVerificationCode!);
@@ -168,7 +167,6 @@ void main() {
         controller.confirmConsent();
         controller.updateName('홍길동');
         controller.submitName();
-        controller.selectCarrier('LG U+');
         controller.updatePhoneNumber('01012345678');
         await controller.sendVerificationCode();
         controller.updateVerificationCode(controller.debugVerificationCode!);
@@ -228,7 +226,6 @@ void main() {
 
       expect(controller.step, OnboardingStep.guestPhone);
 
-      controller.selectCarrier('LG U+');
       controller.updatePhoneNumber('01012345678');
       await controller.sendVerificationCode();
       controller.updateVerificationCode(controller.debugVerificationCode!);
@@ -240,6 +237,30 @@ void main() {
       expect(authRepository.lastBusinessVerificationToken, 'business-token');
       expect(authRepository.lastBusinessName, '메이트야 공방');
     });
+
+    test(
+      'sms request without debug code still exposes verification state',
+      () async {
+        final controller = OnboardingController(
+          locationRepository: _FakeLocationRepository.success(),
+          authRepository: _FakeOnboardingAuthRepository(smsDebugCode: null),
+          authSessionStore: AuthSessionStore.instance,
+        );
+
+        controller.startGuestFlow();
+        controller.toggleAllAgreements(true);
+        controller.confirmConsent();
+        controller.updateName('홍길동');
+        controller.submitName();
+        controller.updatePhoneNumber('01012345678');
+
+        await controller.sendVerificationCode();
+
+        expect(controller.hasSentVerificationCode, isTrue);
+        expect(controller.debugVerificationCode, isNull);
+        expect(controller.remainingSeconds, greaterThan(0));
+      },
+    );
 
     test('guest plus destination opens group creation placeholder', () {
       final controller = OnboardingController(
@@ -309,10 +330,12 @@ class _FakeLocationRepository implements NeighborhoodLocationRepository {
 }
 
 class _FakeOnboardingAuthRepository implements OnboardingAuthRepository {
-  _FakeOnboardingAuthRepository() : loginSession = null;
+  _FakeOnboardingAuthRepository({this.smsDebugCode = '123456'})
+    : loginSession = null;
 
   _FakeOnboardingAuthRepository.existingUser()
-    : loginSession = AuthSession(
+    : smsDebugCode = '123456',
+      loginSession = AuthSession(
         accessToken: 'logged-in-access',
         refreshToken: 'logged-in-refresh',
         tokenType: 'Bearer',
@@ -332,14 +355,15 @@ class _FakeOnboardingAuthRepository implements OnboardingAuthRepository {
       );
 
   final AuthSession? loginSession;
+  final String? smsDebugCode;
   String? lastBusinessVerificationToken;
   String? lastBusinessName;
 
   @override
   Future<SmsRequestResult> requestSmsCode({required String phoneNumber}) async {
     return SmsRequestResult(
-      expiresAt: DateTime(2026, 6, 14, 10, 5),
-      debugCode: '123456',
+      expiresAt: DateTime.now().add(const Duration(minutes: 5)),
+      debugCode: smsDebugCode,
     );
   }
 

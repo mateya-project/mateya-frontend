@@ -21,17 +21,6 @@ void _submitName(OnboardingController controller) {
   controller._notifyChanged();
 }
 
-void _selectCarrier(OnboardingController controller, String value) {
-  controller._carrier = value;
-  controller._clearError('carrier');
-  controller._notifyChanged();
-}
-
-void _selectCountryCode(OnboardingController controller, String value) {
-  controller._countryCode = value;
-  controller._notifyChanged();
-}
-
 void _updatePhoneNumber(OnboardingController controller, String value) {
   controller._phoneNumber = value.replaceAll(RegExp(r'\D'), '');
   controller._clearError('phone');

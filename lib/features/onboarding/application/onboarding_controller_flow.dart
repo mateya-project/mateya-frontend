@@ -89,14 +89,13 @@ void _restartOnboarding(OnboardingController controller) {
   controller._homePreviewSection = HomePreviewSection.home;
   controller._remainingSeconds = 0;
   controller._resendCount = 0;
+  controller._smsCodeExpiresAt = null;
   controller._expectedVerificationCode = null;
   controller._verificationToken = null;
   controller._verificationTokenExpiresAt = null;
   controller._businessVerificationToken = null;
   controller._businessVerificationExpiresAt = null;
   controller._name = '';
-  controller._carrier = '';
-  controller._countryCode = '+82';
   controller._phoneNumber = '';
   controller._verificationCode = '';
   controller._manualNeighborhoodQuery = '';

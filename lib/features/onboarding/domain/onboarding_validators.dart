@@ -46,7 +46,7 @@ class OnboardingValidators {
     if (isExpired) {
       return '인증 시간이 만료됐어요. 인증번호를 다시 받아 주세요.';
     }
-    if (expectedCode == null || input != expectedCode) {
+    if (expectedCode != null && input != expectedCode) {
       return '인증번호가 일치하지 않아요.';
     }
     return null;
