@@ -53,34 +53,12 @@ class MateyaHeader extends StatelessWidget {
           onLanguageTap: onLanguageTap,
           onReportTap: onReportTap,
         ),
-        MateyaHeaderVariant.chatDetail => Stack(
-          children: <Widget>[
-            Positioned(
-              left: 14,
-              top: 24,
-              child: _HeaderGlyphButton(
-                onTap: onBack,
-                icon: Icons.arrow_back_rounded,
-                size: 34,
-                color: AppColors.textPrimary,
-              ),
-            ),
-            Positioned(
-              left: 80,
-              right: onReportTap == null ? 80 : 122,
-              top: 16,
-              bottom: 16,
-              child: _ChatDetailTitle(title: title!, subtitle: subtitle!),
-            ),
-            Positioned(
-              right: 14,
-              top: 24,
-              child: _HeaderTrailingActions(
-                onReportTap: onReportTap,
-                onLanguageTap: onLanguageTap,
-              ),
-            ),
-          ],
+        MateyaHeaderVariant.chatDetail => _ChatDetailHeader(
+          title: title!,
+          subtitle: subtitle!,
+          onBack: onBack,
+          onLanguageTap: onLanguageTap,
+          onReportTap: onReportTap,
         ),
       },
     );
@@ -94,15 +72,17 @@ class _LogoHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: <Widget>[
-        const Center(child: _MateyaTextLogo()),
-        Positioned(
-          right: 24,
-          top: 24,
-          child: _LanguageButton(onTap: onLanguageTap),
-        ),
-      ],
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Stack(
+        children: <Widget>[
+          const Center(child: _MateyaTextLogo()),
+          Align(
+            alignment: Alignment.centerRight,
+            child: _LanguageButton(onTap: onLanguageTap),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -120,28 +100,79 @@ class _BackArrowHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: <Widget>[
-        Positioned(
-          left: 24,
-          top: 24,
-          child: _HeaderGlyphButton(
-            onTap: onBack,
-            icon: Icons.arrow_back_rounded,
-            size: 32,
-            color: AppColors.textPrimary,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Stack(
+        children: <Widget>[
+          Align(
+            alignment: Alignment.centerLeft,
+            child: _HeaderGlyphButton(
+              onTap: onBack,
+              icon: Icons.arrow_back_rounded,
+              size: 32,
+              color: AppColors.textPrimary,
+            ),
           ),
-        ),
-        const Positioned(left: 145, top: 32, child: _MateyaTextLogo()),
-        Positioned(
-          right: 24,
-          top: 24,
-          child: _HeaderTrailingActions(
-            onReportTap: onReportTap,
-            onLanguageTap: onLanguageTap,
+          const Center(child: _MateyaTextLogo()),
+          Align(
+            alignment: Alignment.centerRight,
+            child: _HeaderTrailingActions(
+              onReportTap: onReportTap,
+              onLanguageTap: onLanguageTap,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
+    );
+  }
+}
+
+class _ChatDetailHeader extends StatelessWidget {
+  const _ChatDetailHeader({
+    required this.title,
+    required this.subtitle,
+    required this.onBack,
+    required this.onLanguageTap,
+    required this.onReportTap,
+  });
+
+  final String title;
+  final String subtitle;
+  final VoidCallback? onBack;
+  final VoidCallback? onLanguageTap;
+  final VoidCallback? onReportTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 14),
+      child: Stack(
+        children: <Widget>[
+          Align(
+            alignment: Alignment.centerLeft,
+            child: _HeaderGlyphButton(
+              onTap: onBack,
+              icon: Icons.arrow_back_rounded,
+              size: 34,
+              color: AppColors.textPrimary,
+            ),
+          ),
+          Positioned(
+            left: 66,
+            right: onReportTap == null ? 66 : 108,
+            top: 16,
+            bottom: 16,
+            child: _ChatDetailTitle(title: title, subtitle: subtitle),
+          ),
+          Align(
+            alignment: Alignment.centerRight,
+            child: _HeaderTrailingActions(
+              onReportTap: onReportTap,
+              onLanguageTap: onLanguageTap,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -184,21 +215,10 @@ class _HeaderReportButton extends StatelessWidget {
         onTap: onTap,
         radius: 24,
         highlightShape: BoxShape.circle,
-        child: Container(
+        child: SizedBox(
           width: 40,
           height: 40,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            shape: BoxShape.circle,
-            border: Border.all(color: AppColors.divider),
-          ),
-          child: const Center(
-            child: Icon(
-              mateyaReportIcon,
-              size: 24,
-              color: AppColors.textPrimary,
-            ),
-          ),
+          child: const Center(child: MateyaReportIcon()),
         ),
       ),
     );

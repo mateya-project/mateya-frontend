@@ -148,13 +148,14 @@ class ChatRoomTile extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: <Widget>[
-                Text(
-                  formatRoomTimestamp(room.lastMessageAt),
-                  textAlign: TextAlign.right,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: AppColors.fieldBorder,
+                if (room.lastMessageAt != null)
+                  Text(
+                    formatRoomTimestamp(room.lastMessageAt!),
+                    textAlign: TextAlign.right,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: AppColors.fieldBorder,
+                    ),
                   ),
-                ),
                 const Spacer(),
                 if (room.unreadCount > 0) UnreadBadge(count: room.unreadCount),
               ],

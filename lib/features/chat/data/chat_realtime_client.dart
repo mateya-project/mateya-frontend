@@ -73,6 +73,9 @@ class ChatRealtimeClient {
         stompConnectHeaders: <String, String>{
           'Authorization': 'Bearer $accessToken',
         },
+        webSocketConnectHeaders: <String, dynamic>{
+          'Authorization': 'Bearer $accessToken',
+        },
         onConnect: (_) {
           _logger.info(
             'Chat realtime connected',

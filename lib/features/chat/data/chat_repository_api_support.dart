@@ -5,13 +5,11 @@ ChatRoom _parseRoomSummary(Object? value) {
   final roomType = (json['type'] as String?) == 'DIRECT'
       ? ChatRoomType.direct
       : ChatRoomType.group;
-  final roomTitle = _resolveRoomTitle(
-    json['title'] as String?,
-    type: roomType,
-  );
+  final roomTitle = _resolveRoomTitle(json['title'] as String?, type: roomType);
   final preview = json['lastMessagePreview'] as String?;
-  final lastMessageAt = json['lastMessageAt'] as String?;
-  final messageGroups = preview == null || preview.isEmpty
+  final lastMessageAt = _parseDateTime(json['lastMessageAt']);
+  final messageGroups =
+      preview == null || preview.isEmpty || lastMessageAt == null
       ? const <ChatMessageGroup>[]
       : <ChatMessageGroup>[
           ChatMessageGroup(
@@ -20,7 +18,7 @@ ChatRoom _parseRoomSummary(Object? value) {
               id: 'summary-${json['id']}',
               name: roomTitle,
             ),
-            sentAt: _parseDateTime(lastMessageAt),
+            sentAt: lastMessageAt,
             bubbles: <ChatBubble>[ChatBubble(originalText: preview)],
           ),
         ];
@@ -31,7 +29,7 @@ ChatRoom _parseRoomSummary(Object? value) {
     title: roomTitle,
     imageUrl: json['counterpartProfileImageUrl'] as String? ?? '',
     participantCount: json['participantCount'] as int? ?? 0,
-    lastMessageAt: _parseDateTime(lastMessageAt),
+    lastMessageAt: lastMessageAt,
     unreadCount: json['unreadCount'] as int? ?? 0,
     messageGroups: messageGroups,
   );
@@ -61,7 +59,7 @@ ChatMessageGroup _parseMessageGroup(Object? value) {
       name: json['senderDisplayName'] as String? ?? '',
       avatarUrl: json['senderProfileImageUrl'] as String?,
     ),
-    sentAt: _parseDateTime(json['sentAt'] as String?),
+    sentAt: _parseDateTime(json['sentAt']) ?? DateTime.now(),
     isMine: isMine,
     bubbles: <ChatBubble>[_parseMessageBubble(json)],
   );
@@ -96,9 +94,17 @@ ChatBubble _parseMessageBubble(Object? value) {
   );
 }
 
-DateTime _parseDateTime(String? value) {
-  return DateTime.tryParse(value ?? '') ??
-      DateTime.fromMillisecondsSinceEpoch(0);
+DateTime? _parseDateTime(Object? value) {
+  final normalized = switch (value) {
+    null => null,
+    String stringValue =>
+      stringValue.trim().isEmpty ? null : stringValue.trim(),
+    _ => '$value',
+  };
+  if (normalized == null) {
+    return null;
+  }
+  return DateTime.tryParse(normalized);
 }
 
 Map<String, String> _flattenHeaders(

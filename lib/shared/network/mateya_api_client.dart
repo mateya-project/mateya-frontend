@@ -49,6 +49,7 @@ class MateyaApiClient {
     Map<String, List<String>> queryParametersAll =
         const <String, List<String>>{},
     bool requiresAuth = false,
+    bool logFailure = true,
   }) {
     return _sendJson(
       method: 'GET',
@@ -56,6 +57,7 @@ class MateyaApiClient {
       queryParameters: queryParameters,
       queryParametersAll: queryParametersAll,
       requiresAuth: requiresAuth,
+      logFailure: logFailure,
     );
   }
 
@@ -98,6 +100,7 @@ class MateyaApiClient {
     bool requiresAuth = false,
     Object? body,
     bool allowRefresh = true,
+    bool logFailure = true,
   }) async {
     final stopwatch = Stopwatch()..start();
     final mergedQueryParameters = <String, List<String>>{
@@ -185,12 +188,14 @@ class MateyaApiClient {
           fallbackCorrelationId: correlationId,
         );
         stopwatch.stop();
-        _logApiFailure(
-          'API request failed',
-          exception: exception,
-          method: method,
-          durationMs: stopwatch.elapsedMilliseconds,
-        );
+        if (logFailure) {
+          _logApiFailure(
+            'API request failed',
+            exception: exception,
+            method: method,
+            durationMs: stopwatch.elapsedMilliseconds,
+          );
+        }
         throw exception;
       } on MateyaApiException catch (error) {
         if (requiresAuth &&
@@ -205,6 +210,7 @@ class MateyaApiClient {
             requiresAuth: requiresAuth,
             body: body,
             allowRefresh: false,
+            logFailure: logFailure,
           );
         }
         rethrow;

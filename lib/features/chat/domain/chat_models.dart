@@ -191,7 +191,7 @@ class ChatRoom {
   final String title;
   final String imageUrl;
   final int participantCount;
-  final DateTime lastMessageAt;
+  final DateTime? lastMessageAt;
   final int unreadCount;
   final List<ChatMessageGroup> messageGroups;
 
@@ -206,7 +206,7 @@ class ChatRoom {
     String? title,
     String? imageUrl,
     int? participantCount,
-    DateTime? lastMessageAt,
+    Object? lastMessageAt = _sentinel,
     int? unreadCount,
     List<ChatMessageGroup>? messageGroups,
   }) {
@@ -216,7 +216,9 @@ class ChatRoom {
       title: title ?? this.title,
       imageUrl: imageUrl ?? this.imageUrl,
       participantCount: participantCount ?? this.participantCount,
-      lastMessageAt: lastMessageAt ?? this.lastMessageAt,
+      lastMessageAt: lastMessageAt == _sentinel
+          ? this.lastMessageAt
+          : lastMessageAt as DateTime?,
       unreadCount: unreadCount ?? this.unreadCount,
       messageGroups: messageGroups ?? this.messageGroups,
     );

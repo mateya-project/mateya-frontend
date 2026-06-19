@@ -6,12 +6,17 @@ class MyPageBadgeVisual {
   const MyPageBadgeVisual({
     required this.key,
     required this.label,
-    required this.assetPath,
+    required this.activeAssetPath,
+    required this.disabledAssetPath,
   });
 
   final String key;
   final String label;
-  final String assetPath;
+  final String activeAssetPath;
+  final String disabledAssetPath;
+
+  String assetPathFor(bool isEarned) =>
+      isEarned ? activeAssetPath : disabledAssetPath;
 }
 
 class MyPageBadgeDisplaySlot {
@@ -27,37 +32,45 @@ const List<MyPageBadgeVisual> kMyPageBadgeCatalog = <MyPageBadgeVisual>[
   MyPageBadgeVisual(
     key: 'traditional',
     label: 'traditional!',
-    assetPath: 'assets/images/badges/traditional.png',
+    activeAssetPath: 'assets/images/badges/badge - traditional.png',
+    disabledAssetPath: 'assets/images/badges/badge - traditional  disabled.png',
   ),
   MyPageBadgeVisual(
     key: 'active_person',
     label: 'active person',
-    assetPath: 'assets/images/badges/active_person.png',
+    activeAssetPath: 'assets/images/badges/badge - activity.png',
+    disabledAssetPath: 'assets/images/badges/badge - activity disabled.png',
   ),
   MyPageBadgeVisual(
     key: 'festive',
     label: 'festive!',
-    assetPath: 'assets/images/badges/festive.png',
+    activeAssetPath: 'assets/images/badges/badge - festival.png',
+    disabledAssetPath: 'assets/images/badges/badge - festival disabled.png',
   ),
   MyPageBadgeVisual(
     key: 'food_lover',
     label: 'food lover',
-    assetPath: 'assets/images/badges/food_lover.png',
+    activeAssetPath: 'assets/images/badges/badge - foodlover.png',
+    disabledAssetPath: 'assets/images/badges/badge - foodlover disabled.png',
   ),
   MyPageBadgeVisual(
     key: 'language_sharing',
     label: 'language sharing',
-    assetPath: 'assets/images/badges/language_sharing.png',
+    activeAssetPath: 'assets/images/badges/badge - language sharing.png',
+    disabledAssetPath:
+        'assets/images/badges/badge - language sharing disabled.png',
   ),
   MyPageBadgeVisual(
     key: 'craftsman',
     label: 'craftsman',
-    assetPath: 'assets/images/badges/craftsman.png',
+    activeAssetPath: 'assets/images/badges/badge - craftman.png',
+    disabledAssetPath: 'assets/images/badges/badge - craftman disabled.png',
   ),
   MyPageBadgeVisual(
     key: 'tourist',
     label: 'tourist',
-    assetPath: 'assets/images/badges/tourist.png',
+    activeAssetPath: 'assets/images/badges/badge - tourist.png',
+    disabledAssetPath: 'assets/images/badges/badge - tourist disabled.png',
   ),
 ];
 
