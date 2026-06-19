@@ -15,6 +15,11 @@ class ChatRealtimeClient {
     : _sessionStore = sessionStore ?? AuthSessionStore.instance,
       _logger = logger ?? AppLogger.instance;
 
+  static const Duration _reconnectDelay = Duration(seconds: 3);
+  static const Duration _heartbeatInterval = Duration(seconds: 10);
+  static const Duration _connectionTimeout = Duration(seconds: 5);
+  static const String _subscriptionDestinationPrefix = '/topic/chat.rooms.';
+
   final AuthSessionStore _sessionStore;
   final AppLogger _logger;
 
@@ -23,6 +28,8 @@ class ChatRealtimeClient {
   String? _roomId;
   ChatRealtimeMessageCallback? _onMessage;
   ChatRealtimeErrorCallback? _onError;
+  bool _hasConnectedInCurrentSession = false;
+  bool _hasReportedInitialConnectionFailure = false;
 
   bool isConnectedForRoom(String roomId) =>
       _roomId == roomId && (_client?.connected ?? false);
@@ -57,53 +64,141 @@ class ChatRealtimeClient {
     _roomId = roomId;
     _onMessage = onMessage;
     _onError = onError;
+    _hasConnectedInCurrentSession = false;
+    _hasReportedInitialConnectionFailure = false;
     _logger.info(
       'Chat realtime subscription requested',
-      context: <String, Object?>{'roomId': roomId},
+      context: _logContext(
+        roomId,
+        reconnectDelay: _reconnectDelay.inSeconds,
+        url: _webSocketUrl(),
+      ),
     );
 
     late final StompClient client;
     client = StompClient(
       config: StompConfig(
         url: _webSocketUrl(),
-        reconnectDelay: const Duration(seconds: 3),
-        heartbeatIncoming: const Duration(seconds: 10),
-        heartbeatOutgoing: const Duration(seconds: 10),
-        connectionTimeout: const Duration(seconds: 5),
+        reconnectDelay: _reconnectDelay,
+        heartbeatIncoming: _heartbeatInterval,
+        heartbeatOutgoing: _heartbeatInterval,
+        connectionTimeout: _connectionTimeout,
         stompConnectHeaders: <String, String>{
           'Authorization': 'Bearer $accessToken',
         },
         webSocketConnectHeaders: <String, dynamic>{
           'Authorization': 'Bearer $accessToken',
         },
+        beforeConnect: () async {
+          _logger.debug(
+            'Chat realtime before connect',
+            context: _logContext(
+              roomId,
+              hasAuthorizationHeader: true,
+              destination: _subscriptionDestination(roomId),
+            ),
+          );
+        },
         onConnect: (_) {
+          _hasConnectedInCurrentSession = true;
+          _hasReportedInitialConnectionFailure = false;
           _logger.info(
             'Chat realtime connected',
-            context: <String, Object?>{'roomId': roomId},
+            context: _logContext(
+              roomId,
+              destination: _subscriptionDestination(roomId),
+            ),
           );
           _unsubscribe?.call();
           _unsubscribe = client.subscribe(
-            destination: '/topic/chat.rooms.$roomId',
+            destination: _subscriptionDestination(roomId),
             callback: (frame) => _handleFrame(frame, parseMessage),
+          );
+          _logger.info(
+            'Chat realtime subscription established',
+            context: _logContext(
+              roomId,
+              destination: _subscriptionDestination(roomId),
+            ),
+          );
+        },
+        onDisconnect: (frame) {
+          _logger.info(
+            'Chat realtime STOMP disconnected',
+            context: _logContext(
+              roomId,
+              command: frame.command,
+              body: _trimFrameBody(frame.body),
+            ),
           );
         },
         onStompError: (frame) {
           _logger.warning(
             'Chat realtime STOMP error received',
-            context: <String, Object?>{
-              'roomId': roomId,
-              'command': frame.command,
-            },
+            context: _logContext(
+              roomId,
+              command: frame.command,
+              headers: frame.headers.isEmpty ? null : frame.headers.toString(),
+              body: _trimFrameBody(frame.body),
+            ),
           );
-          _reportError(frame.body ?? '실시간 채팅 연결에 실패했어요.');
+          _reportConnectionError(frame.body ?? '실시간 채팅 연결에 실패했어요.');
         },
         onWebSocketError: (error) {
           _logger.warning(
             'Chat realtime WebSocket error received',
             error: error,
-            context: <String, Object?>{'roomId': roomId},
+            context: _logContext(roomId),
           );
-          _reportError('실시간 채팅 연결에 실패했어요.');
+          _reportConnectionError('실시간 채팅 연결에 실패했어요.');
+        },
+        onWebSocketDone: () {
+          _logger.info(
+            'Chat realtime WebSocket done',
+            context: _logContext(roomId),
+          );
+        },
+        onUnhandledFrame: (frame) {
+          _logger.warning(
+            'Chat realtime unhandled frame received',
+            context: _logContext(
+              roomId,
+              command: frame.command,
+              headers: frame.headers.isEmpty ? null : frame.headers.toString(),
+              body: _trimFrameBody(frame.body),
+            ),
+          );
+        },
+        onUnhandledMessage: (frame) {
+          _logger.warning(
+            'Chat realtime unhandled message received',
+            context: _logContext(
+              roomId,
+              command: frame.command,
+              headers: frame.headers.isEmpty ? null : frame.headers.toString(),
+              body: _trimFrameBody(frame.body),
+            ),
+          );
+        },
+        onUnhandledReceipt: (frame) {
+          _logger.warning(
+            'Chat realtime unhandled receipt received',
+            context: _logContext(
+              roomId,
+              command: frame.command,
+              headers: frame.headers.isEmpty ? null : frame.headers.toString(),
+              body: _trimFrameBody(frame.body),
+            ),
+          );
+        },
+        onDebugMessage: (message) {
+          if (!_shouldLogDebugMessage(message)) {
+            return;
+          }
+          _logger.debug(
+            'Chat realtime debug message received',
+            context: _logContext(roomId, message: message),
+          );
         },
       ),
     );
@@ -121,11 +216,10 @@ class ChatRealtimeClient {
     _roomId = null;
     _onMessage = null;
     _onError = null;
+    _hasConnectedInCurrentSession = false;
+    _hasReportedInitialConnectionFailure = false;
     if (roomId != null) {
-      _logger.info(
-        'Chat realtime disconnected',
-        context: <String, Object?>{'roomId': roomId},
-      );
+      _logger.info('Chat realtime disconnected', context: _logContext(roomId));
     }
   }
 
@@ -160,6 +254,97 @@ class ChatRealtimeClient {
       return;
     }
     _onError?.call(message);
+  }
+
+  void _reportConnectionError(String message) {
+    if (_roomId == null) {
+      return;
+    }
+    if (_hasConnectedInCurrentSession) {
+      _logger.info(
+        'Chat realtime connection error suppressed after successful connect',
+        context: _logContext(_roomId!, message: message),
+      );
+      return;
+    }
+    if (_hasReportedInitialConnectionFailure) {
+      _logger.debug(
+        'Chat realtime duplicate initial connection error suppressed',
+        context: _logContext(_roomId!, message: message),
+      );
+      return;
+    }
+    _hasReportedInitialConnectionFailure = true;
+    _reportError(message);
+  }
+
+  Map<String, Object?> _logContext(
+    String roomId, {
+    String? destination,
+    String? command,
+    String? headers,
+    String? body,
+    String? message,
+    String? url,
+    bool? hasAuthorizationHeader,
+    int? reconnectDelay,
+  }) {
+    final context = <String, Object?>{'roomId': roomId};
+    if (destination != null) {
+      context['destination'] = destination;
+    }
+    if (command != null) {
+      context['command'] = command;
+    }
+    if (headers != null) {
+      context['headers'] = headers;
+    }
+    if (body != null) {
+      context['body'] = body;
+    }
+    if (message != null) {
+      context['message'] = message;
+    }
+    if (url != null) {
+      context['url'] = url;
+    }
+    if (hasAuthorizationHeader != null) {
+      context['hasAuthorizationHeader'] = hasAuthorizationHeader;
+    }
+    if (reconnectDelay != null) {
+      context['reconnectDelaySeconds'] = reconnectDelay;
+    }
+    return context;
+  }
+
+  String _subscriptionDestination(String roomId) =>
+      '$_subscriptionDestinationPrefix$roomId';
+
+  String? _trimFrameBody(String? body) {
+    if (body == null) {
+      return null;
+    }
+    const maxLength = 240;
+    final trimmed = body.trim();
+    if (trimmed.length <= maxLength) {
+      return trimmed;
+    }
+    return '${trimmed.substring(0, maxLength)}...';
+  }
+
+  bool _shouldLogDebugMessage(String message) {
+    const interestingTokens = <String>[
+      'opening web socket',
+      'connected',
+      'subscrib',
+      'stomp',
+      'error',
+      'disconnect',
+      'reconnect',
+      'heartbeat',
+    ];
+    final normalized = message.toLowerCase();
+    return interestingTokens.any(normalized.contains);
   }
 
   String _webSocketUrl() {

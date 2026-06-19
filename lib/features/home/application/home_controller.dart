@@ -33,6 +33,7 @@ class HomeController extends ChangeNotifier {
   AsyncPhase _favoritePhase = AsyncPhase.idle;
   HomeSection _section = HomeSection.home;
   HomeSection _favoriteOriginSection = HomeSection.home;
+  HomeSection _nearbyCultureMapOriginSection = HomeSection.home;
   ExploreFilter _filter;
   String _searchQuery = '';
   List<ActivityItem> _homeActivities = const <ActivityItem>[];
@@ -58,6 +59,8 @@ class HomeController extends ChangeNotifier {
   AsyncPhase get favoritePhase => _favoritePhase;
   HomeSection get section => _section;
   HomeSection get favoriteOriginSection => _favoriteOriginSection;
+  HomeSection get nearbyCultureMapOriginSection =>
+      _nearbyCultureMapOriginSection;
   ExploreFilter get filter => _filter;
   ExploreFilter get defaultFilter => _defaultFilter;
   String get searchQuery => _searchQuery;
@@ -102,6 +105,19 @@ class HomeController extends ChangeNotifier {
     };
   }
 
+  Future<void> refreshAfterActivityMutation() async {
+    final tasks = <Future<void>>[_loadHomeActivities()];
+
+    if (_section == HomeSection.explore || _hasLoadedExplore) {
+      tasks.add(refreshExplore());
+    }
+    if (_section == HomeSection.favorites || _hasLoadedFavorites) {
+      tasks.add(_loadFavoriteActivities());
+    }
+
+    await Future.wait<void>(tasks);
+  }
+
   void openHome() {
     _section = HomeSection.home;
     notifyListeners();
@@ -122,6 +138,17 @@ class HomeController extends ChangeNotifier {
 
   void openChat() {
     _section = HomeSection.chat;
+    notifyListeners();
+  }
+
+  void openNearbyCultureMap() {
+    _nearbyCultureMapOriginSection = _section;
+    _section = HomeSection.nearbyCultureMap;
+    notifyListeners();
+  }
+
+  void closeNearbyCultureMap() {
+    _section = _nearbyCultureMapOriginSection;
     notifyListeners();
   }
 

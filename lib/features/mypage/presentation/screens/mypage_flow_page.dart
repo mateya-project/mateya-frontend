@@ -29,9 +29,10 @@ import '../widgets/mypage_route_views.dart';
 import '../widgets/mypage_status_widgets.dart';
 
 class MyPageFlowPage extends StatefulWidget {
-  const MyPageFlowPage({super.key, required this.controller});
+  const MyPageFlowPage({super.key, required this.controller, this.onRootBack});
 
   final MyPageController controller;
+  final VoidCallback? onRootBack;
 
   @override
   State<MyPageFlowPage> createState() => _MyPageFlowPageState();
@@ -104,19 +105,22 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
       animation: widget.controller,
       builder: (context, _) {
         _syncFormValues();
-        return AnimatedSwitcher(
-          duration: const Duration(milliseconds: 260),
-          child: switch (widget.controller.phase) {
-            MyPageAsyncPhase.idle ||
-            MyPageAsyncPhase.loading => const MyPageLoadingView(),
-            MyPageAsyncPhase.networkError ||
-            MyPageAsyncPhase.serverError => MyPageRetryView(
-              message: widget.controller.errorMessage ?? '마이페이지를 불러오지 못했어요.',
-              onRetry: widget.controller.retry,
-            ),
-            MyPageAsyncPhase.success ||
-            MyPageAsyncPhase.validationError => _buildRouteView(),
-          },
+        return Material(
+          color: AppColors.background,
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 260),
+            child: switch (widget.controller.phase) {
+              MyPageAsyncPhase.idle ||
+              MyPageAsyncPhase.loading => const MyPageLoadingView(),
+              MyPageAsyncPhase.networkError ||
+              MyPageAsyncPhase.serverError => MyPageRetryView(
+                message: widget.controller.errorMessage ?? '마이페이지를 불러오지 못했어요.',
+                onRetry: widget.controller.retry,
+              ),
+              MyPageAsyncPhase.success ||
+              MyPageAsyncPhase.validationError => _buildRouteView(),
+            },
+          ),
         );
       },
     );
@@ -130,6 +134,7 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
         key: const ValueKey<String>('personal-home'),
         data: controller.personalPage!,
         isUpdatingProfileImage: controller.isUpdatingProfileImage,
+        onBack: widget.onRootBack,
         onOpenRecentActivities: controller.openRecentActivities,
         onEditHostedActivity: (activity) {
           _openActivityEditFlow(activity, CreateFlowType.group);
@@ -143,7 +148,12 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
         isBusy:
             controller.isUpdatingFriendship ||
             controller.isUpdatingBlockedUsers,
-        onBack: controller.openPersonalHome,
+        onBack:
+            widget.onRootBack != null &&
+                controller.initialOtherProfileUserId != null &&
+                controller.initialOtherProfileUserId!.isNotEmpty
+            ? widget.onRootBack!
+            : controller.openPersonalHome,
         onFriendTap: () {
           controller.toggleFriendship();
         },
@@ -351,6 +361,7 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
       message: '프로필 사진을 변경하려면 사진 보관함 접근 권한이 필요합니다. 권한을 거부하면 현재 프로필 사진은 유지됩니다.',
       confirmLabel: '사진 선택하기',
       cancelLabel: '나중에',
+      rememberKey: 'permission.notice.photo_library',
     );
     if (!mounted || !shouldContinue) {
       return;

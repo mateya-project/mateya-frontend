@@ -5,6 +5,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 
 import '../../../shared/auth/auth_session.dart';
+import '../../../shared/logging/app_logger.dart';
 import '../../../shared/network/mateya_api_client.dart';
 import '../data/auth_repository.dart';
 import '../data/location_repository.dart';
@@ -30,6 +31,7 @@ class OnboardingController extends ChangeNotifier {
   final NeighborhoodLocationRepository _locationRepository;
   final OnboardingAuthRepository _authRepository;
   final AuthSessionStore _authSessionStore;
+  AppLogger get _logger => AppLogger.instance;
 
   OnboardingStep _step = OnboardingStep.welcome;
   FlowKind? _flowKind;

@@ -393,51 +393,44 @@ class DetailsStepView extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 12),
-              OutlinedButton.icon(
-                onPressed: onPickImages,
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  side: const BorderSide(color: AppColors.fieldBorderLight),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
+              SizedBox(
+                height: 92,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: CreateController.maxImageCount,
+                  separatorBuilder: (_, _) => const SizedBox(width: 10),
+                  itemBuilder: (context, index) {
+                    if (index < controller.images.length) {
+                      final image = controller.images[index];
+                      return CreateImageSlotTile(
+                        image: image,
+                        index: index,
+                        onRemove: () => controller.removeImage(image.id),
+                        onSetPrimary: image.isPrimary
+                            ? null
+                            : () => controller.setPrimaryImage(image.id),
+                      );
+                    }
+                    if (index == controller.images.length) {
+                      return CreateImagePickerSlot(
+                        countLabel:
+                            '${controller.images.length}/${CreateController.maxImageCount}',
+                        onTap: onPickImages,
+                      );
+                    }
+                    return const CreateImageEmptySlot();
+                  },
                 ),
-                icon: const Icon(Icons.add_photo_alternate_outlined),
-                label: const Text('이미지 추가'),
               ),
               const SizedBox(height: 12),
-              if (controller.images.isEmpty)
-                Container(
-                  padding: const EdgeInsets.all(18),
-                  decoration: BoxDecoration(
-                    color: AppColors.subtleBackground,
-                    borderRadius: BorderRadius.circular(18),
-                    border: Border.all(color: AppColors.divider),
-                  ),
-                  child: Text(
-                    controller.flowType == CreateFlowType.group
-                        ? '모임은 대표 이미지를 최소 1장 등록하도록 구성했습니다.'
-                        : '클래스 이미지는 현재 선택 입력으로 두고, 기본 이미지 정책은 백엔드 연결 전에 확정할 수 있게 열어뒀습니다.',
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: AppColors.textMuted,
-                    ),
-                  ),
-                )
-              else
-                Wrap(
-                  spacing: 12,
-                  runSpacing: 12,
-                  children: controller.images
-                      .map(
-                        (image) => ImageTile(
-                          image: image,
-                          onRemove: () => controller.removeImage(image.id),
-                          onSetPrimary: () =>
-                              controller.setPrimaryImage(image.id),
-                        ),
-                      )
-                      .toList(growable: false),
+              Text(
+                controller.images.isEmpty
+                    ? '대표 이미지는 최소 1장 필요해요.'
+                    : '대표 이미지는 초록 테두리로 표시돼요. 다른 사진을 탭하면 변경할 수 있어요.',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: AppColors.textSecondary,
                 ),
+              ),
               if (controller.errorFor('images') != null) ...<Widget>[
                 const SizedBox(height: 12),
                 InlineErrorText(text: controller.errorFor('images')!),

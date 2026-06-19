@@ -13,6 +13,7 @@ class MateyaBottomNavigation extends StatelessWidget {
     required this.onChatTap,
     required this.onProfileTap,
     this.currentTab,
+    this.plusActive = false,
   });
 
   final MateyaBottomTab? currentTab;
@@ -21,6 +22,7 @@ class MateyaBottomNavigation extends StatelessWidget {
   final VoidCallback onPlusTap;
   final VoidCallback onChatTap;
   final VoidCallback onProfileTap;
+  final bool plusActive;
 
   @override
   Widget build(BuildContext context) {
@@ -64,10 +66,12 @@ class MateyaBottomNavigation extends StatelessWidget {
                       child: Ink(
                         width: 40,
                         height: 40,
-                        decoration: const BoxDecoration(
-                          color: AppColors.brandGreenLight,
+                        decoration: BoxDecoration(
+                          color: plusActive
+                              ? AppColors.brandGreen
+                              : AppColors.brandGreenLight,
                           borderRadius: BorderRadius.all(Radius.circular(14)),
-                          boxShadow: <BoxShadow>[
+                          boxShadow: const <BoxShadow>[
                             BoxShadow(
                               color: Color(0x16000000),
                               blurRadius: 3,

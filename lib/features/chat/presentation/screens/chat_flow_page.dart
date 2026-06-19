@@ -48,6 +48,8 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
     'png',
     'webp',
     'gif',
+    'heic',
+    'heif',
   ];
   static const int _maxAttachmentCount = 10;
   static const int _maxAttachmentBytes = 10 * 1024 * 1024;
@@ -233,21 +235,38 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
       builder: (context) {
         final theme = Theme.of(context);
         return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(24, 20, 24, 28),
+          top: false,
+          child: SingleChildScrollView(
+            padding: EdgeInsets.fromLTRB(
+              24,
+              12,
+              24,
+              20 + MediaQuery.of(context).viewPadding.bottom,
+            ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Text('사진 첨부 기준', style: theme.textTheme.titleLarge),
-                const SizedBox(height: 12),
-                Text(
-                  '실무 기준으로 JPG, PNG, WEBP, GIF 형식과 10MB 이하 이미지를 허용하도록 설계했습니다.',
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: AppColors.fieldBorder,
+                Center(
+                  child: Container(
+                    width: 42,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: AppColors.disabledButton,
+                      borderRadius: BorderRadius.circular(999),
+                    ),
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 18),
+                Text('사진 첨부', style: theme.textTheme.titleLarge),
+                const SizedBox(height: 8),
+                Text(
+                  '앨범에서 여러 장을 고르거나 카메라로 바로 촬영해 보낼 수 있어요.',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: 18),
                 AttachmentActionTile(
                   icon: Icons.photo_library_outlined,
                   title: '앨범에서 선택',
@@ -255,7 +274,7 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
                   onTap: () =>
                       Navigator.of(context).pop(_AttachmentAction.gallery),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 12),
                 AttachmentActionTile(
                   icon: Icons.photo_camera_outlined,
                   title: '카메라로 촬영',
@@ -264,10 +283,22 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
                       Navigator.of(context).pop(_AttachmentAction.camera),
                 ),
                 const SizedBox(height: 18),
-                const GuideRow(text: '허용 형식: JPG, PNG, WEBP, GIF'),
-                const GuideRow(text: '최대 크기: 10MB'),
-                const GuideRow(text: '메시지당 최대 10장'),
-                const GuideRow(text: '저해상도 이미지는 업로드 전 압축 권장'),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.fromLTRB(16, 14, 16, 6),
+                  decoration: BoxDecoration(
+                    color: AppColors.appSurface,
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                  child: const Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      GuideRow(text: '허용 형식: JPG, PNG, WEBP, GIF, HEIC, HEIF'),
+                      GuideRow(text: '최대 크기: 10MB'),
+                      GuideRow(text: '메시지당 최대 10장'),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
@@ -287,6 +318,9 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
           : '채팅에서 사진을 바로 촬영해 보내려면 카메라 권한이 필요합니다. 권한을 거부하셔도 텍스트 채팅은 계속 이용할 수 있습니다.',
       confirmLabel: action == _AttachmentAction.gallery ? '사진 선택하기' : '카메라 열기',
       cancelLabel: '나중에',
+      rememberKey: action == _AttachmentAction.gallery
+          ? 'permission.notice.photo_library'
+          : 'permission.notice.camera',
     );
 
     if (!mounted || !shouldContinue) {

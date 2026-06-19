@@ -33,7 +33,7 @@ ActivityReview _parseReview(Object? value) {
     id: '${json['id']}',
     authorName: json['authorDisplayName'] as String? ?? '',
     authorAvatarUrl: json['authorProfileImageUrl'] as String?,
-    submittedAt: DateTime.parse(json['createdAt'] as String),
+    submittedAt: parseServerDateTime(json['createdAt'] as String),
     rating: json['rating'] as int? ?? 0,
     originalText: originalBody ?? translatedBody ?? '',
     translatedText: visibleTranslation,

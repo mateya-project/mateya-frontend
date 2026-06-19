@@ -103,6 +103,7 @@ class _ReviewComposerSheetState extends State<ReviewComposerSheet> {
           '후기에 사진을 첨부하려면 사진 보관함 접근 권한이 필요합니다. 권한을 거부하셔도 후기 텍스트 작성과 평점 등록은 계속할 수 있습니다.',
       confirmLabel: '사진 선택하기',
       cancelLabel: '나중에',
+      rememberKey: 'permission.notice.photo_library',
     );
 
     if (!mounted || !shouldContinue) {

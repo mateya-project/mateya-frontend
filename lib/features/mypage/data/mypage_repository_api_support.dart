@@ -131,16 +131,54 @@ BusinessMyPageData _fallbackBusinessPage(Map<String, dynamic> userProfileJson) {
 ActivityBadge _parseBadge(Object? value) {
   final json = _asMap(value);
   final categoryCode = json['category'] as String? ?? 'PUBLIC_FACILITY';
+  final earned = json['earned'] as bool? ?? true;
   return ActivityBadge(
     id: '${json['id']}',
     label: json['badgeName'] as String? ?? '',
     categoryLabel: _categoryLabel(categoryCode),
+    badgeCode: _resolveBadgeCode(json),
+    isEarned: earned,
+    imageUrl: _resolveBadgeImageUrl(json['badgeImageUrl'] as String?),
   );
+}
+
+String? _resolveBadgeCode(Map<String, dynamic> json) {
+  final candidates = <Object?>[
+    json['badgeCode'],
+    json['badgeKey'],
+    json['code'],
+    json['key'],
+  ];
+  for (final candidate in candidates) {
+    if (candidate is! String) {
+      continue;
+    }
+    final trimmed = candidate.trim();
+    if (trimmed.isNotEmpty) {
+      return trimmed;
+    }
+  }
+  return null;
+}
+
+String? _resolveBadgeImageUrl(String? rawUrl) {
+  final trimmed = rawUrl?.trim();
+  if (trimmed == null || trimmed.isEmpty) {
+    return null;
+  }
+  final uri = Uri.tryParse(trimmed);
+  if (uri == null) {
+    return null;
+  }
+  if (uri.hasScheme) {
+    return trimmed;
+  }
+  return Uri.parse(AppConfig.apiBaseUrl).resolveUri(uri).toString();
 }
 
 ConsentHistoryEntry _parseConsentHistoryEntry(Object? value) {
   final json = _asMap(value);
-  final agreedAt = DateTime.tryParse(json['agreedAt'] as String? ?? '');
+  final agreedAt = tryParseServerDateTime(json['agreedAt']);
   return ConsentHistoryEntry(
     id: (json['type'] as String? ?? '').toLowerCase(),
     title: json['title'] as String? ?? '',
@@ -152,8 +190,8 @@ ConsentHistoryEntry _parseConsentHistoryEntry(Object? value) {
 
 ActivityHistoryEntry _parseActivityHistoryEntry(Object? value) {
   final json = _asMap(value);
-  final startAt = DateTime.parse(json['startAt'] as String);
-  final endAt = DateTime.parse(json['endAt'] as String);
+  final startAt = parseServerDateTime(json['startAt'] as String);
+  final endAt = parseServerDateTime(json['endAt'] as String);
   final priceType = json['priceType'] as String? ?? 'FREE';
   final priceAmount = json['priceAmount'] as int? ?? 0;
   final participantCount = json['participantCount'] as int? ?? 0;
@@ -187,11 +225,11 @@ bool _isActiveWithin30Days(String? isoString) {
   if (isoString == null || isoString.isEmpty) {
     return false;
   }
-  final timestamp = DateTime.tryParse(isoString);
+  final timestamp = tryParseServerDateTime(isoString);
   if (timestamp == null) {
     return false;
   }
-  return DateTime.now().difference(timestamp).inDays <= 30;
+  return mateyaNowInKst().difference(timestamp).inDays <= 30;
 }
 
 String _formatDate(DateTime value) {

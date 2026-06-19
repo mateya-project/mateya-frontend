@@ -20,12 +20,17 @@ import '../../../details/presentation/screens/activity_detail_page.dart';
 import '../../../mypage/application/mypage_controller.dart';
 import '../../../mypage/data/mypage_repository.dart';
 import '../../../mypage/presentation/screens/mypage_flow_page.dart';
+import '../../../onboarding/data/location_repository.dart';
 import '../../../onboarding/domain/onboarding_flow.dart';
 import '../../application/home_controller.dart';
+import '../../application/nearby_culture_map_controller.dart';
 import '../../data/home_repository.dart';
+import '../../data/nearby_culture_map_repository.dart';
 import '../../domain/home_models.dart';
+import '../widgets/home_plus_action_overlay.dart';
 import '../widgets/explore_filter_sheet.dart';
 import '../widgets/home_content.dart';
+import 'nearby_culture_map_page.dart';
 
 class HomeFlowPage extends StatefulWidget {
   const HomeFlowPage({super.key, required this.flowKind, this.onBack});
@@ -41,10 +46,13 @@ class _HomeFlowPageState extends State<HomeFlowPage> {
   late final HomeController _controller;
   late final ChatController _chatController;
   late final MyPageController _myPageController;
+  late final NearbyCultureMapController _nearbyCultureMapController;
   late final ActivityDetailRepository _activityDetailRepository;
   late final ActivityCategoryRepository _activityCategoryRepository;
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
+  bool _isPlusOverlayOpen = false;
+  bool _hasInitializedNearbyCultureMap = false;
 
   @override
   void initState() {
@@ -79,6 +87,23 @@ class _HomeFlowPageState extends State<HomeFlowPage> {
     _activityDetailRepository = hasSession
         ? ApiActivityDetailRepository()
         : MockActivityDetailRepository();
+    final sessionUser = AuthSessionStore.instance.session?.user;
+    _nearbyCultureMapController = NearbyCultureMapController(
+      repository: hasSession
+          ? ApiNearbyCultureMapRepository()
+          : MockNearbyCultureMapRepository(),
+      categoryRepository: _activityCategoryRepository,
+      locationRepository: DeviceNeighborhoodLocationRepository(),
+      initialLocation:
+          sessionUser?.activityLatitude != null &&
+              sessionUser?.activityLongitude != null
+          ? NeighborhoodSelection(
+              displayName: sessionUser?.activityRegionName ?? '활동 지역',
+              latitude: sessionUser!.activityLatitude!,
+              longitude: sessionUser.activityLongitude!,
+            )
+          : null,
+    );
     _controller.initialize();
     _chatController.initialize();
   }
@@ -89,6 +114,7 @@ class _HomeFlowPageState extends State<HomeFlowPage> {
     _searchFocusNode.dispose();
     _chatController.dispose();
     _myPageController.dispose();
+    _nearbyCultureMapController.dispose();
     _controller.dispose();
     super.dispose();
   }
@@ -125,6 +151,7 @@ class _HomeFlowPageState extends State<HomeFlowPage> {
   }
 
   Future<void> _openCreateFlow() async {
+    _dismissPlusOverlay();
     final flowType = _controller.flowKind == FlowKind.host
         ? CreateFlowType.classRegistration
         : CreateFlowType.group;
@@ -144,6 +171,7 @@ class _HomeFlowPageState extends State<HomeFlowPage> {
     );
     if (didCreate == true) {
       await Future.wait<void>(<Future<void>>[
+        _controller.refreshAfterActivityMutation(),
         _chatController.retryRooms(),
         _myPageController.retry(),
       ]);
@@ -151,6 +179,7 @@ class _HomeFlowPageState extends State<HomeFlowPage> {
   }
 
   Future<void> _openActivityDetail(ActivityItem activity) async {
+    _dismissPlusOverlay();
     await Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (_) => ActivityDetailPage(
@@ -173,121 +202,18 @@ class _HomeFlowPageState extends State<HomeFlowPage> {
           animation: _controller,
           builder: (context, _) {
             _syncSearchController();
-            if (_controller.section == HomeSection.chat) {
-              return ChatFlowPage(
-                controller: _chatController,
-                onBack: widget.onBack,
-                onHomeTap: _controller.openHome,
-                onExploreTap: _controller.openExplore,
-                onPlusTap: _openCreateFlow,
-                onProfileTap: () {
-                  _controller.openProfile();
-                  _myPageController.openRoot();
-                },
-              );
-            }
-            if (_controller.section == HomeSection.profile) {
-              return Column(
-                children: <Widget>[
-                  Expanded(
-                    child: MyPageFlowPage(controller: _myPageController),
-                  ),
-                  MateyaBottomNavigation(
-                    currentTab: MateyaBottomTab.profile,
-                    onHomeTap: _controller.openHome,
-                    onExploreTap: _controller.openExplore,
-                    onPlusTap: _openCreateFlow,
-                    onChatTap: _controller.openChat,
-                    onProfileTap: () {
-                      _controller.openProfile();
-                      _myPageController.openRoot();
-                    },
-                  ),
-                ],
-              );
-            }
-            return Column(
+            return Stack(
               children: <Widget>[
-                switch (_controller.section) {
-                  HomeSection.favorites => MateyaHeader.backArrow(
-                    onBack:
-                        _controller.favoriteOriginSection == HomeSection.explore
-                        ? _controller.openExplore
-                        : _controller.openHome,
+                Positioned.fill(child: _buildSectionBody()),
+                if (_isPlusOverlayOpen)
+                  Positioned.fill(
+                    child: HomePlusActionOverlay(
+                      createLabel: _controller.plusActionLabel,
+                      onDismiss: _dismissPlusOverlay,
+                      onCreateTap: _openCreateFlow,
+                      onNearbyCultureTap: _openNearbyCultureMap,
+                    ),
                   ),
-                  _ => const MateyaHeader.noBackArrow(),
-                },
-                Expanded(
-                  child: Stack(
-                    children: <Widget>[
-                      AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 260),
-                        child: switch (_controller.section) {
-                          HomeSection.home => HomeScreen(
-                            key: const ValueKey<String>('home-screen'),
-                            controller: _controller,
-                            onSearchTap: _openExploreAndFocus,
-                            onActivityTap: _openActivityDetail,
-                          ),
-                          HomeSection.explore => ExploreScreen(
-                            key: const ValueKey<String>('explore-screen'),
-                            controller: _controller,
-                            searchController: _searchController,
-                            searchFocusNode: _searchFocusNode,
-                            onOpenFilter: _openFilterSheet,
-                            onActivityTap: _openActivityDetail,
-                          ),
-                          HomeSection.favorites => FavoritesScreen(
-                            key: const ValueKey<String>('favorites-screen'),
-                            controller: _controller,
-                            onActivityTap: _openActivityDetail,
-                          ),
-                          _ => const SizedBox.shrink(),
-                        },
-                      ),
-                      if (_controller.section == HomeSection.home ||
-                          _controller.section == HomeSection.explore)
-                        Positioned(
-                          right: 20,
-                          bottom: 18,
-                          child: GestureDetector(
-                            onTap: _controller.openFavorites,
-                            child: Container(
-                              width: 48,
-                              height: 48,
-                              decoration: const BoxDecoration(
-                                color: AppColors.brandGreen,
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(
-                                Icons.favorite_border_rounded,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-                MateyaBottomNavigation(
-                  currentTab: switch (_controller.section) {
-                    HomeSection.home => MateyaBottomTab.home,
-                    HomeSection.explore => MateyaBottomTab.explore,
-                    HomeSection.favorites =>
-                      _controller.favoriteOriginSection == HomeSection.explore
-                          ? MateyaBottomTab.explore
-                          : MateyaBottomTab.home,
-                    _ => MateyaBottomTab.home,
-                  },
-                  onHomeTap: _controller.openHome,
-                  onExploreTap: _controller.openExplore,
-                  onPlusTap: _openCreateFlow,
-                  onChatTap: _controller.openChat,
-                  onProfileTap: () {
-                    _controller.openProfile();
-                    _myPageController.openRoot();
-                  },
-                ),
               ],
             );
           },
@@ -306,5 +232,169 @@ class _HomeFlowPageState extends State<HomeFlowPage> {
         offset: _controller.searchQuery.length,
       ),
     );
+  }
+
+  Widget _buildSectionBody() {
+    if (_controller.section == HomeSection.chat) {
+      return ChatFlowPage(
+        controller: _chatController,
+        onBack: widget.onBack,
+        onHomeTap: _openHomeTab,
+        onExploreTap: _openExploreTab,
+        onPlusTap: _togglePlusOverlay,
+        onProfileTap: _openProfileTab,
+      );
+    }
+    if (_controller.section == HomeSection.profile) {
+      return Column(
+        children: <Widget>[
+          Expanded(child: MyPageFlowPage(controller: _myPageController)),
+          MateyaBottomNavigation(
+            currentTab: MateyaBottomTab.profile,
+            plusActive: _isPlusOverlayOpen,
+            onHomeTap: _openHomeTab,
+            onExploreTap: _openExploreTab,
+            onPlusTap: _togglePlusOverlay,
+            onChatTap: _openChatTab,
+            onProfileTap: _openProfileTab,
+          ),
+        ],
+      );
+    }
+    return Column(
+      children: <Widget>[
+        switch (_controller.section) {
+          HomeSection.favorites => MateyaHeader.backArrow(
+            onBack: _controller.favoriteOriginSection == HomeSection.explore
+                ? _openExploreTab
+                : _openHomeTab,
+          ),
+          HomeSection.nearbyCultureMap => MateyaHeader.backArrow(
+            onBack: _controller.closeNearbyCultureMap,
+          ),
+          _ => const MateyaHeader.noBackArrow(),
+        },
+        Expanded(
+          child: Stack(
+            children: <Widget>[
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 260),
+                child: switch (_controller.section) {
+                  HomeSection.home => HomeScreen(
+                    key: const ValueKey<String>('home-screen'),
+                    controller: _controller,
+                    onSearchTap: _openExploreAndFocus,
+                    onActivityTap: _openActivityDetail,
+                  ),
+                  HomeSection.explore => ExploreScreen(
+                    key: const ValueKey<String>('explore-screen'),
+                    controller: _controller,
+                    searchController: _searchController,
+                    searchFocusNode: _searchFocusNode,
+                    onOpenFilter: _openFilterSheet,
+                    onActivityTap: _openActivityDetail,
+                  ),
+                  HomeSection.favorites => FavoritesScreen(
+                    key: const ValueKey<String>('favorites-screen'),
+                    controller: _controller,
+                    onActivityTap: _openActivityDetail,
+                  ),
+                  HomeSection.nearbyCultureMap => NearbyCultureMapPage(
+                    key: const ValueKey<String>('nearby-culture-map-screen'),
+                    controller: _nearbyCultureMapController,
+                  ),
+                  _ => const SizedBox.shrink(),
+                },
+              ),
+              if (_controller.section == HomeSection.home ||
+                  _controller.section == HomeSection.explore)
+                Positioned(
+                  right: 20,
+                  bottom: 18,
+                  child: GestureDetector(
+                    onTap: _controller.openFavorites,
+                    child: Container(
+                      width: 48,
+                      height: 48,
+                      decoration: const BoxDecoration(
+                        color: AppColors.brandGreen,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.favorite_border_rounded,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+        MateyaBottomNavigation(
+          currentTab: switch (_controller.section) {
+            HomeSection.home => MateyaBottomTab.home,
+            HomeSection.explore => MateyaBottomTab.explore,
+            HomeSection.favorites =>
+              _controller.favoriteOriginSection == HomeSection.explore
+                  ? MateyaBottomTab.explore
+                  : MateyaBottomTab.home,
+            HomeSection.nearbyCultureMap => null,
+            _ => MateyaBottomTab.home,
+          },
+          plusActive: _isPlusOverlayOpen,
+          onHomeTap: _openHomeTab,
+          onExploreTap: _openExploreTab,
+          onPlusTap: _togglePlusOverlay,
+          onChatTap: _openChatTab,
+          onProfileTap: _openProfileTab,
+        ),
+      ],
+    );
+  }
+
+  void _togglePlusOverlay() {
+    setState(() {
+      _isPlusOverlayOpen = !_isPlusOverlayOpen;
+    });
+  }
+
+  void _dismissPlusOverlay() {
+    if (!_isPlusOverlayOpen) {
+      return;
+    }
+    setState(() {
+      _isPlusOverlayOpen = false;
+    });
+  }
+
+  void _openHomeTab() {
+    _dismissPlusOverlay();
+    _controller.openHome();
+  }
+
+  void _openExploreTab() {
+    _dismissPlusOverlay();
+    _controller.openExplore();
+  }
+
+  void _openChatTab() {
+    _dismissPlusOverlay();
+    _controller.openChat();
+  }
+
+  void _openProfileTab() {
+    _dismissPlusOverlay();
+    _controller.openProfile();
+    _myPageController.openRoot();
+  }
+
+  Future<void> _openNearbyCultureMap() async {
+    _dismissPlusOverlay();
+    _controller.openNearbyCultureMap();
+    if (_hasInitializedNearbyCultureMap) {
+      return;
+    }
+    _hasInitializedNearbyCultureMap = true;
+    await _nearbyCultureMapController.initialize();
   }
 }

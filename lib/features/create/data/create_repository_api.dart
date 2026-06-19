@@ -5,6 +5,8 @@ class ApiCreateRepository implements CreateRepository {
     MateyaApiClient? apiClient,
     AuthSessionStore? sessionStore,
     HttpTransport? transport,
+    NeighborhoodLocationRepository? locationRepository,
+    AppLogger? logger,
   }) : _sessionStore = sessionStore ?? AuthSessionStore.instance,
        _apiClient =
            apiClient ??
@@ -12,11 +14,17 @@ class ApiCreateRepository implements CreateRepository {
              baseUrl: AppConfig.apiBaseUrl,
              sessionStore: sessionStore ?? AuthSessionStore.instance,
            ),
-       _transport = transport ?? createHttpTransport();
+       _transport = transport ?? createHttpTransport(),
+       _locationRepository =
+           locationRepository ?? DeviceNeighborhoodLocationRepository(),
+       _loggerOverride = logger;
 
   final AuthSessionStore _sessionStore;
   final MateyaApiClient _apiClient;
   final HttpTransport _transport;
+  final NeighborhoodLocationRepository _locationRepository;
+  final AppLogger? _loggerOverride;
+  AppLogger get _logger => _loggerOverride ?? AppLogger.instance;
 
   @override
   Future<CreateEditableDraft> fetchEditableDraft({
@@ -33,11 +41,11 @@ class ApiCreateRepository implements CreateRepository {
       final categoryId = categoryCode == null
           ? null
           : _clientCategoryIdByServerCode[categoryCode];
-      final startAt = DateTime.parse(json['startAt'] as String);
-      final endAt = DateTime.parse(json['endAt'] as String);
+      final startAt = parseServerDateTime(json['startAt'] as String);
+      final endAt = parseServerDateTime(json['endAt'] as String);
       final deadlineAt = json['recruitmentDeadlineAt'] == null
           ? null
-          : DateTime.parse(json['recruitmentDeadlineAt'] as String);
+          : parseServerDateTime(json['recruitmentDeadlineAt'] as String);
       final imageUrls =
           ((json['images'] as List<Object?>?) ?? const <Object?>[])
               .whereType<String>()
@@ -123,11 +131,47 @@ class ApiCreateRepository implements CreateRepository {
     final categoryCode = _resolveServerCategoryCode(
       explicitCategoryIds: categoryIds,
     );
-    final sessionUser = _sessionStore.session?.user;
-    final latitude = sessionUser?.activityLatitude;
-    final longitude = sessionUser?.activityLongitude;
-    if (categoryCode == null || latitude == null || longitude == null) {
+    if (categoryCode == null) {
+      _logger.warning(
+        'Skipping recommended place request because category code is missing',
+        context: <String, Object?>{
+          'flowType': flowType.name,
+          'categoryIds': categoryIds.toList(growable: false),
+        },
+      );
       return const <CreatePlaceSuggestion>[];
+    }
+
+    var locationSource = 'session';
+    final sessionUser = _sessionStore.session?.user;
+    var latitude = sessionUser?.activityLatitude;
+    var longitude = sessionUser?.activityLongitude;
+    var district = sessionUser?.activityRegionName;
+
+    if (latitude == null || longitude == null) {
+      _logger.info(
+        'Falling back to device location for recommended places because session coordinates are missing',
+        context: <String, Object?>{
+          'flowType': flowType.name,
+          'hasRegionName': district?.isNotEmpty ?? false,
+        },
+      );
+      locationSource = 'device';
+      final resolved = await _locationRepository.resolveCurrentNeighborhood();
+      if (!resolved.isSuccess || resolved.selection == null) {
+        _logger.warning(
+          'Skipping recommended place request because no location could be resolved',
+          context: <String, Object?>{
+            'flowType': flowType.name,
+            'failureType': resolved.failure?.type.name,
+            'message': resolved.failure?.message,
+          },
+        );
+        return const <CreatePlaceSuggestion>[];
+      }
+      latitude = resolved.selection!.latitude;
+      longitude = resolved.selection!.longitude;
+      district = resolved.selection!.displayName;
     }
 
     try {
@@ -143,11 +187,37 @@ class ApiCreateRepository implements CreateRepository {
         },
       );
       final items = data is List<Object?> ? data : const <Object?>[];
-      return items
+      final places = items
           .map(_parsePlaceSuggestion)
           .where((place) => place.hasCoordinates)
           .toList(growable: false);
+      _logger.info(
+        'Recommended places loaded',
+        context: <String, Object?>{
+          'flowType': flowType.name,
+          'categoryCode': categoryCode,
+          'categoryDetailCode': categoryDetailCode,
+          'locationSource': locationSource,
+          'district': district,
+          'count': places.length,
+        },
+      );
+      return places;
     } on MateyaApiException catch (error) {
+      _logger.warning(
+        'Recommended place request failed',
+        error: error,
+        context: <String, Object?>{
+          'flowType': flowType.name,
+          'categoryCode': categoryCode,
+          'categoryDetailCode': categoryDetailCode,
+          'locationSource': locationSource,
+          'district': district,
+          'failureType': error.type.name,
+          'statusCode': error.statusCode,
+          'correlationId': error.correlationId,
+        },
+      );
       throw _mapApiException(error);
     }
   }
@@ -267,7 +337,7 @@ class ApiCreateRepository implements CreateRepository {
             draft.place.name,
         eventStartsAt: json['startAt'] == null
             ? draft.eventStartsAt
-            : DateTime.parse(json['startAt'] as String),
+            : parseServerDateTime(json['startAt'] as String),
         chatStatus: ChatProvisionStatus.created,
       );
     } on MateyaApiException catch (error) {

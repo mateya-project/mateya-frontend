@@ -1,4 +1,4 @@
-enum HomeSection { home, explore, favorites, chat, profile }
+enum HomeSection { home, explore, favorites, nearbyCultureMap, chat, profile }
 
 enum HomeLoadFailureType { network, server }
 

@@ -59,8 +59,7 @@ class _CreateFlowPageState extends State<CreateFlowPage> {
     _titleController.text = widget.controller.title;
     _descriptionController.text = widget.controller.description;
     _priceController.text = widget.controller.priceText;
-    widget.controller.initialize();
-    _restoreLostImages();
+    _initializePage();
   }
 
   @override
@@ -115,7 +114,16 @@ class _CreateFlowPageState extends State<CreateFlowPage> {
     await widget.controller.searchPlaces();
   }
 
-  Future<void> _restoreLostImages() async {
+  Future<void> _initializePage() async {
+    await widget.controller.initialize();
+    if (!mounted) {
+      return;
+    }
+
+    await _restoreLostImages(suppressErrorMessage: true);
+  }
+
+  Future<void> _restoreLostImages({bool suppressErrorMessage = false}) async {
     final recovery = await recoverLostImagePickerData(
       _imagePicker.retrieveLostData,
       fallbackErrorMessage: '이전에 선택하던 이미지를 복구하지 못했어요. 다시 선택해 주세요.',
@@ -124,6 +132,9 @@ class _CreateFlowPageState extends State<CreateFlowPage> {
       return;
     }
     if (recovery.errorMessage != null) {
+      if (suppressErrorMessage) {
+        return;
+      }
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text(recovery.errorMessage!)));
@@ -164,6 +175,7 @@ class _CreateFlowPageState extends State<CreateFlowPage> {
           '활동 대표 이미지를 등록하기 위해 사진 보관함 접근 권한이 필요합니다. 권한을 거부하셔도 활동 정보 입력은 계속 진행할 수 있습니다.',
       confirmLabel: '사진 선택하기',
       cancelLabel: '나중에',
+      rememberKey: 'permission.notice.photo_library',
     );
 
     if (!mounted || !shouldContinue) {

@@ -188,7 +188,7 @@ class NetworkAvatar extends StatelessWidget {
       child: SizedBox(
         width: size,
         height: size,
-        child: imageUrl == null
+        child: imageUrl == null || imageUrl!.trim().isEmpty
             ? FallbackAvatar(label: label, size: size)
             : Image.network(
                 imageUrl!,

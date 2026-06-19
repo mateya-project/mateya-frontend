@@ -146,7 +146,7 @@ class VerticalActivityCard extends StatelessWidget {
               children: <Widget>[
                 ActivityImage(
                   imageUrl: activity.imageUrl,
-                  height: 239,
+                  aspectRatio: 1.18,
                   borderRadius: const BorderRadius.vertical(
                     top: Radius.circular(13),
                   ),

@@ -1,0 +1,1 @@
+- [high] 호스트 온보딩 활동 지역 저장 흐름 정리: `signupHost`는 `activityRegionName/activityLatitude/activityLongitude` 없이 가입되어 거리 기반 기능이 세션 좌표에 의존할 때 비어 있을 수 있음. 제품 흐름 합의 후 초기 활동 지역 입력 또는 프로필 동기화 단계가 필요함.

@@ -4,6 +4,7 @@ import '../../../app/app_config.dart';
 import '../../../shared/auth/auth_session.dart';
 import '../../../shared/network/http_transport.dart';
 import '../../../shared/network/mateya_api_client.dart';
+import '../../../shared/time/korean_time.dart';
 import '../../home/domain/home_models.dart';
 import '../domain/activity_detail_models.dart';
 

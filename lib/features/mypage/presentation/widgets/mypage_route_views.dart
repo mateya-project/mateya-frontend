@@ -14,6 +14,7 @@ class PersonalMyPageView extends StatelessWidget {
     super.key,
     required this.data,
     required this.isUpdatingProfileImage,
+    this.onBack,
     required this.onOpenRecentActivities,
     required this.onEditHostedActivity,
     required this.onEditProfileImage,
@@ -22,6 +23,7 @@ class PersonalMyPageView extends StatelessWidget {
 
   final PersonalMyPageData data;
   final bool isUpdatingProfileImage;
+  final VoidCallback? onBack;
   final VoidCallback onOpenRecentActivities;
   final ValueChanged<ActivityHistoryEntry> onEditHostedActivity;
   final VoidCallback onEditProfileImage;
@@ -31,7 +33,9 @@ class PersonalMyPageView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: <Widget>[
-        const MateyaHeader.noBackArrow(),
+        onBack == null
+            ? const MateyaHeader.noBackArrow()
+            : MateyaHeader.backArrow(onBack: onBack),
         Expanded(
           child: ListView(
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
@@ -791,19 +795,43 @@ class _BadgeGridTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final remoteImageUrl = slot.remoteImageUrl;
+    final badgeChild = remoteImageUrl != null
+        ? Image.network(
+            remoteImageUrl,
+            fit: BoxFit.cover,
+            filterQuality: FilterQuality.medium,
+            excludeFromSemantics: true,
+            errorBuilder:
+                (BuildContext context, Object error, StackTrace? stackTrace) {
+                  return Image.asset(
+                    slot.visual.assetPathFor(slot.isEarned),
+                    fit: BoxFit.cover,
+                    filterQuality: FilterQuality.medium,
+                    excludeFromSemantics: true,
+                    errorBuilder:
+                        (
+                          BuildContext context,
+                          Object error,
+                          StackTrace? stackTrace,
+                        ) => _BadgeGridTileFallback(slot: slot),
+                  );
+                },
+          )
+        : Image.asset(
+            slot.visual.assetPathFor(slot.isEarned),
+            fit: BoxFit.cover,
+            filterQuality: FilterQuality.medium,
+            excludeFromSemantics: true,
+            errorBuilder:
+                (BuildContext context, Object error, StackTrace? stackTrace) =>
+                    _BadgeGridTileFallback(slot: slot),
+          );
     final badgeImage = AspectRatio(
       aspectRatio: _badgeAspectRatio,
       child: ClipRRect(
         borderRadius: BorderRadius.circular(_badgeRadius),
-        child: Image.asset(
-          slot.visual.assetPathFor(slot.isEarned),
-          fit: BoxFit.cover,
-          filterQuality: FilterQuality.medium,
-          excludeFromSemantics: true,
-          errorBuilder:
-              (BuildContext context, Object error, StackTrace? stackTrace) =>
-                  _BadgeGridTileFallback(slot: slot),
-        ),
+        child: badgeChild,
       ),
     );
 

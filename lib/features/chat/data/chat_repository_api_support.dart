@@ -27,12 +27,32 @@ ChatRoom _parseRoomSummary(Object? value) {
     id: '${json['id']}',
     type: roomType,
     title: roomTitle,
-    imageUrl: json['counterpartProfileImageUrl'] as String? ?? '',
+    imageUrl: _resolveRoomImageUrl(json, roomType: roomType),
     participantCount: json['participantCount'] as int? ?? 0,
     lastMessageAt: lastMessageAt,
     unreadCount: json['unreadCount'] as int? ?? 0,
     messageGroups: messageGroups,
   );
+}
+
+String? _resolveRoomImageUrl(
+  Map<String, dynamic> json, {
+  required ChatRoomType roomType,
+}) {
+  final roomImageUrl = _nonEmptyString(json['roomImageUrl']);
+  if (roomImageUrl != null) {
+    return roomImageUrl;
+  }
+
+  final legacyImageUrl = _nonEmptyString(json['imageUrl']);
+  if (legacyImageUrl != null) {
+    return legacyImageUrl;
+  }
+
+  if (roomType == ChatRoomType.direct) {
+    return _nonEmptyString(json['counterpartProfileImageUrl']);
+  }
+  return null;
 }
 
 String _resolveRoomTitle(String? rawTitle, {required ChatRoomType type}) {
@@ -59,7 +79,7 @@ ChatMessageGroup _parseMessageGroup(Object? value) {
       name: json['senderDisplayName'] as String? ?? '',
       avatarUrl: json['senderProfileImageUrl'] as String?,
     ),
-    sentAt: _parseDateTime(json['sentAt']) ?? DateTime.now(),
+    sentAt: _parseDateTime(json['sentAt']) ?? mateyaNowInKst(),
     isMine: isMine,
     bubbles: <ChatBubble>[_parseMessageBubble(json)],
   );
@@ -95,16 +115,7 @@ ChatBubble _parseMessageBubble(Object? value) {
 }
 
 DateTime? _parseDateTime(Object? value) {
-  final normalized = switch (value) {
-    null => null,
-    String stringValue =>
-      stringValue.trim().isEmpty ? null : stringValue.trim(),
-    _ => '$value',
-  };
-  if (normalized == null) {
-    return null;
-  }
-  return DateTime.tryParse(normalized);
+  return tryParseServerDateTime(value);
 }
 
 Map<String, String> _flattenHeaders(
@@ -142,6 +153,12 @@ String? _contentTypeFor(String fileName) {
   if (normalized.endsWith('.gif')) {
     return 'image/gif';
   }
+  if (normalized.endsWith('.heic')) {
+    return 'image/heic';
+  }
+  if (normalized.endsWith('.heif')) {
+    return 'image/heif';
+  }
   return null;
 }
 
@@ -163,4 +180,12 @@ Map<String, dynamic> _asMap(Object? value) {
     return value;
   }
   return const <String, dynamic>{};
+}
+
+String? _nonEmptyString(Object? value) {
+  if (value is! String) {
+    return null;
+  }
+  final trimmed = value.trim();
+  return trimmed.isEmpty ? null : trimmed;
 }

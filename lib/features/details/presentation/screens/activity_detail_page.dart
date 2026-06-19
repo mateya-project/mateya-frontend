@@ -150,6 +150,7 @@ class _ActivityDetailPageState extends State<ActivityDetailPage> {
                   : MockMyPageRepository(),
               flowKind: isHostFlow ? FlowKind.host : FlowKind.guest,
             ),
+            onRootBack: () => Navigator.of(context).pop(),
           ),
         ),
       );
@@ -166,6 +167,7 @@ class _ActivityDetailPageState extends State<ActivityDetailPage> {
             flowKind: FlowKind.guest,
             initialOtherProfileUserId: userId,
           ),
+          onRootBack: () => Navigator.of(context).pop(),
         ),
       ),
     );

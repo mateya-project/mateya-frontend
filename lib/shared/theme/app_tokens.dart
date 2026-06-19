@@ -29,7 +29,7 @@ abstract final class AppSpacing {
   static const double fieldGap = 24;
   static const double buttonHeight = 54;
   static const double inputHeight = 52;
-  static const double headerHeight = 88;
+  static const double headerHeight = 80;
   static const double fieldRadius = 12;
   static const double primaryRadius = 16;
 }

@@ -1,7 +1,8 @@
+import '../../../../shared/time/korean_time.dart';
 import '../../domain/chat_models.dart';
 
 String formatRoomTimestamp(DateTime sentAt) {
-  final now = DateTime.now();
+  final now = mateyaNowInKst();
   final difference = now.difference(sentAt);
 
   if (difference.inMinutes < 1) {
@@ -52,9 +53,9 @@ bool isSameDay(DateTime left, DateTime right) {
 
 String formatConversationDate(ChatRoom room) {
   final reference = room.messageGroups.isEmpty
-      ? DateTime.now()
+      ? mateyaNowInKst()
       : room.messageGroups.first.sentAt;
-  final now = DateTime.now();
+  final now = mateyaNowInKst();
   final yesterday = now.subtract(const Duration(days: 1));
 
   if (isSameDay(now, reference)) {
