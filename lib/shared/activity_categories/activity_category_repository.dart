@@ -92,21 +92,35 @@ class ApiActivityCategoryRepository implements ActivityCategoryRepository {
   ApiActivityCategoryRepository({
     MateyaApiClient? apiClient,
     AuthSessionStore? sessionStore,
+    DateTime Function()? now,
   }) : _apiClient =
            apiClient ??
            MateyaApiClient(
              baseUrl: AppConfig.apiBaseUrl,
              sessionStore: sessionStore ?? AuthSessionStore.instance,
-           );
+           ),
+       _now = now ?? DateTime.now;
 
+  static const Duration _cacheTtl = Duration(hours: 12);
   static List<ActivityCategoryMetadata>? _cachedItems;
+  static DateTime? _cachedAt;
 
   final MateyaApiClient _apiClient;
+  final DateTime Function() _now;
+
+  static void debugResetCache() {
+    _cachedItems = null;
+    _cachedAt = null;
+  }
 
   @override
   Future<List<ActivityCategoryMetadata>> fetchActivityCategories() async {
     final cachedItems = _cachedItems;
-    if (cachedItems != null && cachedItems.isNotEmpty) {
+    final cachedAt = _cachedAt;
+    if (cachedItems != null &&
+        cachedItems.isNotEmpty &&
+        cachedAt != null &&
+        _now().difference(cachedAt) < _cacheTtl) {
       return cachedItems;
     }
 
@@ -126,11 +140,18 @@ class ApiActivityCategoryRepository implements ActivityCategoryRepository {
             );
       if (items.isNotEmpty) {
         _cachedItems = items;
+        _cachedAt = _now();
         return items;
       }
     } on MateyaApiException {
+      if (cachedItems != null && cachedItems.isNotEmpty) {
+        return cachedItems;
+      }
       // Keep the UI operable with the last known compatible category contract.
     } on _CategoryParseException {
+      if (cachedItems != null && cachedItems.isNotEmpty) {
+        return cachedItems;
+      }
       // Fall through to the stable fallback contract.
     }
 
