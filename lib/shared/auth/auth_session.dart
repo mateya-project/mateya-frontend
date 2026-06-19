@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../logging/app_logger.dart';
@@ -178,10 +179,18 @@ class AuthSession {
 }
 
 class AuthSessionStore {
-  AuthSessionStore._();
+  AuthSessionStore();
 
-  static final AuthSessionStore instance = AuthSessionStore._();
+  static final AuthSessionStore instance = AuthSessionStore();
   static const String _storageKey = 'mateya.auth_session';
+  static const FlutterSecureStorage _secureStorage = FlutterSecureStorage(
+    aOptions: AndroidOptions(
+      resetOnError: true,
+      storageNamespace: 'mateya.auth',
+    ),
+    iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
+    mOptions: MacOsOptions(accessibility: KeychainAccessibility.first_unlock),
+  );
 
   AuthSession? _session;
   Future<void> _storageOperation = Future<void>.value();
@@ -191,8 +200,8 @@ class AuthSessionStore {
   bool get hasSession => _session != null;
 
   Future<void> initialize() async {
-    final preferences = await SharedPreferences.getInstance();
-    final raw = preferences.getString(_storageKey);
+    final stored = await _readStoredSession();
+    final raw = stored?.raw;
     if (raw == null || raw.isEmpty) {
       _session = null;
       unawaited(_syncLoggingContext());
@@ -208,9 +217,16 @@ class AuthSessionStore {
         'Auth session restored from local storage',
         context: _sessionLogContext(_session),
       );
+      if (stored?.requiresMigration ?? false) {
+        await _writeStoredSession(raw);
+        AppLogger.instance.info(
+          'Auth session migrated from legacy local storage',
+          context: _sessionLogContext(_session),
+        );
+      }
     } catch (_) {
       _session = null;
-      await preferences.remove(_storageKey);
+      await _deleteStoredSession();
       AppLogger.instance.warning(
         'Stored auth session was invalid and has been cleared',
       );
@@ -225,8 +241,8 @@ class AuthSessionStore {
       context: _sessionLogContext(session),
     );
     unawaited(_syncLoggingContext());
-    _queueStorageWrite((preferences) async {
-      await preferences.setString(_storageKey, jsonEncode(session.toJson()));
+    _queueStorageWrite(() async {
+      await _writeStoredSession(jsonEncode(session.toJson()));
     });
   }
 
@@ -238,8 +254,8 @@ class AuthSessionStore {
       context: _sessionLogContext(previousSession),
     );
     unawaited(_syncLoggingContext());
-    _queueStorageWrite((preferences) async {
-      await preferences.remove(_storageKey);
+    _queueStorageWrite(() async {
+      await _deleteStoredSession();
     });
   }
 
@@ -275,13 +291,58 @@ class AuthSessionStore {
     return future;
   }
 
-  void _queueStorageWrite(
-    Future<void> Function(SharedPreferences preferences) action,
-  ) {
-    _storageOperation = _storageOperation.then((_) async {
+  Future<_StoredAuthSessionPayload?> _readStoredSession() async {
+    try {
+      final secureRaw = await _secureStorage.read(key: _storageKey);
+      if (secureRaw != null && secureRaw.isNotEmpty) {
+        return _StoredAuthSessionPayload.secure(secureRaw);
+      }
+    } catch (error, stackTrace) {
+      AppLogger.instance.warning(
+        'Secure auth session read failed, falling back to legacy storage',
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+
+    final preferences = await SharedPreferences.getInstance();
+    final legacyRaw = preferences.getString(_storageKey);
+    if (legacyRaw == null || legacyRaw.isEmpty) {
+      return null;
+    }
+    return _StoredAuthSessionPayload.legacy(legacyRaw);
+  }
+
+  Future<void> _writeStoredSession(String raw) async {
+    await _secureStorage.write(key: _storageKey, value: raw);
+    final preferences = await SharedPreferences.getInstance();
+    await preferences.remove(_storageKey);
+  }
+
+  Future<void> _deleteStoredSession() async {
+    try {
+      await _secureStorage.delete(key: _storageKey);
+    } finally {
       final preferences = await SharedPreferences.getInstance();
-      await action(preferences);
-    });
+      await preferences.remove(_storageKey);
+    }
+  }
+
+  void _queueStorageWrite(Future<void> Function() action) {
+    _storageOperation = _storageOperation
+        .catchError((Object _, StackTrace ignoredStackTrace) {})
+        .then((_) async {
+          try {
+            await action();
+          } catch (error, stackTrace) {
+            AppLogger.instance.error(
+              'Auth session persistence failed',
+              error: error,
+              stackTrace: stackTrace,
+            );
+            rethrow;
+          }
+        });
   }
 
   Future<void> _syncLoggingContext() {
@@ -304,6 +365,17 @@ class AuthSessionStore {
       if (session != null) 'primaryLanguage': session.user.primaryLanguage,
     };
   }
+}
+
+class _StoredAuthSessionPayload {
+  const _StoredAuthSessionPayload(this.raw, {required this.requiresMigration});
+
+  const _StoredAuthSessionPayload.secure(this.raw) : requiresMigration = false;
+
+  const _StoredAuthSessionPayload.legacy(this.raw) : requiresMigration = true;
+
+  final String? raw;
+  final bool requiresMigration;
 }
 
 const Object _authSessionSentinel = Object();

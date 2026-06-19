@@ -157,6 +157,7 @@ class SettingsView extends StatelessWidget {
     required this.profile,
     required this.onEditActivityRegion,
     required this.onOpenConsentHistory,
+    required this.onOpenPrivacyPolicy,
     required this.onOpenCustomerSupport,
     required this.onOpenBlockedUsers,
     required this.onLogout,
@@ -166,6 +167,7 @@ class SettingsView extends StatelessWidget {
   final ProfileSummary profile;
   final VoidCallback onEditActivityRegion;
   final VoidCallback onOpenConsentHistory;
+  final VoidCallback onOpenPrivacyPolicy;
   final VoidCallback onOpenCustomerSupport;
   final VoidCallback onOpenBlockedUsers;
   final VoidCallback onLogout;
@@ -219,6 +221,10 @@ class SettingsView extends StatelessWidget {
               _SettingsMenuItem(
                 title: '개인정보 수집·이용 동의 내역',
                 onTap: onOpenConsentHistory,
+              ),
+              _SettingsMenuItem(
+                title: '개인정보처리방침 보기',
+                onTap: onOpenPrivacyPolicy,
               ),
               _SettingsMenuItem(
                 title: '고객센터 문의하기',
