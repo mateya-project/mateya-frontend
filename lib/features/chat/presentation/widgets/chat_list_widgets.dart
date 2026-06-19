@@ -17,6 +17,8 @@ class ChatFilterBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final filters = ChatListFilter.values;
+    final selectedIndex = filters.indexOf(currentFilter);
 
     return Container(
       padding: const EdgeInsets.all(4),
@@ -24,46 +26,70 @@ class ChatFilterBar extends StatelessWidget {
         color: AppColors.disabledSurface,
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Row(
-        children: ChatListFilter.values
-            .map((filter) {
-              final selected = filter == currentFilter;
-              return Expanded(
-                child: GestureDetector(
-                  onTap: () => onChanged(filter),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 180),
-                    padding: const EdgeInsets.symmetric(vertical: 8),
+      child: SizedBox(
+        height: 40,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final indicatorWidth = constraints.maxWidth / filters.length;
+
+            return Stack(
+              fit: StackFit.expand,
+              children: <Widget>[
+                AnimatedPositioned(
+                  duration: const Duration(milliseconds: 220),
+                  curve: Curves.easeOutCubic,
+                  top: 0,
+                  bottom: 0,
+                  left: indicatorWidth * selectedIndex,
+                  width: indicatorWidth,
+                  child: DecoratedBox(
                     decoration: BoxDecoration(
-                      color: selected ? Colors.white : Colors.transparent,
-                      borderRadius: BorderRadius.circular(selected ? 12 : 999),
-                      boxShadow: selected
-                          ? const <BoxShadow>[
-                              BoxShadow(
-                                color: Color(0x14000000),
-                                blurRadius: 2,
-                                offset: Offset(0, 0),
-                              ),
-                              BoxShadow(
-                                color: Color(0x14000000),
-                                blurRadius: 8.5,
-                                offset: Offset(0, 6),
-                              ),
-                            ]
-                          : null,
-                    ),
-                    child: Text(
-                      filter.label,
-                      textAlign: TextAlign.center,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: AppColors.textPrimary,
-                      ),
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: const <BoxShadow>[
+                        BoxShadow(
+                          color: Color(0x14000000),
+                          blurRadius: 2,
+                          offset: Offset(0, 0),
+                        ),
+                        BoxShadow(
+                          color: Color(0x14000000),
+                          blurRadius: 8.5,
+                          offset: Offset(0, 6),
+                        ),
+                      ],
                     ),
                   ),
                 ),
-              );
-            })
-            .toList(growable: false),
+                Row(
+                  children: filters
+                      .map((filter) {
+                        final selected = filter == currentFilter;
+                        return Expanded(
+                          child: GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap: () => onChanged(filter),
+                            child: Center(
+                              child: Text(
+                                filter.label,
+                                textAlign: TextAlign.center,
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  color: AppColors.textPrimary,
+                                  fontWeight: selected
+                                      ? FontWeight.w600
+                                      : FontWeight.w400,
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      })
+                      .toList(growable: false),
+                ),
+              ],
+            );
+          },
+        ),
       ),
     );
   }

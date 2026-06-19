@@ -119,7 +119,13 @@ class MyPageWithdrawalDialog extends StatelessWidget {
           Text('회원 탈퇴', style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 8),
           Text(
-            '탈퇴 직후 계정은 비활성화되고, 30일 후 개인정보와 활동 데이터는 백엔드 정책에 따라 삭제 또는 익명화됩니다.',
+            '회원 탈퇴를 진행하시겠습니까?\n'
+            '탈퇴 후 계정은 즉시 비활성화되며,\n'
+            '30일 동안 재가입 또는 로그인 시\n'
+            '탈퇴가 취소됩니다.\n\n'
+            '30일이 지나면 회원 정보 및 서비스 이용 기록은 '
+            '관련 법령에 따라 보관이 필요한 정보를 제외하고 '
+            '영구 삭제되며 복구할 수 없습니다.',
             style: Theme.of(
               context,
             ).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),

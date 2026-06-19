@@ -24,6 +24,19 @@ class CreateFlowPage extends StatefulWidget {
 
 class _CreateFlowPageState extends State<CreateFlowPage> {
   final ImagePicker _imagePicker = ImagePicker();
+  final ScrollController _detailsScrollController = ScrollController();
+  final Map<String, GlobalKey> _detailSectionKeys = <String, GlobalKey>{
+    'title': GlobalKey(),
+    'description': GlobalKey(),
+    'eventDate': GlobalKey(),
+    'time': GlobalKey(),
+    'participantCapacity': GlobalKey(),
+    'deadline': GlobalKey(),
+    'languages': GlobalKey(),
+    'priceType': GlobalKey(),
+    'price': GlobalKey(),
+    'images': GlobalKey(),
+  };
   final TextEditingController _searchController = TextEditingController();
   final TextEditingController _manualPlaceNameController =
       TextEditingController();
@@ -60,6 +73,7 @@ class _CreateFlowPageState extends State<CreateFlowPage> {
     _titleController.dispose();
     _descriptionController.dispose();
     _priceController.dispose();
+    _detailsScrollController.dispose();
     super.dispose();
   }
 
@@ -243,8 +257,11 @@ class _CreateFlowPageState extends State<CreateFlowPage> {
   Future<void> _pickDeadlineDate() async {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
-    final lastDate =
-        widget.controller.eventDate ?? today.add(const Duration(days: 365));
+    final defaultLastDate = today.add(const Duration(days: 365));
+    final eventDate = widget.controller.eventDate;
+    final lastDate = eventDate != null && eventDate.isAfter(defaultLastDate)
+        ? eventDate
+        : defaultLastDate;
     final initialDate = widget.controller.deadlineDate ?? today;
     final picked = await showDatePicker(
       context: context,
@@ -317,6 +334,54 @@ class _CreateFlowPageState extends State<CreateFlowPage> {
       return;
     }
     widget.controller.previousStep();
+  }
+
+  Future<void> _handlePrimaryAction() async {
+    final wasDetailsStep = widget.controller.step == CreateStep.details;
+    await widget.controller.continueFlow();
+    if (!mounted ||
+        !wasDetailsStep ||
+        widget.controller.step != CreateStep.details) {
+      return;
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+      _scrollToFirstDetailError();
+    });
+  }
+
+  void _scrollToFirstDetailError() {
+    const errorOrder = <String>[
+      'title',
+      'description',
+      'eventDate',
+      'time',
+      'participantCapacity',
+      'deadline',
+      'languages',
+      'priceType',
+      'price',
+      'images',
+    ];
+
+    for (final field in errorOrder) {
+      if (widget.controller.errorFor(field) == null) {
+        continue;
+      }
+      final context = _detailSectionKeys[field]?.currentContext;
+      if (context == null) {
+        continue;
+      }
+      Scrollable.ensureVisible(
+        context,
+        duration: const Duration(milliseconds: 260),
+        curve: Curves.easeOutCubic,
+        alignment: 0.08,
+      );
+      return;
+    }
   }
 
   @override
@@ -415,7 +480,7 @@ class _CreateFlowPageState extends State<CreateFlowPage> {
                     child: MateyaButton(
                       label: _submitButtonLabel(),
                       enabled: widget.controller.canContinueCurrentStep,
-                      onPressed: widget.controller.continueFlow,
+                      onPressed: _handlePrimaryAction,
                     ),
                   ),
               ],
@@ -466,6 +531,8 @@ class _CreateFlowPageState extends State<CreateFlowPage> {
       CreateStep.details => DetailsStepView(
         key: const ValueKey<String>('details-step'),
         controller: widget.controller,
+        scrollController: _detailsScrollController,
+        sectionKeys: _detailSectionKeys,
         titleController: _titleController,
         descriptionController: _descriptionController,
         priceController: _priceController,

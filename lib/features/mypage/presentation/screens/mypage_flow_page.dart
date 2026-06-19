@@ -10,6 +10,7 @@ import '../../../../shared/permissions/mateya_permission_dialogs.dart';
 import '../../../../shared/platform/external_url_launcher.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../../shared/widgets/mateya_text_field.dart';
+import '../../../../shared/widgets/mateya_report_sheet.dart';
 import '../../../create/application/create_controller.dart';
 import '../../../create/data/create_repository.dart';
 import '../../../create/domain/create_models.dart';
@@ -162,6 +163,7 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
         key: const ValueKey<String>('settings'),
         profile: controller.personalPage!.profile,
         onBack: controller.openPersonalHome,
+        onReport: _openGeneralReportSheet,
         onEditActivityRegion: _openActivityRegionDialog,
         onOpenConsentHistory: controller.openConsentHistory,
         onOpenPrivacyPolicy: _openPrivacyPolicy,
@@ -206,6 +208,10 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
         },
       ),
     };
+  }
+
+  Future<void> _openGeneralReportSheet() {
+    return showMateyaReportSheet(context, subjectLabel: 'MateYa');
   }
 
   void _syncFormValues() {

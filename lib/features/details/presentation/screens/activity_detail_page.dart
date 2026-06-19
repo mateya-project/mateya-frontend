@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../../shared/auth/auth_session.dart';
 import '../../../../shared/report/report_repository.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../../shared/widgets/mateya_button.dart';
+import '../../../../shared/widgets/mateya_header.dart';
 import '../../../../shared/widgets/mateya_report_sheet.dart';
 import '../../../mypage/application/mypage_controller.dart';
 import '../../../mypage/data/mypage_repository.dart';
@@ -129,15 +131,38 @@ class _ActivityDetailPageState extends State<ActivityDetailPage> {
     );
   }
 
-  Future<void> _openOtherProfile(String userId) async {
+  Future<void> _openProfile(String userId) async {
     if (userId.isEmpty) {
       return;
     }
+    final session = AuthSessionStore.instance.session;
+    final currentUserId = session?.user.id.toString();
+    final isHostFlow = _isHostRole(session?.user.role);
+    final hasSession = AuthSessionStore.instance.hasSession;
+
+    if (currentUserId != null && currentUserId == userId) {
+      await Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (_) => MyPageFlowPage(
+            controller: MyPageController(
+              repository: hasSession
+                  ? ApiMyPageRepository()
+                  : MockMyPageRepository(),
+              flowKind: isHostFlow ? FlowKind.host : FlowKind.guest,
+            ),
+          ),
+        ),
+      );
+      return;
+    }
+
     await Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (_) => MyPageFlowPage(
           controller: MyPageController(
-            repository: ApiMyPageRepository(),
+            repository: hasSession
+                ? ApiMyPageRepository()
+                : MockMyPageRepository(),
             flowKind: FlowKind.guest,
             initialOtherProfileUserId: userId,
           ),
@@ -164,52 +189,61 @@ class _ActivityDetailPageState extends State<ActivityDetailPage> {
             AsyncPhase.success || AsyncPhase.validationError =>
               detail == null
                   ? const DetailLoadingState()
-                  : Stack(
+                  : Column(
                       children: <Widget>[
-                        CustomScrollView(
-                          slivers: <Widget>[
-                            SliverToBoxAdapter(
-                              child: DetailHeroSection(
-                                detail: detail,
-                                pageController: _pageController,
-                                currentPage: _currentImagePage,
-                                onPageChanged: (value) {
-                                  if (_currentImagePage == value) {
-                                    return;
-                                  }
-                                  setState(() {
-                                    _currentImagePage = value;
-                                  });
-                                },
-                                onBack: () => Navigator.of(context).pop(),
-                                onReport: () =>
-                                    _openReportSheet(detail.activity.title),
-                              ),
-                            ),
-                            SliverToBoxAdapter(
-                              child: DetailBody(
-                                detail: detail,
-                                controller: widget.controller,
-                                onOpenReviews: _openReviewList,
-                                onOpenParticipantRequests:
-                                    _openParticipantRequests,
-                                onHelpfulTap: _handleHelpfulTap,
-                                onOpenOtherProfile: _openOtherProfile,
-                              ),
-                            ),
-                          ],
+                        MateyaHeader.backArrow(
+                          onBack: () => Navigator.of(context).pop(),
+                          onReportTap: () =>
+                              _openReportSheet(detail.activity.title),
                         ),
-                        Positioned(
-                          left: 0,
-                          right: 0,
-                          bottom: 0,
-                          child: DetailBottomBar(
-                            detail: detail,
-                            onFavoriteTap: _handleFavoriteTap,
-                            onShareTap: () => _copyShareUrl(detail.shareUrl),
-                            onJoinTap: _handleJoinTap,
-                            isJoinActionInFlight:
-                                widget.controller.isRequestingJoin,
+                        Expanded(
+                          child: Stack(
+                            children: <Widget>[
+                              CustomScrollView(
+                                slivers: <Widget>[
+                                  SliverToBoxAdapter(
+                                    child: DetailHeroSection(
+                                      detail: detail,
+                                      pageController: _pageController,
+                                      currentPage: _currentImagePage,
+                                      onPageChanged: (value) {
+                                        if (_currentImagePage == value) {
+                                          return;
+                                        }
+                                        setState(() {
+                                          _currentImagePage = value;
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                  SliverToBoxAdapter(
+                                    child: DetailBody(
+                                      detail: detail,
+                                      controller: widget.controller,
+                                      onOpenReviews: _openReviewList,
+                                      onOpenParticipantRequests:
+                                          _openParticipantRequests,
+                                      onHelpfulTap: _handleHelpfulTap,
+                                      onOpenOtherProfile: _openProfile,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Positioned(
+                                left: 0,
+                                right: 0,
+                                bottom: 0,
+                                child: DetailBottomBar(
+                                  detail: detail,
+                                  onFavoriteTap: _handleFavoriteTap,
+                                  onShareTap: () =>
+                                      _copyShareUrl(detail.shareUrl),
+                                  onJoinTap: _handleJoinTap,
+                                  isJoinActionInFlight:
+                                      widget.controller.isRequestingJoin,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
@@ -219,6 +253,11 @@ class _ActivityDetailPageState extends State<ActivityDetailPage> {
       },
     );
   }
+}
+
+bool _isHostRole(String? role) {
+  final normalizedRole = role?.trim().toUpperCase() ?? '';
+  return normalizedRole == 'BUSINESS' || normalizedRole == 'HOST';
 }
 
 class ActivityReviewListPage extends StatefulWidget {
@@ -558,26 +597,7 @@ class _ActivityReviewListPageState extends State<ActivityReviewListPage> {
         final reviews = widget.controller.visibleReviews;
 
         return Scaffold(
-          backgroundColor: AppColors.background,
-          appBar: AppBar(
-            backgroundColor: Colors.white,
-            elevation: 0,
-            foregroundColor: AppColors.textPrimary,
-            titleSpacing: 0,
-            title: Text(
-              detail.activity.title,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            actions: <Widget>[
-              IconButton(
-                onPressed: () =>
-                    _openReportSheet('${detail.activity.title} 리뷰 목록'),
-                icon: const Icon(mateyaReportIcon),
-              ),
-            ],
-          ),
+          backgroundColor: AppColors.appSurface,
           bottomNavigationBar: SafeArea(
             top: false,
             child: Padding(
@@ -588,84 +608,96 @@ class _ActivityReviewListPageState extends State<ActivityReviewListPage> {
               ),
             ),
           ),
-          body: ListView(
-            controller: _scrollController,
-            padding: const EdgeInsets.fromLTRB(20, 20, 20, 120),
+          body: Column(
             children: <Widget>[
-              Text(
-                detail.activity.title,
-                style: Theme.of(
-                  context,
-                ).textTheme.headlineMedium?.copyWith(fontSize: 26),
+              MateyaHeader.backArrow(
+                onBack: () => Navigator.of(context).pop(),
+                onReportTap: () =>
+                    _openReportSheet('${detail.activity.title} 리뷰 목록'),
               ),
-              const SizedBox(height: 20),
-              RatingSummaryPanel(summary: summary),
-              const SizedBox(height: 24),
-              SizedBox(
-                height: 40,
-                child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  itemBuilder: (context, index) {
-                    final option = ReviewSortOption.values[index];
-                    final selected = widget.controller.reviewSort == option;
-                    return ChoiceChip(
-                      label: Text(option.label),
-                      selected: selected,
-                      onSelected: (_) =>
-                          widget.controller.updateReviewSort(option),
-                      showCheckmark: false,
-                      selectedColor: AppColors.brandGreen,
-                      backgroundColor: Colors.white,
-                      side: BorderSide(
-                        color: selected
-                            ? AppColors.brandGreen
-                            : AppColors.divider,
-                      ),
-                      labelStyle: Theme.of(context).textTheme.bodyMedium
-                          ?.copyWith(
-                            color: selected
-                                ? Colors.white
-                                : AppColors.textPrimary,
-                          ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(100),
-                      ),
-                    );
-                  },
-                  separatorBuilder: (_, _) => const SizedBox(width: 8),
-                  itemCount: ReviewSortOption.values.length,
-                ),
-              ),
-              const SizedBox(height: 20),
-              for (
-                var index = 0;
-                index < reviews.length;
-                index += 1
-              ) ...<Widget>[
-                ReviewCard(
-                  review: reviews[index],
-                  onHelpfulTap: () {
-                    _handleHelpfulTap(reviews[index].id);
-                  },
-                  onTranslationTap: reviews[index].supportsTranslation
-                      ? () => widget.controller.toggleTranslation(
-                          reviews[index].id,
-                        )
-                      : null,
-                ),
-                if (index != reviews.length - 1)
-                  Divider(height: 32, color: AppColors.divider),
-              ],
-              if (widget.controller.canLoadMoreReviews)
-                Padding(
-                  padding: const EdgeInsets.only(top: 24),
-                  child: Center(
-                    child: Text(
-                      '스크롤하면 후기를 더 불러옵니다.',
-                      style: Theme.of(context).textTheme.bodySmall,
+              Expanded(
+                child: ListView(
+                  controller: _scrollController,
+                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 120),
+                  children: <Widget>[
+                    Text(
+                      detail.activity.title,
+                      style: Theme.of(
+                        context,
+                      ).textTheme.headlineMedium?.copyWith(fontSize: 26),
                     ),
-                  ),
+                    const SizedBox(height: 18),
+                    RatingSummaryPanel(summary: summary),
+                    const SizedBox(height: 18),
+                    SizedBox(
+                      height: 40,
+                      child: ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        itemBuilder: (context, index) {
+                          final option = ReviewSortOption.values[index];
+                          final selected =
+                              widget.controller.reviewSort == option;
+                          return ChoiceChip(
+                            label: Text(option.label),
+                            selected: selected,
+                            onSelected: (_) =>
+                                widget.controller.updateReviewSort(option),
+                            showCheckmark: false,
+                            selectedColor: AppColors.brandGreen,
+                            backgroundColor: Colors.white,
+                            side: BorderSide(
+                              color: selected
+                                  ? AppColors.brandGreen
+                                  : AppColors.divider,
+                            ),
+                            labelStyle: Theme.of(context).textTheme.bodyMedium
+                                ?.copyWith(
+                                  color: selected
+                                      ? Colors.white
+                                      : AppColors.textPrimary,
+                                ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(100),
+                            ),
+                          );
+                        },
+                        separatorBuilder: (_, _) => const SizedBox(width: 8),
+                        itemCount: ReviewSortOption.values.length,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    for (
+                      var index = 0;
+                      index < reviews.length;
+                      index += 1
+                    ) ...<Widget>[
+                      ReviewCard(
+                        review: reviews[index],
+                        onHelpfulTap: () {
+                          _handleHelpfulTap(reviews[index].id);
+                        },
+                        onTranslationTap: reviews[index].supportsTranslation
+                            ? () => widget.controller.toggleTranslation(
+                                reviews[index].id,
+                              )
+                            : null,
+                      ),
+                      if (index != reviews.length - 1)
+                        const SizedBox(height: 16),
+                    ],
+                    if (widget.controller.canLoadMoreReviews)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 24),
+                        child: Center(
+                          child: Text(
+                            '스크롤하면 후기를 더 불러옵니다.',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
+              ),
             ],
           ),
         );

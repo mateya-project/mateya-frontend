@@ -161,16 +161,46 @@ class _HeaderTrailingActions extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
         if (onReportTap != null) ...<Widget>[
-          _HeaderGlyphButton(
-            onTap: onReportTap,
-            icon: mateyaReportIcon,
-            size: 32,
-            color: AppColors.textPrimary,
-          ),
+          _HeaderReportButton(onTap: onReportTap),
           const SizedBox(width: 8),
         ],
         _LanguageButton(onTap: onLanguageTap),
       ],
+    );
+  }
+}
+
+class _HeaderReportButton extends StatelessWidget {
+  const _HeaderReportButton({required this.onTap});
+
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      shape: const CircleBorder(),
+      child: InkResponse(
+        onTap: onTap,
+        radius: 24,
+        highlightShape: BoxShape.circle,
+        child: Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            shape: BoxShape.circle,
+            border: Border.all(color: AppColors.divider),
+          ),
+          child: const Center(
+            child: Icon(
+              mateyaReportIcon,
+              size: 24,
+              color: AppColors.textPrimary,
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

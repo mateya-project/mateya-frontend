@@ -24,6 +24,7 @@ class ReviewComposerSheet extends StatefulWidget {
 
 class _ReviewComposerSheetState extends State<ReviewComposerSheet> {
   static const int _maxImageCount = 5;
+  static const int _gridColumnCount = 3;
 
   final ImagePicker _imagePicker = ImagePicker();
   final TextEditingController _bodyController = TextEditingController();
@@ -149,6 +150,9 @@ class _ReviewComposerSheetState extends State<ReviewComposerSheet> {
     }
     setState(() {
       final item = _images.removeAt(fromIndex);
+      if (toIndex > _images.length) {
+        toIndex = _images.length;
+      }
       _images.insert(toIndex, item);
       _draggingIndex = null;
     });
@@ -245,84 +249,106 @@ class _ReviewComposerSheetState extends State<ReviewComposerSheet> {
                     ),
                   ),
                   const SizedBox(height: 18),
-                  Row(
-                    children: <Widget>[
-                      Expanded(
-                        child: Text(
-                          '사진 첨부 (${_images.length}/$_maxImageCount)',
-                          style: Theme.of(
-                            context,
-                          ).textTheme.titleLarge?.copyWith(fontSize: 17),
-                        ),
-                      ),
-                      TextButton.icon(
-                        onPressed: _images.length >= _maxImageCount
-                            ? null
-                            : _pickImages,
-                        icon: const Icon(Icons.add_photo_alternate_outlined),
-                        label: const Text('추가'),
-                      ),
-                    ],
+                  Text(
+                    '이미지 (최대 5장)',
+                    style: Theme.of(
+                      context,
+                    ).textTheme.titleLarge?.copyWith(fontSize: 17),
                   ),
                   const SizedBox(height: 8),
-                  if (_images.isNotEmpty)
-                    SizedBox(
-                      height: 92,
-                      child: ListView.separated(
-                        scrollDirection: Axis.horizontal,
-                        itemBuilder: (context, index) => DragTarget<int>(
-                          onWillAcceptWithDetails: (details) =>
-                              details.data != index,
-                          onAcceptWithDetails: (details) =>
-                              _moveImage(details.data, index),
-                          builder: (context, candidateData, rejectedData) {
-                            final item = _images[index];
-                            final isDragging = _draggingIndex == index;
-                            return Opacity(
-                              opacity: isDragging ? 0.6 : 1,
-                              child: LongPressDraggable<int>(
-                                data: index,
-                                onDragStarted: () =>
-                                    setState(() => _draggingIndex = index),
-                                onDragEnd: (_) =>
-                                    setState(() => _draggingIndex = null),
-                                feedback: Material(
-                                  color: Colors.transparent,
-                                  child: ReviewImageTile(
-                                    imagePath: item.path,
-                                    index: index,
-                                    onRemove: null,
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      const spacing = 10.0;
+                      final slotWidth =
+                          (constraints.maxWidth -
+                              (_gridColumnCount - 1) * spacing) /
+                          _gridColumnCount;
+                      final slotCount = _maxImageCount;
+
+                      return Wrap(
+                        spacing: spacing,
+                        runSpacing: spacing,
+                        children: List<Widget>.generate(slotCount, (slotIndex) {
+                          final hasImage = slotIndex < _images.length;
+                          final isPrimaryAddSlot =
+                              !hasImage && slotIndex == _images.length;
+
+                          if (hasImage) {
+                            final item = _images[slotIndex];
+                            final isDragging = _draggingIndex == slotIndex;
+                            return DragTarget<int>(
+                              onWillAcceptWithDetails: (details) =>
+                                  details.data != slotIndex,
+                              onAcceptWithDetails: (details) =>
+                                  _moveImage(details.data, slotIndex),
+                              builder: (context, candidateData, rejectedData) {
+                                return SizedBox(
+                                  width: slotWidth,
+                                  height: slotWidth,
+                                  child: Opacity(
+                                    opacity: isDragging ? 0.45 : 1,
+                                    child: LongPressDraggable<int>(
+                                      data: slotIndex,
+                                      onDragStarted: () => setState(
+                                        () => _draggingIndex = slotIndex,
+                                      ),
+                                      onDragEnd: (_) =>
+                                          setState(() => _draggingIndex = null),
+                                      feedback: Material(
+                                        color: Colors.transparent,
+                                        child: SizedBox(
+                                          width: slotWidth,
+                                          height: slotWidth,
+                                          child: ReviewImageTile(
+                                            imagePath: item.path,
+                                            index: slotIndex,
+                                            onRemove: null,
+                                          ),
+                                        ),
+                                      ),
+                                      child: ReviewImageTile(
+                                        imagePath: item.path,
+                                        index: slotIndex,
+                                        onRemove: () => setState(
+                                          () => _images.removeAt(slotIndex),
+                                        ),
+                                      ),
+                                    ),
                                   ),
-                                ),
-                                child: ReviewImageTile(
-                                  imagePath: item.path,
-                                  index: index,
-                                  onRemove: () =>
-                                      setState(() => _images.removeAt(index)),
-                                ),
-                              ),
+                                );
+                              },
                             );
-                          },
-                        ),
-                        separatorBuilder: (_, _) => const SizedBox(width: 10),
-                        itemCount: _images.length,
-                      ),
-                    )
-                  else
-                    Container(
-                      height: 92,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: AppColors.divider),
-                        color: AppColors.subtleBackground,
-                      ),
-                      alignment: Alignment.center,
-                      child: Text(
-                        '첫 번째 사진이 대표 이미지가 됩니다. 길게 눌러 순서를 바꿀 수 있어요.',
-                        style: Theme.of(context).textTheme.bodySmall,
-                        textAlign: TextAlign.center,
-                      ),
+                          }
+
+                          return DragTarget<int>(
+                            onWillAcceptWithDetails: (details) =>
+                                details.data < _images.length,
+                            onAcceptWithDetails: (details) =>
+                                _moveImage(details.data, _images.length),
+                            builder: (context, candidateData, rejectedData) {
+                              return SizedBox(
+                                width: slotWidth,
+                                height: slotWidth,
+                                child: _ReviewImagePlaceholderTile(
+                                  showAddButton: isPrimaryAddSlot,
+                                  countLabel:
+                                      '${_images.length}/$_maxImageCount',
+                                  onTap: isPrimaryAddSlot ? _pickImages : null,
+                                ),
+                              );
+                            },
+                          );
+                        }),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    '첫 번째 사진이 대표 이미지가 됩니다. 길게 눌러 순서를 바꿀 수 있어요.',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: AppColors.textSecondary,
                     ),
+                  ),
                   const SizedBox(height: 20),
                   MateyaButton(
                     label: _isSubmitting ? '작성 중...' : '작성하기',
@@ -368,4 +394,107 @@ class _ReviewComposerSheetState extends State<ReviewComposerSheet> {
       ),
     );
   }
+}
+
+class _ReviewImagePlaceholderTile extends StatelessWidget {
+  const _ReviewImagePlaceholderTile({
+    required this.showAddButton,
+    required this.countLabel,
+    this.onTap,
+  });
+
+  final bool showAddButton;
+  final String countLabel;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final child = _DashedBorderBox(
+      child: Container(
+        decoration: BoxDecoration(
+          color: const Color(0xFFF6F7F9),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: showAddButton
+            ? Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  const Icon(
+                    Icons.add_a_photo_outlined,
+                    size: 28,
+                    color: AppColors.textMuted,
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    countLabel,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: AppColors.textMuted,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              )
+            : const SizedBox.expand(),
+      ),
+    );
+
+    if (!showAddButton) {
+      return child;
+    }
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: child,
+      ),
+    );
+  }
+}
+
+class _DashedBorderBox extends StatelessWidget {
+  const _DashedBorderBox({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomPaint(
+      painter: _DashedRoundedRectPainter(),
+      child: ClipRRect(borderRadius: BorderRadius.circular(12), child: child),
+    );
+  }
+}
+
+class _DashedRoundedRectPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    const radius = Radius.circular(12);
+    const dashWidth = 6.0;
+    const dashGap = 4.0;
+
+    final rect = Offset.zero & size;
+    final rrect = RRect.fromRectAndRadius(rect.deflate(0.75), radius);
+    final path = Path()..addRRect(rrect);
+    final paint = Paint()
+      ..color = AppColors.fieldBorderLight
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.5;
+
+    for (final metric in path.computeMetrics()) {
+      var distance = 0.0;
+      while (distance < metric.length) {
+        final next = (distance + dashWidth).clamp(
+          0.0,
+          metric.length,
+        ).toDouble();
+        canvas.drawPath(metric.extractPath(distance, next), paint);
+        distance += dashWidth + dashGap;
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

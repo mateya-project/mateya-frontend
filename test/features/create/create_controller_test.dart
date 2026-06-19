@@ -51,6 +51,8 @@ void main() {
       controller.updateEventDate(DateTime(2026, 6, 20));
       controller.updateStartTime(const TimeOfDay(hour: 14, minute: 0));
       controller.updateEndTime(const TimeOfDay(hour: 16, minute: 0));
+      controller.updateDeadlineDate(DateTime(2026, 6, 19));
+      controller.updateDeadlineTime(const TimeOfDay(hour: 18, minute: 0));
       controller.updateParticipantCapacity(8);
       controller.toggleLanguage('ko');
       controller.toggleLanguage('en');
@@ -88,6 +90,36 @@ void main() {
 
       controller.dispose();
     });
+
+    test(
+      'details step stays tappable and exposes inline errors on submit',
+      () async {
+        final controller = CreateController(
+          repository: MockCreateRepository(),
+          categoryRepository: MockActivityCategoryRepository(),
+          flowType: CreateFlowType.classRegistration,
+          now: () => DateTime(2026, 6, 14, 9),
+        );
+
+        await controller.initialize();
+        controller.selectPlace(controller.recommendedPlaces.first);
+        await controller.continueFlow();
+
+        expect(controller.step, CreateStep.details);
+        expect(controller.canContinueCurrentStep, isTrue);
+
+        await controller.continueFlow();
+
+        expect(controller.step, CreateStep.details);
+        expect(controller.errorFor('title'), isNotNull);
+        expect(controller.errorFor('eventDate'), isNotNull);
+        expect(controller.errorFor('deadline'), isNotNull);
+        expect(controller.errorFor('languages'), isNotNull);
+        expect(controller.errorFor('priceType'), isNotNull);
+
+        controller.dispose();
+      },
+    );
 
     test(
       'class category detail reloads recommendations with detail code',

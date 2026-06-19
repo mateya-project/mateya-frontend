@@ -27,7 +27,7 @@ class MateyaBottomNavigation extends StatelessWidget {
     return Material(
       color: Colors.white,
       child: Container(
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
         decoration: BoxDecoration(
           color: Colors.white,
           border: Border(top: BorderSide(color: AppColors.divider)),
@@ -54,31 +54,48 @@ class MateyaBottomNavigation extends StatelessWidget {
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: GestureDetector(
-                  onTap: onPlusTap,
-                  child: Container(
-                    width: 56,
-                    height: 56,
-                    decoration: const BoxDecoration(
-                      color: AppColors.brandGreenLight,
-                      shape: BoxShape.circle,
-                      boxShadow: <BoxShadow>[
-                        BoxShadow(
-                          color: Color(0x14000000),
-                          blurRadius: 2,
-                          offset: Offset(0, 0),
+                child: Transform.translate(
+                  offset: const Offset(0, -6),
+                  child: _TapScale(
+                    pressedScale: 0.92,
+                    borderRadius: BorderRadius.circular(14),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: Ink(
+                        width: 40,
+                        height: 40,
+                        decoration: const BoxDecoration(
+                          color: AppColors.brandGreenLight,
+                          borderRadius: BorderRadius.all(Radius.circular(14)),
+                          boxShadow: <BoxShadow>[
+                            BoxShadow(
+                              color: Color(0x16000000),
+                              blurRadius: 3,
+                              offset: Offset(0, 1),
+                            ),
+                            BoxShadow(
+                              color: Color(0x26000000),
+                              blurRadius: 14,
+                              offset: Offset(0, 10),
+                            ),
+                          ],
                         ),
-                        BoxShadow(
-                          color: Color(0x1F000000),
-                          blurRadius: 8,
-                          offset: Offset(0, 8),
+                        child: InkWell(
+                          borderRadius: const BorderRadius.all(
+                            Radius.circular(14),
+                          ),
+                          splashColor: Colors.white24,
+                          highlightColor: Colors.white10,
+                          onTap: onPlusTap,
+                          child: const Center(
+                            child: Icon(
+                              Icons.add_rounded,
+                              color: Colors.white,
+                              size: 24,
+                            ),
+                          ),
                         ),
-                      ],
-                    ),
-                    child: const Icon(
-                      Icons.add_rounded,
-                      color: Colors.white,
-                      size: 30,
+                      ),
                     ),
                   ),
                 ),
@@ -124,25 +141,77 @@ class _BottomItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final color = active ? AppColors.brandGreenLight : AppColors.navInactive;
 
-    return InkWell(
+    return _TapScale(
       borderRadius: BorderRadius.circular(14),
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            Icon(icon, size: 24, color: color),
-            const SizedBox(height: 6),
-            Text(
-              label,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: color,
-                fontWeight: active ? FontWeight.w700 : FontWeight.w500,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(14),
+        splashColor: color.withValues(alpha: 0.12),
+        highlightColor: color.withValues(alpha: 0.08),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Icon(icon, size: 24, color: color),
+              const SizedBox(height: 6),
+              Text(
+                label,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: color,
+                  fontWeight: active ? FontWeight.w700 : FontWeight.w500,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
+      ),
+    );
+  }
+}
+
+class _TapScale extends StatefulWidget {
+  const _TapScale({
+    required this.child,
+    this.borderRadius,
+    this.pressedScale = 0.96,
+  });
+
+  final Widget child;
+  final BorderRadius? borderRadius;
+  final double pressedScale;
+
+  @override
+  State<_TapScale> createState() => _TapScaleState();
+}
+
+class _TapScaleState extends State<_TapScale> {
+  bool _isPressed = false;
+
+  void _setPressed(bool value) {
+    if (_isPressed == value) {
+      return;
+    }
+    setState(() {
+      _isPressed = value;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final child = widget.borderRadius == null
+        ? widget.child
+        : ClipRRect(borderRadius: widget.borderRadius!, child: widget.child);
+
+    return Listener(
+      onPointerDown: (_) => _setPressed(true),
+      onPointerUp: (_) => _setPressed(false),
+      onPointerCancel: (_) => _setPressed(false),
+      child: AnimatedScale(
+        scale: _isPressed ? widget.pressedScale : 1,
+        duration: const Duration(milliseconds: 110),
+        curve: Curves.easeOutCubic,
+        child: child,
       ),
     );
   }

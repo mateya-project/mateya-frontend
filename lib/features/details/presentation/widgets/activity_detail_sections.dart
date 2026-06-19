@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../../../shared/theme/app_tokens.dart';
-import '../../../../shared/widgets/mateya_report_sheet.dart';
 import '../../../../shared/widgets/mateya_button.dart';
 import '../../application/activity_detail_controller.dart';
 import '../../domain/activity_detail_models.dart';
@@ -16,94 +15,87 @@ class DetailHeroSection extends StatelessWidget {
     required this.pageController,
     required this.currentPage,
     required this.onPageChanged,
-    required this.onBack,
-    required this.onReport,
   });
 
   final ActivityDetail detail;
   final PageController pageController;
   final int currentPage;
   final ValueChanged<int> onPageChanged;
-  final VoidCallback onBack;
-  final VoidCallback onReport;
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 360,
-      child: Stack(
-        children: <Widget>[
-          PageView.builder(
-            controller: pageController,
-            itemCount: detail.imageUrls.length,
-            onPageChanged: onPageChanged,
-            itemBuilder: (context, index) {
-              return NetworkOrFileImage(
-                imageUrl: detail.imageUrls[index],
-                fit: BoxFit.cover,
-              );
-            },
-          ),
-          const Positioned.fill(
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: <Color>[
-                    Color(0x50000000),
-                    Color(0x00000000),
-                    Color(0x38000000),
-                  ],
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: SizedBox(
+          height: 324,
+          child: Stack(
+            children: <Widget>[
+              Positioned.fill(
+                child: PageView.builder(
+                  controller: pageController,
+                  itemCount: detail.imageUrls.length,
+                  onPageChanged: onPageChanged,
+                  itemBuilder: (context, index) {
+                    return NetworkOrFileImage(
+                      imageUrl: detail.imageUrls[index],
+                      fit: BoxFit.cover,
+                    );
+                  },
                 ),
               ),
-            ),
-          ),
-          SafeArea(
-            bottom: false,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-              child: Row(
-                children: <Widget>[
-                  HeroCircleButton(
-                    icon: Icons.arrow_back_rounded,
-                    onTap: onBack,
-                  ),
-                  const Spacer(),
-                  HeroCircleButton(icon: mateyaReportIcon, onTap: onReport),
-                  const SizedBox(width: 8),
-                  CategoryPill(
-                    label: detail.activity.categoryLabel,
-                    filled: true,
-                  ),
-                ],
-              ),
-            ),
-          ),
-          Positioned(
-            left: 20,
-            bottom: 20,
-            child: Row(
-              children: List<Widget>.generate(
-                detail.imageUrls.length,
-                (index) => AnimatedContainer(
-                  duration: const Duration(milliseconds: 180),
-                  margin: EdgeInsets.only(
-                    right: index == detail.imageUrls.length - 1 ? 0 : 6,
-                  ),
-                  width: currentPage == index ? 22 : 8,
-                  height: 8,
+              const Positioned.fill(
+                child: DecoratedBox(
                   decoration: BoxDecoration(
-                    color: currentPage == index
-                        ? Colors.white
-                        : Colors.white.withValues(alpha: 0.45),
-                    borderRadius: BorderRadius.circular(100),
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: <Color>[
+                        Color(0x12000000),
+                        Color(0x00000000),
+                        Color(0x26000000),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
+              Positioned(
+                left: 12,
+                top: 12,
+                child: CategoryPill(
+                  label: detail.activity.categoryLabel,
+                  filled: true,
+                ),
+              ),
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 14,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List<Widget>.generate(
+                    detail.imageUrls.length,
+                    (index) => AnimatedContainer(
+                      duration: const Duration(milliseconds: 180),
+                      margin: EdgeInsets.only(
+                        right: index == detail.imageUrls.length - 1 ? 0 : 6,
+                      ),
+                      width: currentPage == index ? 16 : 6,
+                      height: 6,
+                      decoration: BoxDecoration(
+                        color: currentPage == index
+                            ? Colors.white
+                            : Colors.white.withValues(alpha: 0.5),
+                        borderRadius: BorderRadius.circular(100),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

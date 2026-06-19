@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../shared/media/image_picker_lost_data.dart';
 import '../../../../shared/permissions/mateya_permission_dialogs.dart';
@@ -50,6 +51,8 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
   ];
   static const int _maxAttachmentCount = 10;
   static const int _maxAttachmentBytes = 10 * 1024 * 1024;
+  static const String _pendingAttachmentRecoveryKey =
+      'chat.pending_attachment_recovery';
 
   final ImagePicker _imagePicker = ImagePicker();
   final ReportRepository _reportRepository = ReportRepository();
@@ -199,6 +202,9 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
   }
 
   Future<void> _restoreLostAttachments() async {
+    if (!await _consumePendingAttachmentRecoveryFlag()) {
+      return;
+    }
     final recovery = await recoverLostImagePickerData(
       _imagePicker.retrieveLostData,
       fallbackErrorMessage: '이전에 선택하던 사진을 복구하지 못했어요. 다시 선택해 주세요.',
@@ -287,6 +293,8 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
       return;
     }
 
+    await _markPendingAttachmentRecovery();
+
     try {
       switch (action) {
         case _AttachmentAction.gallery:
@@ -345,7 +353,29 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
         return;
       }
       _showPendingMessage('사진을 불러오지 못했어요. 권한과 파일 상태를 확인해 주세요.');
+    } finally {
+      await _clearPendingAttachmentRecovery();
     }
+  }
+
+  Future<void> _markPendingAttachmentRecovery() async {
+    final preferences = await SharedPreferences.getInstance();
+    await preferences.setBool(_pendingAttachmentRecoveryKey, true);
+  }
+
+  Future<bool> _consumePendingAttachmentRecoveryFlag() async {
+    final preferences = await SharedPreferences.getInstance();
+    final shouldRecover =
+        preferences.getBool(_pendingAttachmentRecoveryKey) ?? false;
+    if (shouldRecover) {
+      await preferences.remove(_pendingAttachmentRecoveryKey);
+    }
+    return shouldRecover;
+  }
+
+  Future<void> _clearPendingAttachmentRecovery() async {
+    final preferences = await SharedPreferences.getInstance();
+    await preferences.remove(_pendingAttachmentRecoveryKey);
   }
 
   Future<void> _consumePickedFiles(
@@ -435,7 +465,7 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
         widget.onBack == null
             ? const MateyaHeader.noBackArrow()
             : MateyaHeader.backArrow(onBack: widget.onBack),
-        const SizedBox(height: 24),
+        const SizedBox(height: 16),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: ChatFilterBar(

@@ -88,12 +88,11 @@ class ApiCreateRepository implements CreateRepository {
         priceText: ((json['priceAmount'] as int?) ?? 0) == 0
             ? ''
             : '${json['priceAmount']}',
-        audienceIds:
-            ((json['targets'] as List<Object?>?) ?? const <Object?>[])
-                .whereType<String>()
-                .map(_audienceFromServerValue)
-                .whereType<String>()
-                .toSet(),
+        audienceIds: ((json['targets'] as List<Object?>?) ?? const <Object?>[])
+            .whereType<String>()
+            .map(_audienceFromServerValue)
+            .whereType<String>()
+            .toSet(),
         images: imageUrls
             .asMap()
             .entries
@@ -224,11 +223,12 @@ class ApiCreateRepository implements CreateRepository {
         'longitude': draft.place.longitude,
         'title': draft.title,
         'description': draft.description.isEmpty ? null : draft.description,
-        'startAt': draft.eventStartsAt.toIso8601String(),
-        'endAt': draft.eventEndsAt.toIso8601String(),
-        'recruitmentDeadlineAt':
-            (draft.registrationDeadlineAt ?? draft.eventStartsAt)
-                .toIso8601String(),
+        'startAt': _toApiInstantString(draft.eventStartsAt),
+        'endAt': _toApiInstantString(draft.eventEndsAt),
+        'recruitmentDeadlineAt': _toApiInstantString(
+          draft.registrationDeadlineAt ??
+              draft.eventStartsAt.subtract(const Duration(minutes: 1)),
+        ),
         'capacity': draft.participantCapacity,
         'languages': draft.languageCodes.toList(growable: false),
         'priceType': draft.priceType == CreatePriceType.free ? 'FREE' : 'PAID',
@@ -265,9 +265,9 @@ class ApiCreateRepository implements CreateRepository {
             (json['placeName'] as String?) ??
             (json['placeAddress'] as String?) ??
             draft.place.name,
-        eventStartsAt: DateTime.parse(
-          json['startAt'] as String? ?? draft.eventStartsAt.toIso8601String(),
-        ),
+        eventStartsAt: json['startAt'] == null
+            ? draft.eventStartsAt
+            : DateTime.parse(json['startAt'] as String),
         chatStatus: ChatProvisionStatus.created,
       );
     } on MateyaApiException catch (error) {

@@ -72,10 +72,6 @@ class _ExploreFilterSheetState extends State<ExploreFilterSheet> {
                   padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
                   child: Row(
                     children: <Widget>[
-                      IconButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        icon: const Icon(Icons.close_rounded),
-                      ),
                       Expanded(
                         child: Text(
                           '필터',
@@ -83,7 +79,10 @@ class _ExploreFilterSheetState extends State<ExploreFilterSheet> {
                           style: Theme.of(context).textTheme.headlineMedium,
                         ),
                       ),
-                      const SizedBox(width: 48),
+                      IconButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        icon: const Icon(Icons.close_rounded),
+                      ),
                     ],
                   ),
                 ),
@@ -145,8 +144,7 @@ class _ExploreFilterSheetState extends State<ExploreFilterSheet> {
                               return FilterChipButton(
                                 label: option.label,
                                 selected: _draft.audiences.contains(option),
-                                inverted:
-                                    option != ActivityAudienceOption.everyone,
+                                inverted: true,
                                 onTap: () => _toggleAudience(option),
                               );
                             }).toList(),
@@ -349,18 +347,31 @@ class _ExploreFilterSheetState extends State<ExploreFilterSheet> {
                         ],
                         Row(
                           children: <Widget>[
-                            Expanded(
-                              child: OutlinedButton(
-                                onPressed: _resetDraft,
-                                child: const Text('초기화'),
+                            TextButton(
+                              onPressed: _resetDraft,
+                              style: TextButton.styleFrom(
+                                foregroundColor: AppColors.textPrimary,
+                                minimumSize: const Size(0, 44),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
                               ),
+                              child: const Text('초기화'),
                             ),
-                            const SizedBox(width: 8),
-                            Expanded(
+                            const Spacer(),
+                            SizedBox(
+                              width: 148,
+                              height: 44,
                               child: FilledButton(
                                 onPressed: _applyAndClose,
                                 style: FilledButton.styleFrom(
                                   backgroundColor: AppColors.brandGreen,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
                                 ),
                                 child: const Text('적용하기'),
                               ),

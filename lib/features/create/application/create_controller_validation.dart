@@ -114,7 +114,9 @@ Map<String, String?> _validateDetailStepFor(CreateController controller) {
 
   final hasDeadlineDate = controller._deadlineDate != null;
   final hasDeadlineTime = controller._deadlineTime != null;
-  if (hasDeadlineDate != hasDeadlineTime) {
+  if (!hasDeadlineDate && !hasDeadlineTime) {
+    errors['deadline'] = '모집 마감 날짜와 시간을 선택해 주세요.';
+  } else if (hasDeadlineDate != hasDeadlineTime) {
     errors['deadline'] = '모집 마감 날짜와 시간을 함께 선택해 주세요.';
   } else if (hasDeadlineDate &&
       hasDeadlineTime &&
