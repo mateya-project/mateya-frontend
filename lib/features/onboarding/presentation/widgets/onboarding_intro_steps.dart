@@ -175,27 +175,30 @@ class ConsentOverlayStepView extends StatelessWidget {
                     Builder(
                       builder: (context) {
                         final document = requiredDocuments[index];
-                        return AgreementRow(
-                          label: '(필수) ${document.title}',
-                          selected: _isAgreementSelected(
-                            agreementState,
-                            document.type,
-                          ),
-                          onChanged: (value) => _toggleAgreementByType(
-                            document.type,
-                            value,
-                            onToggleService: onToggleService,
-                            onTogglePrivacy: onTogglePrivacy,
-                            onToggleLocation: onToggleLocation,
-                            onToggleAge: onToggleAge,
-                          ),
-                          onDetailTap: () =>
-                              _openTermsDetail(context, document),
-                          checkboxKey: ValueKey<String>(
-                            'agreement-checkbox-${document.type.apiType}',
-                          ),
-                          detailKey: ValueKey<String>(
-                            'agreement-detail-${document.type.apiType}',
+                        return Padding(
+                          padding: const EdgeInsets.only(left: 16),
+                          child: AgreementRow(
+                            label: '(필수) ${document.title}',
+                            selected: _isAgreementSelected(
+                              agreementState,
+                              document.type,
+                            ),
+                            onChanged: (value) => _toggleAgreementByType(
+                              document.type,
+                              value,
+                              onToggleService: onToggleService,
+                              onTogglePrivacy: onTogglePrivacy,
+                              onToggleLocation: onToggleLocation,
+                              onToggleAge: onToggleAge,
+                            ),
+                            onDetailTap: () =>
+                                _openTermsDetail(context, document),
+                            checkboxKey: ValueKey<String>(
+                              'agreement-checkbox-${document.type.apiType}',
+                            ),
+                            detailKey: ValueKey<String>(
+                              'agreement-detail-${document.type.apiType}',
+                            ),
                           ),
                         );
                       },

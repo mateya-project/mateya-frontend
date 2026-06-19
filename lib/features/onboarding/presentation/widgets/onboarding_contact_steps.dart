@@ -45,6 +45,7 @@ class _PhoneStepViewState extends State<PhoneStepView> {
   Widget build(BuildContext context) {
     final controller = widget.controller;
     final theme = Theme.of(context);
+    final hasSentVerificationCode = controller.hasSentVerificationCode;
 
     _phoneController.value = _phoneController.value.copyWith(
       text: controller.phoneNumber,
@@ -67,105 +68,83 @@ class _PhoneStepViewState extends State<PhoneStepView> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 const SizedBox(height: 46),
-                Text('휴대폰 정보를 입력해주세요', style: theme.textTheme.headlineLarge),
-                const SizedBox(height: 46),
-                Text('통신사', style: theme.textTheme.titleLarge),
-                const SizedBox(height: 24),
-                SelectableField(
-                  value: controller.carrier,
-                  placeholder: '통신사를 선택해 주세요',
-                  errorText: controller.errorFor('carrier'),
-                  onTap: () => _showOptionSheet(
-                    context: context,
-                    title: '통신사 선택',
-                    options: controller.carriers,
-                    onSelected: controller.selectCarrier,
-                  ),
+                Text(
+                  hasSentVerificationCode ? '인증번호를 입력해주세요' : '휴대폰 번호를 입력해주세요',
+                  style: theme.textTheme.headlineLarge,
                 ),
                 const SizedBox(height: 46),
                 Text('전화번호', style: theme.textTheme.titleLarge),
                 const SizedBox(height: 24),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    SizedBox(
-                      width: 78,
-                      child: SelectableField(
-                        value: controller.countryCode,
-                        placeholder: '+82',
-                        onTap: () => _showOptionSheet(
-                          context: context,
-                          title: '국가번호 선택',
-                          options: controller.countryCodes,
-                          onSelected: controller.selectCountryCode,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: MateyaTextField(
-                        controller: _phoneController,
-                        keyboardType: TextInputType.phone,
-                        inputFormatters: <TextInputFormatter>[
-                          FilteringTextInputFormatter.digitsOnly,
-                          LengthLimitingTextInputFormatter(15),
-                        ],
-                        errorText: controller.errorFor('phone'),
-                        onChanged: controller.updatePhoneNumber,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 46),
-                Text('인증번호를 입력해주세요', style: theme.textTheme.titleLarge),
-                const SizedBox(height: 21),
                 MateyaTextField(
-                  controller: _verificationController,
-                  keyboardType: TextInputType.number,
+                  controller: _phoneController,
+                  readOnly: hasSentVerificationCode,
+                  keyboardType: TextInputType.phone,
                   inputFormatters: <TextInputFormatter>[
                     FilteringTextInputFormatter.digitsOnly,
-                    LengthLimitingTextInputFormatter(6),
+                    LengthLimitingTextInputFormatter(15),
                   ],
-                  errorText: controller.errorFor('verification'),
-                  onChanged: controller.updateVerificationCode,
+                  errorText: controller.errorFor('phone'),
+                  onChanged: controller.updatePhoneNumber,
                 ),
-                const SizedBox(height: 12),
-                Row(
-                  children: <Widget>[
-                    const Icon(
-                      Icons.access_time_rounded,
-                      size: 16,
-                      color: AppColors.textSecondary,
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      _formatDuration(controller.remainingSeconds),
-                      style: theme.textTheme.bodySmall,
-                    ),
-                    const Spacer(),
-                    GestureDetector(
-                      onTap: controller.isAuthLoading
-                          ? null
-                          : () => controller.resendVerificationCode(),
-                      child: Text(
-                        '인증번호 다시받기',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          decoration: TextDecoration.underline,
+                if (hasSentVerificationCode) ...<Widget>[
+                  const SizedBox(height: 46),
+                  Text('인증번호', style: theme.textTheme.titleLarge),
+                  const SizedBox(height: 21),
+                  MateyaTextField(
+                    controller: _verificationController,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: <TextInputFormatter>[
+                      FilteringTextInputFormatter.digitsOnly,
+                      LengthLimitingTextInputFormatter(6),
+                    ],
+                    errorText: controller.errorFor('verification'),
+                    onChanged: controller.updateVerificationCode,
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: <Widget>[
+                      const Icon(
+                        Icons.access_time_rounded,
+                        size: 16,
+                        color: AppColors.textSecondary,
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        _formatDuration(controller.remainingSeconds),
+                        style: theme.textTheme.bodySmall,
+                      ),
+                      const Spacer(),
+                      GestureDetector(
+                        onTap: controller.isAuthLoading
+                            ? null
+                            : () => controller.resendVerificationCode(),
+                        child: Text(
+                          '인증번호 다시받기',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            decoration: TextDecoration.underline,
+                          ),
                         ),
+                      ),
+                    ],
+                  ),
+                  if (controller.debugVerificationCode != null) ...<Widget>[
+                    const SizedBox(height: 12),
+                    Text(
+                      '테스트용 인증번호: ${controller.debugVerificationCode}',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: AppColors.brandGreen,
                       ),
                     ),
                   ],
-                ),
-                if (controller.debugVerificationCode != null) ...<Widget>[
-                  const SizedBox(height: 12),
+                ],
+                SizedBox(height: hasSentVerificationCode ? 120 : 220),
+                if (!hasSentVerificationCode)
                   Text(
-                    '테스트용 인증번호: ${controller.debugVerificationCode}',
+                    '휴대폰 번호를 입력하면 인증번호를 받을 수 있어요.',
                     style: theme.textTheme.bodySmall?.copyWith(
-                      color: AppColors.brandGreen,
+                      color: AppColors.textSecondary,
                     ),
                   ),
-                ],
-                const SizedBox(height: 120),
               ],
             ),
           ),
@@ -181,10 +160,10 @@ class _PhoneStepViewState extends State<PhoneStepView> {
             tone: MateyaButtonTone.dark,
             enabled:
                 !controller.isAuthLoading &&
-                (controller.hasSentVerificationCode
+                (hasSentVerificationCode
                     ? controller.canSubmitVerificationCode
                     : controller.canSendVerificationCode),
-            onPressed: controller.hasSentVerificationCode
+            onPressed: hasSentVerificationCode
                 ? () => controller.submitVerificationCode()
                 : () => controller.sendVerificationCode(),
           ),
@@ -193,48 +172,10 @@ class _PhoneStepViewState extends State<PhoneStepView> {
     );
   }
 
-  Future<void> _showOptionSheet({
-    required BuildContext context,
-    required String title,
-    required List<String> options,
-    required ValueChanged<String> onSelected,
-  }) {
-    return showModalBottomSheet<void>(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) {
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.all(20),
-                child: Text(
-                  title,
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-              ),
-              for (final option in options)
-                ListTile(
-                  title: Text(option),
-                  onTap: () {
-                    onSelected(option);
-                    Navigator.of(context).pop();
-                  },
-                ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
   String _formatDuration(int seconds) {
     final minutes = (seconds ~/ 60).toString().padLeft(2, '0');
     final remainder = (seconds % 60).toString().padLeft(2, '0');
-    return '$minutes : $remainder';
+    return '$minutes:$remainder';
   }
 }
 

@@ -5,11 +5,8 @@ Future<void> _sendVerificationCode(OnboardingController controller) async {
     controller._phoneNumber,
   );
   controller._fieldErrors['phone'] = phoneError;
-  controller._fieldErrors['carrier'] = controller._carrier.isEmpty
-      ? '통신사를 선택해 주세요.'
-      : null;
 
-  if (phoneError != null || controller._carrier.isEmpty) {
+  if (phoneError != null) {
     controller._notifyChanged();
     return;
   }
@@ -23,10 +20,10 @@ Future<void> _sendVerificationCode(OnboardingController controller) async {
       phoneNumber: controller._phoneNumber,
     );
     controller._authPhase = AsyncPhase.success;
+    controller._smsCodeExpiresAt = result.expiresAt;
     controller._expectedVerificationCode = result.debugCode;
     controller._verificationCode = '';
-    controller._resendCount = 1;
-    _startVerificationCountdown(controller);
+    _startVerificationCountdown(controller, result.expiresAt);
     controller._emitToast('인증번호를 발송했어요.');
   } on MateyaApiException catch (error) {
     _applyApiError(controller, error, preferredField: 'phone');
@@ -44,8 +41,11 @@ Future<void> _resendVerificationCode(OnboardingController controller) async {
     controller._emitToast('인증번호는 하루 최대 5번까지 다시 받을 수 있어요.');
     return;
   }
-  controller._resendCount += 1;
   await _sendVerificationCode(controller);
+  if (controller._authPhase == AsyncPhase.success) {
+    controller._resendCount += 1;
+    controller._notifyChanged();
+  }
 }
 
 Future<void> _submitVerificationCode(OnboardingController controller) async {
@@ -105,20 +105,32 @@ Future<void> _submitVerificationCode(OnboardingController controller) async {
   }
 }
 
-void _startVerificationCountdown(OnboardingController controller) {
+void _startVerificationCountdown(
+  OnboardingController controller,
+  DateTime expiresAt,
+) {
   controller._verificationTimer?.cancel();
-  controller._remainingSeconds = 300;
+  controller._remainingSeconds = _secondsUntil(expiresAt);
   controller._verificationTimer = Timer.periodic(const Duration(seconds: 1), (
     timer,
   ) {
     if (controller._remainingSeconds <= 1) {
       controller._remainingSeconds = 0;
       timer.cancel();
+      controller._smsCodeExpiresAt = expiresAt;
     } else {
       controller._remainingSeconds -= 1;
     }
     controller._notifyChanged();
   });
+}
+
+int _secondsUntil(DateTime expiresAt) {
+  final difference = expiresAt.difference(DateTime.now());
+  if (difference.isNegative) {
+    return 0;
+  }
+  return difference.inSeconds;
 }
 
 void _applyApiError(
