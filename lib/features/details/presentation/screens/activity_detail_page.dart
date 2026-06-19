@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../../shared/auth/auth_session.dart';
+import '../../../../shared/navigation/mateya_auth_flow.dart';
 import '../../../../shared/report/report_repository.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../../shared/widgets/mateya_button.dart';
@@ -139,15 +140,17 @@ class _ActivityDetailPageState extends State<ActivityDetailPage> {
     final currentUserId = session?.user.id.toString();
     final isHostFlow = _isHostRole(session?.user.role);
     final hasSession = AuthSessionStore.instance.hasSession;
+    if (!hasSession) {
+      await replaceWithMateyaOnboardingFlow(context);
+      return;
+    }
 
     if (currentUserId != null && currentUserId == userId) {
       await Navigator.of(context).push(
         MaterialPageRoute<void>(
           builder: (_) => MyPageFlowPage(
             controller: MyPageController(
-              repository: hasSession
-                  ? ApiMyPageRepository()
-                  : MockMyPageRepository(),
+              repository: ApiMyPageRepository(),
               flowKind: isHostFlow ? FlowKind.host : FlowKind.guest,
             ),
             onRootBack: () => Navigator.of(context).pop(),
@@ -161,9 +164,7 @@ class _ActivityDetailPageState extends State<ActivityDetailPage> {
       MaterialPageRoute<void>(
         builder: (_) => MyPageFlowPage(
           controller: MyPageController(
-            repository: hasSession
-                ? ApiMyPageRepository()
-                : MockMyPageRepository(),
+            repository: ApiMyPageRepository(),
             flowKind: FlowKind.guest,
             initialOtherProfileUserId: userId,
           ),

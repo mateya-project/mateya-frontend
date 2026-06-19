@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../shared/activity_categories/activity_category_repository.dart';
 import '../../../../shared/auth/auth_session.dart';
+import '../../../../shared/navigation/mateya_auth_flow.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../../shared/widgets/mateya_bottom_navigation.dart';
 import '../../../../shared/widgets/mateya_header.dart';
@@ -53,6 +54,7 @@ class _HomeFlowPageState extends State<HomeFlowPage> {
   final FocusNode _searchFocusNode = FocusNode();
   bool _isPlusOverlayOpen = false;
   bool _hasInitializedNearbyCultureMap = false;
+  bool _isRedirectingToAuth = false;
 
   @override
   void initState() {
@@ -156,13 +158,15 @@ class _HomeFlowPageState extends State<HomeFlowPage> {
         ? CreateFlowType.classRegistration
         : CreateFlowType.group;
     final hasSession = AuthSessionStore.instance.hasSession;
+    if (!hasSession) {
+      await _redirectToOnboardingIfNeeded();
+      return;
+    }
     final didCreate = await Navigator.of(context).push<bool>(
       MaterialPageRoute<bool>(
         builder: (_) => CreateFlowPage(
           controller: CreateController(
-            repository: hasSession
-                ? ApiCreateRepository()
-                : MockCreateRepository(),
+            repository: ApiCreateRepository(),
             categoryRepository: _activityCategoryRepository,
             flowType: flowType,
           ),
@@ -194,6 +198,10 @@ class _HomeFlowPageState extends State<HomeFlowPage> {
 
   @override
   Widget build(BuildContext context) {
+    if (!AuthSessionStore.instance.hasSession) {
+      unawaited(_redirectToOnboardingIfNeeded());
+      return const Scaffold(body: SizedBox.shrink());
+    }
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -220,6 +228,18 @@ class _HomeFlowPageState extends State<HomeFlowPage> {
         ),
       ),
     );
+  }
+
+  Future<void> _redirectToOnboardingIfNeeded() async {
+    if (_isRedirectingToAuth || !mounted) {
+      return;
+    }
+    _isRedirectingToAuth = true;
+    await AuthSessionStore.instance.flush();
+    if (!mounted) {
+      return;
+    }
+    await replaceWithMateyaOnboardingFlow(context);
   }
 
   void _syncSearchController() {
