@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../../../app/app_config.dart';
 import '../../../../shared/activity_categories/activity_category_repository.dart';
 import '../../../../shared/auth/auth_session.dart';
+import '../../../../shared/media/mateya_gallery_picker.dart';
 import '../../../../shared/network/mateya_api_client.dart';
 import '../../../../shared/permissions/mateya_permission_dialogs.dart';
 import '../../../../shared/platform/external_url_launcher.dart';
@@ -42,6 +43,17 @@ class MyPageFlowPage extends StatefulWidget {
 }
 
 class _MyPageFlowPageState extends State<MyPageFlowPage> {
+  static const MateyaGalleryPickerMessages
+  _profileImagePickerMessages = MateyaGalleryPickerMessages(
+    noticeMessage:
+        '프로필 사진을 변경하려면 사진 보관함 접근 권한이 필요합니다. 권한을 거부하면 현재 프로필 사진은 유지됩니다.',
+    recoveryMessage:
+        '프로필 사진을 변경하려면 사진 보관함 접근 권한이 필요합니다. 다시 시도하거나 앱 설정에서 권한을 허용할 수 있습니다.',
+    failureMessage: '프로필 사진을 불러오지 못했어요. 권한과 파일 상태를 확인해 주세요.',
+    restoreFallbackErrorMessage: '이전에 선택하던 프로필 이미지를 복구하지 못했어요. 다시 선택해 주세요.',
+    restoredCountMessage: _profileImageRestoredCountMessage,
+  );
+
   final ImagePicker _imagePicker = ImagePicker();
   final NeighborhoodLocationRepository _locationRepository =
       DeviceNeighborhoodLocationRepository();
@@ -382,52 +394,16 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
       return;
     }
 
-    final shouldContinue = await showMateyaPermissionNoticeDialog(
+    final pickedFile = await pickMateyaGalleryImage(
       context,
-      title: '사진 권한 안내',
-      message: '프로필 사진을 변경하려면 사진 보관함 접근 권한이 필요합니다. 권한을 거부하면 현재 프로필 사진은 유지됩니다.',
-      confirmLabel: '사진 선택하기',
-      cancelLabel: '나중에',
-      rememberKey: 'permission.notice.photo_library',
+      imagePicker: _imagePicker,
+      messages: _profileImagePickerMessages,
+      maxWidth: 2400,
     );
-    if (!mounted || !shouldContinue) {
+    if (!mounted || pickedFile == null) {
       return;
     }
-
-    try {
-      final pickedFile = await _imagePicker.pickImage(
-        source: ImageSource.gallery,
-        imageQuality: 88,
-        maxWidth: 2400,
-      );
-      if (!mounted || pickedFile == null) {
-        return;
-      }
-      await widget.controller.updateProfileImage(pickedFile.path);
-    } on PlatformException catch (error) {
-      if (!mounted) {
-        return;
-      }
-      if (error.code == 'photo_access_denied') {
-        final action = await showMateyaPermissionRecoveryDialog(
-          context,
-          title: '사진 권한이 필요해요',
-          message:
-              '프로필 사진을 변경하려면 사진 보관함 접근 권한이 필요합니다. 다시 시도하거나 앱 설정에서 권한을 허용할 수 있습니다.',
-          retryLabel: '다시 시도',
-        );
-        if (!mounted) {
-          return;
-        }
-        if (action == MateyaPermissionRecoveryAction.retry) {
-          await _pickProfileImage();
-          return;
-        }
-      }
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('프로필 사진을 불러오지 못했어요. 권한과 파일 상태를 확인해 주세요.')),
-      );
-    }
+    await widget.controller.updateProfileImage(pickedFile.path);
   }
 
   Future<void> _openActivityRegionDialog() async {
@@ -713,4 +689,8 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
       (_) => false,
     );
   }
+}
+
+String _profileImageRestoredCountMessage(int restoredCount) {
+  return '이전에 선택하던 프로필 이미지 $restoredCount장을 복구했어요.';
 }

@@ -132,3 +132,24 @@ Future<List<XFile>> pickMateyaGalleryImages(
   messenger?.showSnackBar(SnackBar(content: Text(messages.failureMessage)));
   return const <XFile>[];
 }
+
+Future<XFile?> pickMateyaGalleryImage(
+  BuildContext context, {
+  required ImagePicker imagePicker,
+  required MateyaGalleryPickerMessages messages,
+  int imageQuality = 88,
+  double? maxWidth,
+}) async {
+  final picked = await pickMateyaGalleryImages(
+    context,
+    imagePicker: imagePicker,
+    availableSlots: 1,
+    messages: messages,
+    imageQuality: imageQuality,
+    maxWidth: maxWidth,
+  );
+  if (picked.isEmpty) {
+    return null;
+  }
+  return picked.first;
+}
