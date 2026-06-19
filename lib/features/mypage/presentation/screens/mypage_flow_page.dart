@@ -8,7 +8,7 @@ import '../../../../app/app_config.dart';
 import '../../../../shared/activity_categories/activity_category_repository.dart';
 import '../../../../shared/auth/auth_session.dart';
 import '../../../../shared/media/mateya_gallery_picker.dart';
-import '../../../../shared/network/mateya_api_client.dart';
+import '../../../../shared/navigation/mateya_auth_flow.dart';
 import '../../../../shared/permissions/mateya_permission_dialogs.dart';
 import '../../../../shared/platform/external_url_launcher.dart';
 import '../../../../shared/theme/app_tokens.dart';
@@ -18,12 +18,9 @@ import '../../../create/application/create_controller.dart';
 import '../../../create/data/create_repository.dart';
 import '../../../create/domain/create_models.dart';
 import '../../../create/presentation/screens/create_flow_page.dart';
-import '../../../onboarding/application/onboarding_controller.dart';
-import '../../../onboarding/data/auth_repository.dart';
 import '../../../onboarding/data/location_repository.dart';
 import '../../../onboarding/domain/onboarding_flow.dart';
 import '../../../onboarding/domain/onboarding_terms.dart';
-import '../../../onboarding/presentation/screens/onboarding_flow_page.dart';
 import '../../../onboarding/presentation/screens/onboarding_terms_detail_page.dart';
 import '../../../onboarding/presentation/widgets/onboarding_shared_widgets.dart';
 import '../../application/mypage_controller.dart';
@@ -366,16 +363,19 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
     CreateFlowType flowType,
   ) async {
     final hasSession = AuthSessionStore.instance.hasSession;
+    if (!hasSession) {
+      if (!mounted) {
+        return;
+      }
+      await replaceWithMateyaOnboardingFlow(context);
+      return;
+    }
     final didChange = await Navigator.of(context).push<bool>(
       MaterialPageRoute<bool>(
         builder: (_) => CreateFlowPage(
           controller: CreateController(
-            repository: hasSession
-                ? ApiCreateRepository()
-                : MockCreateRepository(),
-            categoryRepository: hasSession
-                ? ApiActivityCategoryRepository()
-                : MockActivityCategoryRepository(),
+            repository: ApiCreateRepository(),
+            categoryRepository: ApiActivityCategoryRepository(),
             flowType: flowType,
             isEditMode: true,
             editingId: activity.id,
@@ -670,24 +670,7 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
     if (!mounted) {
       return;
     }
-
-    await Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute<void>(
-        builder: (_) => OnboardingFlowPage(
-          controller: OnboardingController(
-            locationRepository: DeviceNeighborhoodLocationRepository(),
-            authRepository: ApiOnboardingAuthRepository(
-              apiClient: MateyaApiClient(
-                baseUrl: AppConfig.apiBaseUrl,
-                sessionStore: AuthSessionStore.instance,
-              ),
-            ),
-            authSessionStore: AuthSessionStore.instance,
-          ),
-        ),
-      ),
-      (_) => false,
-    );
+    await replaceWithMateyaOnboardingFlow(context);
   }
 }
 
