@@ -20,21 +20,21 @@ const PersonalMyPageData _personalPage = PersonalMyPageData(
     ActivityBadge(
       id: 'traditional',
       label: 'traditional!',
-      categoryLabel: '전통문화',
+      categoryLabel: '문화/전통',
+      badgeCode: 'TRADITIONAL',
     ),
-    ActivityBadge(id: 'food', label: 'food lover', categoryLabel: '음식체험'),
     ActivityBadge(
-      id: 'language',
-      label: 'language sharing',
-      categoryLabel: '언어교환',
+      id: 'walk',
+      label: 'tourist',
+      categoryLabel: '관광지',
+      badgeCode: 'TOURIST',
     ),
-    ActivityBadge(id: 'walk', label: 'tourist', categoryLabel: '관광/산책'),
   ],
   recentActivities: <ActivityHistoryEntry>[
     ActivityHistoryEntry(
       id: 'recent-1',
-      categoryLabel: '언어교환',
-      title: '홍대 영어-한국어 언어교환',
+      categoryLabel: '문화/전통',
+      title: '북촌 한옥 산책',
       dateLabel: '2026.06.12',
       timeLabel: '19:30 - 21:30',
       priceLabel: '10,000원',
@@ -45,7 +45,7 @@ const PersonalMyPageData _personalPage = PersonalMyPageData(
     ),
     ActivityHistoryEntry(
       id: 'recent-2',
-      categoryLabel: '음식체험',
+      categoryLabel: '쇼핑',
       title: '광장시장 야식 투어',
       dateLabel: '2026.06.08',
       timeLabel: '20:00 - 23:00',
@@ -57,7 +57,7 @@ const PersonalMyPageData _personalPage = PersonalMyPageData(
     ),
     ActivityHistoryEntry(
       id: 'recent-3',
-      categoryLabel: '관광/산책',
+      categoryLabel: '관광지',
       title: '한강 밤 산책',
       dateLabel: '2026.06.01',
       timeLabel: '20:30 - 22:30',
@@ -89,18 +89,23 @@ const OtherProfileData _otherProfile = OtherProfileData(
     ProfileMetric(label: '작성 리뷰', value: '17'),
   ],
   badges: <ActivityBadge>[
-    ActivityBadge(id: 'festival', label: 'festive!', categoryLabel: '지역축제'),
+    ActivityBadge(
+      id: 'festival',
+      label: 'festive!',
+      categoryLabel: '행사/공연/축제',
+      badgeCode: 'FESTIVE',
+    ),
     ActivityBadge(
       id: 'sports',
       label: 'active person',
-      categoryLabel: '스포츠/액티비티',
+      categoryLabel: '액티비티/레포츠',
+      badgeCode: 'ACTIVE_PERSON',
     ),
-    ActivityBadge(id: 'craft', label: 'craftsman', categoryLabel: '공예'),
   ],
   recentActivities: <ActivityHistoryEntry>[
     ActivityHistoryEntry(
       id: 'other-recent-1',
-      categoryLabel: '스포츠/액티비티',
+      categoryLabel: '액티비티/레포츠',
       title: '초보자 풋살 매칭',
       dateLabel: '2026.06.11',
       timeLabel: '18:30 - 20:30',
@@ -112,7 +117,7 @@ const OtherProfileData _otherProfile = OtherProfileData(
     ),
     ActivityHistoryEntry(
       id: 'other-recent-2',
-      categoryLabel: '공예',
+      categoryLabel: '문화/전통',
       title: '이천 도자기 핸드빌딩 체험',
       dateLabel: '2026.06.05',
       timeLabel: '13:00 - 16:00',
@@ -124,7 +129,7 @@ const OtherProfileData _otherProfile = OtherProfileData(
     ),
     ActivityHistoryEntry(
       id: 'other-recent-3',
-      categoryLabel: '지역축제',
+      categoryLabel: '행사/공연/축제',
       title: '수원 야행 같이 가요',
       dateLabel: '2026.05.29',
       timeLabel: '18:00 - 22:00',
@@ -203,8 +208,8 @@ const RecentActivityData _recentActivity = RecentActivityData(
   activities: <ActivityHistoryEntry>[
     ActivityHistoryEntry(
       id: 'list-1',
-      categoryLabel: '언어교환',
-      title: '홍대 영어-한국어 언어교환',
+      categoryLabel: '문화/전통',
+      title: '북촌 한옥 산책',
       dateLabel: '2026.06.12',
       timeLabel: '19:30 - 21:30',
       priceLabel: '10,000원',
@@ -215,7 +220,7 @@ const RecentActivityData _recentActivity = RecentActivityData(
     ),
     ActivityHistoryEntry(
       id: 'list-2',
-      categoryLabel: '전통문화',
+      categoryLabel: '문화/전통',
       title: '북촌 한옥 티 클래스',
       dateLabel: '2026.06.10',
       timeLabel: '14:00 - 16:00',
@@ -228,7 +233,7 @@ const RecentActivityData _recentActivity = RecentActivityData(
     ),
     ActivityHistoryEntry(
       id: 'list-3',
-      categoryLabel: '음식체험',
+      categoryLabel: '쇼핑',
       title: '광장시장 야식 투어',
       dateLabel: '2026.06.08',
       timeLabel: '20:00 - 23:00',
@@ -240,7 +245,7 @@ const RecentActivityData _recentActivity = RecentActivityData(
     ),
     ActivityHistoryEntry(
       id: 'list-4',
-      categoryLabel: '관광/산책',
+      categoryLabel: '관광지',
       title: '한강 밤 산책',
       dateLabel: '2026.06.01',
       timeLabel: '20:30 - 22:30',
@@ -252,7 +257,7 @@ const RecentActivityData _recentActivity = RecentActivityData(
     ),
     ActivityHistoryEntry(
       id: 'list-5',
-      categoryLabel: '관광/산책',
+      categoryLabel: '관광지',
       title: '망원시장 먹거리 산책',
       dateLabel: '2026.05.26',
       timeLabel: '11:00 - 14:00',
@@ -289,7 +294,7 @@ const BusinessMyPageData _businessPage = BusinessMyPageData(
   activeExperiences: <ActivityHistoryEntry>[
     ActivityHistoryEntry(
       id: 'host-1',
-      categoryLabel: '전통문화',
+      categoryLabel: '문화/전통',
       title: '북촌 한옥 티 클래스',
       dateLabel: '매주 수/토',
       timeLabel: '14:00 - 16:00',
@@ -302,7 +307,7 @@ const BusinessMyPageData _businessPage = BusinessMyPageData(
     ),
     ActivityHistoryEntry(
       id: 'host-2',
-      categoryLabel: '음식체험',
+      categoryLabel: '쇼핑',
       title: '김치 만들기 원데이 클래스',
       dateLabel: '매주 금요일',
       timeLabel: '18:30 - 20:30',
@@ -315,7 +320,7 @@ const BusinessMyPageData _businessPage = BusinessMyPageData(
     ),
     ActivityHistoryEntry(
       id: 'host-3',
-      categoryLabel: '관광/산책',
+      categoryLabel: '관광지',
       title: '성수 골목 로컬 워킹 투어',
       dateLabel: '매주 일요일',
       timeLabel: '10:00 - 12:30',

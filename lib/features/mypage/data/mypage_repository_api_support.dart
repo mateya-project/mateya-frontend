@@ -283,14 +283,14 @@ String _countryLabel(String code) {
 }
 
 String _categoryLabel(String? code) => switch (code) {
-  'TOURIST_ATTRACTION' => '관광/산책',
-  'TRAVEL_COURSE' => '관광/산책',
-  'CULTURE_TRADITION' => '전통문화',
-  'EVENT_PERFORMANCE_FESTIVAL' => '지역축제',
-  'SPORTS' => '스포츠/액티비티',
-  'ACTIVITY_LEPORTS' => '스포츠/액티비티',
-  'SHOPPING' => '음식체험',
-  'PUBLIC_FACILITY' => '기타',
+  'TOURIST_ATTRACTION' => '관광지',
+  'TRAVEL_COURSE' => '여행코스',
+  'CULTURE_TRADITION' => '문화/전통',
+  'EVENT_PERFORMANCE_FESTIVAL' => '행사/공연/축제',
+  'SPORTS' => '스포츠',
+  'ACTIVITY_LEPORTS' => '액티비티/레포츠',
+  'SHOPPING' => '쇼핑',
+  'PUBLIC_FACILITY' => '공공시설',
   _ => '기타',
 };
 

@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import '../../../features/onboarding/domain/onboarding_flow.dart';
+import 'mypage_badge_celebration_store.dart';
 import '../data/mypage_repository.dart';
 import '../domain/mypage_models.dart';
 
@@ -9,11 +10,15 @@ class MyPageController extends ChangeNotifier {
     required this.repository,
     required this.flowKind,
     this.initialOtherProfileUserId,
-  });
+    MyPageBadgeCelebrationStore? badgeCelebrationStore,
+  }) : badgeCelebrationStore =
+           badgeCelebrationStore ??
+           SharedPreferencesMyPageBadgeCelebrationStore();
 
   final MyPageRepository repository;
   final FlowKind? flowKind;
   final String? initialOtherProfileUserId;
+  final MyPageBadgeCelebrationStore badgeCelebrationStore;
 
   MyPageAsyncPhase _phase = MyPageAsyncPhase.idle;
   MyPageRoute _route = MyPageRoute.personalHome;
@@ -28,6 +33,9 @@ class MyPageController extends ChangeNotifier {
   String? _errorMessage;
   String? _toastMessage;
   int _toastVersion = 0;
+  List<ActivityBadge> _pendingBadgeCelebrations = <ActivityBadge>[];
+  ActivityBadge? _activeBadgeCelebration;
+  int _badgeCelebrationVersion = 0;
   bool _isSavingPreferences = false;
   bool _isUpdatingFriendship = false;
   bool _isSavingBusinessIntroduction = false;
@@ -52,6 +60,8 @@ class MyPageController extends ChangeNotifier {
   String? get errorMessage => _errorMessage;
   String? get toastMessage => _toastMessage;
   int get toastVersion => _toastVersion;
+  ActivityBadge? get activeBadgeCelebration => _activeBadgeCelebration;
+  int get badgeCelebrationVersion => _badgeCelebrationVersion;
   bool get isSavingPreferences => _isSavingPreferences;
   bool get isUpdatingFriendship => _isUpdatingFriendship;
   bool get isSavingBusinessIntroduction => _isSavingBusinessIntroduction;
@@ -79,6 +89,17 @@ class MyPageController extends ChangeNotifier {
 
   void clearToast() {
     _toastMessage = null;
+  }
+
+  void dismissBadgeCelebration() {
+    if (_pendingBadgeCelebrations.isEmpty) {
+      _activeBadgeCelebration = null;
+      notifyListeners();
+      return;
+    }
+    _activeBadgeCelebration = _pendingBadgeCelebrations.removeAt(0);
+    _badgeCelebrationVersion += 1;
+    notifyListeners();
   }
 
   void clearError() {
@@ -546,6 +567,11 @@ class MyPageController extends ChangeNotifier {
       _countryOptions = bundle.countryOptions;
       _consentHistory = bundle.consentHistory;
       _blockedUsers = bundle.blockedUsers;
+      try {
+        await _enqueueBadgeCelebrations(bundle.personalPage);
+      } catch (_) {
+        // 로컬 축하 팝업 저장소 실패는 마이페이지 로드를 막지 않는다.
+      }
       _phase = MyPageAsyncPhase.success;
       _errorMessage = null;
     } on MyPageRepositoryException catch (error) {
@@ -568,6 +594,28 @@ class MyPageController extends ChangeNotifier {
   void _pushToast(String message) {
     _toastMessage = message;
     _toastVersion += 1;
+  }
+
+  Future<void> _enqueueBadgeCelebrations(
+    PersonalMyPageData personalPage,
+  ) async {
+    final newBadges = await badgeCelebrationStore.collectNewBadges(
+      userId: personalPage.profile.id,
+      badges: personalPage.badges,
+    );
+    if (newBadges.isEmpty) {
+      return;
+    }
+    if (_activeBadgeCelebration == null) {
+      _activeBadgeCelebration = newBadges.first;
+      _pendingBadgeCelebrations = newBadges.skip(1).toList(growable: true);
+      _badgeCelebrationVersion += 1;
+      return;
+    }
+    _pendingBadgeCelebrations = <ActivityBadge>[
+      ..._pendingBadgeCelebrations,
+      ...newBadges,
+    ];
   }
 
   void _clearErrorWithoutNotify() {
