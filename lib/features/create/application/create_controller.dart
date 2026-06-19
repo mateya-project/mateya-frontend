@@ -169,6 +169,9 @@ class CreateController extends ChangeNotifier {
     if (isSubmitLoading || isDeleteLoading) {
       return false;
     }
+    if (_step == CreateStep.details) {
+      return true;
+    }
     return _validateStep(step).isEmpty;
   }
 

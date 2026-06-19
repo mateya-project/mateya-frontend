@@ -54,6 +54,8 @@ CreatePlaceSuggestion _parsePlaceSuggestion(Object? value) {
     address: json['address'] as String? ?? '',
     description: _composePlaceDescription(json),
     distanceKm: ((json['distanceKm'] as num?) ?? 0).round(),
+    imageUrl: json['imageUrl'] as String?,
+    thumbnailUrl: json['thumbnailUrl'] as String?,
     latitude: (json['latitude'] as num?)?.toDouble(),
     longitude: (json['longitude'] as num?)?.toDouble(),
     categoryIds: clientCategoryId == null
@@ -137,6 +139,8 @@ String _remoteImageName(String imageUrl) {
       : imageUrl.split('/').last;
   return segment.isEmpty ? 'image' : segment;
 }
+
+String _toApiInstantString(DateTime value) => value.toUtc().toIso8601String();
 
 CreateRepositoryException _mapApiException(MateyaApiException error) {
   if (error.type == ApiFailureType.network) {

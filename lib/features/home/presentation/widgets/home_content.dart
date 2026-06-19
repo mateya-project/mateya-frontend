@@ -28,7 +28,7 @@ class HomeScreen extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
       child: Column(
         children: <Widget>[
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
           HomeSearchBar(
             readOnly: true,
             hintText: '언제든 어디서든',
@@ -126,7 +126,7 @@ class ExploreScreen extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
       child: Column(
         children: <Widget>[
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
           HomeSearchBar(
             controller: searchController,
             focusNode: searchFocusNode,

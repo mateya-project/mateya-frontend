@@ -129,7 +129,7 @@ class _HomeFlowPageState extends State<HomeFlowPage> {
         ? CreateFlowType.classRegistration
         : CreateFlowType.group;
     final hasSession = AuthSessionStore.instance.hasSession;
-    await Navigator.of(context).push(
+    final didCreate = await Navigator.of(context).push<bool>(
       MaterialPageRoute<bool>(
         builder: (_) => CreateFlowPage(
           controller: CreateController(
@@ -142,6 +142,12 @@ class _HomeFlowPageState extends State<HomeFlowPage> {
         ),
       ),
     );
+    if (didCreate == true) {
+      await Future.wait<void>(<Future<void>>[
+        _chatController.retryRooms(),
+        _myPageController.retry(),
+      ]);
+    }
   }
 
   Future<void> _openActivityDetail(ActivityItem activity) async {

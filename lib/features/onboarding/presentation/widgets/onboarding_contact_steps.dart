@@ -67,12 +67,12 @@ class _PhoneStepViewState extends State<PhoneStepView> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                const SizedBox(height: 46),
+                const SizedBox(height: 32),
                 Text(
                   hasSentVerificationCode ? '인증번호를 입력해주세요' : '휴대폰 번호를 입력해주세요',
                   style: theme.textTheme.headlineLarge,
                 ),
-                const SizedBox(height: 46),
+                const SizedBox(height: 32),
                 Text('전화번호', style: theme.textTheme.titleLarge),
                 const SizedBox(height: 24),
                 MateyaTextField(

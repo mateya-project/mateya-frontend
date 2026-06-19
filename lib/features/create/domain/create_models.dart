@@ -43,6 +43,8 @@ class CreatePlaceSuggestion {
     required this.address,
     required this.description,
     required this.distanceKm,
+    this.imageUrl,
+    this.thumbnailUrl,
     this.latitude,
     this.longitude,
     this.categoryIds = const <String>{},
@@ -56,6 +58,8 @@ class CreatePlaceSuggestion {
   final String address;
   final String description;
   final int distanceKm;
+  final String? imageUrl;
+  final String? thumbnailUrl;
   final double? latitude;
   final double? longitude;
   final Set<String> categoryIds;
@@ -64,6 +68,8 @@ class CreatePlaceSuggestion {
   final String? categoryDetailName;
 
   bool get hasCoordinates => latitude != null && longitude != null;
+
+  String? get previewImageUrl => thumbnailUrl ?? imageUrl;
 }
 
 class CreateImageAsset {

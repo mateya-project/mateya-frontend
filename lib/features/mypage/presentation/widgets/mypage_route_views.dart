@@ -6,6 +6,7 @@ import '../../../../shared/widgets/mateya_header.dart';
 import '../../../../shared/widgets/mateya_text_field.dart';
 import '../../domain/mypage_models.dart';
 import 'mypage_activity_widgets.dart';
+import 'mypage_badge_catalog.dart';
 import 'mypage_section_widgets.dart';
 
 class PersonalMyPageView extends StatelessWidget {
@@ -35,24 +36,12 @@ class PersonalMyPageView extends StatelessWidget {
           child: ListView(
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
             children: <Widget>[
-              Align(
-                alignment: Alignment.centerRight,
-                child: IconButton(
-                  onPressed: onOpenSettings,
-                  icon: const Icon(Icons.settings_outlined),
-                  color: AppColors.textPrimary,
-                  style: IconButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      side: const BorderSide(color: AppColors.divider),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
               _CenteredProfileCard(
                 profile: data.profile,
+                topRightAction: _CardCornerActionButton(
+                  icon: Icons.settings_outlined,
+                  onTap: onOpenSettings,
+                ),
                 avatarAction: _AvatarActionButton(
                   icon: isUpdatingProfileImage
                       ? Icons.hourglass_top_rounded
@@ -156,6 +145,7 @@ class SettingsView extends StatelessWidget {
     super.key,
     required this.profile,
     required this.onBack,
+    required this.onReport,
     required this.onEditActivityRegion,
     required this.onOpenConsentHistory,
     required this.onOpenPrivacyPolicy,
@@ -167,6 +157,7 @@ class SettingsView extends StatelessWidget {
 
   final ProfileSummary profile;
   final VoidCallback onBack;
+  final VoidCallback onReport;
   final VoidCallback onEditActivityRegion;
   final VoidCallback onOpenConsentHistory;
   final VoidCallback onOpenPrivacyPolicy;
@@ -179,7 +170,7 @@ class SettingsView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: <Widget>[
-        MateyaHeader.backArrow(onBack: onBack),
+        MateyaHeader.backArrow(onBack: onBack, onReportTap: onReport),
         Expanded(
           child: CustomScrollView(
             slivers: <Widget>[
@@ -478,25 +469,11 @@ class RecentActivitiesView extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              MyPageStatsCard(
-                items: <ProfileMetric>[
-                  ProfileMetric(
-                    label: '전체 활동 수',
-                    value: '${data.stats.totalCount}',
-                  ),
-                  ProfileMetric(
-                    label: '개설 활동 수',
-                    value: '${data.stats.hostedCount}',
-                  ),
-                  ProfileMetric(
-                    label: '참여 활동 수',
-                    value: '${data.stats.joinedCount}',
-                  ),
-                  ProfileMetric(
-                    label: '작성 후기 수',
-                    value: '${data.stats.reviewCount}',
-                  ),
-                ],
+              _RecentActivitySummaryCard(
+                totalCount: data.stats.totalCount,
+                hostedCount: data.stats.hostedCount,
+                joinedCount: data.stats.joinedCount,
+                reviewCount: data.stats.reviewCount,
               ),
               const SizedBox(height: 16),
               for (final activity in data.activities) ...<Widget>[
@@ -516,69 +493,193 @@ class RecentActivitiesView extends StatelessWidget {
   }
 }
 
+class _RecentActivitySummaryCard extends StatelessWidget {
+  const _RecentActivitySummaryCard({
+    required this.totalCount,
+    required this.hostedCount,
+    required this.joinedCount,
+    required this.reviewCount,
+  });
+
+  final int totalCount;
+  final int hostedCount;
+  final int joinedCount;
+  final int reviewCount;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return MyPageSectionCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(
+            '나의 활동 현황',
+            style: theme.textTheme.titleLarge?.copyWith(
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 18),
+          Row(
+            children: <Widget>[
+              Expanded(
+                child: _RecentActivityMetric(
+                  label: '전체',
+                  value: '$totalCount',
+                  highlight: true,
+                ),
+              ),
+              Expanded(
+                child: _RecentActivityMetric(
+                  label: '개설',
+                  value: '$hostedCount',
+                ),
+              ),
+              Expanded(
+                child: _RecentActivityMetric(
+                  label: '참여',
+                  value: '$joinedCount',
+                ),
+              ),
+              Expanded(
+                child: _RecentActivityMetric(
+                  label: '후기',
+                  value: '$reviewCount',
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _RecentActivityMetric extends StatelessWidget {
+  const _RecentActivityMetric({
+    required this.label,
+    required this.value,
+    this.highlight = false,
+  });
+
+  final String label;
+  final String value;
+  final bool highlight;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Column(
+      children: <Widget>[
+        Text(
+          label,
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: AppColors.textSecondary,
+          ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          value,
+          style: theme.textTheme.titleLarge?.copyWith(
+            fontSize: 22,
+            fontWeight: FontWeight.w700,
+            color: highlight ? AppColors.brandGreen : AppColors.textPrimary,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class _CenteredProfileCard extends StatelessWidget {
-  const _CenteredProfileCard({required this.profile, this.avatarAction});
+  const _CenteredProfileCard({
+    required this.profile,
+    this.avatarAction,
+    this.topRightAction,
+  });
 
   final ProfileSummary profile;
   final Widget? avatarAction;
+  final Widget? topRightAction;
 
   @override
   Widget build(BuildContext context) {
     return MyPageSectionCard(
-      child: Column(
+      child: Stack(
         children: <Widget>[
-          Stack(
-            clipBehavior: Clip.none,
-            children: <Widget>[
-              MyPageAvatarImage(imageUrl: profile.profileImageUrl, size: 96),
-              if (avatarAction != null)
-                Positioned(right: -4, bottom: -4, child: avatarAction!),
-            ],
-          ),
-          const SizedBox(height: 20),
-          Text(
-            profile.name,
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              fontSize: 22,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            profile.residence,
-            textAlign: TextAlign.center,
-            style: Theme.of(
-              context,
-            ).textTheme.bodyLarge?.copyWith(color: AppColors.textSecondary),
-          ),
-          const SizedBox(height: 14),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-            decoration: BoxDecoration(
-              color: AppColors.softGreenBorder,
-              borderRadius: BorderRadius.circular(999),
-            ),
-            child: Text(
-              profile.isActiveWithin30Days
-                  ? 'Active member'
-                  : 'Inactive member',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: AppColors.brandGreen,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-          const SizedBox(height: 10),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-            decoration: BoxDecoration(
-              color: AppColors.subtleBackground,
-              borderRadius: BorderRadius.circular(999),
-            ),
-            child: Text(
-              profile.primaryLanguageLabel,
-              style: Theme.of(context).textTheme.bodyMedium,
+          if (topRightAction != null)
+            Positioned(right: 0, top: 0, child: topRightAction!),
+          SizedBox(
+            width: double.infinity,
+            child: Column(
+              children: <Widget>[
+                Stack(
+                  clipBehavior: Clip.none,
+                  children: <Widget>[
+                    MyPageAvatarImage(
+                      imageUrl: profile.profileImageUrl,
+                      size: 96,
+                    ),
+                    if (avatarAction != null)
+                      Positioned(right: -4, bottom: -4, child: avatarAction!),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  profile.name,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  profile.residence,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: 14),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.softGreenBorder,
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: Text(
+                    profile.isActiveWithin30Days
+                        ? 'Active member'
+                        : 'Inactive member',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: AppColors.brandGreen,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 18,
+                    vertical: 10,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.subtleBackground,
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: Text(
+                    profile.primaryLanguageLabel,
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -628,6 +729,10 @@ class _BadgeGridSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final badgeSlots = buildMyPageBadgeSlots(badges);
+    final earnedBadgeCount = badgeSlots.where((slot) => slot.isEarned).length;
+    final badgeWidth = (MediaQuery.sizeOf(context).width - 64) / 3;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
@@ -640,7 +745,7 @@ class _BadgeGridSection extends StatelessWidget {
               ),
             ),
             Text(
-              '${badges.length}/7',
+              '$earnedBadgeCount/$kMyPageBadgeCatalogCount',
               style: Theme.of(
                 context,
               ).textTheme.headlineSmall?.copyWith(color: AppColors.brandGreen),
@@ -651,40 +756,64 @@ class _BadgeGridSection extends StatelessWidget {
         Wrap(
           spacing: 8,
           runSpacing: 10,
-          children: badges
+          children: badgeSlots
               .map(
-                (badge) => Container(
-                  width: (MediaQuery.sizeOf(context).width - 64) / 3,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 18,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(28),
-                    boxShadow: const <BoxShadow>[
-                      BoxShadow(
-                        color: Color(0x12000000),
-                        blurRadius: 18,
-                        offset: Offset(0, 10),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    children: <Widget>[
-                      Text(
-                        badge.label,
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.bodyLarge,
-                      ),
-                    ],
-                  ),
+                (badgeSlot) => SizedBox(
+                  width: badgeWidth,
+                  child: _BadgeGridTile(slot: badgeSlot),
                 ),
               )
               .toList(growable: false),
         ),
       ],
     );
+  }
+}
+
+class _BadgeGridTile extends StatelessWidget {
+  const _BadgeGridTile({required this.slot});
+
+  final MyPageBadgeDisplaySlot slot;
+
+  static const ColorFilter _grayscaleFilter = ColorFilter.matrix(<double>[
+    0.2126,
+    0.7152,
+    0.0722,
+    0,
+    0,
+    0.2126,
+    0.7152,
+    0.0722,
+    0,
+    0,
+    0.2126,
+    0.7152,
+    0.0722,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+  ]);
+
+  @override
+  Widget build(BuildContext context) {
+    Widget badgeImage = Image.asset(
+      slot.visual.assetPath,
+      fit: BoxFit.fitWidth,
+      excludeFromSemantics: true,
+    );
+
+    if (!slot.isEarned) {
+      badgeImage = Opacity(
+        opacity: 0.42,
+        child: ColorFiltered(colorFilter: _grayscaleFilter, child: badgeImage),
+      );
+    }
+
+    return Semantics(label: slot.visual.label, child: badgeImage);
   }
 }
 
@@ -836,6 +965,31 @@ class _AvatarActionButton extends StatelessWidget {
           shape: BoxShape.circle,
         ),
         child: Icon(icon, color: Colors.white, size: 22),
+      ),
+    );
+  }
+}
+
+class _CardCornerActionButton extends StatelessWidget {
+  const _CardCornerActionButton({required this.icon, this.onTap});
+
+  final IconData icon;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(14),
+      child: Container(
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: AppColors.divider),
+        ),
+        child: Icon(icon, color: AppColors.textPrimary, size: 20),
       ),
     );
   }

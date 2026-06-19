@@ -20,6 +20,7 @@ class PlaceTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final thumbnailUrl = place.previewImageUrl;
 
     return InkWell(
       onTap: onTap,
@@ -38,19 +39,10 @@ class PlaceTile extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Container(
-              width: 42,
-              height: 42,
-              decoration: BoxDecoration(
-                color: selected
-                    ? AppColors.brandGreen
-                    : AppColors.subtleBackground,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.place_rounded,
-                color: selected ? Colors.white : AppColors.textSecondary,
-              ),
+            _PlaceThumbnail(
+              imageUrl: thumbnailUrl,
+              selected: selected,
+              size: 72,
             ),
             const SizedBox(width: 14),
             Expanded(
@@ -88,15 +80,6 @@ class PlaceTile extends StatelessWidget {
                         : AppColors.textSecondary,
                   ),
                 ),
-                const SizedBox(height: 12),
-                Icon(
-                  selected
-                      ? Icons.check_circle_rounded
-                      : Icons.radio_button_unchecked_rounded,
-                  color: selected
-                      ? AppColors.brandGreen
-                      : AppColors.fieldBorderLight,
-                ),
               ],
             ),
           ],
@@ -113,6 +96,8 @@ class SelectedPlaceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final thumbnailUrl = place.previewImageUrl;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -122,7 +107,7 @@ class SelectedPlaceCard extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          const Icon(Icons.check_circle_rounded, color: AppColors.brandGreen),
+          _PlaceThumbnail(imageUrl: thumbnailUrl, selected: true, size: 56),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -140,6 +125,64 @@ class SelectedPlaceCard extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _PlaceThumbnail extends StatelessWidget {
+  const _PlaceThumbnail({
+    required this.imageUrl,
+    required this.selected,
+    required this.size,
+  });
+
+  final String? imageUrl;
+  final bool selected;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    final borderRadius = BorderRadius.circular(16);
+
+    if (imageUrl == null || imageUrl!.trim().isEmpty) {
+      return Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          color: selected ? AppColors.brandGreen : AppColors.subtleBackground,
+          borderRadius: borderRadius,
+        ),
+        child: Icon(
+          Icons.place_rounded,
+          color: selected ? Colors.white : AppColors.textSecondary,
+          size: size * 0.42,
+        ),
+      );
+    }
+
+    return ClipRRect(
+      borderRadius: borderRadius,
+      child: SizedBox(
+        width: size,
+        height: size,
+        child: Image.network(
+          imageUrl!,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            return Container(
+              color: selected
+                  ? AppColors.brandGreen
+                  : AppColors.subtleBackground,
+              alignment: Alignment.center,
+              child: Icon(
+                Icons.place_rounded,
+                color: selected ? Colors.white : AppColors.textSecondary,
+                size: size * 0.42,
+              ),
+            );
+          },
+        ),
       ),
     );
   }

@@ -30,6 +30,7 @@ void main() {
               onBack: () {
                 backed = true;
               },
+              onReport: () {},
               onEditActivityRegion: () {},
               onOpenConsentHistory: () {},
               onOpenPrivacyPolicy: () {

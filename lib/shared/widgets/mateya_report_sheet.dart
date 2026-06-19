@@ -7,7 +7,7 @@ import '../permissions/mateya_permission_dialogs.dart';
 import '../theme/app_tokens.dart';
 import 'mateya_button.dart';
 
-const IconData mateyaReportIcon = Icons.campaign_rounded;
+const IconData mateyaReportIcon = Icons.outlined_flag_rounded;
 
 Future<void> showMateyaReportSheet(
   BuildContext context, {

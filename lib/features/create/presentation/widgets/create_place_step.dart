@@ -161,6 +161,34 @@ class PlaceStepView extends StatelessWidget {
           const SizedBox(height: 12),
           InlineErrorText(text: controller.errorFor('place')!),
         ],
+        const SizedBox(height: 24),
+        Text('검색 결과', style: theme.textTheme.titleLarge),
+        const SizedBox(height: 10),
+        if (controller.placePhase == AsyncPhase.loading && hasSearched)
+          const LoadingPlaceList()
+        else if (showEmptyResult)
+          const EmptyStateCard(
+            icon: Icons.search_off_rounded,
+            title: '검색 결과가 없어요',
+            body: '다른 키워드로 다시 검색해 주세요.',
+          )
+        else if (hasSearched)
+          ...controller.searchResults.map(
+            (place) => Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: PlaceTile(
+                place: place,
+                selected: selectedPlace?.id == place.id,
+                onTap: () => controller.selectPlace(place),
+              ),
+            ),
+          )
+        else
+          const EmptyStateCard(
+            icon: Icons.travel_explore_rounded,
+            title: '장소를 검색해 보세요',
+            body: '`장소명` 기준 검색과 추천 목록 선택을 모두 지원하도록 프론트 흐름을 준비했습니다.',
+          ),
         const SizedBox(height: 20),
         PlaceMapCard(
           place: selectedPlace,
@@ -198,34 +226,6 @@ class PlaceStepView extends StatelessWidget {
                 onTap: () => controller.selectPlace(place),
               ),
             ),
-          ),
-        const SizedBox(height: 16),
-        Text('검색 결과', style: theme.textTheme.titleLarge),
-        const SizedBox(height: 10),
-        if (controller.placePhase == AsyncPhase.loading && hasSearched)
-          const LoadingPlaceList()
-        else if (showEmptyResult)
-          const EmptyStateCard(
-            icon: Icons.search_off_rounded,
-            title: '검색 결과가 없어요',
-            body: '다른 키워드로 다시 검색해 주세요.',
-          )
-        else if (hasSearched)
-          ...controller.searchResults.map(
-            (place) => Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: PlaceTile(
-                place: place,
-                selected: selectedPlace?.id == place.id,
-                onTap: () => controller.selectPlace(place),
-              ),
-            ),
-          )
-        else
-          const EmptyStateCard(
-            icon: Icons.travel_explore_rounded,
-            title: '장소를 검색해 보세요',
-            body: '`장소명` 기준 검색과 추천 목록 선택을 모두 지원하도록 프론트 흐름을 준비했습니다.',
           ),
       ],
     );
