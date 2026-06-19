@@ -1,6 +1,6 @@
 import '../../domain/mypage_models.dart';
 
-const int kMyPageBadgeCatalogCount = 7;
+const int kMyPageBadgeCatalogCount = 4;
 
 class MyPageBadgeVisual {
   const MyPageBadgeVisual({
@@ -49,25 +49,6 @@ const List<MyPageBadgeVisual> kMyPageBadgeCatalog = <MyPageBadgeVisual>[
     disabledAssetPath: 'assets/images/badges/badge - festival disabled.png',
   ),
   MyPageBadgeVisual(
-    key: 'food_lover',
-    label: 'food lover',
-    activeAssetPath: 'assets/images/badges/badge - foodlover.png',
-    disabledAssetPath: 'assets/images/badges/badge - foodlover disabled.png',
-  ),
-  MyPageBadgeVisual(
-    key: 'language_sharing',
-    label: 'language sharing',
-    activeAssetPath: 'assets/images/badges/badge - language sharing.png',
-    disabledAssetPath:
-        'assets/images/badges/badge - language sharing disabled.png',
-  ),
-  MyPageBadgeVisual(
-    key: 'craftsman',
-    label: 'craftsman',
-    activeAssetPath: 'assets/images/badges/badge - craftman.png',
-    disabledAssetPath: 'assets/images/badges/badge - craftman disabled.png',
-  ),
-  MyPageBadgeVisual(
     key: 'tourist',
     label: 'tourist',
     activeAssetPath: 'assets/images/badges/badge - tourist.png',
@@ -77,41 +58,39 @@ const List<MyPageBadgeVisual> kMyPageBadgeCatalog = <MyPageBadgeVisual>[
 
 List<MyPageBadgeDisplaySlot> buildMyPageBadgeSlots(List<ActivityBadge> badges) {
   final earnedBadgeByKey = <String, ActivityBadge>{};
-  final unmatchedBadges = <ActivityBadge>[];
 
   for (final badge in badges) {
-    final key = _resolveBadgeVisualKey(badge);
-    if (key == null) {
-      unmatchedBadges.add(badge);
-      continue;
-    }
-    if (earnedBadgeByKey.containsKey(key)) {
+    final key = resolveMyPageBadgeVisualKey(badge);
+    if (key == null || earnedBadgeByKey.containsKey(key)) {
       continue;
     }
     earnedBadgeByKey[key] = badge;
   }
 
-  final slots = <MyPageBadgeDisplaySlot>[];
-  var unmatchedIndex = 0;
-
-  for (final visual in kMyPageBadgeCatalog) {
-    final matchedBadge = earnedBadgeByKey[visual.key];
-    final fallbackBadge =
-        matchedBadge == null && unmatchedIndex < unmatchedBadges.length
-        ? unmatchedBadges[unmatchedIndex++]
-        : null;
-    slots.add(
-      MyPageBadgeDisplaySlot(
-        visual: visual,
-        badge: matchedBadge ?? fallbackBadge,
-      ),
-    );
-  }
-
-  return slots;
+  return kMyPageBadgeCatalog
+      .map(
+        (visual) => MyPageBadgeDisplaySlot(
+          visual: visual,
+          badge: earnedBadgeByKey[visual.key],
+        ),
+      )
+      .toList(growable: false);
 }
 
-String? _resolveBadgeVisualKey(ActivityBadge badge) {
+MyPageBadgeVisual? findMyPageBadgeVisual(ActivityBadge badge) {
+  final key = resolveMyPageBadgeVisualKey(badge);
+  if (key == null) {
+    return null;
+  }
+  for (final visual in kMyPageBadgeCatalog) {
+    if (visual.key == key) {
+      return visual;
+    }
+  }
+  return null;
+}
+
+String? resolveMyPageBadgeVisualKey(ActivityBadge badge) {
   final explicitCode = badge.badgeCode?.trim().toLowerCase();
   if (explicitCode != null && explicitCode.isNotEmpty) {
     switch (explicitCode) {
@@ -119,30 +98,22 @@ String? _resolveBadgeVisualKey(ActivityBadge badge) {
       case 'culture_tradition':
         return 'traditional';
       case 'active_person':
-      case 'activity':
-      case 'activity_leports':
       case 'sports':
-      case 'sports_mate':
+      case 'activity_leports':
         return 'active_person';
       case 'festive':
       case 'event_performance_festival':
         return 'festive';
-      case 'food_lover':
-      case 'shopping':
-      case 'market_lover':
-        return 'food_lover';
-      case 'language_sharing':
-      case 'public_facility':
-      case 'local_connector':
-        return 'language_sharing';
-      case 'craftsman':
-      case 'craftman':
-        return 'craftsman';
       case 'tourist':
       case 'tourist_attraction':
       case 'travel_course':
-      case 'route_explorer':
         return 'tourist';
+      case 'food_lover':
+      case 'language_sharing':
+      case 'craftsman':
+      case 'public_facility':
+      case 'shopping':
+        return null;
     }
   }
 
@@ -153,29 +124,20 @@ String? _resolveBadgeVisualKey(ActivityBadge badge) {
     return 'traditional';
   }
   if (label.contains('active') ||
-      label.contains('sports mate') ||
-      categoryLabel.contains('스포츠')) {
+      categoryLabel.contains('스포츠') ||
+      categoryLabel.contains('액티비티') ||
+      categoryLabel.contains('레포츠')) {
     return 'active_person';
   }
-  if (label.contains('festive') || categoryLabel.contains('축제')) {
+  if (label.contains('festive') ||
+      categoryLabel.contains('행사') ||
+      categoryLabel.contains('공연') ||
+      categoryLabel.contains('축제')) {
     return 'festive';
   }
-  if (label.contains('food') ||
-      label.contains('market lover') ||
-      categoryLabel.contains('음식')) {
-    return 'food_lover';
-  }
-  if (label.contains('language') ||
-      label.contains('local connector') ||
-      categoryLabel.contains('언어')) {
-    return 'language_sharing';
-  }
-  if (label.contains('craft') || categoryLabel.contains('공예')) {
-    return 'craftsman';
-  }
   if (label.contains('tourist') ||
-      label.contains('route explorer') ||
-      categoryLabel.contains('관광')) {
+      categoryLabel.contains('관광') ||
+      categoryLabel.contains('여행코스')) {
     return 'tourist';
   }
   return null;

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
@@ -25,6 +27,7 @@ import '../../../onboarding/presentation/screens/onboarding_terms_detail_page.da
 import '../../../onboarding/presentation/widgets/onboarding_shared_widgets.dart';
 import '../../application/mypage_controller.dart';
 import '../../domain/mypage_models.dart';
+import '../widgets/mypage_badge_celebration_dialog.dart';
 import '../widgets/mypage_route_views.dart';
 import '../widgets/mypage_status_widgets.dart';
 
@@ -48,6 +51,7 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
       TextEditingController();
 
   int _lastToastVersion = 0;
+  int _lastBadgeCelebrationVersion = 0;
   bool _withdrawalAgreement = false;
 
   @override
@@ -97,6 +101,29 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
       ).showSnackBar(SnackBar(content: Text(controller.toastMessage!)));
       controller.clearToast();
     }
+    if (controller.activeBadgeCelebration != null &&
+        controller.badgeCelebrationVersion != _lastBadgeCelebrationVersion) {
+      _lastBadgeCelebrationVersion = controller.badgeCelebrationVersion;
+      unawaited(
+        _showBadgeCelebrationDialog(controller.activeBadgeCelebration!),
+      );
+    }
+  }
+
+  Future<void> _showBadgeCelebrationDialog(ActivityBadge badge) async {
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) {
+        return MyPageBadgeCelebrationDialog(
+          badge: badge,
+          onClose: () => Navigator.of(dialogContext).pop(),
+        );
+      },
+    );
+    if (!mounted) {
+      return;
+    }
+    widget.controller.dismissBadgeCelebration();
   }
 
   @override
