@@ -181,6 +181,40 @@ void main() {
       },
     );
 
+    test(
+      'guest signup retries with a fresh verification token when the first token is rejected',
+      () async {
+        AuthSessionStore.instance.clear();
+        final authRepository = _FakeOnboardingAuthRepository(
+          failFirstGuestSignupWithInvalidToken: true,
+        );
+        final controller = OnboardingController(
+          locationRepository: _FakeLocationRepository.success(),
+          authRepository: authRepository,
+          authSessionStore: AuthSessionStore.instance,
+        );
+
+        controller.startGuestFlow();
+        controller.toggleAllAgreements(true);
+        controller.confirmConsent();
+        controller.updateName('홍길동');
+        controller.submitName();
+        controller.updatePhoneNumber('01012345678');
+        await controller.sendVerificationCode();
+        controller.updateVerificationCode(controller.debugVerificationCode!);
+        await controller.submitVerificationCode();
+        await controller.startAutomaticNeighborhoodVerification();
+        await controller.completeNeighborhood();
+
+        expect(controller.step, OnboardingStep.completed);
+        expect(authRepository.signupGuestAttemptCount, 2);
+        expect(
+          authRepository.lastGuestSignupVerificationToken,
+          'verification-token-2',
+        );
+      },
+    );
+
     test('host business validation blocks invalid number', () {
       final controller = OnboardingController(
         locationRepository: _FakeLocationRepository.success(),
@@ -330,11 +364,14 @@ class _FakeLocationRepository implements NeighborhoodLocationRepository {
 }
 
 class _FakeOnboardingAuthRepository implements OnboardingAuthRepository {
-  _FakeOnboardingAuthRepository({this.smsDebugCode = '123456'})
-    : loginSession = null;
+  _FakeOnboardingAuthRepository({
+    this.smsDebugCode = '123456',
+    this.failFirstGuestSignupWithInvalidToken = false,
+  }) : loginSession = null;
 
   _FakeOnboardingAuthRepository.existingUser()
     : smsDebugCode = '123456',
+      failFirstGuestSignupWithInvalidToken = false,
       loginSession = AuthSession(
         accessToken: 'logged-in-access',
         refreshToken: 'logged-in-refresh',
@@ -356,8 +393,12 @@ class _FakeOnboardingAuthRepository implements OnboardingAuthRepository {
 
   final AuthSession? loginSession;
   final String? smsDebugCode;
+  final bool failFirstGuestSignupWithInvalidToken;
   String? lastBusinessVerificationToken;
   String? lastBusinessName;
+  String? lastGuestSignupVerificationToken;
+  int verifySmsCodeCallCount = 0;
+  int signupGuestAttemptCount = 0;
 
   @override
   Future<SmsRequestResult> requestSmsCode({required String phoneNumber}) async {
@@ -372,8 +413,9 @@ class _FakeOnboardingAuthRepository implements OnboardingAuthRepository {
     required String phoneNumber,
     required String code,
   }) async {
+    verifySmsCodeCallCount += 1;
     return SmsVerificationResult(
-      verificationToken: 'verification-token',
+      verificationToken: 'verification-token-$verifySmsCodeCallCount',
       expiresAt: DateTime(2099, 6, 14, 10, 10),
     );
   }
@@ -412,6 +454,16 @@ class _FakeOnboardingAuthRepository implements OnboardingAuthRepository {
     required AgreementState agreementState,
     required NeighborhoodSelection neighborhood,
   }) async {
+    signupGuestAttemptCount += 1;
+    lastGuestSignupVerificationToken = verificationToken;
+    if (failFirstGuestSignupWithInvalidToken && signupGuestAttemptCount == 1) {
+      throw const MateyaApiException(
+        type: ApiFailureType.validation,
+        message: 'sms인증 토큰이 유효하지 않아요.',
+        code: 'validation-failed',
+        statusCode: 400,
+      );
+    }
     return AuthSession(
       accessToken: 'access',
       refreshToken: 'refresh',

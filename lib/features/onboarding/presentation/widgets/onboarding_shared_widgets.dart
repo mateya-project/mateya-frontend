@@ -5,7 +5,7 @@ import '../../../../shared/theme/app_tokens.dart';
 import '../../../../shared/widgets/mateya_skeleton.dart';
 import '../../domain/onboarding_flow.dart';
 
-class NeighborhoodMapCard extends StatelessWidget {
+class NeighborhoodMapCard extends StatefulWidget {
   const NeighborhoodMapCard({
     super.key,
     required this.selection,
@@ -16,9 +16,27 @@ class NeighborhoodMapCard extends StatelessWidget {
   final bool isLoading;
 
   @override
+  State<NeighborhoodMapCard> createState() => _NeighborhoodMapCardState();
+}
+
+class _NeighborhoodMapCardState extends State<NeighborhoodMapCard> {
+  static const String _markerId = 'selected-neighborhood';
+
+  NaverMapController? _mapController;
+  bool _isMapLoaded = false;
+
+  @override
+  void didUpdateWidget(covariant NeighborhoodMapCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.selection != widget.selection) {
+      _syncSelectionToMap();
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final target = selection != null
-        ? NLatLng(selection!.latitude, selection!.longitude)
+    final target = widget.selection != null
+        ? NLatLng(widget.selection!.latitude, widget.selection!.longitude)
         : const NLatLng(37.5666, 126.9790);
 
     return ClipRRect(
@@ -30,11 +48,7 @@ class NeighborhoodMapCard extends StatelessWidget {
           fit: StackFit.expand,
           children: <Widget>[
             NaverMap(
-              key: ValueKey<String>(
-                selection == null
-                    ? 'default-map'
-                    : '${selection!.latitude}-${selection!.longitude}',
-              ),
+              key: const ValueKey<String>('neighborhood-map'),
               options: NaverMapViewOptions(
                 initialCameraPosition: NCameraPosition(
                   target: target,
@@ -42,17 +56,44 @@ class NeighborhoodMapCard extends StatelessWidget {
                 ),
               ),
               onMapReady: (mapController) async {
-                if (selection != null) {
-                  await mapController.addOverlay(
-                    NMarker(id: 'selected-neighborhood', position: target),
-                  );
-                }
+                _mapController = mapController;
+                await _syncSelectionToMap();
               },
+              onMapLoaded: _handleMapLoaded,
             ),
-            if (isLoading) const Positioned.fill(child: MateyaMapSkeleton()),
+            if (widget.isLoading || !_isMapLoaded)
+              const Positioned.fill(child: MateyaMapSkeleton()),
           ],
         ),
       ),
+    );
+  }
+
+  void _handleMapLoaded() {
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _isMapLoaded = true;
+    });
+  }
+
+  Future<void> _syncSelectionToMap() async {
+    final mapController = _mapController;
+    final selection = widget.selection;
+    if (mapController == null) {
+      return;
+    }
+    if (selection == null) {
+      await mapController.clearOverlays(type: NOverlayType.marker);
+      return;
+    }
+
+    final target = NLatLng(selection.latitude, selection.longitude);
+    await mapController.clearOverlays(type: NOverlayType.marker);
+    await mapController.addOverlay(NMarker(id: _markerId, position: target));
+    await mapController.updateCamera(
+      NCameraUpdate.scrollAndZoomTo(target: target, zoom: 15),
     );
   }
 }

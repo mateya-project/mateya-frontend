@@ -10,7 +10,7 @@ import 'package:mateya_app/shared/network/mateya_api_client.dart';
 
 void main() {
   testWidgets(
-    'phone step removes carrier fields and switches to verification mode after sms request',
+    'phone step keeps verification field visible before sms request and switches CTA after request',
     (tester) async {
       final controller = OnboardingController(
         locationRepository: _WidgetFakeLocationRepository(),
@@ -31,7 +31,8 @@ void main() {
 
       expect(find.text('통신사'), findsNothing);
       expect(find.text('휴대폰 번호를 입력해주세요'), findsOneWidget);
-      expect(find.text('인증번호'), findsNothing);
+      expect(find.text('인증번호'), findsOneWidget);
+      expect(find.text('휴대폰 번호를 입력하면 인증번호를 받을 수 있어요.'), findsOneWidget);
       expect(find.text('인증번호 받기'), findsOneWidget);
 
       await tester.enterText(find.byType(TextField).first, '01012345678');
