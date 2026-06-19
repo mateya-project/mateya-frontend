@@ -125,15 +125,20 @@ class OutgoingBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final hasText = bubble.resolvedText(false)?.trim().isNotEmpty ?? false;
+    final imageOnly = bubble.hasAttachments && !hasText;
+
     return Align(
       alignment: Alignment.centerRight,
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: AppColors.brandGreen,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(imageOnly ? 18 : 16),
         ),
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(12, 6, 12, 8),
+          padding: imageOnly
+              ? const EdgeInsets.all(4)
+              : const EdgeInsets.fromLTRB(12, 6, 12, 8),
           child: BubblePayload(
             bubble: bubble,
             text: bubble.resolvedText(false),
@@ -160,15 +165,21 @@ class IncomingBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final hasText =
+        bubble.resolvedText(isTranslatedVisible)?.trim().isNotEmpty ?? false;
+    final imageOnly = bubble.hasAttachments && !hasText;
+
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 298),
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(19),
+          borderRadius: BorderRadius.circular(imageOnly ? 18 : 19),
         ),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          padding: imageOnly
+              ? const EdgeInsets.all(4)
+              : const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           child: BubblePayload(
             bubble: bubble,
             text: bubble.resolvedText(isTranslatedVisible),

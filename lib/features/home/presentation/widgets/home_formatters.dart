@@ -1,3 +1,5 @@
+import '../../../../shared/time/korean_time.dart';
+
 String formatPrice(int price) {
   if (price == 0) {
     return 'FREE';
@@ -35,9 +37,10 @@ String formatShortDate(DateTime dateTime) {
 String formatMonthDay(DateTime dateTime) => formatShortDate(dateTime);
 
 String formatRelativeDate(DateTime dateTime) {
-  final now = DateTime(2026, 6, 13);
+  final now = mateyaNowInKst();
   final target = DateTime(dateTime.year, dateTime.month, dateTime.day);
-  final difference = target.difference(now).inDays;
+  final normalizedNow = DateTime(now.year, now.month, now.day);
+  final difference = target.difference(normalizedNow).inDays;
   return switch (difference) {
     0 => '오늘',
     1 => '내일',

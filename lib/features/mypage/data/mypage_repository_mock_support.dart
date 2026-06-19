@@ -12,7 +12,7 @@ const PersonalMyPageData _personalPage = PersonalMyPageData(
     isActiveWithin30Days: true,
   ),
   metrics: <ProfileMetric>[
-    ProfileMetric(label: '참가/생성 활동', value: '18'),
+    ProfileMetric(label: '활동 수', value: '18'),
     ProfileMetric(label: '친구 수', value: '24'),
     ProfileMetric(label: '작성 리뷰', value: '11'),
   ],
@@ -84,7 +84,7 @@ const OtherProfileData _otherProfile = OtherProfileData(
     isActiveWithin30Days: true,
   ),
   metrics: <ProfileMetric>[
-    ProfileMetric(label: '참가/생성 활동', value: '26'),
+    ProfileMetric(label: '활동 수', value: '26'),
     ProfileMetric(label: '친구 수', value: '31'),
     ProfileMetric(label: '작성 리뷰', value: '17'),
   ],

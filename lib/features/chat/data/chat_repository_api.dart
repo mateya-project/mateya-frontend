@@ -194,7 +194,7 @@ class ApiChatRepository implements ChatRepository {
     if (contentType == null) {
       throw const ChatRepositoryException(
         ChatLoadFailureType.server,
-        message: 'JPG, PNG, WEBP, GIF 형식의 이미지만 전송할 수 있어요.',
+        message: 'JPG, PNG, WEBP, GIF, HEIC, HEIF 형식의 이미지만 전송할 수 있어요.',
       );
     }
 

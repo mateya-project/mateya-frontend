@@ -149,6 +149,7 @@ class _MateyaReportSheetState extends State<MateyaReportSheet> {
           '신고 이미지 첨부를 사용하려면 사진 보관함 접근 권한이 필요합니다. 권한이 없어도 신고 사유 텍스트 작성은 계속할 수 있습니다.',
       confirmLabel: '사진 선택하기',
       cancelLabel: '나중에',
+      rememberKey: 'permission.notice.photo_library',
     );
 
     if (!mounted || !shouldContinue) {

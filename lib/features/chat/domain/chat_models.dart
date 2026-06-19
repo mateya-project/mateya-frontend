@@ -189,7 +189,7 @@ class ChatRoom {
   final String id;
   final ChatRoomType type;
   final String title;
-  final String imageUrl;
+  final String? imageUrl;
   final int participantCount;
   final DateTime? lastMessageAt;
   final int unreadCount;

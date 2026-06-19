@@ -33,11 +33,11 @@ class ApiCreateRepository implements CreateRepository {
       final categoryId = categoryCode == null
           ? null
           : _clientCategoryIdByServerCode[categoryCode];
-      final startAt = DateTime.parse(json['startAt'] as String);
-      final endAt = DateTime.parse(json['endAt'] as String);
+      final startAt = parseServerDateTime(json['startAt'] as String);
+      final endAt = parseServerDateTime(json['endAt'] as String);
       final deadlineAt = json['recruitmentDeadlineAt'] == null
           ? null
-          : DateTime.parse(json['recruitmentDeadlineAt'] as String);
+          : parseServerDateTime(json['recruitmentDeadlineAt'] as String);
       final imageUrls =
           ((json['images'] as List<Object?>?) ?? const <Object?>[])
               .whereType<String>()
@@ -267,7 +267,7 @@ class ApiCreateRepository implements CreateRepository {
             draft.place.name,
         eventStartsAt: json['startAt'] == null
             ? draft.eventStartsAt
-            : DateTime.parse(json['startAt'] as String),
+            : parseServerDateTime(json['startAt'] as String),
         chatStatus: ChatProvisionStatus.created,
       );
     } on MateyaApiException catch (error) {

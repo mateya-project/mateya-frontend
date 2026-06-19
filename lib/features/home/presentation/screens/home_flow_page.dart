@@ -144,6 +144,7 @@ class _HomeFlowPageState extends State<HomeFlowPage> {
     );
     if (didCreate == true) {
       await Future.wait<void>(<Future<void>>[
+        _controller.refreshAfterActivityMutation(),
         _chatController.retryRooms(),
         _myPageController.retry(),
       ]);

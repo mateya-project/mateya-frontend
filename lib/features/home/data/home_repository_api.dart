@@ -205,8 +205,8 @@ class ApiHomeRepository implements HomeRepository {
           (json['placeName'] as String?) ??
           (json['placeAddress'] as String?) ??
           '',
-      startAt: DateTime.parse(json['startAt'] as String),
-      endAt: DateTime.parse(json['endAt'] as String),
+      startAt: parseServerDateTime(json['startAt'] as String),
+      endAt: parseServerDateTime(json['endAt'] as String),
       price: priceType == 'FREE' ? 0 : priceAmount,
       rating: (json['reviewRating'] as num?)?.toDouble() ?? 0,
       participantCount: json['participantCount'] as int? ?? 0,

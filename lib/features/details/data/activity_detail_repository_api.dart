@@ -43,7 +43,8 @@ class ApiActivityDetailRepository implements ActivityDetailRepository {
           reviewPageJson['items'] as List<Object?>? ?? const <Object?>[];
       final statsJson = _asMap(statsData);
       final participants = _parseParticipants(
-        manageJson?['approvedParticipants'] ?? detailJson['participantPreviews'],
+        manageJson?['approvedParticipants'] ??
+            detailJson['participantPreviews'],
       );
       final pendingParticipants = _parseParticipants(
         manageJson?['pendingParticipants'],
@@ -233,8 +234,8 @@ class ApiActivityDetailRepository implements ActivityDetailRepository {
       activity: activity.copyWith(
         title: detailJson['title'] as String? ?? activity.title,
         place: placeName,
-        startAt: DateTime.parse(detailJson['startAt'] as String),
-        endAt: DateTime.parse(detailJson['endAt'] as String),
+        startAt: parseServerDateTime(detailJson['startAt'] as String),
+        endAt: parseServerDateTime(detailJson['endAt'] as String),
         price: detailJson['priceAmount'] as int? ?? activity.price,
         participantCount:
             participantCountOverride ??
@@ -245,7 +246,8 @@ class ApiActivityDetailRepository implements ActivityDetailRepository {
             detailJson['capacity'] as int? ??
             activity.participantCapacity,
         imageUrl:
-            detailJson['representativeImageUrl'] as String? ?? activity.imageUrl,
+            detailJson['representativeImageUrl'] as String? ??
+            activity.imageUrl,
       ),
       imageUrls: images.isEmpty
           ? <String>[
@@ -310,8 +312,8 @@ class ApiActivityDetailRepository implements ActivityDetailRepository {
       activity: current.activity.copyWith(
         title: detailJson['title'] as String? ?? current.activity.title,
         place: placeName,
-        startAt: DateTime.parse(detailJson['startAt'] as String),
-        endAt: DateTime.parse(detailJson['endAt'] as String),
+        startAt: parseServerDateTime(detailJson['startAt'] as String),
+        endAt: parseServerDateTime(detailJson['endAt'] as String),
         price: detailJson['priceAmount'] as int? ?? current.activity.price,
         participantCount:
             participantCountOverride ??
@@ -325,9 +327,7 @@ class ApiActivityDetailRepository implements ActivityDetailRepository {
             detailJson['representativeImageUrl'] as String? ??
             current.activity.imageUrl,
       ),
-      imageUrls: images.isEmpty
-          ? current.imageUrls
-          : images,
+      imageUrls: images.isEmpty ? current.imageUrls : images,
       locationLabel: placeAddress == null || placeAddress.isEmpty
           ? placeName
           : placeAddress,
@@ -367,7 +367,8 @@ class ApiActivityDetailRepository implements ActivityDetailRepository {
     if (hostedByMe == true) {
       return ActivityParticipationState.host;
     }
-    final status = (detailJson['participationStatus'] as String?)?.toUpperCase();
+    final status = (detailJson['participationStatus'] as String?)
+        ?.toUpperCase();
     switch (status) {
       case 'PENDING':
         return ActivityParticipationState.requested;
@@ -413,7 +414,8 @@ class ApiActivityDetailRepository implements ActivityDetailRepository {
       detailJson: detailJson,
       participationState: ActivityParticipationState.host,
       participantsOverride: _parseParticipants(
-        manageJson?['approvedParticipants'] ?? detailJson['participantPreviews'],
+        manageJson?['approvedParticipants'] ??
+            detailJson['participantPreviews'],
       ),
       pendingParticipantsOverride: _parseParticipants(
         manageJson?['pendingParticipants'],

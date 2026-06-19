@@ -7,17 +7,24 @@ class ActivityImage extends StatelessWidget {
     super.key,
     this.imageUrl,
     this.width,
-    required this.height,
+    this.height,
+    this.aspectRatio,
     required this.borderRadius,
   });
 
   final String? imageUrl;
   final double? width;
-  final double height;
+  final double? height;
+  final double? aspectRatio;
   final BorderRadius borderRadius;
 
   @override
   Widget build(BuildContext context) {
+    assert(
+      height != null || aspectRatio != null,
+      'Either height or aspectRatio must be provided.',
+    );
+
     final fallback = Container(
       width: width,
       height: height,
@@ -34,26 +41,30 @@ class ActivityImage extends StatelessWidget {
       ),
     );
 
-    if (imageUrl == null) {
-      return fallback;
+    final imageChild = imageUrl == null
+        ? fallback
+        : ClipRRect(
+            borderRadius: borderRadius,
+            child: Image.network(
+              imageUrl!,
+              width: width,
+              height: height,
+              fit: BoxFit.cover,
+              errorBuilder: (_, _, _) => fallback,
+              loadingBuilder: (context, child, progress) {
+                if (progress == null) {
+                  return child;
+                }
+                return fallback;
+              },
+            ),
+          );
+
+    if (aspectRatio != null) {
+      return AspectRatio(aspectRatio: aspectRatio!, child: imageChild);
     }
 
-    return ClipRRect(
-      borderRadius: borderRadius,
-      child: Image.network(
-        imageUrl!,
-        width: width,
-        height: height,
-        fit: BoxFit.cover,
-        errorBuilder: (_, _, _) => fallback,
-        loadingBuilder: (context, child, progress) {
-          if (progress == null) {
-            return child;
-          }
-          return fallback;
-        },
-      ),
-    );
+    return imageChild;
   }
 }
 

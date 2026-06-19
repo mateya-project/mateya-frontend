@@ -46,16 +46,18 @@ class DetailHeroSection extends StatelessWidget {
                 ),
               ),
               const Positioned.fill(
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: <Color>[
-                        Color(0x12000000),
-                        Color(0x00000000),
-                        Color(0x26000000),
-                      ],
+                child: IgnorePointer(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: <Color>[
+                          Color(0x12000000),
+                          Color(0x00000000),
+                          Color(0x26000000),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -63,31 +65,35 @@ class DetailHeroSection extends StatelessWidget {
               Positioned(
                 left: 12,
                 top: 12,
-                child: CategoryPill(
-                  label: detail.activity.categoryLabel,
-                  filled: true,
+                child: IgnorePointer(
+                  child: CategoryPill(
+                    label: detail.activity.categoryLabel,
+                    filled: true,
+                  ),
                 ),
               ),
               Positioned(
                 left: 0,
                 right: 0,
                 bottom: 14,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List<Widget>.generate(
-                    detail.imageUrls.length,
-                    (index) => AnimatedContainer(
-                      duration: const Duration(milliseconds: 180),
-                      margin: EdgeInsets.only(
-                        right: index == detail.imageUrls.length - 1 ? 0 : 6,
-                      ),
-                      width: currentPage == index ? 16 : 6,
-                      height: 6,
-                      decoration: BoxDecoration(
-                        color: currentPage == index
-                            ? Colors.white
-                            : Colors.white.withValues(alpha: 0.5),
-                        borderRadius: BorderRadius.circular(100),
+                child: IgnorePointer(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List<Widget>.generate(
+                      detail.imageUrls.length,
+                      (index) => AnimatedContainer(
+                        duration: const Duration(milliseconds: 180),
+                        margin: EdgeInsets.only(
+                          right: index == detail.imageUrls.length - 1 ? 0 : 6,
+                        ),
+                        width: currentPage == index ? 16 : 6,
+                        height: 6,
+                        decoration: BoxDecoration(
+                          color: currentPage == index
+                              ? Colors.white
+                              : Colors.white.withValues(alpha: 0.5),
+                          borderRadius: BorderRadius.circular(100),
+                        ),
                       ),
                     ),
                   ),
@@ -186,10 +192,22 @@ class DetailBody extends StatelessWidget {
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    const SizedBox(width: 10),
-                    TextButton(
-                      onPressed: onOpenParticipantRequests,
-                      child: const Text('참여내역'),
+                    const SizedBox(width: 6),
+                    Material(
+                      color: Colors.transparent,
+                      borderRadius: BorderRadius.circular(999),
+                      child: InkWell(
+                        onTap: onOpenParticipantRequests,
+                        borderRadius: BorderRadius.circular(999),
+                        child: const Padding(
+                          padding: EdgeInsets.all(4),
+                          child: Icon(
+                            Icons.chevron_right_rounded,
+                            size: 22,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      ),
                     ),
                   ],
                 ),

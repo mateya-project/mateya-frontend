@@ -102,6 +102,19 @@ class HomeController extends ChangeNotifier {
     };
   }
 
+  Future<void> refreshAfterActivityMutation() async {
+    final tasks = <Future<void>>[_loadHomeActivities()];
+
+    if (_section == HomeSection.explore || _hasLoadedExplore) {
+      tasks.add(refreshExplore());
+    }
+    if (_section == HomeSection.favorites || _hasLoadedFavorites) {
+      tasks.add(_loadFavoriteActivities());
+    }
+
+    await Future.wait<void>(tasks);
+  }
+
   void openHome() {
     _section = HomeSection.home;
     notifyListeners();

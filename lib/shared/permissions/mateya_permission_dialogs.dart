@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 enum MateyaPermissionRecoveryAction { retry, openSettings, cancel }
 
@@ -9,7 +10,19 @@ Future<bool> showMateyaPermissionNoticeDialog(
   required String message,
   String confirmLabel = '계속',
   String cancelLabel = '나중에',
+  String? rememberKey,
 }) async {
+  if (rememberKey != null) {
+    final preferences = await SharedPreferences.getInstance();
+    final alreadyAccepted = preferences.getBool(rememberKey) ?? false;
+    if (alreadyAccepted) {
+      return true;
+    }
+  }
+  if (!context.mounted) {
+    return false;
+  }
+
   final shouldContinue = await showDialog<bool>(
     context: context,
     builder: (context) {
@@ -30,7 +43,13 @@ Future<bool> showMateyaPermissionNoticeDialog(
     },
   );
 
-  return shouldContinue ?? false;
+  final accepted = shouldContinue ?? false;
+  if (accepted && rememberKey != null) {
+    final preferences = await SharedPreferences.getInstance();
+    await preferences.setBool(rememberKey, true);
+  }
+
+  return accepted;
 }
 
 Future<void> showMateyaAppSettingsDialog(

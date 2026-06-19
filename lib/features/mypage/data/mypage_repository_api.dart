@@ -79,7 +79,7 @@ class ApiMyPageRepository implements MyPageRepository {
         profile: _buildPersonalProfile(meProfileJson, mePageJson),
         metrics: <ProfileMetric>[
           ProfileMetric(
-            label: '참가/생성 활동',
+            label: '활동 수',
             value: '${statsJson['totalActivityCount'] as int? ?? 0}',
           ),
           ProfileMetric(
@@ -189,7 +189,7 @@ class ApiMyPageRepository implements MyPageRepository {
         profile: _buildPersonalProfile(profileJson, pageJson),
         metrics: <ProfileMetric>[
           ProfileMetric(
-            label: '참가/생성 활동',
+            label: '활동 수',
             value: '${statsJson['totalActivityCount'] as int? ?? 0}',
           ),
           ProfileMetric(
@@ -402,7 +402,7 @@ class ApiMyPageRepository implements MyPageRepository {
         profile: _buildOtherProfile(pageJson),
         metrics: <ProfileMetric>[
           ProfileMetric(
-            label: '참가/생성 활동',
+            label: '활동 수',
             value: '${statsJson['totalActivityCount'] as int? ?? 0}',
           ),
           ProfileMetric(

@@ -93,11 +93,17 @@ class ActivityBadge {
     required this.id,
     required this.label,
     required this.categoryLabel,
+    this.badgeCode,
+    this.isEarned = true,
+    this.imageUrl,
   });
 
   final String id;
   final String label;
   final String categoryLabel;
+  final String? badgeCode;
+  final bool isEarned;
+  final String? imageUrl;
 }
 
 class ActivityHistoryEntry {
