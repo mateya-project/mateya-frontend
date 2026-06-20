@@ -31,6 +31,7 @@ ActivityReview _parseReview(Object? value) {
 
   return ActivityReview(
     id: '${json['id']}',
+    authorUserId: '${json['userId'] ?? ''}',
     authorName: json['authorDisplayName'] as String? ?? '',
     authorAvatarUrl: json['authorProfileImageUrl'] as String?,
     submittedAt: parseServerDateTime(json['createdAt'] as String),
@@ -38,6 +39,7 @@ ActivityReview _parseReview(Object? value) {
     originalText: originalBody ?? translatedBody ?? '',
     translatedText: visibleTranslation,
     helpfulCount: json['helpfulCount'] as int? ?? 0,
+    isHelpfulByMe: json['helpfulByMe'] as bool? ?? false,
     imageUrls: ((json['imageUrls'] as List<Object?>?) ?? const <Object?>[])
         .whereType<String>()
         .toList(growable: false),

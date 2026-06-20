@@ -379,11 +379,13 @@ class ApiMyPageRepository implements MyPageRepository {
       final historyItems = historyData is List<Object?>
           ? historyData
           : const <Object?>[];
+      final badgeItems =
+          pageJson['badges'] as List<Object?>? ?? const <Object?>[];
 
       return OtherProfileData(
         profile: _buildOtherProfile(pageJson),
         metrics: _buildPersonalMetrics(statsJson),
-        badges: const <ActivityBadge>[],
+        badges: badgeItems.map(_parseBadge).toList(growable: false),
         recentActivities: historyItems
             .map(_parseActivityHistoryEntry)
             .toList(growable: false),

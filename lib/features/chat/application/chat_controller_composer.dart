@@ -81,10 +81,10 @@ Future<void> _chatSendMessage(ChatController controller) async {
 
   final now = controller._now();
   final pendingAttachments = controller._draftAttachments;
-  final shouldWaitForRealtime = controller._repository
+  final shouldWaitForRealtime = controller.repository
       .isRealtimeConnectedForRoom(room.id);
   try {
-    final sentBubbles = await controller._repository.sendMessage(
+    final sentBubbles = await controller.repository.sendMessage(
       roomId: room.id,
       text: message,
       attachments: pendingAttachments,

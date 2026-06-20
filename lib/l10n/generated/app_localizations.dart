@@ -1369,6 +1369,24 @@ abstract class AppLocalizations {
   /// **'참여한 활동 카테고리에 따라 뱃지를 받을 수 있어요.'**
   String get mypageBadgesDescription;
 
+  /// No description provided for @mypageOtherBadgesTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'획득한 뱃지'**
+  String get mypageOtherBadgesTitle;
+
+  /// No description provided for @mypageOtherBadgesDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 사용자가 획득한 뱃지예요.'**
+  String get mypageOtherBadgesDescription;
+
+  /// No description provided for @mypageOtherBadgesEmpty.
+  ///
+  /// In ko, this message translates to:
+  /// **'아직 공개된 뱃지가 없어요.'**
+  String get mypageOtherBadgesEmpty;
+
   /// No description provided for @mypageRecentActivitiesSectionTitle.
   ///
   /// In ko, this message translates to:
@@ -1459,6 +1477,12 @@ abstract class AppLocalizations {
   /// **'운영 중인 체험'**
   String get mypageActiveExperiencesTitle;
 
+  /// No description provided for @mypageAddFriend.
+  ///
+  /// In ko, this message translates to:
+  /// **'친구 추가'**
+  String get mypageAddFriend;
+
   /// No description provided for @mypageRemoveFriend.
   ///
   /// In ko, this message translates to:
@@ -1530,6 +1554,12 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'사용자를 차단하지 못했어요. 잠시 후 다시 시도해 주세요.'**
   String get mypageBlockUserError;
+
+  /// No description provided for @mypageUnblockAction.
+  ///
+  /// In ko, this message translates to:
+  /// **'차단 해제'**
+  String get mypageUnblockAction;
 
   /// No description provided for @mypageUnblockedUser.
   ///
@@ -4224,6 +4254,30 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'참여자를 삭제했어요.'**
   String get detailsParticipantRemoved;
+
+  /// No description provided for @detailsParticipantActionViewProfile.
+  ///
+  /// In ko, this message translates to:
+  /// **'프로필 보기'**
+  String get detailsParticipantActionViewProfile;
+
+  /// No description provided for @detailsParticipantActionApprove.
+  ///
+  /// In ko, this message translates to:
+  /// **'참여 승인'**
+  String get detailsParticipantActionApprove;
+
+  /// No description provided for @detailsParticipantActionRemove.
+  ///
+  /// In ko, this message translates to:
+  /// **'참여자 삭제'**
+  String get detailsParticipantActionRemove;
+
+  /// No description provided for @detailsParticipantActionCancelRequest.
+  ///
+  /// In ko, this message translates to:
+  /// **'신청 취소'**
+  String get detailsParticipantActionCancelRequest;
 
   /// No description provided for @detailsPendingParticipantsListTitle.
   ///

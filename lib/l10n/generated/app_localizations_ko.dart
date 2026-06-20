@@ -690,6 +690,15 @@ class AppLocalizationsKo extends AppLocalizations {
   String get mypageBadgesDescription => '참여한 활동 카테고리에 따라 뱃지를 받을 수 있어요.';
 
   @override
+  String get mypageOtherBadgesTitle => '획득한 뱃지';
+
+  @override
+  String get mypageOtherBadgesDescription => '이 사용자가 획득한 뱃지예요.';
+
+  @override
+  String get mypageOtherBadgesEmpty => '아직 공개된 뱃지가 없어요.';
+
+  @override
   String get mypageRecentActivitiesSectionTitle => '활동 이력';
 
   @override
@@ -735,6 +744,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get mypageActiveExperiencesTitle => '운영 중인 체험';
 
   @override
+  String get mypageAddFriend => '친구 추가';
+
+  @override
   String get mypageRemoveFriend => '친구 삭제';
 
   @override
@@ -770,6 +782,9 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get mypageBlockUserError => '사용자를 차단하지 못했어요. 잠시 후 다시 시도해 주세요.';
+
+  @override
+  String get mypageUnblockAction => '차단 해제';
 
   @override
   String get mypageUnblockedUser => '차단을 해제했어요.';
@@ -2308,6 +2323,18 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get detailsParticipantRemoved => '참여자를 삭제했어요.';
+
+  @override
+  String get detailsParticipantActionViewProfile => '프로필 보기';
+
+  @override
+  String get detailsParticipantActionApprove => '참여 승인';
+
+  @override
+  String get detailsParticipantActionRemove => '참여자 삭제';
+
+  @override
+  String get detailsParticipantActionCancelRequest => '신청 취소';
 
   @override
   String get detailsPendingParticipantsListTitle => '신청 유저 목록';

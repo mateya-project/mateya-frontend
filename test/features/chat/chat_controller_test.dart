@@ -280,6 +280,42 @@ void main() {
         isTrue,
       );
     });
+
+    test(
+      'polling fallback appends messages when realtime never connects',
+      () async {
+        final repository = _PollingFallbackChatRepository();
+        final controller = ChatController(
+          repository: repository,
+          now: () => DateTime(2026, 6, 14, 10, 30),
+          realtimeFallbackPollInterval: const Duration(milliseconds: 10),
+        );
+
+        await controller.initialize();
+        await controller.openRoom('fallback-room');
+        repository.queueServerMessage(
+          ChatMessageGroup(
+            id: 'fallback-2',
+            sender: const ChatParticipant(id: 'jiwon', name: 'Ji-Won'),
+            sentAt: DateTime(2026, 6, 14, 10, 31),
+            bubbles: const <ChatBubble>[
+              ChatBubble(originalText: 'REST fallback 메시지예요.'),
+            ],
+          ),
+        );
+
+        await Future<void>.delayed(const Duration(milliseconds: 40));
+
+        expect(
+          controller.currentRoom?.messageGroups.map((group) => group.id),
+          <String>['fallback-1', 'fallback-2'],
+        );
+        expect(
+          controller.currentRoom?.messageGroups.last.visibleTexts.single,
+          'REST fallback 메시지예요.',
+        );
+      },
+    );
   });
 }
 
@@ -314,5 +350,95 @@ class _RealtimeChatRepository extends MockChatRepository {
       return;
     }
     _onMessage?.call(message);
+  }
+}
+
+class _PollingFallbackChatRepository implements ChatRepository {
+  static const _roomId = 'fallback-room';
+
+  final List<ChatMessageGroup> _groups = <ChatMessageGroup>[
+    ChatMessageGroup(
+      id: 'fallback-1',
+      sender: const ChatParticipant(id: 'me', name: '나'),
+      sentAt: DateTime(2026, 6, 14, 10, 30),
+      isMine: true,
+      bubbles: const <ChatBubble>[ChatBubble(originalText: '기존 메시지')],
+    ),
+  ];
+
+  @override
+  Future<List<ChatRoom>> fetchRooms() async => <ChatRoom>[_room()];
+
+  @override
+  Future<ChatRoom> fetchRoom(String roomId) async => _room();
+
+  @override
+  Future<ChatRoomPageResult> fetchRoomsPage({required int page}) async {
+    return ChatRoomPageResult(
+      rooms: page == 0 ? <ChatRoom>[_room()] : const <ChatRoom>[],
+      hasNext: false,
+      nextPage: null,
+    );
+  }
+
+  @override
+  Future<ChatMessagePageResult> fetchRoomMessagesPage({
+    required String roomId,
+    required int page,
+  }) async {
+    return ChatMessagePageResult(
+      groups: page == 0
+          ? List<ChatMessageGroup>.from(_groups)
+          : const <ChatMessageGroup>[],
+      hasNext: false,
+      nextPage: null,
+    );
+  }
+
+  @override
+  Future<List<ChatBubble>> sendMessage({
+    required String roomId,
+    required String text,
+    required List<ChatAttachment> attachments,
+  }) async {
+    return <ChatBubble>[
+      ChatBubble(originalText: text.trim().isEmpty ? null : text.trim()),
+    ];
+  }
+
+  @override
+  Future<void> markRoomAsRead(String roomId) async {}
+
+  @override
+  void subscribeToRoomMessages({
+    required String roomId,
+    required void Function(ChatMessageGroup message) onMessage,
+    required void Function(String message) onError,
+  }) {}
+
+  @override
+  void unsubscribeFromRoomMessages() {}
+
+  @override
+  bool isRealtimeConnectedForRoom(String roomId) => false;
+
+  @override
+  void dispose() {}
+
+  void queueServerMessage(ChatMessageGroup group) {
+    _groups.add(group);
+  }
+
+  ChatRoom _room() {
+    return ChatRoom(
+      id: _roomId,
+      type: ChatRoomType.group,
+      title: '폴백 테스트',
+      imageUrl: null,
+      participantCount: 2,
+      lastMessageAt: _groups.last.sentAt,
+      unreadCount: 0,
+      messageGroups: List<ChatMessageGroup>.from(_groups),
+    );
   }
 }

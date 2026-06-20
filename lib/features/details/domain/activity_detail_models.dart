@@ -74,6 +74,7 @@ class ActivityHostProfile {
 class ActivityReview {
   const ActivityReview({
     required this.id,
+    this.authorUserId = '',
     required this.authorName,
     required this.submittedAt,
     required this.rating,
@@ -87,6 +88,7 @@ class ActivityReview {
   });
 
   final String id;
+  final String authorUserId;
   final String authorName;
   final String? authorAvatarUrl;
   final DateTime submittedAt;
@@ -107,6 +109,7 @@ class ActivityReview {
 
   ActivityReview copyWith({
     String? id,
+    String? authorUserId,
     String? authorName,
     Object? authorAvatarUrl = _detailSentinel,
     DateTime? submittedAt,
@@ -120,6 +123,7 @@ class ActivityReview {
   }) {
     return ActivityReview(
       id: id ?? this.id,
+      authorUserId: authorUserId ?? this.authorUserId,
       authorName: authorName ?? this.authorName,
       authorAvatarUrl: authorAvatarUrl == _detailSentinel
           ? this.authorAvatarUrl

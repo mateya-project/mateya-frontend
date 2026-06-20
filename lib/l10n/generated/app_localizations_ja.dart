@@ -690,6 +690,15 @@ class AppLocalizationsJa extends AppLocalizations {
   String get mypageBadgesDescription => '参加したアクティビティのカテゴリに応じてバッジを獲得できます。';
 
   @override
+  String get mypageOtherBadgesTitle => '獲得したバッジ';
+
+  @override
+  String get mypageOtherBadgesDescription => 'このユーザーが獲得したバッジです。';
+
+  @override
+  String get mypageOtherBadgesEmpty => 'まだ公開されているバッジはありません。';
+
+  @override
   String get mypageRecentActivitiesSectionTitle => '活動履歴';
 
   @override
@@ -735,6 +744,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get mypageActiveExperiencesTitle => '運営中の体験';
 
   @override
+  String get mypageAddFriend => '友だち追加';
+
+  @override
   String get mypageRemoveFriend => '友だち削除';
 
   @override
@@ -770,6 +782,9 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get mypageBlockUserError => 'ユーザーをブロックできませんでした。しばらくしてから再試行してください。';
+
+  @override
+  String get mypageUnblockAction => 'ブロック解除';
 
   @override
   String get mypageUnblockedUser => 'ブロックを解除しました。';
@@ -2307,6 +2322,18 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get detailsParticipantRemoved => '参加者を削除しました。';
+
+  @override
+  String get detailsParticipantActionViewProfile => 'プロフィールを見る';
+
+  @override
+  String get detailsParticipantActionApprove => '参加を承認';
+
+  @override
+  String get detailsParticipantActionRemove => '参加者を削除';
+
+  @override
+  String get detailsParticipantActionCancelRequest => '申請を取り消す';
 
   @override
   String get detailsPendingParticipantsListTitle => '申請ユーザー一覧';

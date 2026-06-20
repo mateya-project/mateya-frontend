@@ -11,21 +11,22 @@ import 'shared/localization/app_locale_controller.dart';
 import 'shared/logging/app_logger.dart';
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
   final logger = AppLogger.instance;
-  await logger.initialize();
-
-  FlutterError.onError = logger.recordFlutterError;
-  PlatformDispatcher.instance.onError = (error, stackTrace) {
-    return logger.recordZoneError(
-      error,
-      stackTrace,
-      message: 'Unhandled platform dispatcher error',
-    );
-  };
 
   await runZonedGuarded(
     () async {
+      WidgetsFlutterBinding.ensureInitialized();
+      await logger.initialize();
+
+      FlutterError.onError = logger.recordFlutterError;
+      PlatformDispatcher.instance.onError = (error, stackTrace) {
+        return logger.recordZoneError(
+          error,
+          stackTrace,
+          message: 'Unhandled platform dispatcher error',
+        );
+      };
+
       await AuthSessionStore.instance.initialize();
       await AppLocaleController.instance.initialize();
       logger.info(

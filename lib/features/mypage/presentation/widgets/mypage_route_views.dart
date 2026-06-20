@@ -39,6 +39,7 @@ class PersonalMyPageView extends StatelessWidget {
             : MateyaHeader.backArrow(onBack: onBack),
         Expanded(
           child: ListView(
+            key: const PageStorageKey<String>('mypage-personal-home-scroll'),
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
             children: <Widget>[
               _CenteredProfileCard(
@@ -96,6 +97,7 @@ class OtherProfileView extends StatelessWidget {
         MateyaHeader.backArrow(onBack: onBack),
         Expanded(
           child: ListView(
+            key: const PageStorageKey<String>('mypage-other-profile-scroll'),
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
             children: <Widget>[
               _CenteredProfileCard(
@@ -110,7 +112,7 @@ class OtherProfileView extends StatelessWidget {
               const SizedBox(height: 16),
               _ProfileMetricStrip(metrics: data.metrics),
               const SizedBox(height: 16),
-              _BadgeGridSection(badges: data.badges),
+              _BadgeGridSection.otherProfile(badges: data.badges),
               const SizedBox(height: 16),
               _RecentActivityListSection(
                 activities: data.recentActivities,
@@ -119,11 +121,13 @@ class OtherProfileView extends StatelessWidget {
                 showButton: false,
               ),
               const SizedBox(height: 32),
-              if (data.isFriend)
+              if (!data.isBlocked)
                 MateyaButton(
                   label: isBusy
                       ? l10n.commonProcessing
-                      : l10n.mypageRemoveFriend,
+                      : data.isFriend
+                      ? l10n.mypageRemoveFriend
+                      : l10n.mypageAddFriend,
                   enabled: !isBusy,
                   onPressed: onFriendTap,
                 )
@@ -186,6 +190,7 @@ class SettingsView extends StatelessWidget {
         MateyaHeader.backArrow(onBack: onBack, onReportTap: onReport),
         Expanded(
           child: CustomScrollView(
+            key: const PageStorageKey<String>('mypage-settings-scroll'),
             slivers: <Widget>[
               SliverToBoxAdapter(
                 child: _SettingsTitleBar(title: l10n.mypageTitle),
@@ -320,6 +325,7 @@ class ConsentHistoryView extends StatelessWidget {
         MateyaHeader.backArrow(onBack: onBack),
         Expanded(
           child: ListView(
+            key: const PageStorageKey<String>('mypage-consent-history-scroll'),
             padding: const EdgeInsets.fromLTRB(20, 22, 20, 24),
             children: <Widget>[
               Text(
@@ -409,6 +415,7 @@ class BlockedUsersView extends StatelessWidget {
         MateyaHeader.backArrow(onBack: onBack),
         Expanded(
           child: ListView(
+            key: const PageStorageKey<String>('mypage-blocked-users-scroll'),
             padding: const EdgeInsets.fromLTRB(20, 22, 20, 24),
             children: <Widget>[
               Text(
@@ -452,14 +459,19 @@ class BlockedUsersView extends StatelessWidget {
                             ],
                           ),
                         ),
-                        IconButton(
+                        const SizedBox(width: 12),
+                        TextButton(
                           onPressed: () => onUnblock(user.id),
-                          icon: const Icon(Icons.remove_rounded),
-                          color: Colors.white,
-                          style: IconButton.styleFrom(
-                            backgroundColor: const Color(0xFFC73E19),
-                            fixedSize: const Size(34, 34),
+                          style: TextButton.styleFrom(
+                            foregroundColor: AppColors.error,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 10,
+                            ),
+                            textStyle: Theme.of(context).textTheme.labelLarge
+                                ?.copyWith(fontWeight: FontWeight.w700),
                           ),
+                          child: Text(l10n.mypageUnblockAction),
                         ),
                       ],
                     ),
@@ -494,6 +506,9 @@ class RecentActivitiesView extends StatelessWidget {
         MateyaHeader.backArrow(onBack: onBack),
         Expanded(
           child: ListView(
+            key: const PageStorageKey<String>(
+              'mypage-recent-activities-scroll',
+            ),
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
             children: <Widget>[
               Text(
@@ -764,9 +779,14 @@ class _ProfileMetricStrip extends StatelessWidget {
 }
 
 class _BadgeGridSection extends StatelessWidget {
-  const _BadgeGridSection({required this.badges});
+  const _BadgeGridSection({required this.badges})
+    : titleMode = _BadgeGridTitleMode.mine;
+
+  const _BadgeGridSection.otherProfile({required this.badges})
+    : titleMode = _BadgeGridTitleMode.otherProfile;
 
   final List<ActivityBadge> badges;
+  final _BadgeGridTitleMode titleMode;
   static const double _badgeSpacing = 8;
 
   @override
@@ -774,6 +794,21 @@ class _BadgeGridSection extends StatelessWidget {
     final l10n = context.l10n;
     final badgeSlots = buildMyPageBadgeSlots(badges);
     final earnedBadgeCount = badgeSlots.where((slot) => slot.isEarned).length;
+    final shouldShowCatalogSlots = titleMode == _BadgeGridTitleMode.mine;
+    final visibleSlots = shouldShowCatalogSlots
+        ? badgeSlots
+        : badgeSlots.where((slot) => slot.isEarned).toList(growable: false);
+    final title = switch (titleMode) {
+      _BadgeGridTitleMode.mine => l10n.mypageBadgesTitle,
+      _BadgeGridTitleMode.otherProfile => l10n.mypageOtherBadgesTitle,
+    };
+    final description = switch (titleMode) {
+      _BadgeGridTitleMode.mine => l10n.mypageBadgesDescription,
+      _BadgeGridTitleMode.otherProfile => l10n.mypageOtherBadgesDescription,
+    };
+    final countLabel = shouldShowCatalogSlots
+        ? '$earnedBadgeCount/$kMyPageBadgeCatalogCount'
+        : '$earnedBadgeCount';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -782,12 +817,12 @@ class _BadgeGridSection extends StatelessWidget {
           children: <Widget>[
             Expanded(
               child: Text(
-                l10n.mypageBadgesTitle,
+                title,
                 style: Theme.of(context).textTheme.headlineMedium,
               ),
             ),
             Text(
-              '$earnedBadgeCount/$kMyPageBadgeCatalogCount',
+              countLabel,
               style: Theme.of(
                 context,
               ).textTheme.headlineSmall?.copyWith(color: AppColors.brandGreen),
@@ -796,34 +831,45 @@ class _BadgeGridSection extends StatelessWidget {
         ),
         const SizedBox(height: 6),
         Text(
-          l10n.mypageBadgesDescription,
+          description,
           style: Theme.of(
             context,
           ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
         ),
         const SizedBox(height: 16),
-        LayoutBuilder(
-          builder: (BuildContext context, BoxConstraints constraints) {
-            final badgeWidth = (constraints.maxWidth - (_badgeSpacing * 2)) / 3;
+        if (visibleSlots.isEmpty)
+          Text(
+            l10n.mypageOtherBadgesEmpty,
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
+          )
+        else
+          LayoutBuilder(
+            builder: (BuildContext context, BoxConstraints constraints) {
+              final badgeWidth =
+                  (constraints.maxWidth - (_badgeSpacing * 2)) / 3;
 
-            return Wrap(
-              spacing: _badgeSpacing,
-              runSpacing: 10,
-              children: badgeSlots
-                  .map(
-                    (badgeSlot) => SizedBox(
-                      width: badgeWidth,
-                      child: _BadgeGridTile(slot: badgeSlot),
-                    ),
-                  )
-                  .toList(growable: false),
-            );
-          },
-        ),
+              return Wrap(
+                spacing: _badgeSpacing,
+                runSpacing: 10,
+                children: visibleSlots
+                    .map(
+                      (badgeSlot) => SizedBox(
+                        width: badgeWidth,
+                        child: _BadgeGridTile(slot: badgeSlot),
+                      ),
+                    )
+                    .toList(growable: false),
+              );
+            },
+          ),
       ],
     );
   }
 }
+
+enum _BadgeGridTitleMode { mine, otherProfile }
 
 class _BadgeGridTile extends StatelessWidget {
   const _BadgeGridTile({required this.slot});
@@ -1306,6 +1352,7 @@ class BusinessMyPageView extends StatelessWidget {
         const MateyaHeader.noBackArrow(),
         Expanded(
           child: ListView(
+            key: const PageStorageKey<String>('mypage-business-home-scroll'),
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
             children: <Widget>[
               MyPageProfileHeroCard(

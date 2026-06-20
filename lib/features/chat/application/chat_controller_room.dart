@@ -23,8 +23,8 @@ Future<void> _chatOpenRoom(
   controller._notifyChanged();
 
   try {
-    final room = await controller._repository.fetchRoom(roomId);
-    final firstPage = await controller._repository.fetchRoomMessagesPage(
+    final room = await controller.repository.fetchRoom(roomId);
+    final firstPage = await controller.repository.fetchRoomMessagesPage(
       roomId: roomId,
       page: 0,
     );
@@ -32,7 +32,7 @@ Future<void> _chatOpenRoom(
     controller._hasOlderMessages = firstPage.hasNext;
     controller._nextRoomMessagesPage = firstPage.nextPage;
     try {
-      await controller._repository.markRoomAsRead(roomId);
+      await controller.repository.markRoomAsRead(roomId);
     } on ChatRepositoryException {
       controller._pushToast(l10n.chatReadSyncFailed);
     }
@@ -71,7 +71,7 @@ Future<void> _chatLoadOlderMessages(ChatController controller) async {
   controller._isLoadingOlderMessages = true;
   controller._notifyChanged();
   try {
-    final pageResult = await controller._repository.fetchRoomMessagesPage(
+    final pageResult = await controller.repository.fetchRoomMessagesPage(
       roomId: roomId,
       page: controller._nextRoomMessagesPage!,
     );

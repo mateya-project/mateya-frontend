@@ -66,6 +66,9 @@ Future<void> _completeHostSignup(OnboardingController controller) async {
     );
     _finishSignup(controller, session);
   } on MateyaApiException catch (error) {
+    if (_handleExpiredBusinessVerificationToken(controller, error)) {
+      return;
+    }
     final retriedSession = await _retryHostSignupWithFreshToken(
       controller,
       error: error,
@@ -145,6 +148,9 @@ Future<AuthSession?> _retryHostSignupWithFreshToken(
   required MateyaApiException error,
   required String businessVerificationToken,
 }) async {
+  if (_handleExpiredBusinessVerificationToken(controller, error)) {
+    return null;
+  }
   if (!_shouldRetrySignupWithFreshToken(controller, error)) {
     _applyApiError(controller, error);
     controller._notifyChanged();
@@ -232,6 +238,52 @@ Future<String?> _refreshVerificationTokenForSignup(
     controller._notifyChanged();
     return null;
   }
+}
+
+bool _handleExpiredBusinessVerificationToken(
+  OnboardingController controller,
+  MateyaApiException error,
+) {
+  if (!_hasBusinessVerificationCredentialError(error)) {
+    return false;
+  }
+
+  final l10n = MateyaLocalizations.current;
+  controller._businessVerificationToken = null;
+  controller._businessVerificationExpiresAt = null;
+  controller._authPhase = AsyncPhase.validationError;
+  controller._step = OnboardingStep.hostBusiness;
+  controller._emitToast(l10n.onboardingBusinessVerificationExpired);
+  controller._notifyChanged();
+  return true;
+}
+
+bool _hasBusinessVerificationCredentialError(MateyaApiException error) {
+  if (error.fieldErrors.keys.any((field) {
+    final normalizedField = field.toLowerCase();
+    return normalizedField.contains('businessverification') ||
+        normalizedField.contains('business_verification') ||
+        normalizedField.contains('businessverificationtoken');
+  })) {
+    return true;
+  }
+
+  final normalizedErrorText = <String>[
+    if (error.title != null) error.title!,
+    error.message,
+    ...error.fieldErrors.values,
+  ].join(' ').toLowerCase();
+
+  final mentionsBusinessVerification =
+      normalizedErrorText.contains('사업자 인증 토큰') ||
+      normalizedErrorText.contains('business verification token');
+  final mentionsInvalidOrExpired =
+      normalizedErrorText.contains('유효하지') ||
+      normalizedErrorText.contains('만료') ||
+      normalizedErrorText.contains('invalid') ||
+      normalizedErrorText.contains('expired');
+
+  return mentionsBusinessVerification && mentionsInvalidOrExpired;
 }
 
 String? _requireVerificationToken(

@@ -22,7 +22,7 @@ Future<void> _chatLoadMoreRooms(ChatController controller) async {
   controller._isLoadingMoreRooms = true;
   controller._notifyChanged();
   try {
-    final pageResult = await controller._repository.fetchRoomsPage(
+    final pageResult = await controller.repository.fetchRoomsPage(
       page: controller._nextRoomsPage!,
     );
     final merged = <String, ChatRoom>{
@@ -52,7 +52,7 @@ Future<void> _chatLoadRooms(ChatController controller) async {
   controller._notifyChanged();
 
   try {
-    final pageResult = await controller._repository.fetchRoomsPage(page: 0);
+    final pageResult = await controller.repository.fetchRoomsPage(page: 0);
     controller._rooms = pageResult.rooms.toList()..sort(_chatRoomSortByLatest);
     controller._hasMoreRooms = pageResult.hasNext;
     controller._nextRoomsPage = pageResult.nextPage;

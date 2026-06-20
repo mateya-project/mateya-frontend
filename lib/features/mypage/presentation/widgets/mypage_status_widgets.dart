@@ -257,10 +257,12 @@ class MyPageRetryView extends StatelessWidget {
     super.key,
     required this.message,
     required this.onRetry,
+    this.onBack,
   });
 
   final String message;
   final VoidCallback onRetry;
+  final VoidCallback? onBack;
 
   @override
   Widget build(BuildContext context) {
@@ -268,7 +270,9 @@ class MyPageRetryView extends StatelessWidget {
     return Column(
       key: const ValueKey<String>('mypage-retry'),
       children: <Widget>[
-        const MateyaHeader.noBackArrow(),
+        onBack == null
+            ? const MateyaHeader.noBackArrow()
+            : MateyaHeader.backArrow(onBack: onBack),
         Expanded(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),

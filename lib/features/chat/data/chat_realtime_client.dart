@@ -149,10 +149,10 @@ class ChatRealtimeClient {
           );
         },
         onWebSocketError: (error) {
-          _logger.warning(
+          _logInitialConnectionWarning(
+            roomId,
             'Chat realtime WebSocket error received',
-            error: error,
-            context: _logContext(roomId),
+            error,
           );
           _reportConnectionError(
             MateyaLocalizations.current.chatRealtimeConnectionError,
@@ -354,8 +354,39 @@ class ChatRealtimeClient {
   }
 
   String _webSocketUrl() {
-    final uri = Uri.parse(AppConfig.apiBaseUrl);
-    final scheme = uri.scheme == 'https' ? 'wss' : 'ws';
-    return uri.replace(scheme: scheme, path: '/ws').toString();
+    return buildChatWebSocketUrl(AppConfig.apiBaseUrl);
   }
+
+  void _logInitialConnectionWarning(
+    String roomId,
+    String message,
+    Object error,
+  ) {
+    if (_hasConnectedInCurrentSession || _hasReportedInitialConnectionFailure) {
+      _logger.debug(
+        'Chat realtime repeated connection error suppressed',
+        context: _logContext(roomId, message: '$error', url: _webSocketUrl()),
+      );
+      return;
+    }
+    _logger.warning(
+      message,
+      error: error,
+      context: _logContext(roomId, url: _webSocketUrl()),
+    );
+  }
+}
+
+String buildChatWebSocketUrl(String apiBaseUrl) {
+  final uri = Uri.parse(apiBaseUrl.trim());
+  final scheme = uri.scheme == 'https' ? 'wss' : 'ws';
+  if (uri.hasPort) {
+    return Uri(
+      scheme: scheme,
+      host: uri.host,
+      port: uri.port,
+      path: '/ws',
+    ).toString();
+  }
+  return Uri(scheme: scheme, host: uri.host, path: '/ws').toString();
 }

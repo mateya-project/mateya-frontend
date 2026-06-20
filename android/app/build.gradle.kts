@@ -27,6 +27,7 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        manifestPlaceholders["NAVER_MAP_CLIENT_ID"] = "io8sqad7yn"
     }
 
     buildTypes {

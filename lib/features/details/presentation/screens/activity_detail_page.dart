@@ -1,14 +1,17 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../../shared/auth/auth_session.dart';
 import '../../../../shared/localization/mateya_localizations.dart';
 import '../../../../shared/navigation/mateya_auth_flow.dart';
+import '../../../../shared/navigation/mateya_route_observer.dart';
 import '../../../../shared/report/report_repository.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../../shared/widgets/mateya_button.dart';
 import '../../../../shared/widgets/mateya_header.dart';
+import '../../../../shared/widgets/mateya_profile_avatar.dart';
 import '../../../../shared/widgets/mateya_report_sheet.dart';
 import '../../../mypage/application/mypage_controller.dart';
 import '../../../mypage/data/mypage_repository.dart';
@@ -31,32 +34,46 @@ class ActivityDetailPage extends StatefulWidget {
   State<ActivityDetailPage> createState() => _ActivityDetailPageState();
 }
 
-class _ActivityDetailPageState extends State<ActivityDetailPage> {
+class _ActivityDetailPageState extends State<ActivityDetailPage>
+    with RouteAware {
   final PageController _pageController = PageController();
   final ReportRepository _reportRepository = ReportRepository();
   int _currentImagePage = 0;
+  PageRoute<dynamic>? _route;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(_lifecycleObserver);
     widget.controller.initialize();
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final route = ModalRoute.of(context);
+    if (route is! PageRoute<dynamic> || identical(route, _route)) {
+      return;
+    }
+    if (_route != null) {
+      mateyaRouteObserver.unsubscribe(this);
+    }
+    _route = route;
+    mateyaRouteObserver.subscribe(this, route);
+  }
+
+  @override
   void dispose() {
+    mateyaRouteObserver.unsubscribe(this);
+    WidgetsBinding.instance.removeObserver(_lifecycleObserver);
     _pageController.dispose();
     widget.controller.dispose();
     super.dispose();
   }
 
-  Future<void> _copyShareUrl(String url) async {
-    await Clipboard.setData(ClipboardData(text: url));
-    if (!mounted) {
-      return;
-    }
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(context.l10n.detailsShareCopied)));
+  @override
+  void didPopNext() {
+    _refreshDetail();
   }
 
   Future<void> _handleFavoriteTap() async {
@@ -95,15 +112,19 @@ class _ActivityDetailPageState extends State<ActivityDetailPage> {
         builder: (_) => ActivityReviewListPage(controller: widget.controller),
       ),
     );
+    await _refreshDetail();
   }
 
   Future<void> _openParticipantRequests() async {
     await Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (_) =>
-            ActivityParticipantRequestPage(controller: widget.controller),
+        builder: (_) => ActivityParticipantRequestPage(
+          controller: widget.controller,
+          onOpenOtherProfile: _openProfile,
+        ),
       ),
     );
+    await _refreshDetail();
   }
 
   Future<String?> _submitActivityReport(String body, List<XFile> images) async {
@@ -134,46 +155,16 @@ class _ActivityDetailPageState extends State<ActivityDetailPage> {
   }
 
   Future<void> _openProfile(String userId) async {
-    if (userId.isEmpty) {
-      return;
-    }
-    final session = AuthSessionStore.instance.session;
-    final currentUserId = session?.user.id.toString();
-    final isHostFlow = _isHostRole(session?.user.role);
-    final hasSession = AuthSessionStore.instance.hasSession;
-    if (!hasSession) {
-      await replaceWithMateyaOnboardingFlow(context);
-      return;
-    }
-
-    if (currentUserId != null && currentUserId == userId) {
-      await Navigator.of(context).push(
-        MaterialPageRoute<void>(
-          builder: (_) => MyPageFlowPage(
-            controller: MyPageController(
-              repository: ApiMyPageRepository(),
-              flowKind: isHostFlow ? FlowKind.host : FlowKind.guest,
-            ),
-            onRootBack: () => Navigator.of(context).pop(),
-          ),
-        ),
-      );
-      return;
-    }
-
-    await Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (_) => MyPageFlowPage(
-          controller: MyPageController(
-            repository: ApiMyPageRepository(),
-            flowKind: FlowKind.guest,
-            initialOtherProfileUserId: userId,
-          ),
-          onRootBack: () => Navigator.of(context).pop(),
-        ),
-      ),
-    );
+    await _openActivityUserProfile(context, userId);
+    await _refreshDetail();
   }
+
+  Future<void> _refreshDetail() async {
+    await widget.controller.retry();
+  }
+
+  late final WidgetsBindingObserver _lifecycleObserver =
+      _ActivityDetailLifecycleObserver(onResumed: _refreshDetail);
 
   @override
   Widget build(BuildContext context) {
@@ -207,6 +198,9 @@ class _ActivityDetailPageState extends State<ActivityDetailPage> {
                             child: Stack(
                               children: <Widget>[
                                 CustomScrollView(
+                                  key: const PageStorageKey<String>(
+                                    'activity-detail-scroll',
+                                  ),
                                   slivers: <Widget>[
                                     SliverToBoxAdapter(
                                       child: DetailHeroSection(
@@ -243,8 +237,6 @@ class _ActivityDetailPageState extends State<ActivityDetailPage> {
                                   child: DetailBottomBar(
                                     detail: detail,
                                     onFavoriteTap: _handleFavoriteTap,
-                                    onShareTap: () =>
-                                        _copyShareUrl(detail.shareUrl),
                                     onJoinTap: _handleJoinTap,
                                     isJoinActionInFlight:
                                         widget.controller.isRequestingJoin,
@@ -268,6 +260,65 @@ bool _isHostRole(String? role) {
   return normalizedRole == 'BUSINESS' || normalizedRole == 'HOST';
 }
 
+Future<void> _openActivityUserProfile(
+  BuildContext context,
+  String userId,
+) async {
+  if (userId.isEmpty) {
+    return;
+  }
+  final session = AuthSessionStore.instance.session;
+  final currentUserId = session?.user.id.toString();
+  final isHostFlow = _isHostRole(session?.user.role);
+  final hasSession = AuthSessionStore.instance.hasSession;
+  if (!hasSession) {
+    await replaceWithMateyaOnboardingFlow(context);
+    return;
+  }
+
+  if (currentUserId != null && currentUserId == userId) {
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => MyPageFlowPage(
+          controller: MyPageController(
+            repository: ApiMyPageRepository(),
+            flowKind: isHostFlow ? FlowKind.host : FlowKind.guest,
+          ),
+          onRootBack: () => Navigator.of(context).pop(),
+        ),
+      ),
+    );
+    return;
+  }
+
+  await Navigator.of(context).push(
+    MaterialPageRoute<void>(
+      builder: (_) => MyPageFlowPage(
+        controller: MyPageController(
+          repository: ApiMyPageRepository(),
+          flowKind: FlowKind.guest,
+          initialOtherProfileUserId: userId,
+        ),
+        onRootBack: () => Navigator.of(context).pop(),
+      ),
+    ),
+  );
+}
+
+class _ActivityDetailLifecycleObserver with WidgetsBindingObserver {
+  _ActivityDetailLifecycleObserver({required this.onResumed});
+
+  final Future<void> Function() onResumed;
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state != AppLifecycleState.resumed) {
+      return;
+    }
+    onResumed();
+  }
+}
+
 class ActivityReviewListPage extends StatefulWidget {
   const ActivityReviewListPage({super.key, required this.controller});
 
@@ -278,9 +329,14 @@ class ActivityReviewListPage extends StatefulWidget {
 }
 
 class ActivityParticipantRequestPage extends StatelessWidget {
-  const ActivityParticipantRequestPage({super.key, required this.controller});
+  const ActivityParticipantRequestPage({
+    super.key,
+    required this.controller,
+    required this.onOpenOtherProfile,
+  });
 
   final ActivityDetailController controller;
+  final Future<void> Function(String userId) onOpenOtherProfile;
 
   @override
   Widget build(BuildContext context) {
@@ -294,177 +350,273 @@ class ActivityParticipantRequestPage extends StatelessWidget {
             detail.activity.participantCount;
         return Scaffold(
           backgroundColor: AppColors.background,
-          appBar: AppBar(
-            backgroundColor: Colors.white,
-            elevation: 0,
-            foregroundColor: AppColors.textPrimary,
-            title: Text(
-              detail.activity.title,
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-          ),
-          body: ListView(
-            padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
-            children: <Widget>[
-              MyPageSectionCard(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Row(
-                      children: <Widget>[
-                        Text(
-                          l10n.detailsParticipantsJoined(
-                            detail.activity.participantCount,
-                          ),
-                          style: Theme.of(context).textTheme.titleLarge,
-                        ),
-                        const Spacer(),
-                        Text(
-                          remaining > 0
-                              ? l10n.detailsParticipantsRemaining(remaining)
-                              : l10n.detailsRecruitmentClosed,
-                          style: Theme.of(context).textTheme.bodyMedium
-                              ?.copyWith(color: AppColors.brandGreen),
-                        ),
-                      ],
+          body: SafeArea(
+            bottom: false,
+            child: Column(
+              children: <Widget>[
+                MateyaHeader.backArrow(
+                  onBack: () => Navigator.of(context).pop(),
+                ),
+                Expanded(
+                  child: ListView(
+                    key: const PageStorageKey<String>(
+                      'activity-participant-request-scroll',
                     ),
-                    const SizedBox(height: 18),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(999),
-                      child: LinearProgressIndicator(
-                        value: detail.activity.participantCapacity == 0
-                            ? 0
-                            : detail.activity.participantCount /
-                                  detail.activity.participantCapacity,
-                        minHeight: 10,
-                        backgroundColor: AppColors.divider,
-                        valueColor: const AlwaysStoppedAnimation<Color>(
-                          AppColors.brandGreen,
+                    padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+                    children: <Widget>[
+                      Text(
+                        detail.activity.title,
+                        style: Theme.of(
+                          context,
+                        ).textTheme.headlineMedium?.copyWith(fontSize: 24),
+                      ),
+                      const SizedBox(height: 18),
+                      MyPageSectionCard(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Row(
+                              children: <Widget>[
+                                Text(
+                                  l10n.detailsParticipantsJoined(
+                                    detail.activity.participantCount,
+                                  ),
+                                  style: Theme.of(context).textTheme.titleLarge
+                                      ?.copyWith(fontWeight: FontWeight.w700),
+                                ),
+                                const Spacer(),
+                                Text(
+                                  remaining > 0
+                                      ? l10n.detailsParticipantsRemaining(
+                                          remaining,
+                                        )
+                                      : l10n.detailsRecruitmentClosed,
+                                  style: Theme.of(context).textTheme.bodyMedium
+                                      ?.copyWith(
+                                        color: remaining > 0
+                                            ? AppColors.brandGreen
+                                            : AppColors.error,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 18),
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(999),
+                              child: LinearProgressIndicator(
+                                value: detail.activity.participantCapacity == 0
+                                    ? 0
+                                    : detail.activity.participantCount /
+                                          detail.activity.participantCapacity,
+                                minHeight: 8,
+                                backgroundColor: AppColors.divider,
+                                valueColor: const AlwaysStoppedAnimation<Color>(
+                                  AppColors.brandGreen,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 22),
+                      Text(
+                        l10n.detailsParticipantsListTitle,
+                        style: Theme.of(context).textTheme.headlineMedium,
+                      ),
+                      const SizedBox(height: 14),
+                      for (final participant
+                          in detail.participants) ...<Widget>[
+                        _ParticipantCard(
+                          participant: participant,
+                          backgroundColor: Colors.white,
+                          actionIcon: Icons.check_rounded,
+                          actionColor: AppColors.brandGreen,
+                          onTap: (context) => _openParticipantActions(
+                            context,
+                            participant: participant,
+                            isPending: false,
+                          ),
+                        ),
+                        const SizedBox(height: 14),
+                      ],
+                      const SizedBox(height: 10),
+                      Text(
+                        l10n.detailsPendingParticipantsListTitle,
+                        style: Theme.of(context).textTheme.headlineMedium,
+                      ),
+                      const SizedBox(height: 14),
+                      for (final participant
+                          in detail.pendingParticipants) ...<Widget>[
+                        _ParticipantCard(
+                          participant: participant,
+                          backgroundColor: AppColors.softGreenBorder,
+                          actionIcon: Icons.add_rounded,
+                          actionColor: AppColors.brandGreen,
+                          onTap: (context) => _openParticipantActions(
+                            context,
+                            participant: participant,
+                            isPending: true,
+                          ),
+                        ),
+                        const SizedBox(height: 14),
+                      ],
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(height: 22),
-              Text(
-                l10n.detailsParticipantsListTitle,
-                style: Theme.of(context).textTheme.headlineMedium,
-              ),
-              const SizedBox(height: 14),
-              for (final participant in detail.participants) ...<Widget>[
-                _ParticipantCard(
-                  participant: participant,
-                  actionIcon:
-                      controller.armedParticipantRemovalId == participant.id
-                      ? Icons.remove_rounded
-                      : Icons.check_rounded,
-                  actionColor:
-                      controller.armedParticipantRemovalId == participant.id
-                      ? const Color(0xFFC73E19)
-                      : AppColors.brandGreen,
-                  onTap: (context) async {
-                    if (controller.armedParticipantRemovalId ==
-                        participant.id) {
-                      final message = await controller
-                          .removeApprovedParticipant(participant.id);
-                      if (!context.mounted) {
-                        return;
-                      }
-                      if (message != null) {
-                        ScaffoldMessenger.of(
-                          context,
-                        ).showSnackBar(SnackBar(content: Text(message)));
-                        return;
-                      }
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(l10n.detailsParticipantRemoved)),
-                      );
-                    } else {
-                      controller.armParticipantRemoval(participant.id);
-                    }
-                  },
-                  onDismissAttempt: (context) async {
-                    final message = await controller.removeApprovedParticipant(
-                      participant.id,
-                    );
-                    if (!context.mounted) {
-                      return false;
-                    }
-                    if (message != null) {
-                      ScaffoldMessenger.of(
-                        context,
-                      ).showSnackBar(SnackBar(content: Text(message)));
-                      return false;
-                    }
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(l10n.detailsParticipantRemoved)),
-                    );
-                    return true;
-                  },
-                ),
-                const SizedBox(height: 14),
               ],
-              const SizedBox(height: 16),
-              Text(
-                l10n.detailsPendingParticipantsListTitle,
-                style: Theme.of(context).textTheme.headlineMedium,
-              ),
-              const SizedBox(height: 14),
-              for (final participant in detail.pendingParticipants) ...<Widget>[
-                _ParticipantCard(
-                  participant: participant,
-                  backgroundColor: AppColors.softGreenBorder,
-                  actionIcon: Icons.add_rounded,
-                  actionColor: AppColors.brandGreen,
-                  onTap: (context) async {
-                    final message = await controller.approvePendingParticipant(
-                      participant.id,
-                    );
-                    if (!context.mounted) {
-                      return;
-                    }
-                    if (message == null) {
-                      return;
-                    }
-                    ScaffoldMessenger.of(
-                      context,
-                    ).showSnackBar(SnackBar(content: Text(message)));
-                  },
-                  onDismissAttempt: (context) async {
-                    final message = await controller.removePendingParticipant(
-                      participant.id,
-                    );
-                    if (!context.mounted) {
-                      return false;
-                    }
-                    if (message != null) {
-                      ScaffoldMessenger.of(
-                        context,
-                      ).showSnackBar(SnackBar(content: Text(message)));
-                      return false;
-                    }
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(l10n.detailsPendingCancelled)),
-                    );
-                    return true;
-                  },
-                ),
-                const SizedBox(height: 14),
-              ],
-              const SizedBox(height: 8),
-              Text(
-                l10n.detailsParticipantSwipeHint,
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: AppColors.textSecondary,
-                ),
-              ),
-            ],
+            ),
           ),
         );
       },
     );
+  }
+
+  Future<void> _openParticipantActions(
+    BuildContext context, {
+    required ActivityParticipant participant,
+    required bool isPending,
+  }) async {
+    final l10n = context.l10n;
+    final action = await showModalBottomSheet<_ParticipantAction>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) {
+        return SafeArea(
+          top: false,
+          child: Container(
+            margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(24),
+              boxShadow: <BoxShadow>[
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.08),
+                  blurRadius: 28,
+                  offset: const Offset(0, 12),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Container(
+                  width: 44,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: AppColors.divider,
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                ),
+                const SizedBox(height: 18),
+                Row(
+                  children: <Widget>[
+                    MateyaProfileAvatar(
+                      imageUrl: participant.avatarUrl,
+                      size: 52,
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text(
+                            participant.name,
+                            style: Theme.of(context).textTheme.titleLarge
+                                ?.copyWith(fontWeight: FontWeight.w700),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            participant.residenceLabel,
+                            style: Theme.of(context).textTheme.bodyMedium
+                                ?.copyWith(color: AppColors.textSecondary),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                _ParticipantActionTile(
+                  icon: Icons.person_outline_rounded,
+                  label: l10n.detailsParticipantActionViewProfile,
+                  onTap: () => Navigator.of(
+                    sheetContext,
+                  ).pop(_ParticipantAction.openProfile),
+                ),
+                if (isPending)
+                  _ParticipantActionTile(
+                    icon: Icons.add_rounded,
+                    label: l10n.detailsParticipantActionApprove,
+                    onTap: () => Navigator.of(
+                      sheetContext,
+                    ).pop(_ParticipantAction.approve),
+                  )
+                else
+                  _ParticipantActionTile(
+                    icon: Icons.person_remove_alt_1_rounded,
+                    label: l10n.detailsParticipantActionRemove,
+                    isDanger: true,
+                    onTap: () => Navigator.of(
+                      sheetContext,
+                    ).pop(_ParticipantAction.remove),
+                  ),
+                if (isPending)
+                  _ParticipantActionTile(
+                    icon: Icons.close_rounded,
+                    label: l10n.detailsParticipantActionCancelRequest,
+                    isDanger: true,
+                    onTap: () => Navigator.of(
+                      sheetContext,
+                    ).pop(_ParticipantAction.remove),
+                  ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
+    if (!context.mounted || action == null) {
+      return;
+    }
+
+    switch (action) {
+      case _ParticipantAction.openProfile:
+        await onOpenOtherProfile(participant.id);
+      case _ParticipantAction.approve:
+        final message = await controller.approvePendingParticipant(
+          participant.id,
+        );
+        if (!context.mounted) {
+          return;
+        }
+        if (message != null) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(message)));
+        }
+      case _ParticipantAction.remove:
+        final message = isPending
+            ? await controller.removePendingParticipant(participant.id)
+            : await controller.removeApprovedParticipant(participant.id);
+        if (!context.mounted) {
+          return;
+        }
+        if (message != null) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(message)));
+          return;
+        }
+        final successMessage = isPending
+            ? l10n.detailsPendingCancelled
+            : l10n.detailsParticipantRemoved;
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(successMessage)));
+    }
   }
 }
 
@@ -474,7 +626,6 @@ class _ParticipantCard extends StatelessWidget {
     required this.actionIcon,
     required this.actionColor,
     required this.onTap,
-    required this.onDismissAttempt,
     this.backgroundColor = Colors.white,
   });
 
@@ -482,30 +633,19 @@ class _ParticipantCard extends StatelessWidget {
   final IconData actionIcon;
   final Color actionColor;
   final Future<void> Function(BuildContext context) onTap;
-  final Future<bool> Function(BuildContext context) onDismissAttempt;
   final Color backgroundColor;
 
   @override
   Widget build(BuildContext context) {
-    return Dismissible(
-      key: ValueKey<String>('participant-${participant.id}-$actionIcon'),
-      background: const SizedBox.shrink(),
-      secondaryBackground: const SizedBox.shrink(),
-      confirmDismiss: (_) => onDismissAttempt(context),
+    return InkWell(
+      borderRadius: BorderRadius.circular(18),
+      onTap: () => onTap(context),
       child: MyPageSectionCard(
         child: Container(
           color: backgroundColor,
           child: Row(
             children: <Widget>[
-              CircleAvatar(
-                radius: 24,
-                backgroundImage: participant.avatarUrl == null
-                    ? null
-                    : NetworkImage(participant.avatarUrl!),
-                child: participant.avatarUrl == null
-                    ? const Icon(Icons.person_outline_rounded)
-                    : null,
-              ),
+              MateyaProfileAvatar(imageUrl: participant.avatarUrl, size: 48),
               const SizedBox(width: 14),
               Expanded(
                 child: Column(
@@ -527,13 +667,57 @@ class _ParticipantCard extends StatelessWidget {
                   ],
                 ),
               ),
-              IconButton(
-                onPressed: () => onTap(context),
-                icon: Icon(actionIcon),
-                color: Colors.white,
-                style: IconButton.styleFrom(
-                  backgroundColor: actionColor,
-                  fixedSize: const Size(34, 34),
+              Container(
+                width: 42,
+                height: 42,
+                decoration: BoxDecoration(
+                  color: actionColor,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(actionIcon, color: Colors.white, size: 24),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+enum _ParticipantAction { openProfile, approve, remove }
+
+class _ParticipantActionTile extends StatelessWidget {
+  const _ParticipantActionTile({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+    this.isDanger = false,
+  });
+
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+  final bool isDanger;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = isDanger ? AppColors.error : AppColors.textPrimary;
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          child: Row(
+            children: <Widget>[
+              Icon(icon, color: color),
+              const SizedBox(width: 12),
+              Text(
+                label,
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  color: color,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ],
@@ -600,6 +784,14 @@ class _ActivityReviewListPageState extends State<ActivityReviewListPage> {
     return showMateyaReportSheet(context, subjectLabel: subjectLabel);
   }
 
+  Future<void> _openProfile(String userId) async {
+    await _openActivityUserProfile(context, userId);
+    if (!mounted) {
+      return;
+    }
+    await widget.controller.retry();
+  }
+
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
@@ -635,6 +827,9 @@ class _ActivityReviewListPageState extends State<ActivityReviewListPage> {
                 Expanded(
                   child: ListView(
                     controller: _scrollController,
+                    key: const PageStorageKey<String>(
+                      'activity-review-list-scroll',
+                    ),
                     padding: const EdgeInsets.fromLTRB(20, 12, 20, 120),
                     children: <Widget>[
                       Text(
@@ -690,6 +885,11 @@ class _ActivityReviewListPageState extends State<ActivityReviewListPage> {
                       ) ...<Widget>[
                         ReviewCard(
                           review: reviews[index],
+                          onAuthorTap: () {
+                            unawaited(
+                              _openProfile(reviews[index].authorUserId),
+                            );
+                          },
                           onHelpfulTap: () {
                             _handleHelpfulTap(reviews[index].id);
                           },

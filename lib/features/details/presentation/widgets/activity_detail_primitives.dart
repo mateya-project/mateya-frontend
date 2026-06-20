@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 
+import '../../../../shared/widgets/mateya_profile_avatar.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../domain/activity_detail_models.dart';
 
@@ -80,35 +81,11 @@ class AvatarCircle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final decoration = BoxDecoration(
-      shape: BoxShape.circle,
-      border: borderColor == null
-          ? null
-          : Border.all(color: borderColor!, width: 2),
-      color: AppColors.subtleBackground,
-    );
-
-    if (imageUrl == null || imageUrl!.isEmpty) {
-      return Container(
-        width: size,
-        height: size,
-        decoration: decoration,
-        alignment: Alignment.center,
-        child: Text(
-          initials.toUpperCase(),
-          style: Theme.of(
-            context,
-          ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
-        ),
-      );
-    }
-
-    return Container(
-      width: size,
-      height: size,
-      decoration: decoration,
-      clipBehavior: Clip.antiAlias,
-      child: NetworkOrFileImage(imageUrl: imageUrl!, fit: BoxFit.cover),
+    return MateyaProfileAvatar(
+      imageUrl: imageUrl,
+      size: size,
+      borderColor: borderColor,
+      borderWidth: borderColor == null ? 0 : 2,
     );
   }
 }

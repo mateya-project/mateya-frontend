@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../../../shared/localization/mateya_localizations.dart';
@@ -325,6 +327,13 @@ class DetailBody extends StatelessWidget {
             ) ...<Widget>[
               ReviewCard(
                 review: controller.previewReviews[index],
+                onAuthorTap: () {
+                  unawaited(
+                    onOpenOtherProfile(
+                      controller.previewReviews[index].authorUserId,
+                    ),
+                  );
+                },
                 onHelpfulTap: () {
                   onHelpfulTap?.call(controller.previewReviews[index].id);
                 },
@@ -349,14 +358,12 @@ class DetailBottomBar extends StatelessWidget {
     super.key,
     required this.detail,
     required this.onFavoriteTap,
-    required this.onShareTap,
     required this.onJoinTap,
     this.isJoinActionInFlight = false,
   });
 
   final ActivityDetail detail;
   final Future<void> Function() onFavoriteTap;
-  final VoidCallback onShareTap;
   final Future<void> Function() onJoinTap;
   final bool isJoinActionInFlight;
 
@@ -409,8 +416,6 @@ class DetailBottomBar extends StatelessWidget {
                   onFavoriteTap();
                 },
               ),
-              const SizedBox(width: 10),
-              BottomGlyphButton(icon: Icons.share_outlined, onTap: onShareTap),
               const SizedBox(width: 12),
               SizedBox(
                 width: 146,

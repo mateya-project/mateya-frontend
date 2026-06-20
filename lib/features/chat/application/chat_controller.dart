@@ -13,11 +13,15 @@ part 'chat_controller_room.dart';
 part 'chat_controller_list.dart';
 
 class ChatController extends ChangeNotifier {
-  ChatController({required this._repository, DateTime Function()? now})
-    : _now = now ?? DateTime.now;
+  ChatController({
+    required this.repository,
+    DateTime Function()? now,
+    this.realtimeFallbackPollInterval = const Duration(seconds: 5),
+  }) : _now = now ?? DateTime.now;
 
-  final ChatRepository _repository;
+  final ChatRepository repository;
   final DateTime Function() _now;
+  final Duration realtimeFallbackPollInterval;
 
   AsyncPhase _listPhase = AsyncPhase.idle;
   AsyncPhase _roomPhase = AsyncPhase.idle;
@@ -37,6 +41,8 @@ class ChatController extends ChangeNotifier {
   int? _nextRoomsPage;
   bool _hasOlderMessages = false;
   int? _nextRoomMessagesPage;
+  Timer? _realtimeFallbackPollTimer;
+  bool _isPollingRealtimeFallback = false;
 
   AsyncPhase get listPhase => _listPhase;
   AsyncPhase get roomPhase => _roomPhase;
@@ -101,7 +107,7 @@ class ChatController extends ChangeNotifier {
   @override
   void dispose() {
     _chatStopRealtime(this);
-    _repository.dispose();
+    repository.dispose();
     super.dispose();
   }
 
