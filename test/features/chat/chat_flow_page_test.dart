@@ -40,6 +40,7 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
 
     final controller = ChatController(repository: _TestChatRepository());
+    addTearDown(controller.dispose);
 
     await controller.initialize();
     await pumpChatPage(tester, controller: controller);
@@ -47,9 +48,6 @@ void main() {
 
     expect(tester.takeException(), isNull);
     expect(find.byType(ChatFlowPage), findsOneWidget);
-
-    await tester.pumpWidget(const SizedBox.shrink());
-    controller.dispose();
   });
 
   testWidgets('chat detail screen does not overflow on compact heights', (
@@ -61,6 +59,7 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
 
     final controller = ChatController(repository: _TestChatRepository());
+    addTearDown(controller.dispose);
 
     await controller.initialize();
     await controller.openRoom('direct-room');
@@ -70,8 +69,8 @@ void main() {
     expect(tester.takeException(), isNull);
     expect(find.byType(ChatFlowPage), findsOneWidget);
 
+    controller.closeRoom();
     await tester.pumpWidget(const SizedBox.shrink());
-    controller.dispose();
   });
 }
 
