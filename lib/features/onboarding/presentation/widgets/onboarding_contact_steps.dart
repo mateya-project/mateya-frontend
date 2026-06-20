@@ -180,6 +180,7 @@ class _PhoneStepViewState extends State<PhoneStepView> {
                     ),
                   ],
                 ],
+                const SizedBox(height: 16),
                 MateyaButton(
                   label: controller.isAuthLoading
                       ? l10n.commonProcessing

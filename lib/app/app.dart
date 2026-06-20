@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'flow_kind_resolver.dart';
 import '../shared/auth/auth_session.dart';
 import '../shared/localization/app_locale_controller.dart';
 import '../shared/localization/mateya_localizations.dart';
@@ -84,49 +85,51 @@ class _MateyaAppState extends State<MateyaApp> with WidgetsBindingObserver {
   }
 
   Future<FlowKind> _resolveFlowKind(AuthSession session) async {
-    if (_isHostRole(session.user.role)) {
-      return FlowKind.host;
-    }
-
-    try {
-      await _apiClient.getJson(
+    final resolution = await resolveFlowKind(
+      currentRole: session.user.role,
+      probeHostAccess: () => _apiClient.getJson(
         '/api/v1/hosts/me',
         requiresAuth: true,
         logFailure: false,
+      ),
+    );
+
+    final refreshedSession = AuthSessionStore.instance.session;
+    if (resolution.updatedRole != null &&
+        refreshedSession != null &&
+        refreshedSession.user.role != resolution.updatedRole) {
+      AuthSessionStore.instance.save(
+        refreshedSession.copyWith(
+          user: refreshedSession.user.copyWith(role: resolution.updatedRole),
+        ),
       );
-      final refreshedSession = AuthSessionStore.instance.session;
-      if (refreshedSession != null &&
-          !_isHostRole(refreshedSession.user.role)) {
-        AuthSessionStore.instance.save(
-          refreshedSession.copyWith(
-            user: refreshedSession.user.copyWith(role: 'BUSINESS'),
-          ),
-        );
-      }
+    }
+
+    if (resolution.flowKind == FlowKind.host) {
       _logger.info('Resolved host flow during bootstrap');
       return FlowKind.host;
-    } on MateyaApiException catch (error) {
-      if (error.type == ApiFailureType.network) {
-        _logger.warning(
-          'Failed to verify host flow during bootstrap',
-          error: error,
-          context: <String, Object?>{
-            'statusCode': error.statusCode,
-            'fallbackFlowKind': FlowKind.guest.name,
-          },
-        );
-      } else {
-        _logger.info(
-          'Host flow probe fell back to guest during bootstrap',
-          context: <String, Object?>{
-            'statusCode': error.statusCode,
-            'path': error.path,
-            if (error.code != null) 'code': error.code,
-          },
-        );
-      }
-      return FlowKind.guest;
     }
+
+    if (resolution.probeFailedWithNetwork) {
+      _logger.warning(
+        'Failed to verify host flow during bootstrap',
+        context: <String, Object?>{
+          'fallbackFlowKind': resolution.flowKind.name,
+          'preservedRole': session.user.role,
+        },
+      );
+      return resolution.flowKind;
+    }
+
+    _logger.info(
+      'Host flow probe fell back to guest during bootstrap',
+      context: <String, Object?>{
+        'previousRole': session.user.role,
+        if (resolution.updatedRole != null)
+          'updatedRole': resolution.updatedRole,
+      },
+    );
+    return FlowKind.guest;
   }
 
   @override
@@ -164,11 +167,6 @@ class _MateyaAppState extends State<MateyaApp> with WidgetsBindingObserver {
       },
     );
   }
-}
-
-bool _isHostRole(String role) {
-  final normalizedRole = role.trim().toUpperCase();
-  return normalizedRole == 'BUSINESS' || normalizedRole == 'HOST';
 }
 
 class _AppBootstrapLoadingView extends StatelessWidget {
