@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 
 import '../../../../shared/localization/mateya_localizations.dart';
 import '../../../../shared/permissions/mateya_permission_dialogs.dart';
+import '../../../../shared/theme/app_responsive.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../../shared/widgets/mateya_button.dart';
 import '../../../../shared/widgets/mateya_header.dart';
@@ -50,6 +51,8 @@ class _PhoneStepViewState extends State<PhoneStepView> {
     final l10n = context.l10n;
     final theme = Theme.of(context);
     final hasSentVerificationCode = controller.hasSentVerificationCode;
+    final horizontalPadding = AppResponsive.horizontalPadding(context);
+    final bottomPadding = AppResponsive.keyboardAwareBottomPadding(context);
 
     _phoneController.value = _phoneController.value.copyWith(
       text: controller.phoneNumber,
@@ -67,7 +70,8 @@ class _PhoneStepViewState extends State<PhoneStepView> {
         MateyaHeader.backArrow(onBack: controller.goBack),
         Expanded(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+            padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
@@ -176,28 +180,25 @@ class _PhoneStepViewState extends State<PhoneStepView> {
                     ),
                   ],
                 ],
-                const SizedBox(height: 120),
+                MateyaButton(
+                  label: controller.isAuthLoading
+                      ? l10n.commonProcessing
+                      : controller.hasSentVerificationCode
+                      ? l10n.onboardingVerify
+                      : l10n.onboardingRequestVerificationCode,
+                  tone: MateyaButtonTone.dark,
+                  enabled:
+                      !controller.isAuthLoading &&
+                      (hasSentVerificationCode
+                          ? controller.canSubmitVerificationCode
+                          : controller.canSendVerificationCode),
+                  onPressed: hasSentVerificationCode
+                      ? () => controller.submitVerificationCode()
+                      : () => controller.sendVerificationCode(),
+                ),
+                SizedBox(height: bottomPadding),
               ],
             ),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(20, 0, 20, 26),
-          child: MateyaButton(
-            label: controller.isAuthLoading
-                ? l10n.commonProcessing
-                : controller.hasSentVerificationCode
-                ? l10n.onboardingVerify
-                : l10n.onboardingRequestVerificationCode,
-            tone: MateyaButtonTone.dark,
-            enabled:
-                !controller.isAuthLoading &&
-                (hasSentVerificationCode
-                    ? controller.canSubmitVerificationCode
-                    : controller.canSendVerificationCode),
-            onPressed: hasSentVerificationCode
-                ? () => controller.submitVerificationCode()
-                : () => controller.sendVerificationCode(),
           ),
         ),
       ],
@@ -277,9 +278,16 @@ class _NeighborhoodAutoStepViewState extends State<NeighborhoodAutoStepView> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
-          child: OnboardingLocationPermissionDialogContent(
-            onManualInput: () => Navigator.of(dialogContext).pop(false),
-            onUseCurrentLocation: () => Navigator.of(dialogContext).pop(true),
+          child: ConstrainedBox(
+            constraints: AppResponsive.dialogConstraints(
+              context,
+              maxWidth: 360,
+              maxHeightFactor: 0.84,
+            ),
+            child: OnboardingLocationPermissionDialogContent(
+              onManualInput: () => Navigator.of(dialogContext).pop(false),
+              onUseCurrentLocation: () => Navigator.of(dialogContext).pop(true),
+            ),
           ),
         );
       },
@@ -326,13 +334,15 @@ class _NeighborhoodAutoStepViewState extends State<NeighborhoodAutoStepView> {
     final controller = widget.controller;
     final l10n = context.l10n;
     final theme = Theme.of(context);
+    final horizontalPadding = AppResponsive.horizontalPadding(context);
 
     return Column(
       children: <Widget>[
         MateyaHeader.backArrow(onBack: controller.goBack),
         Expanded(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 19),
+          child: SingleChildScrollView(
+            padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
@@ -342,31 +352,24 @@ class _NeighborhoodAutoStepViewState extends State<NeighborhoodAutoStepView> {
                   style: theme.textTheme.headlineLarge,
                 ),
                 const SizedBox(height: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      NeighborhoodMapCard(
-                        selection: controller.selectedNeighborhood,
-                        isLoading:
-                            controller.locationPhase == AsyncPhase.loading,
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        controller.completionMode == AuthCompletionMode.login &&
-                                controller.previousNeighborhoodLabel != null
-                            ? l10n.onboardingPreviousNeighborhood(
-                                controller.previousNeighborhoodLabel!,
-                              )
-                            : controller.selectedNeighborhood != null
-                            ? controller.resolvedNeighborhoodMessage
-                            : controller.locationFailure?.message ??
-                                  l10n.onboardingResolvingCurrentLocation,
-                        style: theme.textTheme.bodyLarge,
-                      ),
-                    ],
-                  ),
+                NeighborhoodMapCard(
+                  selection: controller.selectedNeighborhood,
+                  isLoading: controller.locationPhase == AsyncPhase.loading,
                 ),
+                const SizedBox(height: 16),
+                Text(
+                  controller.completionMode == AuthCompletionMode.login &&
+                          controller.previousNeighborhoodLabel != null
+                      ? l10n.onboardingPreviousNeighborhood(
+                          controller.previousNeighborhoodLabel!,
+                        )
+                      : controller.selectedNeighborhood != null
+                      ? controller.resolvedNeighborhoodMessage
+                      : controller.locationFailure?.message ??
+                            l10n.onboardingResolvingCurrentLocation,
+                  style: theme.textTheme.bodyLarge,
+                ),
+                const SizedBox(height: 24),
                 MateyaButton(
                   label: controller.isAuthLoading
                       ? l10n.commonProcessing
@@ -413,6 +416,7 @@ class _NeighborhoodAutoStepViewState extends State<NeighborhoodAutoStepView> {
                               color: AppColors.textSecondary,
                             ),
                           ),
+                          const TextSpan(text: ' '),
                           TextSpan(
                             text: l10n.onboardingManualInputCta,
                             style: const TextStyle(color: AppColors.brandGreen),
@@ -447,8 +451,7 @@ class OnboardingLocationPermissionDialogContent extends StatelessWidget {
     final l10n = context.l10n;
     final theme = Theme.of(context);
 
-    return ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: 360),
+    return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(22, 22, 22, 18),
         child: Column(
@@ -475,10 +478,10 @@ class OnboardingLocationPermissionDialogContent extends StatelessWidget {
             const SizedBox(height: 22),
             SizedBox(
               width: double.infinity,
-              height: 62,
               child: ElevatedButton(
                 onPressed: onUseCurrentLocation,
                 style: ElevatedButton.styleFrom(
+                  minimumSize: const Size.fromHeight(56),
                   elevation: 0,
                   backgroundColor: AppColors.brandGreen,
                   foregroundColor: Colors.white,
@@ -550,6 +553,8 @@ class _NeighborhoodManualStepViewState
     final controller = widget.controller;
     final l10n = context.l10n;
     final theme = Theme.of(context);
+    final horizontalPadding = AppResponsive.horizontalPadding(context);
+    final bottomPadding = AppResponsive.keyboardAwareBottomPadding(context);
 
     _queryController.value = _queryController.value.copyWith(
       text: controller.manualNeighborhoodQuery,
@@ -562,8 +567,9 @@ class _NeighborhoodManualStepViewState
       children: <Widget>[
         MateyaHeader.backArrow(onBack: controller.goBack),
         Expanded(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 19),
+          child: SingleChildScrollView(
+            padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
@@ -592,18 +598,15 @@ class _NeighborhoodManualStepViewState
                   onChanged: controller.updateManualNeighborhoodQuery,
                   onSubmitted: (_) => controller.resolveManualNeighborhood(),
                 ),
-                const Spacer(),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 26),
-                  child: MateyaButton(
-                    label: controller.isAuthLoading
-                        ? l10n.commonProcessing
-                        : l10n.onboardingCompleteNeighborhood,
-                    enabled:
-                        controller.canCompleteNeighborhood &&
-                        !controller.isAuthLoading,
-                    onPressed: controller.completeNeighborhood,
-                  ),
+                SizedBox(height: bottomPadding),
+                MateyaButton(
+                  label: controller.isAuthLoading
+                      ? l10n.commonProcessing
+                      : l10n.onboardingCompleteNeighborhood,
+                  enabled:
+                      controller.canCompleteNeighborhood &&
+                      !controller.isAuthLoading,
+                  onPressed: controller.completeNeighborhood,
                 ),
               ],
             ),

@@ -3,6 +3,7 @@ import 'package:flutter_naver_map/flutter_naver_map.dart';
 
 import '../../../../shared/localization/mateya_localizations.dart';
 import '../../../../shared/logging/naver_map_diagnostics.dart';
+import '../../../../shared/theme/app_responsive.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../../shared/widgets/mateya_skeleton.dart';
 import '../../domain/create_models.dart';
@@ -51,10 +52,17 @@ class PlaceTile extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  Text(place.name, style: theme.textTheme.titleLarge),
+                  Text(
+                    place.name,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.titleLarge,
+                  ),
                   const SizedBox(height: 6),
                   Text(
                     place.address,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: AppColors.textSecondary,
                     ),
@@ -62,6 +70,8 @@ class PlaceTile extends StatelessWidget {
                   const SizedBox(height: 6),
                   Text(
                     place.description,
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: AppColors.textMuted,
                     ),
@@ -115,10 +125,17 @@ class SelectedPlaceCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Text(place.name, style: Theme.of(context).textTheme.titleLarge),
+                Text(
+                  place.name,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
                 const SizedBox(height: 4),
                 Text(
                   place.address,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: Theme.of(
                     context,
                   ).textTheme.bodyMedium?.copyWith(color: AppColors.textMuted),
@@ -244,11 +261,18 @@ class _PlaceMapCardState extends State<PlaceMapCard> {
     final target = place != null && place.hasCoordinates
         ? NLatLng(place.latitude!, place.longitude!)
         : const NLatLng(37.5665, 126.9780);
+    final mapHeight = AppResponsive.clampedHeight(
+      context,
+      ideal: 280,
+      min: 192,
+      max: 280,
+      regularScale: 1,
+    );
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(20),
       child: SizedBox(
-        height: 280,
+        height: mapHeight,
         child: Stack(
           fit: StackFit.expand,
           children: <Widget>[

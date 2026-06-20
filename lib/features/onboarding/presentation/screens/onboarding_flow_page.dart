@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../shared/localization/mateya_localizations.dart';
+import '../../../../shared/theme/app_responsive.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../application/onboarding_controller.dart';
 import '../../domain/onboarding_flow.dart';
@@ -57,22 +58,34 @@ class _OnboardingFlowPageState extends State<OnboardingFlowPage> {
         return Scaffold(
           backgroundColor: AppColors.background,
           body: SafeArea(
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 280),
-              transitionBuilder: (child, animation) {
-                final offsetAnimation = Tween<Offset>(
-                  begin: const Offset(0.08, 0),
-                  end: Offset.zero,
-                ).animate(animation);
-                return FadeTransition(
-                  opacity: animation,
-                  child: SlideTransition(
-                    position: offsetAnimation,
-                    child: child,
+            child: Align(
+              alignment: Alignment.topCenter,
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxWidth: AppResponsive.contentMaxWidth(
+                    context,
+                    phone: 600,
+                    tablet: 760,
                   ),
-                );
-              },
-              child: _buildStep(context, widget.controller),
+                ),
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 280),
+                  transitionBuilder: (child, animation) {
+                    final offsetAnimation = Tween<Offset>(
+                      begin: const Offset(0.08, 0),
+                      end: Offset.zero,
+                    ).animate(animation);
+                    return FadeTransition(
+                      opacity: animation,
+                      child: SlideTransition(
+                        position: offsetAnimation,
+                        child: child,
+                      ),
+                    );
+                  },
+                  child: _buildStep(context, widget.controller),
+                ),
+              ),
             ),
           ),
         );

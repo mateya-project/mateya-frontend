@@ -50,6 +50,8 @@ class FeaturedActivityCard extends StatelessWidget {
                   children: <Widget>[
                     Text(
                       activity.title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontSize: 19,
                         fontWeight: FontWeight.w600,
@@ -58,6 +60,8 @@ class FeaturedActivityCard extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       activity.place,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: AppColors.textMuted,
                       ),
@@ -163,6 +167,8 @@ class VerticalActivityCard extends StatelessWidget {
                       children: <Widget>[
                         Text(
                           activity.title,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                           style: Theme.of(context).textTheme.bodyLarge
                               ?.copyWith(fontSize: 18, height: 1.35),
                         ),
@@ -275,6 +281,8 @@ class CompactActivityRow extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     activity.place,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: Theme.of(
                       context,
                     ).textTheme.bodySmall?.copyWith(color: AppColors.textMuted),

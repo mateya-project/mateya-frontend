@@ -3,6 +3,7 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../../../shared/localization/mateya_localizations.dart';
 import '../../../../shared/media/mateya_gallery_picker.dart';
+import '../../../../shared/theme/app_responsive.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../../shared/widgets/mateya_button.dart';
 import '../../../onboarding/domain/onboarding_flow.dart';
@@ -414,32 +415,59 @@ class _CreateFlowPageState extends State<CreateFlowPage> {
                     onBack: _handleBack,
                   ),
                 Expanded(
-                  child: AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 260),
-                    transitionBuilder: (child, animation) {
-                      final offsetAnimation = Tween<Offset>(
-                        begin: const Offset(0.06, 0),
-                        end: Offset.zero,
-                      ).animate(animation);
-                      return FadeTransition(
-                        opacity: animation,
-                        child: SlideTransition(
-                          position: offsetAnimation,
-                          child: child,
+                  child: Align(
+                    alignment: Alignment.topCenter,
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxWidth: AppResponsive.contentMaxWidth(
+                          context,
+                          phone: 600,
+                          tablet: 760,
                         ),
-                      );
-                    },
-                    child: _buildStep(context),
+                      ),
+                      child: AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 260),
+                        transitionBuilder: (child, animation) {
+                          final offsetAnimation = Tween<Offset>(
+                            begin: const Offset(0.06, 0),
+                            end: Offset.zero,
+                          ).animate(animation);
+                          return FadeTransition(
+                            opacity: animation,
+                            child: SlideTransition(
+                              position: offsetAnimation,
+                              child: child,
+                            ),
+                          );
+                        },
+                        child: _buildStep(context),
+                      ),
+                    ),
                   ),
                 ),
                 if (widget.controller.step != CreateStep.completed)
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(24, 12, 24, 20),
-                    child: MateyaButton(
-                      label: _submitButtonLabel(),
-                      trailingIcon: _submitButtonTrailingIcon(),
-                      enabled: widget.controller.canContinueCurrentStep,
-                      onPressed: _handlePrimaryAction,
+                    padding: EdgeInsets.fromLTRB(
+                      AppResponsive.horizontalPadding(context),
+                      12,
+                      AppResponsive.horizontalPadding(context),
+                      AppResponsive.keyboardAwareBottomPadding(
+                        context,
+                        minimum: 20,
+                      ),
+                    ),
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxWidth: AppResponsive.contentMaxWidth(context),
+                        ),
+                        child: MateyaButton(
+                          label: _submitButtonLabel(),
+                          trailingIcon: _submitButtonTrailingIcon(),
+                          enabled: widget.controller.canContinueCurrentStep,
+                          onPressed: _handlePrimaryAction,
+                        ),
+                      ),
                     ),
                   ),
               ],
