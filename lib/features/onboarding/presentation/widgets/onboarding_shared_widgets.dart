@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 
 import '../../../../shared/localization/mateya_localizations.dart';
+import '../../../../shared/logging/naver_map_diagnostics.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../../shared/widgets/mateya_skeleton.dart';
 import '../../domain/onboarding_flow.dart';
@@ -23,8 +26,20 @@ class NeighborhoodMapCard extends StatefulWidget {
 class _NeighborhoodMapCardState extends State<NeighborhoodMapCard> {
   static const String _markerId = 'selected-neighborhood';
 
+  late final NaverMapDiagnostics _diagnostics;
   NaverMapController? _mapController;
   bool _isMapReady = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _diagnostics = NaverMapDiagnostics(scope: 'onboarding-neighborhood-map');
+    _diagnostics.mounted(
+      context: <String, Object?>{
+        'selectionKey': _selectionKey(widget.selection),
+      },
+    );
+  }
 
   @override
   void didUpdateWidget(covariant NeighborhoodMapCard oldWidget) {
@@ -34,8 +49,19 @@ class _NeighborhoodMapCardState extends State<NeighborhoodMapCard> {
       _isMapReady = false;
     }
     if (oldWidget.selection != widget.selection) {
+      _diagnostics.inputUpdated(
+        context: <String, Object?>{
+          'selectionKey': _selectionKey(widget.selection),
+        },
+      );
       _syncSelectionToMap();
     }
+  }
+
+  @override
+  void dispose() {
+    _diagnostics.dispose();
+    super.dispose();
   }
 
   @override
@@ -61,8 +87,22 @@ class _NeighborhoodMapCardState extends State<NeighborhoodMapCard> {
                   zoom: 15,
                 ),
               ),
+              onMapLoaded: () {
+                _diagnostics.mapLoaded(
+                  context: <String, Object?>{
+                    'selectionKey': _selectionKey(widget.selection),
+                  },
+                );
+              },
               onMapReady: (mapController) async {
                 _mapController = mapController;
+                _diagnostics.mapReady(
+                  context: <String, Object?>{
+                    'selectionKey': _selectionKey(widget.selection),
+                    'latitude': target.latitude,
+                    'longitude': target.longitude,
+                  },
+                );
                 if (mounted && !_isMapReady) {
                   setState(() {
                     _isMapReady = true;
@@ -90,19 +130,47 @@ class _NeighborhoodMapCardState extends State<NeighborhoodMapCard> {
     final mapController = _mapController;
     final selection = widget.selection;
     if (mapController == null) {
+      _diagnostics.syncSkipped(
+        'selection',
+        context: <String, Object?>{
+          'reason': 'map-controller-unavailable',
+          'selectionKey': _selectionKey(selection),
+        },
+      );
       return;
     }
-    if (selection == null) {
-      await mapController.clearOverlays(type: NOverlayType.marker);
-      return;
-    }
+    try {
+      if (selection == null) {
+        await mapController.clearOverlays(type: NOverlayType.marker);
+        _diagnostics.syncSucceeded(
+          'selection',
+          context: const <String, Object?>{'markerCount': 0},
+        );
+        return;
+      }
 
-    final target = NLatLng(selection.latitude, selection.longitude);
-    await mapController.clearOverlays(type: NOverlayType.marker);
-    await mapController.addOverlay(NMarker(id: _markerId, position: target));
-    await mapController.updateCamera(
-      NCameraUpdate.scrollAndZoomTo(target: target, zoom: 15),
-    );
+      final target = NLatLng(selection.latitude, selection.longitude);
+      await mapController.clearOverlays(type: NOverlayType.marker);
+      await mapController.addOverlay(NMarker(id: _markerId, position: target));
+      await mapController.updateCamera(
+        NCameraUpdate.scrollAndZoomTo(target: target, zoom: 15),
+      );
+      _diagnostics.syncSucceeded(
+        'selection',
+        context: <String, Object?>{
+          'markerCount': 1,
+          'latitude': target.latitude,
+          'longitude': target.longitude,
+        },
+      );
+    } catch (error, stackTrace) {
+      _diagnostics.syncFailed(
+        'selection',
+        error: error,
+        stackTrace: stackTrace,
+        context: <String, Object?>{'selectionKey': _selectionKey(selection)},
+      );
+    }
   }
 }
 

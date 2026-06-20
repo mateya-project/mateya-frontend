@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 
 import '../../../../shared/localization/mateya_localizations.dart';
+import '../../../../shared/logging/naver_map_diagnostics.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../../shared/widgets/mateya_skeleton.dart';
 import '../../domain/create_models.dart';
@@ -189,16 +190,59 @@ class _PlaceThumbnail extends StatelessWidget {
   }
 }
 
-class PlaceMapCard extends StatelessWidget {
+class PlaceMapCard extends StatefulWidget {
   const PlaceMapCard({super.key, required this.place, required this.isLoading});
 
   final CreatePlaceSuggestion? place;
   final bool isLoading;
 
   @override
+  State<PlaceMapCard> createState() => _PlaceMapCardState();
+}
+
+class _PlaceMapCardState extends State<PlaceMapCard> {
+  static const String _markerId = 'selected-place';
+
+  late final NaverMapDiagnostics _diagnostics;
+
+  @override
+  void initState() {
+    super.initState();
+    _diagnostics = NaverMapDiagnostics(scope: 'create-place-map');
+    _diagnostics.mounted(
+      context: <String, Object?>{
+        'placeId': widget.place?.id,
+        'hasCoordinates': widget.place?.hasCoordinates ?? false,
+      },
+    );
+  }
+
+  @override
+  void didUpdateWidget(covariant PlaceMapCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.place != widget.place ||
+        oldWidget.isLoading != widget.isLoading) {
+      _diagnostics.inputUpdated(
+        context: <String, Object?>{
+          'placeId': widget.place?.id,
+          'hasCoordinates': widget.place?.hasCoordinates ?? false,
+          'isLoading': widget.isLoading,
+        },
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _diagnostics.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final target = place != null && place!.hasCoordinates
-        ? NLatLng(place!.latitude!, place!.longitude!)
+    final place = widget.place;
+    final target = place != null && place.hasCoordinates
+        ? NLatLng(place.latitude!, place.longitude!)
         : const NLatLng(37.5665, 126.9780);
 
     return ClipRRect(
@@ -212,7 +256,7 @@ class PlaceMapCard extends StatelessWidget {
               key: ValueKey<String>(
                 place == null
                     ? 'empty-create-map'
-                    : '${place!.id}-${place!.latitude}-${place!.longitude}',
+                    : '${place.id}-${place.latitude}-${place.longitude}',
               ),
               options: NaverMapViewOptions(
                 initialCameraPosition: NCameraPosition(
@@ -220,10 +264,49 @@ class PlaceMapCard extends StatelessWidget {
                   zoom: 15,
                 ),
               ),
+              onMapLoaded: () {
+                _diagnostics.mapLoaded(
+                  context: <String, Object?>{
+                    'placeId': place?.id,
+                    'hasCoordinates': place?.hasCoordinates ?? false,
+                  },
+                );
+              },
               onMapReady: (mapController) async {
-                if (place != null && place!.hasCoordinates) {
-                  await mapController.addOverlay(
-                    NMarker(id: 'selected-place', position: target),
+                _diagnostics.mapReady(
+                  context: <String, Object?>{
+                    'placeId': place?.id,
+                    'hasCoordinates': place?.hasCoordinates ?? false,
+                    'latitude': target.latitude,
+                    'longitude': target.longitude,
+                  },
+                );
+                try {
+                  if (place != null && place.hasCoordinates) {
+                    await mapController.addOverlay(
+                      NMarker(id: _markerId, position: target),
+                    );
+                    _diagnostics.syncSucceeded(
+                      'selected-place',
+                      context: <String, Object?>{
+                        'markerCount': 1,
+                        'placeId': place.id,
+                      },
+                    );
+                    return;
+                  }
+                  _diagnostics.syncSkipped(
+                    'selected-place',
+                    context: const <String, Object?>{
+                      'reason': 'place-without-coordinates',
+                    },
+                  );
+                } catch (error, stackTrace) {
+                  _diagnostics.syncFailed(
+                    'selected-place',
+                    error: error,
+                    stackTrace: stackTrace,
+                    context: <String, Object?>{'placeId': place?.id},
                   );
                 }
               },
@@ -234,7 +317,8 @@ class PlaceMapCard extends StatelessWidget {
                 alignment: Alignment.center,
                 child: Text(context.l10n.createMapPlaceholder),
               ),
-            if (isLoading) const Positioned.fill(child: MateyaMapSkeleton()),
+            if (widget.isLoading)
+              const Positioned.fill(child: MateyaMapSkeleton()),
           ],
         ),
       ),
