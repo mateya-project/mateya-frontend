@@ -747,13 +747,13 @@ class AppLocalizationsKo extends AppLocalizations {
   String get mypageAddFriend => '친구 추가';
 
   @override
-  String get mypageRemoveFriend => '친구 삭제';
+  String get mypageRemoveFriend => '친구삭제하기';
 
   @override
   String get mypageBlocked => '차단됨';
 
   @override
-  String get mypageBlockUser => '차단하기';
+  String get mypageBlockUser => '유저차단하기';
 
   @override
   String get mypageSelectLanguageAndCountry => '언어와 국가를 모두 선택해 주세요.';

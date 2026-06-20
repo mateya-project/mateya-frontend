@@ -139,6 +139,7 @@ _reviewSeedsById = <String, List<ActivityReview>>{
           '걷는 속도를 계속 맞춰줘서 처음 만난 사람들과도 편하게 이야기할 수 있었어요. 정상보다 과정이 즐거운 모임이었습니다.',
       translatedText:
           'The host kept everyone at the same pace, so it was easy to relax and talk even as a first-timer.',
+      isTranslationVisible: true,
       helpfulCount: 18,
       imageUrls: <String>[
         'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=900&q=80',
@@ -160,6 +161,7 @@ _reviewSeedsById = <String, List<ActivityReview>>{
       originalText:
           'Great route and friendly pacing. Bring water because the final incline is still a workout.',
       translatedText: '코스와 진행 분위기는 좋았어요. 마지막 오르막은 은근히 힘드니 물은 꼭 챙기면 좋겠습니다.',
+      isTranslationVisible: true,
       helpfulCount: 7,
     ),
     ActivityReview(
@@ -178,6 +180,7 @@ _reviewSeedsById = <String, List<ActivityReview>>{
       originalText:
           'I joined alone and still felt included right away. The meetup was calm, social, and well organized.',
       translatedText: '혼자 참여했는데도 바로 어울릴 수 있었어요. 차분하고 사교적인 분위기로 잘 운영된 모임이었습니다.',
+      isTranslationVisible: true,
       helpfulCount: 9,
     ),
     ActivityReview(
@@ -196,6 +199,7 @@ _reviewSeedsById = <String, List<ActivityReview>>{
       originalText:
           'The photos at the top were worth it, and the group energy stayed positive the whole time.',
       translatedText: '정상에서 찍은 사진도 좋았고, 모임 전체 분위기가 끝까지 밝게 유지돼서 좋았습니다.',
+      isTranslationVisible: true,
       helpfulCount: 2,
     ),
   ],

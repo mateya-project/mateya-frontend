@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../shared/localization/mateya_localizations.dart';
 import '../../../../shared/theme/app_tokens.dart';
+import '../../../../shared/widgets/mateya_translation_toggle_button.dart';
 import '../../domain/chat_models.dart';
 import 'chat_formatters.dart';
 import 'chat_list_widgets.dart';
@@ -13,10 +14,12 @@ class IncomingGroup extends StatelessWidget {
     super.key,
     required this.group,
     required this.onToggleTranslation,
+    this.onAvatarTap,
   });
 
   final ChatMessageGroup group;
   final VoidCallback? onToggleTranslation;
+  final VoidCallback? onAvatarTap;
 
   @override
   Widget build(BuildContext context) {
@@ -25,10 +28,14 @@ class IncomingGroup extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        NetworkAvatar(
-          imageUrl: group.sender.avatarUrl,
-          label: group.sender.displayName,
-          size: 48,
+        InkWell(
+          onTap: onAvatarTap,
+          borderRadius: BorderRadius.circular(999),
+          child: NetworkAvatar(
+            imageUrl: group.sender.avatarUrl,
+            label: group.sender.displayName,
+            size: 48,
+          ),
         ),
         const SizedBox(width: 16),
         Expanded(
@@ -59,22 +66,9 @@ class IncomingGroup extends StatelessWidget {
                   ),
                   const Spacer(),
                   if (onToggleTranslation != null)
-                    TextButton(
-                      onPressed: onToggleTranslation,
-                      style: TextButton.styleFrom(
-                        padding: EdgeInsets.zero,
-                        minimumSize: Size.zero,
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        foregroundColor: AppColors.brandGreen,
-                      ),
-                      child: Text(
-                        group.translationToggleLabel,
-                        style: theme.textTheme.bodyLarge?.copyWith(
-                          color: AppColors.brandGreen,
-                          decoration: TextDecoration.underline,
-                          decorationColor: AppColors.brandGreen,
-                        ),
-                      ),
+                    MateyaTranslationToggleButton(
+                      label: group.translationToggleLabel,
+                      onPressed: onToggleTranslation!,
                     ),
                 ],
               ),

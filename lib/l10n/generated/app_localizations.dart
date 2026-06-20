@@ -1486,7 +1486,7 @@ abstract class AppLocalizations {
   /// No description provided for @mypageRemoveFriend.
   ///
   /// In ko, this message translates to:
-  /// **'친구 삭제'**
+  /// **'친구삭제하기'**
   String get mypageRemoveFriend;
 
   /// No description provided for @mypageBlocked.
@@ -1498,7 +1498,7 @@ abstract class AppLocalizations {
   /// No description provided for @mypageBlockUser.
   ///
   /// In ko, this message translates to:
-  /// **'차단하기'**
+  /// **'유저차단하기'**
   String get mypageBlockUser;
 
   /// No description provided for @mypageSelectLanguageAndCountry.

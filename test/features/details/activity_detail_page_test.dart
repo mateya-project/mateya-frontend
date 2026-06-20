@@ -189,6 +189,23 @@ class _FakeActivityDetailRepository implements ActivityDetailRepository {
   }
 
   @override
+  Future<ActivityReview> fetchReview({
+    required String reviewId,
+    required bool original,
+  }) async {
+    return ActivityReview(
+      id: reviewId,
+      authorName: '나',
+      submittedAt: DateTime(2026, 6, 20),
+      rating: 5,
+      originalText: '원문',
+      translatedText: original ? null : '번역문',
+      canToggleTranslation: true,
+      isTranslationVisible: !original,
+    );
+  }
+
+  @override
   Future<ActivityReview> submitReview({
     required String activityId,
     required int rating,

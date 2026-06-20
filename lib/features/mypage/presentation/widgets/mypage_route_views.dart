@@ -127,9 +127,9 @@ class OtherProfileView extends StatelessWidget {
                       ? l10n.commonProcessing
                       : data.isFriend
                       ? l10n.mypageRemoveFriend
-                      : l10n.mypageAddFriend,
+                      : l10n.mypageBlockUser,
                   enabled: !isBusy,
-                  onPressed: onFriendTap,
+                  onPressed: data.isFriend ? onFriendTap : onBlockTap,
                 )
               else
                 Center(

@@ -22,6 +22,7 @@ ActivityReview _parseReview(Object? value) {
   final json = _asMap(value);
   final originalBody = json['originalBody'] as String?;
   final translatedBody = json['body'] as String?;
+  final originalLanguage = json['originalLanguage'] as String?;
   final visibleTranslation =
       translatedBody != null &&
           originalBody != null &&
@@ -38,6 +39,8 @@ ActivityReview _parseReview(Object? value) {
     rating: json['rating'] as int? ?? 0,
     originalText: originalBody ?? translatedBody ?? '',
     translatedText: visibleTranslation,
+    canToggleTranslation: _canToggleTranslation(originalLanguage),
+    isTranslationVisible: visibleTranslation != null,
     helpfulCount: json['helpfulCount'] as int? ?? 0,
     isHelpfulByMe: json['helpfulByMe'] as bool? ?? false,
     imageUrls: ((json['imageUrls'] as List<Object?>?) ?? const <Object?>[])
@@ -110,4 +113,15 @@ ActivityDetailRepositoryException _mapApiException(MateyaApiException error) {
     ActivityDetailLoadFailureType.server,
     message: error.message,
   );
+}
+
+bool _canToggleTranslation(String? originalLanguageCode) {
+  if (originalLanguageCode == null || originalLanguageCode.trim().isEmpty) {
+    return false;
+  }
+  final currentLanguageCode =
+      MateyaLanguagePreferences.primaryLanguageCodeFromCode(
+        AppLocaleController.instance.languageCode,
+      );
+  return originalLanguageCode.trim().toLowerCase() != currentLanguageCode;
 }

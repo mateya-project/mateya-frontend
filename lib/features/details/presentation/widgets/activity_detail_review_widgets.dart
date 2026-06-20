@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../shared/localization/mateya_localizations.dart';
 import '../../../../shared/theme/app_tokens.dart';
+import '../../../../shared/widgets/mateya_translation_toggle_button.dart';
 import '../../domain/activity_detail_models.dart';
 import 'activity_detail_formatters.dart';
 import 'activity_detail_primitives.dart';
@@ -238,19 +239,11 @@ class ReviewCard extends StatelessWidget {
               ),
               const Spacer(),
               if (onTranslationTap != null)
-                TextButton(
-                  onPressed: onTranslationTap,
-                  style: TextButton.styleFrom(
-                    foregroundColor: AppColors.brandGreen,
-                    padding: EdgeInsets.zero,
-                    minimumSize: Size.zero,
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  ),
-                  child: Text(
-                    review.isTranslationVisible
-                        ? l10n.detailsReviewViewOriginal
-                        : l10n.detailsReviewViewTranslation,
-                  ),
+                MateyaTranslationToggleButton(
+                  label: review.isTranslationVisible
+                      ? l10n.detailsReviewViewOriginal
+                      : l10n.detailsReviewViewTranslation,
+                  onPressed: onTranslationTap!,
                 ),
             ],
           ),

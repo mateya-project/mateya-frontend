@@ -81,6 +81,7 @@ class ActivityReview {
     required this.originalText,
     this.authorAvatarUrl,
     this.translatedText,
+    this.canToggleTranslation = false,
     this.helpfulCount = 0,
     this.isHelpfulByMe = false,
     this.isTranslationVisible = false,
@@ -95,13 +96,15 @@ class ActivityReview {
   final int rating;
   final String originalText;
   final String? translatedText;
+  final bool canToggleTranslation;
   final int helpfulCount;
   final bool isHelpfulByMe;
   final bool isTranslationVisible;
   final List<String> imageUrls;
 
   bool get supportsTranslation =>
-      translatedText != null && translatedText!.trim().isNotEmpty;
+      canToggleTranslation ||
+      (translatedText != null && translatedText!.trim().isNotEmpty);
 
   String get visibleBody => isTranslationVisible && supportsTranslation
       ? translatedText!
@@ -116,6 +119,7 @@ class ActivityReview {
     int? rating,
     String? originalText,
     Object? translatedText = _detailSentinel,
+    bool? canToggleTranslation,
     int? helpfulCount,
     bool? isHelpfulByMe,
     bool? isTranslationVisible,
@@ -134,6 +138,7 @@ class ActivityReview {
       translatedText: translatedText == _detailSentinel
           ? this.translatedText
           : translatedText as String?,
+      canToggleTranslation: canToggleTranslation ?? this.canToggleTranslation,
       helpfulCount: helpfulCount ?? this.helpfulCount,
       isHelpfulByMe: isHelpfulByMe ?? this.isHelpfulByMe,
       isTranslationVisible: isTranslationVisible ?? this.isTranslationVisible,

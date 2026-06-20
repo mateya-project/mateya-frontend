@@ -33,11 +33,13 @@ void main() {
           rating: 4,
           originalText: '원문 후기입니다.',
           translatedText: 'Translated review body.',
+          isTranslationVisible: true,
         ),
       ),
     );
 
-    expect(find.text('번역 보기'), findsOneWidget);
+    expect(find.text('원문 보기'), findsOneWidget);
+    expect(find.text('Translated review body.'), findsOneWidget);
 
     await tester.pumpWidget(
       buildSubject(
@@ -48,12 +50,12 @@ void main() {
           rating: 4,
           originalText: '원문 후기입니다.',
           translatedText: 'Translated review body.',
-          isTranslationVisible: true,
         ),
       ),
     );
 
-    expect(find.text('원문 보기'), findsOneWidget);
+    expect(find.text('번역 보기'), findsOneWidget);
+    expect(find.text('원문 후기입니다.'), findsOneWidget);
   });
 
   testWidgets('ReviewCard triggers author tap from profile area', (

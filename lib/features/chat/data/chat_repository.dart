@@ -2,9 +2,11 @@ import 'dart:io';
 
 import '../../../app/app_config.dart';
 import '../../../shared/auth/auth_session.dart';
+import '../../../shared/localization/app_locale_controller.dart';
 import '../../../shared/localization/mateya_localizations.dart';
 import '../../../shared/network/http_transport.dart';
 import '../../../shared/network/mateya_api_client.dart';
+import '../../../shared/preferences/mateya_language_preferences.dart';
 import '../../../shared/time/korean_time.dart';
 import 'chat_realtime_client.dart';
 import '../domain/chat_models.dart';
@@ -45,6 +47,11 @@ abstract interface class ChatRepository {
   Future<ChatMessagePageResult> fetchRoomMessagesPage({
     required String roomId,
     required int page,
+  });
+  Future<ChatMessageGroup> fetchMessage({
+    required String roomId,
+    required String messageId,
+    required bool original,
   });
   Future<List<ChatBubble>> sendMessage({
     required String roomId,

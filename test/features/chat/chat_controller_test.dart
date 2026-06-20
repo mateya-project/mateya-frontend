@@ -100,17 +100,39 @@ void main() {
         final before = controller.currentRoom!.messageGroups.firstWhere(
           (group) => group.id == 'g-2',
         );
-        expect(before.visibleTexts.first, '가나다라마바사');
+        expect(before.visibleTexts.first, 'See you all at the palace gate.');
+        expect(before.translationToggleLabel, '원문 보기');
 
-        controller.toggleTranslation('g-2');
+        await controller.toggleTranslation('g-2');
 
         final after = controller.currentRoom!.messageGroups.firstWhere(
           (group) => group.id == 'g-2',
         );
-        expect(after.visibleTexts.first, 'See you all at the palace gate.');
-        expect(after.translationToggleLabel, '원문 보기');
+        expect(after.visibleTexts.first, '가나다라마바사');
+        expect(after.translationToggleLabel, '번역 보기');
       },
     );
+
+    test('translation toggle fetches translated message on demand', () async {
+      final controller = ChatController(
+        repository: _LazyTranslationChatRepository(),
+        now: () => DateTime(2026, 6, 14, 10, 30),
+      );
+
+      await controller.initialize();
+      await controller.openRoom('lazy-room');
+
+      final before = controller.currentRoom!.messageGroups.single;
+      expect(before.supportsTranslation, isTrue);
+      expect(before.isTranslatedVisible, isFalse);
+      expect(before.visibleTexts.single, 'did');
+
+      await controller.toggleTranslation('lazy-1');
+
+      final after = controller.currentRoom!.messageGroups.single;
+      expect(after.isTranslatedVisible, isTrue);
+      expect(after.visibleTexts.single, '번역된 메시지');
+    });
 
     test(
       'sending a message appends an outgoing group and clears the draft',
@@ -396,6 +418,15 @@ class _PollingFallbackChatRepository implements ChatRepository {
   }
 
   @override
+  Future<ChatMessageGroup> fetchMessage({
+    required String roomId,
+    required String messageId,
+    required bool original,
+  }) async {
+    return _groups.firstWhere((group) => group.id == messageId);
+  }
+
+  @override
   Future<List<ChatBubble>> sendMessage({
     required String roomId,
     required String text,
@@ -441,4 +472,115 @@ class _PollingFallbackChatRepository implements ChatRepository {
       messageGroups: List<ChatMessageGroup>.from(_groups),
     );
   }
+}
+
+class _LazyTranslationChatRepository implements ChatRepository {
+  @override
+  Future<List<ChatRoom>> fetchRooms() async => <ChatRoom>[
+    ChatRoom(
+      id: 'lazy-room',
+      type: ChatRoomType.direct,
+      title: '지연 번역 채팅',
+      imageUrl: null,
+      participantCount: 2,
+      lastMessageAt: DateTime(2026, 6, 14, 10, 30),
+      unreadCount: 0,
+      messageGroups: const <ChatMessageGroup>[],
+    ),
+  ];
+
+  @override
+  Future<ChatRoom> fetchRoom(String roomId) async => ChatRoom(
+    id: 'lazy-room',
+    type: ChatRoomType.direct,
+    title: '지연 번역 채팅',
+    imageUrl: null,
+    participantCount: 2,
+    lastMessageAt: DateTime(2026, 6, 14, 10, 30),
+    unreadCount: 0,
+    messageGroups: <ChatMessageGroup>[
+      ChatMessageGroup(
+        id: 'lazy-1',
+        sender: const ChatParticipant(id: 'other', name: '최성현'),
+        sentAt: DateTime(2026, 6, 14, 10, 30),
+        canToggleTranslation: true,
+        bubbles: const <ChatBubble>[ChatBubble(originalText: 'did')],
+      ),
+    ],
+  );
+
+  @override
+  Future<ChatRoomPageResult> fetchRoomsPage({required int page}) async {
+    final rooms = await fetchRooms();
+    return ChatRoomPageResult(rooms: rooms, hasNext: false, nextPage: null);
+  }
+
+  @override
+  Future<ChatMessagePageResult> fetchRoomMessagesPage({
+    required String roomId,
+    required int page,
+  }) async {
+    return ChatMessagePageResult(
+      groups: page == 0
+          ? <ChatMessageGroup>[
+              ChatMessageGroup(
+                id: 'lazy-1',
+                sender: ChatParticipant(id: 'other', name: '최성현'),
+                sentAt: DateTime(2026, 6, 14, 10, 30),
+                canToggleTranslation: true,
+                bubbles: <ChatBubble>[ChatBubble(originalText: 'did')],
+              ),
+            ]
+          : const <ChatMessageGroup>[],
+      hasNext: false,
+      nextPage: null,
+    );
+  }
+
+  @override
+  Future<ChatMessageGroup> fetchMessage({
+    required String roomId,
+    required String messageId,
+    required bool original,
+  }) async {
+    return ChatMessageGroup(
+      id: 'lazy-1',
+      sender: const ChatParticipant(id: 'other', name: '최성현'),
+      sentAt: DateTime(2026, 6, 14, 10, 30),
+      canToggleTranslation: true,
+      isTranslatedVisible: !original,
+      bubbles: <ChatBubble>[
+        ChatBubble(
+          originalText: 'did',
+          translatedText: original ? null : '번역된 메시지',
+        ),
+      ],
+    );
+  }
+
+  @override
+  Future<List<ChatBubble>> sendMessage({
+    required String roomId,
+    required String text,
+    required List<ChatAttachment> attachments,
+  }) async => <ChatBubble>[ChatBubble(originalText: text)];
+
+  @override
+  Future<void> markRoomAsRead(String roomId) async {}
+
+  @override
+  void subscribeToRoomMessages({
+    required String roomId,
+    required void Function(ChatMessageGroup message) onMessage,
+    required void Function(String message) onError,
+  }) {}
+
+  @override
+  void unsubscribeFromRoomMessages() {}
+
+  @override
+  bool isRealtimeConnectedForRoom(String roomId) => false;
+
+  @override
+  void dispose() {}
 }

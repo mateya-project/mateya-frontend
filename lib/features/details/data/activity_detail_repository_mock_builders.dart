@@ -69,6 +69,7 @@ List<ActivityReview> _reviewsFor(ActivityItem activity) {
           '${activity.title}에서 정말 편하게 어울릴 수 있었어요. 처음 참여했는데도 진행이 자연스럽고 호스트가 분위기를 잘 만들어줬습니다.',
       translatedText:
           'It was easy to connect with everyone during ${activity.title}. The host kept the pace friendly for first-timers.',
+      isTranslationVisible: true,
       helpfulCount: 14,
     ),
     ActivityReview(
@@ -91,6 +92,7 @@ List<ActivityReview> _reviewsFor(ActivityItem activity) {
       originalText: '사진보다 현장 분위기가 더 좋았어요. 초보자 기준 설명이 잘 되어 있어서 부담 없이 즐겼습니다.',
       translatedText:
           'The actual atmosphere was better than the photos, and the activity felt approachable for beginners.',
+      isTranslationVisible: true,
       helpfulCount: 8,
     ),
     ActivityReview(
@@ -111,6 +113,7 @@ List<ActivityReview> _reviewsFor(ActivityItem activity) {
       originalText:
           'The meetup felt well paced and welcoming. I would recommend it to anyone visiting Seoul for the first time.',
       translatedText: '진행 속도가 좋고 분위기가 편안해서, 서울을 처음 방문한 사람에게도 추천하고 싶어요.',
+      isTranslationVisible: true,
       helpfulCount: 11,
     ),
     ActivityReview(

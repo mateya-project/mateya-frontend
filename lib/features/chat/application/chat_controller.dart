@@ -125,8 +125,8 @@ class ChatController extends ChangeNotifier {
     _chatRemoveDraftAttachment(this, attachmentId: attachmentId);
   }
 
-  void toggleTranslation(String groupId) {
-    _chatToggleTranslation(this, groupId: groupId);
+  Future<void> toggleTranslation(String groupId) {
+    return _chatToggleTranslation(this, groupId: groupId);
   }
 
   Future<void> sendMessage() => _chatSendMessage(this);
