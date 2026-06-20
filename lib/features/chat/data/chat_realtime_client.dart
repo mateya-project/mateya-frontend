@@ -76,6 +76,7 @@ class ChatRealtimeClient {
       ),
     );
 
+    final stompConnectHeaders = <String, String>{};
     late final StompClient client;
     client = StompClient(
       config: StompConfig(
@@ -84,13 +85,24 @@ class ChatRealtimeClient {
         heartbeatIncoming: _heartbeatInterval,
         heartbeatOutgoing: _heartbeatInterval,
         connectionTimeout: _connectionTimeout,
-        stompConnectHeaders: <String, String>{
-          'Authorization': 'Bearer $accessToken',
-        },
-        webSocketConnectHeaders: <String, dynamic>{
-          'Authorization': 'Bearer $accessToken',
-        },
+        stompConnectHeaders: stompConnectHeaders,
         beforeConnect: () async {
+          final currentAccessToken = _sessionStore.session?.accessToken;
+          if (currentAccessToken == null || currentAccessToken.isEmpty) {
+            _logger.warning(
+              'Chat realtime connect cancelled because access token is missing',
+              context: _logContext(roomId, url: _webSocketUrl()),
+            );
+            client.deactivate();
+            _reportConnectionError(
+              MateyaLocalizations.current.chatRealtimeConnectionError,
+            );
+            return;
+          }
+
+          stompConnectHeaders
+            ..clear()
+            ..['Authorization'] = 'Bearer $currentAccessToken';
           _logger.debug(
             'Chat realtime before connect',
             context: _logContext(

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
@@ -75,7 +77,12 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
     _listScrollController.addListener(_handleListScroll);
     _scrollController.addListener(_handleDetailScroll);
     _syncDraft();
-    _restoreLostAttachments();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+      unawaited(_restoreLostAttachments());
+    });
   }
 
   @override
@@ -526,12 +533,15 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
   }
 
   Widget _buildListScreen(BuildContext context) {
+    final isCompactHeight = MediaQuery.sizeOf(context).height < 780;
+    final sectionSpacing = isCompactHeight ? 12.0 : 16.0;
+
     return Column(
       children: <Widget>[
         widget.onBack == null
             ? const MateyaHeader.noBackArrow()
             : MateyaHeader.backArrow(onBack: widget.onBack),
-        const SizedBox(height: 16),
+        SizedBox(height: sectionSpacing),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: ChatFilterBar(
@@ -539,12 +549,18 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
             onChanged: widget.controller.updateFilter,
           ),
         ),
-        const SizedBox(height: 24),
-        Expanded(child: _buildListBody(context)),
-        const SizedBox(height: 24),
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 34),
-          child: ChatListGuidance(),
+        SizedBox(height: sectionSpacing),
+        Expanded(
+          child: Column(
+            children: <Widget>[
+              Expanded(child: _buildListBody(context)),
+              if (!isCompactHeight)
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(34, 16, 34, 12),
+                  child: ChatListGuidance(),
+                ),
+            ],
+          ),
         ),
         MateyaBottomNavigation(
           currentTab: MateyaBottomTab.chat,
