@@ -1,11 +1,12 @@
 import 'dart:async';
-import 'dart:ui';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 
 import 'app/app.dart';
 import 'app/app_config.dart';
+import 'firebase_options.dart';
 import 'shared/auth/auth_session.dart';
 import 'shared/localization/app_locale_controller.dart';
 import 'shared/logging/app_logger.dart';
@@ -36,10 +37,16 @@ Future<void> main() async {
           'hasSession': AuthSessionStore.instance.hasSession,
         },
       );
+      final naverMapSdkContext = <String, Object?>{
+        ...NaverMapDiagnostics.sdkInitializationContext(),
+        if (defaultTargetPlatform == TargetPlatform.iOS)
+          'bundleIdentifier':
+              DefaultFirebaseOptions.currentPlatform.iosBundleId,
+      };
 
       logger.info(
         'Initializing Naver Map SDK',
-        context: NaverMapDiagnostics.sdkInitializationContext(),
+        context: naverMapSdkContext,
       );
       await FlutterNaverMap().init(
         clientId: AppConfig.naverMapClientId,
@@ -47,13 +54,13 @@ Future<void> main() async {
           NaverMapDiagnostics(
             scope: 'app-bootstrap',
             logger: logger,
-            context: NaverMapDiagnostics.sdkInitializationContext(),
+            context: naverMapSdkContext,
           ).authFailed(error);
         },
       );
       logger.info(
         'Naver Map SDK initialized',
-        context: NaverMapDiagnostics.sdkInitializationContext(),
+        context: naverMapSdkContext,
       );
 
       runApp(const MateyaApp());

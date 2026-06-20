@@ -80,7 +80,7 @@ class _NearbyCultureMapPlaceCarouselState
         _NearbyCultureMapListButton(onTap: widget.onListButtonTap),
         const SizedBox(height: 12),
         SizedBox(
-          height: 126,
+          height: 144,
           child: PageView.builder(
             controller: _pageController,
             itemCount: widget.places.length,
@@ -170,7 +170,12 @@ class NearbyCultureMapPlaceCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Text(place.name, style: Theme.of(context).textTheme.titleLarge),
+                Text(
+                  place.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
                 const SizedBox(height: 6),
                 Text(
                   place.address,
