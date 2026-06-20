@@ -68,6 +68,9 @@ void main() {
 
     expect(tester.takeException(), isNull);
     expect(find.byType(ChatFlowPage), findsOneWidget);
+
+    controller.closeRoom();
+    await tester.pumpWidget(const SizedBox.shrink());
   });
 }
 
