@@ -65,6 +65,7 @@ Future<void> _submitBusinessVerification(
     return;
   }
 
+  final l10n = MateyaLocalizations.current;
   controller._authPhase = AsyncPhase.loading;
   controller._notifyChanged();
 
@@ -80,7 +81,7 @@ Future<void> _submitBusinessVerification(
     controller._completionMode = AuthCompletionMode.signup;
     controller._authPhase = AsyncPhase.success;
     controller._step = OnboardingStep.guestPhone;
-    controller._emitToast('사업자 인증이 완료됐어요. 휴대폰 인증을 이어서 진행해 주세요.');
+    controller._emitToast(l10n.onboardingBusinessVerificationCompleted);
   } on MateyaApiException catch (error) {
     _applyApiError(controller, error, preferredField: 'businessNumber');
   }

@@ -192,9 +192,9 @@ class ApiChatRepository implements ChatRepository {
   Future<String> _uploadChatImage(ChatAttachment attachment) async {
     final contentType = _contentTypeFor(attachment.fileName);
     if (contentType == null) {
-      throw const ChatRepositoryException(
+      throw ChatRepositoryException(
         ChatLoadFailureType.server,
-        message: 'JPG, PNG, WEBP, GIF, HEIC, HEIF 형식의 이미지만 전송할 수 있어요.',
+        message: MateyaLocalizations.current.chatAttachmentInvalidFormat,
       );
     }
 
@@ -228,9 +228,9 @@ class ApiChatRepository implements ChatRepository {
       bodyBytes: fileBytes,
     );
     if (uploadResponse.statusCode < 200 || uploadResponse.statusCode >= 300) {
-      throw const ChatRepositoryException(
+      throw ChatRepositoryException(
         ChatLoadFailureType.server,
-        message: '채팅 이미지를 업로드하지 못했어요. 잠시 후 다시 시도해 주세요.',
+        message: MateyaLocalizations.current.chatAttachmentUploadFailed,
       );
     }
 

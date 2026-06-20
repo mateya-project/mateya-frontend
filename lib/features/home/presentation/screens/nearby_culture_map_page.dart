@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 
 import '../../../../shared/activity_categories/activity_category_repository.dart';
+import '../../../../shared/localization/mateya_localizations.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../../shared/widgets/mateya_skeleton.dart';
 import '../../../../shared/widgets/mateya_text_field.dart';
@@ -51,7 +52,8 @@ class _NearbyCultureMapPageState extends State<NearbyCultureMapPage> {
                 controller.phase == AsyncPhase.serverError) &&
             !controller.hasData) {
           return home_feedback.RetryState(
-            message: controller.errorMessage ?? '지도 장소를 불러오지 못했어요.',
+            message:
+                controller.errorMessage ?? context.l10n.homeNearbyMapLoadError,
             onRetry: controller.search,
           );
         }
@@ -76,7 +78,8 @@ class _NearbyCultureMapPageState extends State<NearbyCultureMapPage> {
               child: _NearbyCultureMapOverlayControls(
                 searchController: _searchController,
                 currentLocationLabel:
-                    controller.currentLocation?.displayName ?? '현재 위치 기준',
+                    controller.currentLocation?.displayName ??
+                    context.l10n.homeNearbyMapCurrentLocationLabel,
                 categories: controller.categories,
                 selectedCategoryCode: controller.selectedCategoryCode,
                 onSearchChanged: controller.updateKeyword,
@@ -161,7 +164,7 @@ class _NearbyCultureMapOverlayControls extends StatelessWidget {
       children: <Widget>[
         MateyaTextField(
           controller: searchController,
-          hintText: '무엇을 찾아볼까요?',
+          hintText: context.l10n.homeNearbyMapSearchHint,
           onChanged: onSearchChanged,
           onSubmitted: (_) => onSearch(),
           textInputAction: TextInputAction.search,

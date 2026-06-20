@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../localization/mateya_localizations.dart';
 import '../theme/app_tokens.dart';
 
 class MateyaLanguageOption {
@@ -17,13 +18,17 @@ class MateyaLanguageOption {
 const List<MateyaLanguageOption> kMateyaLanguageOptions =
     <MateyaLanguageOption>[
       MateyaLanguageOption(code: 'ko', label: 'Korean', nativeLabel: '한국어'),
-      MateyaLanguageOption(code: 'en', label: 'English', nativeLabel: '영어'),
+      MateyaLanguageOption(
+        code: 'en',
+        label: 'English',
+        nativeLabel: 'English',
+      ),
       MateyaLanguageOption(
         code: 'zh-Hans',
         label: 'Chinese (Simplified)',
-        nativeLabel: '중국어(간체자)',
+        nativeLabel: '简体中文',
       ),
-      MateyaLanguageOption(code: 'ja', label: 'Japanese', nativeLabel: '일본어'),
+      MateyaLanguageOption(code: 'ja', label: 'Japanese', nativeLabel: '日本語'),
     ];
 
 Future<String?> showMateyaLanguageDialog(
@@ -33,7 +38,7 @@ Future<String?> showMateyaLanguageDialog(
   return showGeneralDialog<String?>(
     context: context,
     barrierDismissible: true,
-    barrierLabel: 'Language dialog',
+    barrierLabel: context.l10n.languageDialogBarrierLabel,
     barrierColor: AppColors.overlay,
     transitionDuration: const Duration(milliseconds: 180),
     pageBuilder: (context, _, _) {
@@ -94,6 +99,7 @@ class _MateyaLanguageDialogState extends State<_MateyaLanguageDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final theme = Theme.of(context);
     final selectedOption = kMateyaLanguageOptions.firstWhere(
       (option) => option.code == _selectedLanguageCode,
@@ -132,7 +138,7 @@ class _MateyaLanguageDialogState extends State<_MateyaLanguageDialog> {
                     children: <Widget>[
                       Expanded(
                         child: Text(
-                          '언어 변경',
+                          l10n.languageDialogTitle,
                           style: theme.textTheme.headlineLarge?.copyWith(
                             fontSize: 24,
                             fontWeight: FontWeight.w800,
@@ -164,7 +170,7 @@ class _MateyaLanguageDialogState extends State<_MateyaLanguageDialog> {
                   ),
                   const SizedBox(height: 22),
                   Text(
-                    '지원 언어',
+                    l10n.languageDialogSupportedLanguages,
                     style: theme.textTheme.titleLarge?.copyWith(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
@@ -199,7 +205,7 @@ class _MateyaLanguageDialogState extends State<_MateyaLanguageDialog> {
                           color: Colors.white,
                         ),
                       ),
-                      child: const Text('확인'),
+                      child: Text(l10n.commonConfirm),
                     ),
                   ),
                 ],

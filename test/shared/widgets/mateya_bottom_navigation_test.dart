@@ -25,8 +25,8 @@ void main() {
       );
 
       expect(tester.takeException(), isNull);
-      expect(find.text('Home'), findsOneWidget);
-      expect(find.text('Profile'), findsOneWidget);
+      expect(find.text('홈'), findsOneWidget);
+      expect(find.text('프로필'), findsOneWidget);
     },
   );
 }

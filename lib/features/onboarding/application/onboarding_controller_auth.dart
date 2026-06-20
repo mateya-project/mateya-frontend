@@ -22,6 +22,7 @@ Future<void> _requestVerificationCode(
   controller._fieldErrors.remove('verification');
   controller._verificationNotice = null;
   controller._notifyChanged();
+  final l10n = MateyaLocalizations.current;
 
   try {
     final result = await controller._authRepository.requestSmsCode(
@@ -33,10 +34,14 @@ Future<void> _requestVerificationCode(
     controller._verificationCode = '';
     controller._resendCount = isResend ? controller._resendCount + 1 : 1;
     controller._verificationNotice = isResend
-        ? '인증번호는 하루 최대 5번까지 다시 받을 수 있어요. 현재 ${controller._resendCount}회 요청했어요.'
+        ? l10n.onboardingVerificationResendLimitNotice(controller._resendCount)
         : null;
     _startVerificationCountdown(controller, result.expiresAt);
-    controller._emitToast(isResend ? '인증번호를 다시 보냈어요.' : '인증번호를 발송했어요.');
+    controller._emitToast(
+      isResend
+          ? l10n.onboardingVerificationResent
+          : l10n.onboardingVerificationSent,
+    );
   } on MateyaApiException catch (error) {
     _applyApiError(
       controller,
@@ -54,7 +59,8 @@ Future<void> _resendVerificationCode(OnboardingController controller) async {
     return;
   }
   if (controller._resendCount >= 5) {
-    controller._verificationNotice = '인증번호는 하루 최대 5번까지 다시 받을 수 있어요.';
+    controller._verificationNotice =
+        MateyaLocalizations.current.onboardingVerificationResendLimitReached;
     controller._notifyChanged();
     return;
   }

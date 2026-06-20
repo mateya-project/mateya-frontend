@@ -28,12 +28,12 @@ void main() {
         ),
       );
 
-      expect(find.text('모임 유형'), findsOneWidget);
-      expect(find.text('모임 장소'), findsOneWidget);
-      expect(find.text('모임 상세'), findsOneWidget);
-      expect(find.text('step1'), findsOneWidget);
-      expect(find.text('step2'), findsOneWidget);
-      expect(find.text('step3'), findsOneWidget);
+      expect(find.text('카테고리'), findsOneWidget);
+      expect(find.text('장소'), findsOneWidget);
+      expect(find.text('정보 입력'), findsOneWidget);
+      expect(find.text('1'), findsOneWidget);
+      expect(find.text('2'), findsOneWidget);
+      expect(find.text('3'), findsOneWidget);
       expect(find.byIcon(Icons.check_rounded), findsOneWidget);
     },
   );
@@ -52,12 +52,12 @@ void main() {
       ),
     );
 
-    expect(find.text('모임 유형'), findsNothing);
-    expect(find.text('클래스 장소'), findsOneWidget);
-    expect(find.text('클래스 상세'), findsOneWidget);
-    expect(find.text('step1'), findsOneWidget);
-    expect(find.text('step2'), findsOneWidget);
-    expect(find.text('step3'), findsNothing);
+    expect(find.text('카테고리'), findsNothing);
+    expect(find.text('장소'), findsOneWidget);
+    expect(find.text('정보 입력'), findsOneWidget);
+    expect(find.text('1'), findsOneWidget);
+    expect(find.text('2'), findsOneWidget);
+    expect(find.text('3'), findsNothing);
     expect(find.byIcon(Icons.check_rounded), findsOneWidget);
   });
 
@@ -83,14 +83,17 @@ void main() {
       ),
     );
 
-    expect(find.text('무엇을 경험하고 싶나요?'), findsOneWidget);
-    expect(find.text('모임 목적에 맞는 카테고리를 선택해주세요.'), findsOneWidget);
-    expect(find.text('문화 · 전통'), findsOneWidget);
-    expect(find.text('행사 · 공연 · 축제'), findsOneWidget);
-    expect(find.text('액티비티 · 레포츠'), findsOneWidget);
+    expect(find.text('어떤 경험을 만들고 있나요?'), findsOneWidget);
+    expect(
+      find.text('등록하려는 모임 또는 클래스에 가장 잘 맞는 카테고리를 선택해 주세요.'),
+      findsOneWidget,
+    );
+    expect(find.text('문화/전통'), findsOneWidget);
+    expect(find.text('행사/공연/축제'), findsOneWidget);
+    expect(find.text('액티비티/레포츠'), findsOneWidget);
 
     final cultureCard = find.ancestor(
-      of: find.text('문화 · 전통'),
+      of: find.text('문화/전통'),
       matching: find.byType(InkWell),
     );
 

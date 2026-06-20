@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../shared/localization/mateya_localizations.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../../shared/widgets/mateya_button.dart';
 import '../../application/activity_detail_controller.dart';
@@ -127,6 +128,7 @@ class DetailBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final remaining =
         detail.activity.participantCapacity - detail.activity.participantCount;
     final summary = controller.reviewSummary;
@@ -158,14 +160,18 @@ class DetailBody extends StatelessWidget {
           const SizedBox(height: 10),
           InfoLine(
             icon: Icons.star_rounded,
-            text:
-                '${summary.averageRating.toStringAsFixed(2)} (리뷰 ${summary.totalCount}개)',
+            text: l10n.detailsReviewSummary(
+              summary.averageRating.toStringAsFixed(2),
+              summary.totalCount,
+            ),
           ),
           const SizedBox(height: 10),
           InfoLine(
             icon: Icons.groups_2_outlined,
-            text:
-                '${detail.activity.participantCount}/${detail.activity.participantCapacity} 참여',
+            text: l10n.detailsParticipantSummary(
+              detail.activity.participantCount,
+              detail.activity.participantCapacity,
+            ),
           ),
           const SizedBox(height: 10),
           InfoLine(icon: Icons.place_outlined, text: detail.locationLabel),
@@ -177,14 +183,18 @@ class DetailBody extends StatelessWidget {
                 Row(
                   children: <Widget>[
                     Text(
-                      '${detail.activity.participantCount}명 참여중',
+                      l10n.detailsParticipantsJoined(
+                        detail.activity.participantCount,
+                      ),
                       style: Theme.of(
                         context,
                       ).textTheme.titleLarge?.copyWith(fontSize: 18),
                     ),
                     const Spacer(),
                     Text(
-                      remaining > 0 ? '$remaining명 남았어요' : '모집 마감',
+                      remaining > 0
+                          ? l10n.detailsParticipantsRemaining(remaining)
+                          : l10n.detailsRecruitmentClosed,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: remaining > 0
                             ? AppColors.brandGreen
@@ -275,7 +285,7 @@ class DetailBody extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 20),
-          const SectionHeader(title: '활동 소개'),
+          SectionHeader(title: l10n.detailsIntroduction),
           const SizedBox(height: 10),
           Text(
             detail.description,
@@ -289,18 +299,21 @@ class DetailBody extends StatelessWidget {
             children: <Widget>[
               Expanded(
                 child: SectionHeader(
-                  title: '후기 ${summary.totalCount}개',
+                  title: l10n.detailsReviewsTitle(summary.totalCount),
                   compact: true,
                 ),
               ),
-              TextButton(onPressed: onOpenReviews, child: const Text('전체보기')),
+              TextButton(
+                onPressed: onOpenReviews,
+                child: Text(l10n.commonSeeAll),
+              ),
             ],
           ),
           const SizedBox(height: 8),
           if (controller.previewReviews.isEmpty)
             SectionCard(
               child: Text(
-                '아직 등록된 후기가 없어요. 첫 후기를 남겨보세요.',
+                l10n.detailsReviewsEmpty,
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
             )
@@ -349,6 +362,7 @@ class DetailBottomBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -372,7 +386,7 @@ class DetailBottomBar extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
                     Text(
-                      '체험료',
+                      l10n.detailsPriceLabel,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: AppColors.textSecondary,
                       ),
@@ -402,7 +416,7 @@ class DetailBottomBar extends StatelessWidget {
                 width: 146,
                 child: MateyaButton(
                   label: isJoinActionInFlight
-                      ? '신청 중...'
+                      ? l10n.detailsJoinRequesting
                       : detail.participationState.ctaLabel,
                   onPressed: () {
                     onJoinTap();

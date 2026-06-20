@@ -76,7 +76,9 @@ String _composePlaceDescription(Map<String, dynamic> json) {
     if ((json['regionSigungu'] as String?)?.isNotEmpty ?? false)
       json['regionSigungu'] as String,
   ];
-  return parts.isEmpty ? '위치를 확인한 뒤 선택해 주세요.' : parts.join(' · ');
+  return parts.isEmpty
+      ? MateyaLocalizations.current.createPlaceDescriptionFallback
+      : parts.join(' · ');
 }
 
 String? _resolveServerCategoryCode({

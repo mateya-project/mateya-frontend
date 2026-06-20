@@ -77,20 +77,7 @@ class ApiMyPageRepository implements MyPageRepository {
 
       final personalPage = PersonalMyPageData(
         profile: _buildPersonalProfile(meProfileJson, mePageJson),
-        metrics: <ProfileMetric>[
-          ProfileMetric(
-            label: '활동 수',
-            value: '${statsJson['totalActivityCount'] as int? ?? 0}',
-          ),
-          ProfileMetric(
-            label: '친구 수',
-            value: '${statsJson['friendCount'] as int? ?? 0}',
-          ),
-          ProfileMetric(
-            label: '작성 리뷰',
-            value: '${statsJson['reviewCount'] as int? ?? 0}',
-          ),
-        ],
+        metrics: _buildPersonalMetrics(statsJson),
         badges: badgesJson.map(_parseBadge).toList(growable: false),
         recentActivities: historyEntries.take(3).toList(growable: false),
       );
@@ -115,15 +102,15 @@ class ApiMyPageRepository implements MyPageRepository {
 
       return MyPageBundle(
         personalPage: personalPage,
-        otherProfile: const OtherProfileData(
+        otherProfile: OtherProfileData(
           profile: ProfileSummary(
             id: '',
             name: '',
             residence: '',
             primaryLanguageCode: 'ko',
-            primaryLanguageLabel: '한국어',
+            primaryLanguageLabel: _languageLabel('ko'),
             primaryCountryCode: 'kr',
-            primaryCountryLabel: '대한민국',
+            primaryCountryLabel: _countryLabel('kr'),
           ),
           metrics: <ProfileMetric>[],
           badges: <ActivityBadge>[],
@@ -191,20 +178,7 @@ class ApiMyPageRepository implements MyPageRepository {
 
       return PersonalMyPageData(
         profile: _buildPersonalProfile(profileJson, pageJson),
-        metrics: <ProfileMetric>[
-          ProfileMetric(
-            label: '활동 수',
-            value: '${statsJson['totalActivityCount'] as int? ?? 0}',
-          ),
-          ProfileMetric(
-            label: '친구 수',
-            value: '${statsJson['friendCount'] as int? ?? 0}',
-          ),
-          ProfileMetric(
-            label: '작성 리뷰',
-            value: '${statsJson['reviewCount'] as int? ?? 0}',
-          ),
-        ],
+        metrics: _buildPersonalMetrics(statsJson),
         badges: badgesItems.map(_parseBadge).toList(growable: false),
         recentActivities: historyItems
             .map(_parseActivityHistoryEntry)
@@ -265,9 +239,9 @@ class ApiMyPageRepository implements MyPageRepository {
       _syncSessionUserProfile(profileJson);
       final resolvedUrl = profileJson['profileImageUrl'] as String?;
       if (resolvedUrl == null || resolvedUrl.isEmpty) {
-        throw const MyPageRepositoryException(
+        throw MyPageRepositoryException(
           MyPageLoadFailureType.server,
-          message: '프로필 사진 저장 결과를 확인하지 못했어요. 잠시 후 다시 시도해 주세요.',
+          message: MateyaLocalizations.current.mypageProfileImageSaveError,
         );
       }
       return resolvedUrl;
@@ -296,9 +270,9 @@ class ApiMyPageRepository implements MyPageRepository {
           profileJson['activityRegionName'] as String? ??
           neighborhood.displayName;
       if (regionName.isEmpty) {
-        throw const MyPageRepositoryException(
+        throw MyPageRepositoryException(
           MyPageLoadFailureType.server,
-          message: '활동 지역 저장 결과를 확인하지 못했어요. 잠시 후 다시 시도해 주세요.',
+          message: MateyaLocalizations.current.mypageActivityRegionSaveError,
         );
       }
       return regionName;
@@ -408,20 +382,7 @@ class ApiMyPageRepository implements MyPageRepository {
 
       return OtherProfileData(
         profile: _buildOtherProfile(pageJson),
-        metrics: <ProfileMetric>[
-          ProfileMetric(
-            label: '활동 수',
-            value: '${statsJson['totalActivityCount'] as int? ?? 0}',
-          ),
-          ProfileMetric(
-            label: '친구 수',
-            value: '${statsJson['friendCount'] as int? ?? 0}',
-          ),
-          ProfileMetric(
-            label: '작성 리뷰',
-            value: '${statsJson['reviewCount'] as int? ?? 0}',
-          ),
-        ],
+        metrics: _buildPersonalMetrics(statsJson),
         badges: const <ActivityBadge>[],
         recentActivities: historyItems
             .map(_parseActivityHistoryEntry)

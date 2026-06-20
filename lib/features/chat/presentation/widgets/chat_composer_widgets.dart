@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 
+import '../../../../shared/localization/mateya_localizations.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../domain/chat_models.dart';
 import 'chat_message_widgets.dart';
@@ -85,7 +86,7 @@ class ChatComposer extends StatelessWidget {
                         maxLines: 4,
                         textInputAction: TextInputAction.newline,
                         decoration: InputDecoration(
-                          hintText: '메시지를 입력하세요',
+                          hintText: context.l10n.chatComposerHint,
                           hintStyle: Theme.of(context).textTheme.bodyMedium,
                           border: InputBorder.none,
                           contentPadding: const EdgeInsets.fromLTRB(

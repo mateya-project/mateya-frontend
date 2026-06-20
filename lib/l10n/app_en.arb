@@ -1,0 +1,1116 @@
+{
+  "@@locale": "en",
+  "appTitle": "MateYa",
+  "brandLockupSubtitle": "The start of a special journey\nsharing Korean warmth and culture",
+  "languageKorean": "Korean",
+  "languageEnglish": "English",
+  "languageJapanese": "Japanese",
+  "languageChineseSimplified": "Chinese (Simplified)",
+  "bottomNavigationHome": "Home",
+  "bottomNavigationExplore": "Explore",
+  "bottomNavigationChat": "Chat",
+  "bottomNavigationProfile": "Profile",
+  "commonConfirm": "Confirm",
+  "commonCancel": "Cancel",
+  "commonRetry": "Retry",
+  "commonContinue": "Continue",
+  "commonLater": "Later",
+  "commonAll": "All",
+  "commonNext": "Next",
+  "commonReset": "Reset",
+  "commonApply": "Apply",
+  "commonProcessing": "Processing...",
+  "commonFree": "Free",
+  "commonToday": "Today",
+  "commonTomorrow": "Tomorrow",
+  "permissionOpenAppSettings": "Open app settings",
+  "permissionOpenLocationSettings": "Open location settings",
+  "locationServiceDisabledTitle": "Location services are turned off",
+  "locationPermissionDisabledTitle": "Location permission is turned off",
+  "languageDialogBarrierLabel": "Language selection",
+  "languageDialogTitle": "Change language",
+  "languageDialogSupportedLanguages": "Supported languages",
+  "onboardingStart": "Get started",
+  "onboardingBusinessPrompt": "Are you a business owner? ",
+  "onboardingStartAsHost": "Start as a host",
+  "onboardingConsentTitle": "You need to agree before using MateYa.",
+  "onboardingAgreeAll": "Agree to all",
+  "onboardingAgreeAllHelper": "Agree to all required and optional items below.",
+  "onboardingRequiredAgreementLabel": "(Required) {title}",
+  "@onboardingRequiredAgreementLabel": {
+    "placeholders": {
+      "title": {}
+    }
+  },
+  "onboardingEnterName": "Please enter your name",
+  "onboardingEnterPhoneNumber": "Please enter your phone number",
+  "onboardingEnterVerificationCode": "Please enter the verification code",
+  "onboardingPhoneNumberLabel": "Phone number",
+  "onboardingPhoneNumberHint": "e.g. 01012341234",
+  "onboardingPhoneNumberHelper": "Enter your phone number to receive a verification code.",
+  "onboardingVerificationCodeLabel": "Verification code",
+  "onboardingVerificationCodeHint": "You can enter it after tapping Get code.",
+  "onboardingResendVerificationCode": "Resend code",
+  "onboardingDebugVerificationCode": "Test verification code: {code}",
+  "@onboardingDebugVerificationCode": {
+    "placeholders": {
+      "code": {}
+    }
+  },
+  "onboardingVerify": "Verify",
+  "onboardingRequestVerificationCode": "Get verification code",
+  "onboardingLocationServiceDisabledMessage": "To verify your neighborhood with your current location, turn on location services on your device. You can still continue by entering your neighborhood manually.",
+  "onboardingLocationPermissionDisabledMessage": "To use automatic location verification, allow location access in app settings. You can still continue signup with manual entry.",
+  "onboardingPreviousNeighborhood": "You were previously registered as \"{name}\".",
+  "@onboardingPreviousNeighborhood": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "onboardingResolvingCurrentLocation": "Checking your current location.",
+  "onboardingCompleteNeighborhood": "Complete neighborhood verification",
+  "onboardingRetryLocationPermission": "Request location permission again",
+  "onboardingRetryAfterSettingsChange": "Check again after changing settings",
+  "onboardingRetryLocationService": "Check location services again",
+  "onboardingRetryCurrentLocation": "Check current location again",
+  "onboardingNeedHelp": "Having trouble verifying?  ",
+  "onboardingManualInputCta": "Enter manually >",
+  "onboardingLocationPermissionNoticeTitle": "Location permission notice",
+  "onboardingLocationPermissionNoticeMessage": "Location information is needed for neighborhood verification and nearby activity recommendations.\nYou can still continue signup by entering your neighborhood manually even without granting permission.",
+  "onboardingUseCurrentLocation": "Verify with current location",
+  "onboardingManualInput": "Enter manually",
+  "onboardingManualNeighborhoodHelper": "Please enter it in the format of district/town name.",
+  "onboardingNeighborhoodHint": "Uman-dong",
+  "onboardingEnterBusinessName": "Please enter your business name",
+  "onboardingBusinessNameHint": "NICE rating information",
+  "onboardingBusinessNumberLabel": "Business registration number",
+  "onboardingBusinessOwnerLabel": "Representative name",
+  "onboardingBusinessOwnerHint": "Hong Gil-dong",
+  "onboardingBusinessOpeningDateLabel": "Opening date",
+  "onboardingBusinessOpeningDateHint": "20240131",
+  "onboardingCompleteBusinessVerification": "Complete business verification",
+  "onboardingWelcomeBack": "Welcome back",
+  "onboardingReturnCompleted": "{name},\nyour return to MateYa is complete",
+  "@onboardingReturnCompleted": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "onboardingLaunchApp": "Start MateYa",
+  "onboardingAgreementSemantics": "{label} agreement",
+  "@onboardingAgreementSemantics": {
+    "placeholders": {
+      "label": {}
+    }
+  },
+  "onboardingTermsEffectiveDate": "Effective date: {date}",
+  "@onboardingTermsEffectiveDate": {
+    "placeholders": {
+      "date": {}
+    }
+  },
+  "onboardingTermsContents": "Contents",
+  "onboardingTermsSectionTitle": "Article {index}. {title}",
+  "@onboardingTermsSectionTitle": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      },
+      "title": {}
+    }
+  },
+  "onboardingDefaultMemberName": "MateYa member",
+  "onboardingLoginCompleted": "{name},\nyou have logged in to MateYa",
+  "@onboardingLoginCompleted": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "onboardingSignupCompleted": "{name},\nyour MateYa signup is complete",
+  "@onboardingSignupCompleted": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "onboardingNeighborhoodHeadlineReturning": "Welcome back,\n{name}!\nPlease verify your neighborhood",
+  "@onboardingNeighborhoodHeadlineReturning": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "onboardingNeighborhoodHeadlineSignup": "Please verify your neighborhood",
+  "onboardingResolvedNeighborhoodMessage": "Your current location is in “{name}”.",
+  "@onboardingResolvedNeighborhoodMessage": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "onboardingNeighborhoodLabel": "Neighborhood",
+  "onboardingVerificationExpired": "Your verification has expired. Please request a new verification code.",
+  "onboardingBusinessVerificationExpired": "Your business verification has expired. Please verify again.",
+  "homeSortRecommended": "Recommended",
+  "homeSortPopular": "Popular",
+  "homeSortLatest": "Newest",
+  "homeSortClosingSoon": "Closing soon",
+  "homeSortNearby": "Nearest",
+  "homeAudienceEveryone": "Everyone",
+  "homeAudienceForeignerFriendly": "Foreigner friendly",
+  "homeAudienceKoreanFriendly": "Korean friendly",
+  "homeAudienceTouristFriendly": "Recommended for tourists",
+  "homeAudienceBeginnerFriendly": "Beginner friendly",
+  "homeStatusRecruiting": "Open",
+  "homeStatusClosingSoon": "Closing soon (within 24h)",
+  "homeStatusNewlyListed": "Newly listed (within 24h)",
+  "homeDistanceLocal": "My area",
+  "homeDistanceWithin1km": "Within 1 km",
+  "homeDistanceWithin5km": "Within 5 km",
+  "homeDistanceWithin10km": "Within 10 km",
+  "homeSearchHeroHint": "Anytime, anywhere",
+  "homeSearchHeroHelper": "Where anyone can become your mate, MateYa",
+  "homeLoadError": "Failed to load data.",
+  "homeSelectAtLeastOneCategory": "Please select at least one category.",
+  "homeSelectAtLeastOneLanguage": "Please select at least one language.",
+  "homeUnsupportedExploreLanguageFilter": "Explore language filters currently support only Korean, English, Chinese, and Japanese.",
+  "homeEndDateBeforeStartDateError": "The end date cannot be earlier than the start date.",
+  "homeMaxPriceLessThanMinPriceError": "The maximum price must be greater than or equal to the minimum price.",
+  "homeTrendingTitle": "Trending now 🔥",
+  "homeSharedExperiencesTitle": "Experiences to share",
+  "homeExploreSearchHint": "Search by name or place",
+  "homeExploreError": "Failed to load results.",
+  "homeFavoritesLoadError": "Failed to load favorites.",
+  "homeFavoritesTitle": "Favorites",
+  "homeCreateClass": "Create class",
+  "homeCreateGroup": "Create group",
+  "homeEmptyTitle": "No activities match your conditions yet.",
+  "homeEmptyDescription": "Adjust your search or filters and try again.",
+  "homeLoadMore": "Load more",
+  "homeLoadedAllActivities": "Loaded all {count} activities.",
+  "@homeLoadedAllActivities": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "homeFilterTitle": "Filters",
+  "homeFilterSort": "Sort",
+  "homeFilterCategory": "Category",
+  "homeFilterAudience": "Audience",
+  "homeFilterLanguage": "Language",
+  "homeFilterRegion": "Region",
+  "homeFilterSchedule": "Schedule",
+  "homeFilterStartDate": "Start date",
+  "homeFilterEndDate": "End date",
+  "homeFilterCost": "Price",
+  "homeFilterMinPrice": "Min price",
+  "homeFilterMaxPrice": "Max price",
+  "homeFilterStatus": "Status",
+  "homeFilterNear": "Near",
+  "homeFilterFar": "Far",
+  "homeFilterDistanceFromActivityRegion": "Based on activity region: {target}",
+  "@homeFilterDistanceFromActivityRegion": {
+    "placeholders": {
+      "target": {}
+    }
+  },
+  "homeFilterDistanceFromRegion": "Based on {regionName}: {target}",
+  "@homeFilterDistanceFromRegion": {
+    "placeholders": {
+      "regionName": {},
+      "target": {}
+    }
+  },
+  "commonClose": "Close",
+  "commonEdit": "Edit",
+  "commonSeeAll": "See all",
+  "commonSeeDetails": "See details",
+  "commonNetworkRetry": "Check your network connection and try again.",
+  "countryKorea": "Korea",
+  "countryJapan": "Japan",
+  "countryChina": "China",
+  "countryVietnam": "Vietnam",
+  "countryUnitedStates": "United States",
+  "countryThailand": "Thailand",
+  "activityCategoryTouristAttraction": "Tourist attraction",
+  "activityCategoryTravelCourse": "Travel course",
+  "activityCategoryCultureTradition": "Culture / Tradition",
+  "activityCategoryEventPerformanceFestival": "Events / Performances / Festivals",
+  "activityCategorySports": "Sports",
+  "activityCategoryActivityLeports": "Activities / Leisure sports",
+  "activityCategoryShopping": "Shopping",
+  "activityCategoryPublicFacility": "Public facility",
+  "activityCategoryOther": "Other",
+  "reportSemanticsLabel": "Report",
+  "reportTitle": "Report",
+  "reportNoticeMessage": "Photo library access is required to attach report images. You can still continue writing the report text without permission.",
+  "reportRecoveryMessage": "Photo library access is required to attach report images. Try again or allow permission in app settings.",
+  "reportFailureMessage": "Could not load the image. Please check permissions and file status.",
+  "reportRestoreFallbackErrorMessage": "Could not restore the report images you selected earlier. Please select them again.",
+  "reportSubmittedMessage": "Your report for {subject} has been submitted.",
+  "@reportSubmittedMessage": {
+    "placeholders": {
+      "subject": {}
+    }
+  },
+  "reportBodyHint": "Please describe the reason for the report in detail.\nExamples: abusive language, suspected scam, inappropriate post,\nspam, harassment, etc. Reports will be reviewed\naccording to our moderation policy.",
+  "reportBodyCount": "{count}/{max} chars",
+  "@reportBodyCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "reportImageSectionTitle": "Images (up to {max})",
+  "@reportImageSectionTitle": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "reportSubmitting": "Submitting...",
+  "reportReviewNotice": "Submitted reports are reviewed within up to 7 business days.\nFalse reports or reports without clear reasons may not be processed.",
+  "reportRestoredCount": "Restored {restoredCount} report image(s) you selected earlier.",
+  "@reportRestoredCount": {
+    "placeholders": {
+      "restoredCount": {
+        "type": "int"
+      }
+    }
+  },
+  "mypageTitle": "My Page",
+  "mypageLoadError": "Failed to load My Page.",
+  "mypageOtherProfileOpenHint": "Loading profile.",
+  "mypageOtherProfileLoadError": "Failed to load this profile.",
+  "mypageEditPrimaryPreferences": "Edit basic info",
+  "mypageEditActivityRegion": "Edit activity region",
+  "mypageConsentHistoryTitle": "Consent history",
+  "mypageOpenPrivacyPolicy": "Privacy Policy",
+  "mypageOpenCustomerSupport": "Customer Support",
+  "mypageOpenBlockedUsers": "Blocked users",
+  "mypageLogout": "Log out",
+  "mypageOpenWithdrawal": "Delete account",
+  "mypageConsentHistoryDescription": "You can review the terms and policies you agreed to for using MateYa.",
+  "mypageConsentHistoryEmpty": "No consent history has been saved yet.",
+  "mypageConsentVersion": "Version",
+  "mypageConsentStatus": "Status",
+  "mypageConsentAgreed": "Agreed",
+  "mypageConsentDeclined": "Declined",
+  "mypageConsentDate": "Date",
+  "mypageBlockedUsersTitle": "Blocked users",
+  "mypageBlockedUsersEmpty": "You have not blocked anyone yet.",
+  "mypageRecentActivitiesTitle": "Recent activities",
+  "mypageRecentActivitiesDescription": "Check the activities you recently joined or hosted.",
+  "mypageActivitySummaryTitle": "Activity summary",
+  "mypageHostedCount": "Hosted",
+  "mypageJoinedCount": "Joined",
+  "mypageReviewCount": "Reviews",
+  "mypageActiveMember": "Active member",
+  "mypageInactiveMember": "No recent activity",
+  "mypageActiveWithin30Days": "Active within 30 days",
+  "mypageNoRecentActivity": "No recent activity",
+  "mypageBadgeLabel": "Badges",
+  "mypageBadgesTitle": "My badges",
+  "mypageBadgesDescription": "You can earn badges based on the categories of activities you joined.",
+  "mypageRecentActivitiesSectionTitle": "Activity history",
+  "mypageActivityHistoryTitle": "Activity history",
+  "mypagePrimaryPreferencesTitle": "Basic info",
+  "mypagePrimaryPreferencesDescription": "Update your language and nationality information.",
+  "mypageMyLanguage": "My language",
+  "mypageMyCountry": "My nationality",
+  "mypageEnglishNameOptional": "English name (optional)",
+  "mypageSaving": "Saving...",
+  "mypagePrimaryPreferencesSubmit": "Save",
+  "mypageUpdating": "Updating...",
+  "mypageBusinessIntroTitle": "Introduction",
+  "mypageBusinessIntroDescription": "Write a short introduction to show on your host page.",
+  "mypageBusinessIntroHint": "Briefly introduce the kind of experience you offer.",
+  "mypageSaveIntroduction": "Save introduction",
+  "mypageActiveExperiencesTitle": "Active experiences",
+  "mypageRemoveFriend": "Remove friend",
+  "mypageBlocked": "Blocked",
+  "mypageBlockUser": "Block user",
+  "mypageSelectLanguageAndCountry": "Please select both a language and a country.",
+  "mypageInvalidLanguageOrCountry": "This language or country is not supported.",
+  "mypagePrimaryPreferencesSaved": "Your basic info has been saved.",
+  "mypagePrimaryPreferencesSaveError": "Could not save your basic info. Please try again later.",
+  "mypageFriendRemoved": "Friend removed.",
+  "mypageFriendAdded": "Added as a friend.",
+  "mypageFriendUpdateError": "Could not update the friend status. Please try again later.",
+  "mypageBlockedUserAdded": "User blocked.",
+  "mypageBlockUserError": "Could not block the user. Please try again later.",
+  "mypageUnblockedUser": "User unblocked.",
+  "mypageUnblockUserError": "Could not unblock the user. Please try again later.",
+  "mypageBusinessIntroRequired": "Please enter an introduction.",
+  "mypageBusinessIntroTooLong": "Please keep the introduction within 300 characters.",
+  "mypageBusinessIntroSaved": "Introduction saved.",
+  "mypageBusinessIntroSaveError": "Could not save the introduction. Please try again later.",
+  "mypageProfileImageSaved": "Profile image saved.",
+  "mypageProfileImageSaveError": "Could not save the profile image. Please try again later.",
+  "mypageProfileImageInvalidFormat": "Only JPG, PNG, WEBP, and GIF images can be uploaded.",
+  "mypageProfileImageUploadError": "Could not upload the profile image. Please try again later.",
+  "mypageProfileImageConfirmError": "Could not confirm the profile image upload. Please try again later.",
+  "mypageActivityRegionSaved": "Activity region saved.",
+  "mypageActivityRegionSaveError": "Could not save the activity region. Please try again later.",
+  "mypageWithdrawalAgreementRequired": "You need to agree before requesting account deletion.",
+  "mypageWithdrawalSignatureRequired": "Please enter your signature.",
+  "mypageWithdrawalSignatureMismatch": "The signature does not match your member name.",
+  "mypageWithdrawalAgreementText": "I agree to the privacy management and final deletion policy after 30 days.",
+  "mypageWithdrawalSubmitted": "Your account deletion request has been submitted.",
+  "mypageWithdrawalSubmitError": "Could not process your deletion request. Please try again later.",
+  "mypageLogoutError": "Could not log out. Please try again later.",
+  "mypageTermsDetailUnavailable": "Could not load the detailed terms.",
+  "mypageSupportLinkCopied": "Customer support link copied.",
+  "mypagePrivacyLinkCopied": "Privacy policy link copied.",
+  "mypageCurrentLocationResolveError": "Could not check your current location. Please try again later.",
+  "mypageNeighborhoodRequired": "Please enter your activity region.",
+  "mypageNeighborhoodLookupError": "Could not verify the area you entered. Please check it again.",
+  "mypageNeighborhoodVerificationRequired": "Please select a verified activity region.",
+  "mypageActivityRegionDialogDescription": "You can set your activity region using your current location or manual entry.",
+  "mypageResolvingCurrentLocation": "Checking your current location.",
+  "mypageResolvingNeighborhood": "Checking the area you entered.",
+  "mypageConfirmManualNeighborhood": "Use this entered area",
+  "mypageSelectedActivityRegion": "Selected activity region: {name}",
+  "@mypageSelectedActivityRegion": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "mypageSaveActivityRegion": "Save activity region",
+  "mypageLocationServiceDisabledMessage": "Turn on your device's location services to use your current location. You can still continue with manual entry.",
+  "mypageLocationPermissionDisabledMessage": "Allow location access in app settings to use your current location. You can still continue with manual entry.",
+  "mypageProfileImageNotice": "Photo library access is required to select a profile image.",
+  "mypageProfileImageRecovery": "Please allow photo library access to select a profile image. You can try again or change it in app settings.",
+  "mypageProfileImageFailure": "Could not load the profile image. Please check the file status.",
+  "mypageProfileImageRestoreFallback": "Could not restore the profile image you were selecting earlier. Please choose it again.",
+  "mypageProfileImageRestoredCount": "Restored {restoredCount} profile image(s) you selected earlier.",
+  "@mypageProfileImageRestoredCount": {
+    "placeholders": {
+      "restoredCount": {
+        "type": "int"
+      }
+    }
+  },
+  "mypageWithdrawalTitle": "Delete account",
+  "mypageWithdrawalDescription": "Would you like to proceed with account deletion?\nYour account will be deactivated immediately after the request.\nIf you sign up again or log in within 30 days,\nthe deletion will be canceled.\n\nAfter 30 days, your member information and service history will be permanently deleted, except for information that must be retained by law, and cannot be restored.",
+  "mypageWithdrawalAgreementCheckbox": "I agree to the privacy management and final deletion policy after 30 days.",
+  "mypageWithdrawalSignatureLabel": "Signature",
+  "mypageWithdrawalSignatureHint": "Enter {name}",
+  "@mypageWithdrawalSignatureHint": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "mypageWithdrawalSubmittedNotice": "Your deletion request has been received. Your account will remain inactive until you log in again.",
+  "mypageWithdrawalRequest": "Request deletion",
+  "mypageMetricActivities": "Activities",
+  "mypageMetricFriends": "Friends",
+  "mypageMetricReviews": "Reviews",
+  "mypageMetricRecruitingExperiences": "Open experiences",
+  "mypageMetricTotalParticipants": "Total participants",
+  "mypageMetricAverageRating": "Average rating",
+  "mypageMetricReceivedReviews": "Received reviews",
+  "mypageActivityRegionUnset": "Activity region not set",
+  "mypageParticipantCount": "{current} / {capacity}",
+  "@mypageParticipantCount": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "capacity": {
+        "type": "int"
+      }
+    }
+  },
+  "mypageConsentTypeServiceTerms": "Terms of Service",
+  "mypageConsentTypePrivacyCollection": "Consent to Personal Data Collection and Use",
+  "mypageConsentTypeLocationService": "Consent to Location-Based Services",
+  "mypageConsentTypeAgeOver14": "Confirmation of age 14 or older",
+  "mypageHostBadge": "HOST",
+  "mypageEditActivityCta": "Edit activity",
+  "mypageBadgeTraditional": "Tradition Master",
+  "mypageBadgeActivePerson": "Active Mate",
+  "mypageBadgeFestive": "Festival Lover",
+  "mypageBadgeTourist": "Local Explorer",
+  "mypageBadgeUnlockedTitle": "You earned a new badge",
+  "mypageBadgeUnlockedDescription": "Your participation in {category} activities has been reflected.",
+  "@mypageBadgeUnlockedDescription": {
+    "placeholders": {
+      "category": {}
+    }
+  },
+  "galleryPermissionNoticeTitle": "Photo permission notice",
+  "galleryPermissionSelectPhoto": "Select photos",
+  "galleryPermissionRecoveryTitle": "Photo access is required",
+  "authLoginRequired": "Login is required.",
+  "commonRequestError": "An error occurred while processing the request.",
+  "chatJustNow": "Just now",
+  "chatMinutesAgo": "{count} min ago",
+  "@chatMinutesAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chatHoursAgo": "{count} hr ago",
+  "@chatHoursAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chatYesterday": "Yesterday",
+  "chatLastYear": "Last year",
+  "chatPhotoCount": "{count} photo(s)",
+  "@chatPhotoCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chatViewOriginal": "View original",
+  "chatViewTranslation": "View translation",
+  "chatParticipantCount": "{count} joined",
+  "@chatParticipantCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chatFilterGroup": "Groups",
+  "chatFilterDirect": "Direct",
+  "chatListGuidance": "When you join an activity, you are automatically added to the group chat.\nDirect chats are automatically created with users who are your friends.\nYou cannot chat with users who are not your friends.",
+  "chatComposerHint": "Type a message",
+  "reportReasonRequired": "Please enter a reason for the report.",
+  "reportImageInvalidFormat": "Only JPG, PNG, WEBP, and GIF images can be attached to a report.",
+  "reportImageUploadError": "Could not upload the report image. Please try again later.",
+  "reportImageConfirmError": "Could not confirm the uploaded report image. Please try again later.",
+  "createGroupFlowTitle": "Create group",
+  "createClassFlowTitle": "Create class",
+  "createEntityGroup": "group",
+  "createEntityClass": "class",
+  "createGroupSubmit": "Create group",
+  "createClassSubmit": "Create class",
+  "createGroupEditTitle": "Edit group",
+  "createClassEditTitle": "Edit class",
+  "createGroupUpdateSubmit": "Save group changes",
+  "createClassUpdateSubmit": "Save class changes",
+  "createPaidLabel": "Paid",
+  "createEditCompleted": "Your {entity} has been updated.",
+  "@createEditCompleted": {
+    "placeholders": {
+      "entity": {}
+    }
+  },
+  "createSubmitCompleted": "Your {entity} has been created.",
+  "@createSubmitCompleted": {
+    "placeholders": {
+      "entity": {}
+    }
+  },
+  "createChatProvisionFailed": "Your {entity} was created, but the chat room could not be prepared. Please try again later.",
+  "@createChatProvisionFailed": {
+    "placeholders": {
+      "entity": {}
+    }
+  },
+  "createSubmitFailedNetwork": "Could not create the {entity}. Check your connection and try again.",
+  "@createSubmitFailedNetwork": {
+    "placeholders": {
+      "entity": {}
+    }
+  },
+  "createSubmitFailedServer": "Could not create the {entity}. Please try again later.",
+  "@createSubmitFailedServer": {
+    "placeholders": {
+      "entity": {}
+    }
+  },
+  "createDeleteFailedNetwork": "Could not delete it. Check your connection and try again.",
+  "createDeleteFailedServer": "Could not delete it. Please try again later.",
+  "createLoadEditFailedNetwork": "Could not load the {entity} for editing. Check your connection and try again.",
+  "@createLoadEditFailedNetwork": {
+    "placeholders": {
+      "entity": {}
+    }
+  },
+  "createLoadEditFailedServer": "Could not load the {entity} for editing. Please try again later.",
+  "@createLoadEditFailedServer": {
+    "placeholders": {
+      "entity": {}
+    }
+  },
+  "createValidationSelectCategory": "Please select at least one category.",
+  "createValidationSelectClassCategoryFirst": "Please choose the class category first.",
+  "createValidationSelectPlaceOrManual": "Please select a place or enter one manually.",
+  "createValidationSelectPlace": "Please select a place.",
+  "createValidationEnterEntityName": "Please enter the {entity} name.",
+  "@createValidationEnterEntityName": {
+    "placeholders": {
+      "entity": {}
+    }
+  },
+  "createValidationTitleMaxLength": "The name must be 40 characters or fewer.",
+  "createValidationDescriptionMaxLength": "The description must be 1000 characters or fewer.",
+  "createValidationSelectDate": "Please select a date.",
+  "createValidationNoPastDate": "You cannot select a past date.",
+  "createValidationSelectStartEndTime": "Please select both a start time and an end time.",
+  "createValidationEndAfterStart": "The end time must be later than the start time.",
+  "createValidationCapacityRange": "Capacity must be between 2 and 20 people.",
+  "createValidationSelectDeadline": "Please select both the registration deadline date and time.",
+  "createValidationSelectDeadlineTogether": "Please choose the registration deadline date and time together.",
+  "createValidationDeadlineFuture": "The registration deadline must be in the future.",
+  "createValidationDeadlineBeforeStart": "The registration deadline must be earlier than the start time.",
+  "createValidationSelectLanguage": "Please select at least one language.",
+  "createValidationSelectPriceType": "Please select a price type.",
+  "createValidationEnterPaidPrice": "Please enter a price for a paid activity.",
+  "createValidationPriceRange": "Enter a price between KRW 1 and KRW 1,000,000.",
+  "createValidationRegisterImage": "Please add at least one cover image.",
+  "createGroupInfoTitle": "Tell us about your group",
+  "createClassInfoTitle": "Tell us about your class",
+  "createValidationIntro": "Fill in the required details below to publish it right away.",
+  "createSelectedCategoryTitle": "Selected categories",
+  "createSelectedPlaceTitle": "Selected place",
+  "createGroupNameLabel": "Group name",
+  "createClassNameLabel": "Class name",
+  "createGroupNameHint": "e.g. Bukchon hanok walk together",
+  "createClassNameHint": "e.g. Traditional tea one-day class",
+  "createDescriptionTitle": "Description",
+  "createDescriptionHint": "Share how it works, what to bring, and anything participants should know.",
+  "createDateTimeTitle": "Schedule",
+  "createDateLabel": "Date",
+  "createDatePlaceholder": "Select a date",
+  "createStartTimeLabel": "Start time",
+  "createStartTimePlaceholder": "Select a start time",
+  "createEndTimeLabel": "End time",
+  "createEndTimePlaceholder": "Select an end time",
+  "createCapacityTitle": "Capacity",
+  "createCapacityValue": "{count} people",
+  "@createCapacityValue": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "createCapacityHelper": "Minimum 2, maximum 20",
+  "createDeadlineTitle": "Registration deadline",
+  "createDeadlineDateLabel": "Deadline date",
+  "createDeadlineTimeLabel": "Deadline time",
+  "createNotSelected": "Not selected",
+  "createLanguagesTitle": "Languages",
+  "createPriceTitle": "Price",
+  "createPaidPriceHint": "Enter the participation fee",
+  "createAudienceTitle": "Recommended for",
+  "createPrimaryImageTitle": "Cover image",
+  "createPrimaryImageRequiredHint": "Please add at least one cover image.",
+  "createPrimaryImageSelectionHint": "The first image becomes the cover image, and you can tap another image to make it the cover.",
+  "createPrimaryImageBadge": "Cover",
+  "createDeleting": "Deleting...",
+  "createDeleteAction": "Delete {entity}",
+  "@createDeleteAction": {
+    "placeholders": {
+      "entity": {}
+    }
+  },
+  "createPlaceGroupTitle": "Choose a place for the group",
+  "createPlaceClassTitle": "Choose a place for the class",
+  "createPlaceGroupDescription": "Pick a recommended place or enter one manually for your group.",
+  "createPlaceClassDescription": "Search for a place that fits the category or enter one manually for your class.",
+  "createClassCategoryTitle": "Class category",
+  "createCategoryDetailTitle": "Detailed category",
+  "createManualPlaceTitle": "Enter manually",
+  "createManualPlaceNameHint": "Enter the place name",
+  "createManualPlaceAddressHint": "Enter the address",
+  "createOrSearchTitle": "Or search for a place",
+  "createPlaceSearchHint": "Search by place name",
+  "createManualPlacePreviewDescription": "It will be published using the place information you entered manually.",
+  "createSearchResultsTitle": "Search results",
+  "createSearchEmptyTitle": "No places found",
+  "createSearchEmptyBody": "Try searching with a different keyword.",
+  "createSearchInitialTitle": "Search for a place",
+  "createSearchInitialBody": "Enter a place name or address to see matching results you can choose from.",
+  "createRecommendedTitle": "Recommended places",
+  "createRefresh": "Refresh",
+  "createRecommendedEmptyTitle": "No recommended places yet",
+  "createRecommendedEmptyBody": "Try changing the category or searching manually.",
+  "createMapPlaceholder": "Once you select a place, its location will appear here.",
+  "createCategoryPromptTitle": "What kind of experience are you creating?",
+  "createCategoryPromptDescription": "Choose the category that best matches the group or class you want to publish.",
+  "createCompletedEditDescription": "Your changes have been saved and will be reflected for participants right away.",
+  "createCompletedCreateDescription": "People can now discover it on MateYa.",
+  "createBackToPrevious": "Back",
+  "createBackToHome": "Back to home",
+  "createStepCategory": "Category",
+  "createStepPlaceGroup": "Place",
+  "createStepPlaceClass": "Place",
+  "createStepDetailsGroup": "Details",
+  "createStepDetailsClass": "Details",
+  "createCompletedProgress": "Complete",
+  "createCategoryTitleCultureTradition": "Culture / Tradition",
+  "createCategoryTitleEventPerformanceFestival": "Events / Performances / Festivals",
+  "createCategoryTitleActivityLeports": "Activities / Leisure sports",
+  "createCategoryDescriptionTourist": "Great for meetups built around iconic attractions.",
+  "createCategoryDescriptionTravelCourse": "Best for travel-style routes with multiple stops.",
+  "createCategoryDescriptionCultureTradition": "Recommended for traditional culture, crafts, and history experiences.",
+  "createCategoryDescriptionFestival": "Fits performances, festivals, and seasonal events.",
+  "createCategoryDescriptionSports": "Ideal for exercise, sports viewing, or active group events.",
+  "createCategoryDescriptionActivityLeports": "Good for outdoor experiences and active leisure activities.",
+  "createCategoryDescriptionPublicFacility": "Recommended for exhibitions, public spaces, and local community events.",
+  "createCategoryDescriptionShopping": "A great fit for markets, shopping streets, and local store tours.",
+  "createEventDatePickerHelp": "Choose the date for your {entity}",
+  "@createEventDatePickerHelp": {
+    "placeholders": {
+      "entity": {}
+    }
+  },
+  "createStartTimePickerHelp": "Choose the start time",
+  "createEndTimePickerHelp": "Choose the end time",
+  "createDeadlineDatePickerHelp": "Choose the registration deadline date",
+  "createDeadlineTimePickerHelp": "Choose the registration deadline time",
+  "createDeleteDialogTitle": "Delete this {entity}?",
+  "@createDeleteDialogTitle": {
+    "placeholders": {
+      "entity": {}
+    }
+  },
+  "createDeleteDialogBody": "This action cannot be undone.",
+  "@createDeleteDialogBody": {
+    "placeholders": {
+      "entity": {}
+    }
+  },
+  "createDeleteButton": "Delete",
+  "createDeleteCompleted": "Deleted successfully.",
+  "createInitializationLoadError": "Could not load the {entity} details.",
+  "@createInitializationLoadError": {
+    "placeholders": {
+      "entity": {}
+    }
+  },
+  "createInitializationRetryBody": "Please try again. If the issue continues, go back and reopen this screen.",
+  "createSavingEntity": "Saving {entity}...",
+  "@createSavingEntity": {
+    "placeholders": {
+      "entity": {}
+    }
+  },
+  "createSubmittingEntity": "Creating {entity}...",
+  "@createSubmittingEntity": {
+    "placeholders": {
+      "entity": {}
+    }
+  },
+  "createSelectPlaceAction": "Choose a place",
+  "createImagePickerNotice": "Photo library access is required to attach images. You can still continue filling out the rest without permission.",
+  "createImagePickerRecovery": "Photo library access is required to keep attaching images. Try again or allow permission in app settings.",
+  "createImagePickerFailure": "Could not load the selected image. Please check the file and try again.",
+  "createImagePickerRestoreFallback": "Could not restore the images you were selecting earlier. Please select them again.",
+  "createImagePickerRestoredCount": "Restored {count} previously selected image(s).",
+  "@createImagePickerRestoredCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "createRecommendedLoadFailedNetwork": "Could not load recommended places. Check your connection and try again.",
+  "createRecommendedLoadFailedServer": "Could not load recommended places. Please try again later.",
+  "createPlaceSearchQueryRequired": "Please enter a place name.",
+  "createPlaceSearchFailedNetwork": "Place search failed. Check your connection and try again.",
+  "createPlaceSearchFailedServer": "Place search failed. Please try again later.",
+  "createPlaceCoordinateRequired": "This place cannot be selected because location coordinates are unavailable.",
+  "createPlaceMapCoordinateRequired": "This place cannot be shown on the map because location coordinates are unavailable.",
+  "createImageLimitExceeded": "You can add up to {max} images.",
+  "@createImageLimitExceeded": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "createImageInvalidFormat": "Only JPG, PNG, WEBP, and GIF images can be added.",
+  "createImageMaxSize": "Each image can be up to 10MB.",
+  "createPlaceDescriptionFallback": "Check the location before selecting it.",
+  "createExistingPlaceDescription": "Current activity location",
+  "createResolveServerCategoryFailed": "The server category could not be determined from the selected place. Please choose another place.",
+  "createUploadImageRequired": "Please add at least one cover image.",
+  "createUploadImageInvalidFormat": "Only JPG, PNG, WEBP, and GIF images can be uploaded.",
+  "createUploadImageFailed": "Image upload failed. Please try again later.",
+  "createUploadImageConfirmFailed": "Could not confirm the uploaded image. Please try again later.",
+  "onboardingValidationNameRequired": "Please enter your name.",
+  "onboardingValidationNameMaxLength": "Your name must be 30 characters or fewer.",
+  "onboardingValidationNameCharacters": "Please enter only your name without numbers or special characters.",
+  "onboardingValidationPhoneRequired": "Please enter your phone number.",
+  "onboardingValidationPhoneDigitsOnly": "Please enter digits only for the phone number.",
+  "onboardingValidationPhoneMaxLength": "Phone numbers can be up to 15 digits.",
+  "onboardingValidationPhoneInvalid": "Please enter a valid phone number.",
+  "onboardingValidationVerificationCodeRequired": "Please enter the 6-digit verification code.",
+  "onboardingValidationVerificationExpired": "The verification time has expired. Please request a new code.",
+  "onboardingValidationVerificationMismatch": "The verification code does not match.",
+  "onboardingValidationBusinessNameRequired": "Please enter the business name.",
+  "onboardingValidationOpeningDateRequired": "Please enter the 8-digit opening date.",
+  "onboardingValidationOpeningDateDigitsOnly": "The opening date must contain digits only.",
+  "onboardingValidationOpeningDateInvalid": "Please enter a valid opening date.",
+  "onboardingValidationBusinessNumberRequired": "Please enter a valid 10-digit business registration number.",
+  "onboardingValidationBusinessNumberDigitsOnly": "The business registration number must contain digits only.",
+  "onboardingLocationErrorServiceDisabled": "Location services are turned off. Please continue with manual entry.",
+  "onboardingLocationErrorPermissionDenied": "Without location permission, automatic verification from your current location is unavailable. You can continue with manual entry and try again after granting permission.",
+  "onboardingLocationErrorPermissionPermanentlyDenied": "Location permission is turned off, so automatic verification from your current location is unavailable. Allow permission in app settings or continue with manual entry.",
+  "onboardingLocationErrorAccuracyLow": "Location accuracy is too low for automatic verification.",
+  "onboardingLocationErrorAddressNotFound": "We could not find the address. Please continue with manual entry.",
+  "onboardingLocationErrorUnknown": "We could not load your location. Please continue with manual entry.",
+  "onboardingLocationQueryRequired": "Please enter your neighborhood name.",
+  "onboardingLocationQueryNotFound": "We could not find the neighborhood you entered.",
+  "onboardingLocationCurrentFallback": "Current location",
+  "homeParticipantCount": "{current}/{capacity} joined",
+  "@homeParticipantCount": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "capacity": {
+        "type": "int"
+      }
+    }
+  },
+  "homeFavoritesSubtitle": "Share your interests with the world.",
+  "homeFavoritesEmptyTitle": "You have no saved activities yet.",
+  "homeFavoritesEmptyDescription": "Save activities you like and you can revisit them here.",
+  "homeNearbyCultureMap": "Traditional culture nearby",
+  "onboardingTermsPendingEffectiveDate": "Pending confirmation",
+  "onboardingTermsServiceTitle": "Terms of Service",
+  "onboardingTermsServiceSummary": "These terms explain the basic conditions for using MateYa, user responsibilities, and how the service is operated.",
+  "onboardingTermsServiceSection1Title": "Purpose of the service",
+  "onboardingTermsServiceSection1Body": "MateYa is a platform that helps domestic users and international users safely discover and join groups, classes, and local activities.",
+  "onboardingTermsServiceSection2Title": "Signup and account management",
+  "onboardingTermsServiceSection2Body": "Members must sign up with information under their own name and complete phone verification and consent to the terms before using the service. If account information changes, it must be kept up to date.",
+  "onboardingTermsServiceSection3Title": "Conditions of use",
+  "onboardingTermsServiceSection3Body": "Members must comply with applicable laws and these terms and must not infringe on others rights or interfere with the operation of the service. Some features may require identity verification or additional authentication.",
+  "onboardingTermsServiceSection4Title": "Prohibited conduct",
+  "onboardingTermsServiceSection4Body": "Registering false information, impersonating others, illegal promotion, posting obscene or hateful content, abnormal automated access, or attempts to bypass operational policies are prohibited. Violations may result in content removal, restrictions on use, or account suspension.",
+  "onboardingTermsServiceSection5Title": "Service interruption and changes",
+  "onboardingTermsServiceSection5Body": "MateYa may change or temporarily suspend parts of the service due to maintenance, incident response, policy updates, or external partnership circumstances. Important changes will be announced in the app or through another appropriate method.",
+  "onboardingTermsServiceSection6Title": "Limitation of liability",
+  "onboardingTermsServiceSection6Body": "MateYa may limit liability to the extent permitted by law for damage caused by force majeure, communication failures, or reasons attributable to the user. This does not apply in cases of intentional misconduct or gross negligence by the company.",
+  "onboardingTermsServiceSection7Title": "Contact",
+  "onboardingTermsServiceSection7Body": "If you need help while using the service, you can contact us through the in-app support channel or the operations team email. Requests are handled in order according to operational policy.",
+  "onboardingTermsPrivacyTitle": "Consent to Third-Party Sharing of Personal Information",
+  "onboardingTermsPrivacySummary": "This explains the standards for sharing personal information with third parties when needed for activity operations, reservations, and customer support.",
+  "onboardingTermsPrivacySection1Title": "Recipients",
+  "onboardingTermsPrivacySection1Body": "Hosts who run groups/classes on MateYa or partner businesses needed for service operations",
+  "onboardingTermsPrivacySection2Title": "Purpose of sharing",
+  "onboardingTermsPrivacySection2Body": "Confirming participation requests, coordinating schedules smoothly with hosts, supporting on-site operations, responding to customer inquiries, and resolving disputes",
+  "onboardingTermsPrivacySection3Title": "Items shared",
+  "onboardingTermsPrivacySection3Body": "Name, phone number, activity application details, preferred language, and the minimum participation history required to provide the service",
+  "onboardingTermsPrivacySection4Title": "Retention and usage period",
+  "onboardingTermsPrivacySection4Body": "Information is retained until the purpose of sharing is fulfilled or until a legally required retention period ends, after which it is deleted or anonymized without delay.",
+  "onboardingTermsPrivacySection5Title": "Right to refuse and disadvantages",
+  "onboardingTermsPrivacySection5Body": "Members may refuse consent to third-party sharing of personal information. However, some services that require activity participation, reservation confirmation, or communication with hosts may be limited.",
+  "onboardingTermsLocationTitle": "Terms for Location-Based Services",
+  "onboardingTermsLocationSummary": "This explains how current location and activity region information are used to provide nearby groups and recommendations, along with the related protection standards.",
+  "onboardingTermsLocationSection1Title": "Purpose",
+  "onboardingTermsLocationSection1Body": "These terms explain the conditions and procedures for using the location-based services provided by MateYa, as well as the rights and obligations of the company and users and the standards for protecting location information.",
+  "onboardingTermsLocationSection2Title": "Collection and use of location information",
+  "onboardingTermsLocationSection2Body": "The company uses the current location or activity region information within the scope of features requested by the user and only for the following purposes.",
+  "onboardingTermsLocationSection2Point1": "Neighborhood verification and activity region confirmation",
+  "onboardingTermsLocationSection2Point2": "Nearby group recommendations and distance-based sorting",
+  "onboardingTermsLocationSection2Point3": "Providing region-tailored content and a safer participation experience",
+  "onboardingTermsLocationSection3Title": "Retention and usage period",
+  "onboardingTermsLocationSection3Body": "Real-time location information is not retained after immediate processing is completed. However, the minimum data needed for service operations, such as activity region verification results, may be retained for the period required by law or internal policy and then deleted or anonymized without delay.",
+  "onboardingTermsLocationSection4Title": "User rights",
+  "onboardingTermsLocationSection4Body": "Users may withdraw consent to provide location information at any time through device settings or in-app permission settings and may choose whether to use location-based services. Withdrawing consent may limit certain recommendation or neighborhood verification features.",
+  "onboardingTermsLocationSection5Title": "Company obligations",
+  "onboardingTermsLocationSection5Body": "The company manages location information safely in accordance with applicable laws and internal security standards and does not use it beyond the intended purpose or share it with third parties without separate consent. The company also responds promptly to user inquiries and complaints and provides necessary guidance.",
+  "onboardingTermsLocationSection6Title": "Contact",
+  "onboardingTermsLocationSection6Body": "Questions about location-based services can be submitted through the in-app support channel or the operations team contact window. Requests are processed in order according to internal policy.",
+  "onboardingTermsAgeTitle": "Confirmation of age 14 or older",
+  "onboardingTermsAgeSummary": "MateYa signup is available only to users age 14 or older, and this explains the related age verification and usage restrictions.",
+  "onboardingTermsAgeSection1Title": "Age confirmation",
+  "onboardingTermsAgeSection1Body": "When signing up, members must confirm and agree that they are at least 14 years old.",
+  "onboardingTermsAgeSection2Title": "Signup restriction",
+  "onboardingTermsAgeSection2Body": "Users under the age of 14 are not allowed to sign up for MateYa or use the service.",
+  "onboardingTermsAgeSection3Title": "Action for false confirmation",
+  "onboardingTermsAgeSection3Body": "If it is confirmed that a user signed up by falsely confirming their age, the service may be restricted, the account may be terminated, or additional verification procedures may be required.",
+  "chatAttachmentRecoveryFailed": "Could not restore the photos you were selecting earlier. Please select them again.",
+  "chatAttachmentSheetTitle": "Attach photos",
+  "chatAttachmentSheetDescription": "Choose multiple photos from your album or take one right away with the camera.",
+  "chatAttachmentGalleryTitle": "Choose from album",
+  "chatAttachmentGallerySubtitle": "You can select multiple photos at once.",
+  "chatAttachmentCameraTitle": "Take a photo",
+  "chatAttachmentCameraSubtitle": "Take one photo now and attach it.",
+  "chatAttachmentGuideFormats": "Supported formats: JPG, PNG, WEBP, GIF, HEIC, HEIF",
+  "chatAttachmentGuideMaxSize": "Maximum size: 10MB",
+  "chatAttachmentGuideMaxCount": "Up to {count} per message",
+  "@chatAttachmentGuideMaxCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chatAttachmentPhotoPermissionTitle": "Photo permission notice",
+  "chatAttachmentCameraPermissionTitle": "Camera permission notice",
+  "chatAttachmentPhotoPermissionMessage": "Photo library access is required to attach photos in chat. You can continue using text chat even if you deny permission.",
+  "chatAttachmentCameraPermissionMessage": "Camera access is required to take and send photos in chat. You can continue using text chat even if you deny permission.",
+  "chatAttachmentPhotoSelect": "Select photos",
+  "chatAttachmentOpenCamera": "Open camera",
+  "chatAttachmentPhotoRecoveryTitle": "Photo access is required",
+  "chatAttachmentCameraRecoveryTitle": "Camera access is required",
+  "chatAttachmentPhotoRecoveryMessage": "Photo library access is required to attach photos. You can still continue text chat without it, and you can retry or allow permission in app settings.",
+  "chatAttachmentCameraRecoveryMessage": "Camera access is required to attach a photo taken in chat. You can still continue text chat without it, and you can retry or allow permission in app settings.",
+  "chatAttachmentLoadFailed": "Could not load the photo. Please check permissions and file status.",
+  "chatAttachmentAddedCount": "Attached {count} photo(s).",
+  "@chatAttachmentAddedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chatAttachmentRejectedTypeCount": "Excluded {count} photo(s) with unsupported formats.",
+  "@chatAttachmentRejectedTypeCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chatAttachmentRejectedSizeCount": "Excluded {count} photo(s) larger than 10MB.",
+  "@chatAttachmentRejectedSizeCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chatAttachmentOverflowCount": "You can attach up to {count} photos.",
+  "@chatAttachmentOverflowCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chatAttachmentPhotoOnly": "Photo",
+  "chatAttachmentInvalidFormat": "Only JPG, PNG, WEBP, GIF, HEIC, and HEIF images can be sent.",
+  "chatAttachmentUploadFailed": "Could not upload the chat image. Please try again later.",
+  "chatListLoadError": "Could not load the chat list.",
+  "chatListEmptyTitle": "There are no chat rooms to show.",
+  "chatListEmptyBody": "Try changing the filter or starting a new conversation.",
+  "chatListLoadMoreHint": "Scroll to load more chat rooms.",
+  "chatListLoadMoreFailedNetwork": "Could not load more chat rooms. Please check your connection.",
+  "chatListLoadMoreFailedServer": "Could not load more chat rooms. Please try again later.",
+  "chatRoomMissing": "Could not find the chat room information.",
+  "chatBackToList": "Back to list",
+  "chatRoomLoadError": "Could not load the chat room.",
+  "chatOlderMessagesHint": "Scroll up to load older messages.",
+  "chatOlderMessagesFailedNetwork": "Could not load older messages. Please check your connection.",
+  "chatOlderMessagesFailedServer": "Could not load older messages. Please try again later.",
+  "chatReadSyncFailed": "Could not sync the read status with the server. We will try again later.",
+  "chatSendFailedNetwork": "Could not send the message. Please check your connection.",
+  "chatSendFailedServer": "Could not send the message. Please try again later.",
+  "chatMe": "Me",
+  "chatDefaultDirectRoomTitle": "Direct chat",
+  "chatDefaultGroupRoomTitle": "Chat room",
+  "chatRealtimeConnectionError": "Could not connect to realtime chat.",
+  "chatRealtimeMessageError": "Could not process the realtime chat message.",
+  "homeActivityRegionFallback": "Activity region",
+  "homeNearbyMapLoadError": "Could not load places on the map.",
+  "homeNearbyMapCurrentLocationLabel": "Based on current location",
+  "homeNearbyMapSearchHint": "What would you like to find?",
+  "homeNearbyMapEmptyTitle": "No nearby places were found",
+  "homeNearbyMapEmptyBody": "Try a different keyword or reload your current location.",
+  "homeNearbyMapListTitle": "Nearby places",
+  "homeNearbyMapPlaceCount": "{count} places",
+  "@homeNearbyMapPlaceCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "homeNearbyMapListButton": "View list",
+  "homeNearbyMapBadgeFallback": "Nearby place",
+  "homeNearbyMapParseError": "Could not parse the place data.",
+  "homeNearbyMapLocationLoadError": "Could not get your current location.",
+  "homeNearbyMapLocationRefreshError": "Could not refresh your current location.",
+  "homeNearbyMapLocationRequired": "Please check your location first to view the map.",
+  "homeNearbyMapPlacesLoadError": "Could not load places. Please try again later.",
+  "detailsActivityRequired": "Please load the activity details first.",
+  "detailsFavoriteToggleError": "Could not update the favorite status. Please try again later.",
+  "detailsJoinAlreadyRequested": "You have already requested to join this activity.",
+  "detailsJoinAlreadyJoined": "You are already participating in this activity.",
+  "detailsJoinHostedByMe": "This is an activity you created.",
+  "detailsJoinRequestError": "Could not complete your join request. Please try again later.",
+  "detailsParticipantRemoveError": "Could not remove the participant. Please try again later.",
+  "detailsPendingCancelError": "Could not cancel the request. Please try again later.",
+  "detailsPendingApproveError": "Could not approve the join request. Please try again later.",
+  "detailsReviewRequired": "Please load the review details first.",
+  "detailsHelpfulToggleError": "Could not update the helpful status. Please try again later.",
+  "detailsReviewValidationRequired": "Please enter both a rating and a review.",
+  "detailsReviewSubmitError": "Could not submit the review. Please try again later.",
+  "detailsLoadError": "Could not load the activity details. Please try again later.",
+  "detailsReviewSortLatest": "Newest",
+  "detailsReviewSortOldest": "Oldest",
+  "detailsReviewSortHighestRating": "Highest rating",
+  "detailsReviewSortLowestRating": "Lowest rating",
+  "detailsJoinAvailable": "Join",
+  "detailsJoinRequested": "Requested",
+  "detailsJoinJoined": "Joined",
+  "detailsJoinHost": "My activity",
+  "detailsReviewSummary": "{average} ({count} reviews)",
+  "@detailsReviewSummary": {
+    "placeholders": {
+      "average": {},
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "detailsParticipantSummary": "{current}/{capacity} joined",
+  "@detailsParticipantSummary": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "capacity": {
+        "type": "int"
+      }
+    }
+  },
+  "detailsParticipantsJoined": "{count} joined",
+  "@detailsParticipantsJoined": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "detailsParticipantsRemaining": "{count} spots left",
+  "@detailsParticipantsRemaining": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "detailsRecruitmentClosed": "Registration closed",
+  "detailsIntroduction": "About this activity",
+  "detailsReviewsTitle": "{count} reviews",
+  "@detailsReviewsTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "detailsReviewsEmpty": "No reviews yet. Be the first to leave one.",
+  "detailsPriceLabel": "Price",
+  "detailsJoinRequesting": "Requesting...",
+  "detailsReviewRatingSummary": "{count} reviews total",
+  "@detailsReviewRatingSummary": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "detailsReviewRating": "{rating} stars",
+  "@detailsReviewRating": {
+    "placeholders": {
+      "rating": {
+        "type": "int"
+      }
+    }
+  },
+  "detailsReviewHelpfulCount": "Helpful to {count} people",
+  "@detailsReviewHelpfulCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "detailsReviewViewOriginal": "View original",
+  "detailsReviewViewTranslation": "View translation",
+  "detailsRepresentativeImage": "Cover",
+  "detailsReviewGalleryNotice": "Photo library access is required to attach images to your review. Even if you deny access, you can still write a text review and submit a rating.",
+  "detailsReviewGalleryRecovery": "Photo library access is required to attach review images. Even without permission, you can still submit a text review and rating, and you can try again or allow access in app settings.",
+  "detailsReviewGalleryFailure": "Could not load the photo. Please check the permission and file status.",
+  "detailsReviewGalleryRestoreError": "Could not restore the review images you were selecting. Please choose them again.",
+  "detailsReviewRestoredCount": "Restored {restoredCount} review images you were selecting.",
+  "@detailsReviewRestoredCount": {
+    "placeholders": {
+      "restoredCount": {
+        "type": "int"
+      }
+    }
+  },
+  "detailsReviewSubmitted": "Your review has been posted.",
+  "detailsReviewComposerTitle": "Write a review",
+  "detailsReviewComposerHint": "Share what you enjoyed about the activity,\nor leave something helpful for the next participant.",
+  "detailsBodyCount": "{count}/{max} chars",
+  "@detailsBodyCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "detailsReviewImageSectionTitle": "Images (up to {max})",
+  "@detailsReviewImageSectionTitle": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "detailsReviewSubmitting": "Posting...",
+  "detailsReviewSubmit": "Post review",
+  "detailsReviewImageGuide": "The first image becomes the cover image,\nand you can long-press to reorder them.",
+  "detailsShareCopied": "The share link has been copied. You can paste it directly into your preferred messenger.",
+  "detailsReportActivityReload": "Please reload the activity details before reporting it.",
+  "detailsParticipantsListTitle": "Participants",
+  "detailsParticipantRemoved": "The participant has been removed.",
+  "detailsPendingParticipantsListTitle": "Pending requests",
+  "detailsPendingCancelled": "The request has been canceled.",
+  "detailsParticipantSwipeHint": "Swipe to remove or cancel a request.",
+  "detailsReviewListReportSubject": "{title} review list",
+  "@detailsReviewListReportSubject": {
+    "placeholders": {
+      "title": {}
+    }
+  },
+  "detailsReviewLoadMoreHint": "Scroll to load more reviews.",
+  "detailsReviewImageInvalidFormat": "Only review images in JPG, PNG, WEBP, or GIF format can be uploaded.",
+  "detailsReviewImageUploadError": "Could not upload the review images. Please try again later.",
+  "detailsMe": "Me",
+  "commonInvalidServerResponse": "The server response format is invalid.",
+  "onboardingVerificationResendLimitNotice": "You can request a new verification code up to 5 times a day. You have requested it {count} times so far.",
+  "@onboardingVerificationResendLimitNotice": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "onboardingVerificationResendLimitReached": "You can request a new verification code up to 5 times a day.",
+  "onboardingVerificationSent": "The verification code has been sent.",
+  "onboardingVerificationResent": "A new verification code has been sent.",
+  "onboardingBusinessVerificationCompleted": "Business verification is complete. Please continue with phone verification.",
+  "onboardingConsentRequired": "Please agree to all required terms.",
+  "homeExploreLoadMoreFailedNetwork": "Could not load more results. Please check your connection.",
+  "homeExploreLoadMoreFailedServer": "Could not load more results. Please try again later."
+}

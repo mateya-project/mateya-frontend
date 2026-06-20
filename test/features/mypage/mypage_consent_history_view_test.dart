@@ -28,7 +28,7 @@ void main() {
       ),
     );
 
-    await tester.tap(find.text('상세보기'));
+    await tester.tap(find.text('자세히 보기'));
     await tester.pump();
 
     expect(tappedEntry?.id, entry.id);
@@ -47,7 +47,7 @@ void main() {
       ),
     );
 
-    expect(find.text('확인할 동의 내역이 아직 없어요.'), findsOneWidget);
-    expect(find.text('상세보기'), findsNothing);
+    expect(find.text('아직 저장된 동의 내역이 없어요.'), findsOneWidget);
+    expect(find.text('자세히 보기'), findsNothing);
   });
 }

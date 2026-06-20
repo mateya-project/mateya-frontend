@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../shared/localization/mateya_localizations.dart';
+
 enum CreateFlowType { group, classRegistration }
 
 enum CreateStep { category, place, details, completed }
@@ -231,52 +233,88 @@ class CreateSubmitResult {
 }
 
 abstract final class CreateFormOptions {
-  static const List<CreateLanguageOption> languages = <CreateLanguageOption>[
-    CreateLanguageOption(code: 'ko', label: '한국어'),
-    CreateLanguageOption(code: 'en', label: '영어'),
-    CreateLanguageOption(code: 'ja', label: '일본어'),
-    CreateLanguageOption(code: 'zh', label: '중국어'),
-  ];
+  static List<CreateLanguageOption> get languages {
+    final l10n = MateyaLocalizations.current;
+    return <CreateLanguageOption>[
+      CreateLanguageOption(code: 'ko', label: l10n.languageKorean),
+      CreateLanguageOption(code: 'en', label: l10n.languageEnglish),
+      CreateLanguageOption(code: 'ja', label: l10n.languageJapanese),
+      CreateLanguageOption(code: 'zh', label: l10n.languageChineseSimplified),
+    ];
+  }
 
-  static const List<CreateAudienceOption> audiences = <CreateAudienceOption>[
-    CreateAudienceOption(id: 'everyone', label: '누구나'),
-    CreateAudienceOption(id: 'foreigner', label: '외국인 환영'),
-    CreateAudienceOption(id: 'korean', label: '한국인 환영'),
-    CreateAudienceOption(id: 'tourist', label: '관광객 추천'),
-    CreateAudienceOption(id: 'beginner', label: '초보자 환영'),
-  ];
+  static List<CreateAudienceOption> get audiences {
+    final l10n = MateyaLocalizations.current;
+    return <CreateAudienceOption>[
+      CreateAudienceOption(id: 'everyone', label: l10n.homeAudienceEveryone),
+      CreateAudienceOption(
+        id: 'foreigner',
+        label: l10n.homeAudienceForeignerFriendly,
+      ),
+      CreateAudienceOption(
+        id: 'korean',
+        label: l10n.homeAudienceKoreanFriendly,
+      ),
+      CreateAudienceOption(
+        id: 'tourist',
+        label: l10n.homeAudienceTouristFriendly,
+      ),
+      CreateAudienceOption(
+        id: 'beginner',
+        label: l10n.homeAudienceBeginnerFriendly,
+      ),
+    ];
+  }
 }
 
 extension CreateFlowTypeX on CreateFlowType {
-  String get label => switch (this) {
-    CreateFlowType.group => '모임 생성',
-    CreateFlowType.classRegistration => '클래스 등록',
-  };
+  String get label {
+    final l10n = MateyaLocalizations.current;
+    return switch (this) {
+      CreateFlowType.group => l10n.createGroupFlowTitle,
+      CreateFlowType.classRegistration => l10n.createClassFlowTitle,
+    };
+  }
 
-  String get entityLabel => switch (this) {
-    CreateFlowType.group => '모임',
-    CreateFlowType.classRegistration => '클래스',
-  };
+  String get entityLabel {
+    final l10n = MateyaLocalizations.current;
+    return switch (this) {
+      CreateFlowType.group => l10n.createEntityGroup,
+      CreateFlowType.classRegistration => l10n.createEntityClass,
+    };
+  }
 
-  String get submitLabel => switch (this) {
-    CreateFlowType.group => '모임 생성하기',
-    CreateFlowType.classRegistration => '클래스 등록하기',
-  };
+  String get submitLabel {
+    final l10n = MateyaLocalizations.current;
+    return switch (this) {
+      CreateFlowType.group => l10n.createGroupSubmit,
+      CreateFlowType.classRegistration => l10n.createClassSubmit,
+    };
+  }
 
-  String get editLabel => switch (this) {
-    CreateFlowType.group => '모임 수정',
-    CreateFlowType.classRegistration => '클래스 수정',
-  };
+  String get editLabel {
+    final l10n = MateyaLocalizations.current;
+    return switch (this) {
+      CreateFlowType.group => l10n.createGroupEditTitle,
+      CreateFlowType.classRegistration => l10n.createClassEditTitle,
+    };
+  }
 
-  String get updateSubmitLabel => switch (this) {
-    CreateFlowType.group => '모임 수정하기',
-    CreateFlowType.classRegistration => '클래스 수정하기',
-  };
+  String get updateSubmitLabel {
+    final l10n = MateyaLocalizations.current;
+    return switch (this) {
+      CreateFlowType.group => l10n.createGroupUpdateSubmit,
+      CreateFlowType.classRegistration => l10n.createClassUpdateSubmit,
+    };
+  }
 }
 
 extension CreatePriceTypeX on CreatePriceType {
-  String get label => switch (this) {
-    CreatePriceType.free => '무료',
-    CreatePriceType.paid => '유료',
-  };
+  String get label {
+    final l10n = MateyaLocalizations.current;
+    return switch (this) {
+      CreatePriceType.free => l10n.commonFree,
+      CreatePriceType.paid => l10n.createPaidLabel,
+    };
+  }
 }

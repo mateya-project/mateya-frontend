@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import '../../../shared/activity_categories/activity_category_repository.dart';
+import '../../../shared/localization/mateya_localizations.dart';
 import '../../../shared/logging/app_logger.dart';
 import '../../onboarding/data/location_repository.dart';
 import '../../onboarding/domain/onboarding_flow.dart';
@@ -65,6 +66,7 @@ class NearbyCultureMapController extends ChangeNotifier {
   }
 
   Future<void> initialize() async {
+    final l10n = MateyaLocalizations.current;
     if (_initialized) {
       return;
     }
@@ -101,7 +103,8 @@ class NearbyCultureMapController extends ChangeNotifier {
         },
       );
       _phase = AsyncPhase.validationError;
-      _errorMessage = resolved.failure?.message ?? '현재 위치를 가져오지 못했어요.';
+      _errorMessage =
+          resolved.failure?.message ?? l10n.homeNearbyMapLocationLoadError;
       notifyListeners();
       return;
     }
@@ -157,6 +160,7 @@ class NearbyCultureMapController extends ChangeNotifier {
   }
 
   Future<void> refreshCurrentLocation() async {
+    final l10n = MateyaLocalizations.current;
     _logger.info('Refreshing nearby culture map current location');
     final resolved = await locationRepository.resolveCurrentNeighborhood();
     if (!resolved.isSuccess || resolved.selection == null) {
@@ -168,7 +172,8 @@ class NearbyCultureMapController extends ChangeNotifier {
         },
       );
       _phase = AsyncPhase.validationError;
-      _errorMessage = resolved.failure?.message ?? '현재 위치를 다시 가져오지 못했어요.';
+      _errorMessage =
+          resolved.failure?.message ?? l10n.homeNearbyMapLocationRefreshError;
       notifyListeners();
       return;
     }
@@ -178,13 +183,14 @@ class NearbyCultureMapController extends ChangeNotifier {
   }
 
   Future<void> _loadPlaces() async {
+    final l10n = MateyaLocalizations.current;
     final location = _currentLocation;
     if (location == null) {
       _logger.warning(
         'Nearby culture map cannot load places because current location is missing',
       );
       _phase = AsyncPhase.validationError;
-      _errorMessage = '지도를 보려면 위치 정보를 먼저 확인해 주세요.';
+      _errorMessage = l10n.homeNearbyMapLocationRequired;
       notifyListeners();
       return;
     }
@@ -245,7 +251,7 @@ class NearbyCultureMapController extends ChangeNotifier {
       );
     } catch (error, stackTrace) {
       _phase = AsyncPhase.serverError;
-      _errorMessage = '장소를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.';
+      _errorMessage = l10n.homeNearbyMapPlacesLoadError;
       _logger.error(
         'Nearby culture map place load failed unexpectedly',
         error: error,

@@ -1,4 +1,5 @@
 import '../../../shared/auth/auth_session.dart';
+import '../../../shared/localization/mateya_localizations.dart';
 import '../../../shared/network/mateya_api_client.dart';
 import '../domain/onboarding_flow.dart';
 
@@ -242,9 +243,9 @@ class ApiOnboardingAuthRepository implements OnboardingAuthRepository {
     if (value is Map<String, dynamic>) {
       return value;
     }
-    throw const MateyaApiException(
+    throw MateyaApiException(
       type: ApiFailureType.server,
-      message: '서버 응답 형식이 올바르지 않습니다.',
+      message: MateyaLocalizations.current.commonInvalidServerResponse,
     );
   }
 }

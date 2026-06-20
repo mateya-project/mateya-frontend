@@ -1,0 +1,1116 @@
+{
+  "@@locale": "zh",
+  "appTitle": "MateYa",
+  "brandLockupSubtitle": "开启一段分享韩国温情与文化的\n特别旅程",
+  "languageKorean": "韩语",
+  "languageEnglish": "英语",
+  "languageJapanese": "日语",
+  "languageChineseSimplified": "简体中文",
+  "bottomNavigationHome": "首页",
+  "bottomNavigationExplore": "探索",
+  "bottomNavigationChat": "聊天",
+  "bottomNavigationProfile": "我的",
+  "commonConfirm": "确认",
+  "commonCancel": "取消",
+  "commonRetry": "重试",
+  "commonContinue": "继续",
+  "commonLater": "稍后",
+  "commonAll": "全部",
+  "commonNext": "下一步",
+  "commonReset": "重置",
+  "commonApply": "应用",
+  "commonProcessing": "处理中...",
+  "commonFree": "免费",
+  "commonToday": "今天",
+  "commonTomorrow": "明天",
+  "permissionOpenAppSettings": "打开应用设置",
+  "permissionOpenLocationSettings": "打开定位设置",
+  "locationServiceDisabledTitle": "定位服务已关闭",
+  "locationPermissionDisabledTitle": "定位权限已关闭",
+  "languageDialogBarrierLabel": "语言选择",
+  "languageDialogTitle": "切换语言",
+  "languageDialogSupportedLanguages": "支持语言",
+  "onboardingStart": "开始使用",
+  "onboardingBusinessPrompt": "您是商家吗？ ",
+  "onboardingStartAsHost": "以主办方身份开始",
+  "onboardingConsentTitle": "使用 MateYa 前需要先同意。",
+  "onboardingAgreeAll": "全部同意",
+  "onboardingAgreeAllHelper": "同意以下所有必选和可选项目。",
+  "onboardingRequiredAgreementLabel": "（必选）{title}",
+  "@onboardingRequiredAgreementLabel": {
+    "placeholders": {
+      "title": {}
+    }
+  },
+  "onboardingEnterName": "请输入姓名",
+  "onboardingEnterPhoneNumber": "请输入手机号",
+  "onboardingEnterVerificationCode": "请输入验证码",
+  "onboardingPhoneNumberLabel": "手机号",
+  "onboardingPhoneNumberHint": "例如 01012341234",
+  "onboardingPhoneNumberHelper": "输入手机号后即可接收验证码。",
+  "onboardingVerificationCodeLabel": "验证码",
+  "onboardingVerificationCodeHint": "点击获取验证码后即可输入。",
+  "onboardingResendVerificationCode": "重新发送验证码",
+  "onboardingDebugVerificationCode": "测试验证码：{code}",
+  "@onboardingDebugVerificationCode": {
+    "placeholders": {
+      "code": {}
+    }
+  },
+  "onboardingVerify": "验证",
+  "onboardingRequestVerificationCode": "获取验证码",
+  "onboardingLocationServiceDisabledMessage": "如需使用当前位置完成社区认证，请先开启设备定位服务。即使不开启，也可以手动输入社区继续注册。",
+  "onboardingLocationPermissionDisabledMessage": "如需使用当前位置自动认证，请在应用设置中允许定位权限。即使不允许，也可以手动输入继续注册。",
+  "onboardingPreviousNeighborhood": "您之前登记的地区是“{name}”。",
+  "@onboardingPreviousNeighborhood": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "onboardingResolvingCurrentLocation": "正在确认当前位置。",
+  "onboardingCompleteNeighborhood": "完成社区认证",
+  "onboardingRetryLocationPermission": "重新请求定位权限",
+  "onboardingRetryAfterSettingsChange": "修改设置后重新确认",
+  "onboardingRetryLocationService": "重新检查定位服务",
+  "onboardingRetryCurrentLocation": "重新确认当前位置",
+  "onboardingNeedHelp": "认证有困难吗？  ",
+  "onboardingManualInputCta": "手动输入 >",
+  "onboardingLocationPermissionNoticeTitle": "定位权限说明",
+  "onboardingLocationPermissionNoticeMessage": "为了进行社区认证并推荐附近活动，需要位置信息。\n即使不授予权限，也可以手动输入社区继续注册。",
+  "onboardingUseCurrentLocation": "使用当前位置认证",
+  "onboardingManualInput": "手动输入",
+  "onboardingManualNeighborhoodHelper": "请输入区/街道等地区名称。",
+  "onboardingNeighborhoodHint": "牛满洞",
+  "onboardingEnterBusinessName": "请输入商号名称",
+  "onboardingBusinessNameHint": "NICE 评级信息",
+  "onboardingBusinessNumberLabel": "营业执照号码",
+  "onboardingBusinessOwnerLabel": "代表人姓名",
+  "onboardingBusinessOwnerHint": "洪吉童",
+  "onboardingBusinessOpeningDateLabel": "开业日期",
+  "onboardingBusinessOpeningDateHint": "20240131",
+  "onboardingCompleteBusinessVerification": "完成商家认证",
+  "onboardingWelcomeBack": "欢迎回来",
+  "onboardingReturnCompleted": "{name}，\n您已完成返回 MateYa",
+  "@onboardingReturnCompleted": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "onboardingLaunchApp": "开始使用 MateYa",
+  "onboardingAgreementSemantics": "同意 {label}",
+  "@onboardingAgreementSemantics": {
+    "placeholders": {
+      "label": {}
+    }
+  },
+  "onboardingTermsEffectiveDate": "生效日期：{date}",
+  "@onboardingTermsEffectiveDate": {
+    "placeholders": {
+      "date": {}
+    }
+  },
+  "onboardingTermsContents": "目录",
+  "onboardingTermsSectionTitle": "第{index}条 {title}",
+  "@onboardingTermsSectionTitle": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      },
+      "title": {}
+    }
+  },
+  "onboardingDefaultMemberName": "MateYa 会员",
+  "onboardingLoginCompleted": "{name}，\n您已登录 MateYa",
+  "@onboardingLoginCompleted": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "onboardingSignupCompleted": "{name}，\n您的 MateYa 注册已完成",
+  "@onboardingSignupCompleted": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "onboardingNeighborhoodHeadlineReturning": "欢迎回来，\n{name}！\n请完成社区信息认证",
+  "@onboardingNeighborhoodHeadlineReturning": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "onboardingNeighborhoodHeadlineSignup": "请完成社区信息认证",
+  "onboardingResolvedNeighborhoodMessage": "您当前位于“{name}”。",
+  "@onboardingResolvedNeighborhoodMessage": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "onboardingNeighborhoodLabel": "社区",
+  "onboardingVerificationExpired": "验证已过期，请重新获取验证码。",
+  "onboardingBusinessVerificationExpired": "商家认证已过期，请重新认证。",
+  "homeSortRecommended": "推荐排序",
+  "homeSortPopular": "热门排序",
+  "homeSortLatest": "最新排序",
+  "homeSortClosingSoon": "即将截止排序",
+  "homeSortNearby": "距离最近排序",
+  "homeAudienceEveryone": "所有人",
+  "homeAudienceForeignerFriendly": "欢迎外国人",
+  "homeAudienceKoreanFriendly": "欢迎韩国人",
+  "homeAudienceTouristFriendly": "推荐游客参加",
+  "homeAudienceBeginnerFriendly": "欢迎新手",
+  "homeStatusRecruiting": "招募中",
+  "homeStatusClosingSoon": "即将截止（24小时内）",
+  "homeStatusNewlyListed": "新上线（24小时内）",
+  "homeDistanceLocal": "我的地区",
+  "homeDistanceWithin1km": "1公里内",
+  "homeDistanceWithin5km": "5公里内",
+  "homeDistanceWithin10km": "10公里内",
+  "homeSearchHeroHint": "随时随地",
+  "homeSearchHeroHelper": "在这里，任何人都能成为你的 Mate，MateYa",
+  "homeLoadError": "无法加载数据。",
+  "homeSelectAtLeastOneCategory": "请至少选择一个分类。",
+  "homeSelectAtLeastOneLanguage": "请至少选择一种语言。",
+  "homeUnsupportedExploreLanguageFilter": "探索语言筛选目前仅支持韩语、英语、中文和日语。",
+  "homeEndDateBeforeStartDateError": "结束日期不能早于开始日期。",
+  "homeMaxPriceLessThanMinPriceError": "最高金额必须大于或等于最低金额。",
+  "homeTrendingTitle": "热门飙升 🔥",
+  "homeSharedExperiencesTitle": "可以一起参与的体验",
+  "homeExploreSearchHint": "试着搜索名称或地点",
+  "homeExploreError": "无法加载结果。",
+  "homeFavoritesLoadError": "无法加载收藏列表。",
+  "homeFavoritesTitle": "收藏列表",
+  "homeCreateClass": "注册课程",
+  "homeCreateGroup": "创建聚会",
+  "homeEmptyTitle": "暂时还没有符合条件的活动。",
+  "homeEmptyDescription": "请调整搜索词或筛选条件后再试一次。",
+  "homeLoadMore": "加载更多",
+  "homeLoadedAllActivities": "已加载全部 {count} 个活动。",
+  "@homeLoadedAllActivities": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "homeFilterTitle": "筛选",
+  "homeFilterSort": "排序",
+  "homeFilterCategory": "分类",
+  "homeFilterAudience": "参加对象",
+  "homeFilterLanguage": "语言",
+  "homeFilterRegion": "地区",
+  "homeFilterSchedule": "日程",
+  "homeFilterStartDate": "开始日期",
+  "homeFilterEndDate": "结束日期",
+  "homeFilterCost": "费用",
+  "homeFilterMinPrice": "最低金额",
+  "homeFilterMaxPrice": "最高金额",
+  "homeFilterStatus": "招募状态",
+  "homeFilterNear": "近",
+  "homeFilterFar": "远",
+  "homeFilterDistanceFromActivityRegion": "以活动地区为基准：{target}",
+  "@homeFilterDistanceFromActivityRegion": {
+    "placeholders": {
+      "target": {}
+    }
+  },
+  "homeFilterDistanceFromRegion": "以 {regionName} 为基准：{target}",
+  "@homeFilterDistanceFromRegion": {
+    "placeholders": {
+      "regionName": {},
+      "target": {}
+    }
+  },
+  "commonClose": "关闭",
+  "commonEdit": "编辑",
+  "commonSeeAll": "查看全部",
+  "commonSeeDetails": "查看详情",
+  "commonNetworkRetry": "请检查网络连接后再试。",
+  "countryKorea": "韩国",
+  "countryJapan": "日本",
+  "countryChina": "中国",
+  "countryVietnam": "越南",
+  "countryUnitedStates": "美国",
+  "countryThailand": "泰国",
+  "activityCategoryTouristAttraction": "旅游景点",
+  "activityCategoryTravelCourse": "旅行路线",
+  "activityCategoryCultureTradition": "文化 / 传统",
+  "activityCategoryEventPerformanceFestival": "活动 / 演出 / 庆典",
+  "activityCategorySports": "体育",
+  "activityCategoryActivityLeports": "活动 / 休闲运动",
+  "activityCategoryShopping": "购物",
+  "activityCategoryPublicFacility": "公共设施",
+  "activityCategoryOther": "其他",
+  "reportSemanticsLabel": "举报",
+  "reportTitle": "举报",
+  "reportNoticeMessage": "如需附加举报图片，需要允许访问照片库。即使未授权，也可以继续填写举报内容。",
+  "reportRecoveryMessage": "如需附加举报图片，需要允许访问照片库。请重试，或在应用设置中允许权限。",
+  "reportFailureMessage": "无法加载图片。请检查权限和文件状态。",
+  "reportRestoreFallbackErrorMessage": "无法恢复你之前选择的举报图片，请重新选择。",
+  "reportSubmittedMessage": "已提交关于 {subject} 的举报。",
+  "@reportSubmittedMessage": {
+    "placeholders": {
+      "subject": {}
+    }
+  },
+  "reportBodyHint": "请尽量详细填写举报原因。\n例如：辱骂、疑似诈骗、不当内容、\n垃圾信息、骚扰等。举报内容将根据运营政策进行审核。",
+  "reportBodyCount": "{count}/{max}字",
+  "@reportBodyCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "reportImageSectionTitle": "图片（最多 {max} 张）",
+  "@reportImageSectionTitle": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "reportSubmitting": "提交中...",
+  "reportReviewNotice": "已提交的举报会在最多 7 个工作日内审核。\n如举报内容不实或理由不明确，可能不予处理。",
+  "reportRestoredCount": "已恢复之前选择的 {restoredCount} 张举报图片。",
+  "@reportRestoredCount": {
+    "placeholders": {
+      "restoredCount": {
+        "type": "int"
+      }
+    }
+  },
+  "mypageTitle": "我的页面",
+  "mypageLoadError": "无法加载我的页面。",
+  "mypageOtherProfileOpenHint": "正在加载个人资料。",
+  "mypageOtherProfileLoadError": "无法加载对方的个人资料。",
+  "mypageEditPrimaryPreferences": "编辑基本信息",
+  "mypageEditActivityRegion": "编辑活动地区",
+  "mypageConsentHistoryTitle": "同意记录",
+  "mypageOpenPrivacyPolicy": "隐私政策",
+  "mypageOpenCustomerSupport": "客服中心",
+  "mypageOpenBlockedUsers": "已屏蔽用户",
+  "mypageLogout": "退出登录",
+  "mypageOpenWithdrawal": "注销账号",
+  "mypageConsentHistoryDescription": "你可以查看使用 MateYa 时同意过的条款与政策。",
+  "mypageConsentHistoryEmpty": "还没有保存的同意记录。",
+  "mypageConsentVersion": "版本",
+  "mypageConsentStatus": "状态",
+  "mypageConsentAgreed": "已同意",
+  "mypageConsentDeclined": "未同意",
+  "mypageConsentDate": "同意时间",
+  "mypageBlockedUsersTitle": "已屏蔽用户",
+  "mypageBlockedUsersEmpty": "还没有屏蔽任何用户。",
+  "mypageRecentActivitiesTitle": "最近活动",
+  "mypageRecentActivitiesDescription": "查看你最近参与或创建的活动。",
+  "mypageActivitySummaryTitle": "活动摘要",
+  "mypageHostedCount": "发起",
+  "mypageJoinedCount": "参与",
+  "mypageReviewCount": "评价",
+  "mypageActiveMember": "活跃成员",
+  "mypageInactiveMember": "最近没有活动",
+  "mypageActiveWithin30Days": "30 天内活跃",
+  "mypageNoRecentActivity": "最近没有活动",
+  "mypageBadgeLabel": "徽章",
+  "mypageBadgesTitle": "我的徽章",
+  "mypageBadgesDescription": "根据你参与的活动分类，可以获得不同徽章。",
+  "mypageRecentActivitiesSectionTitle": "活动记录",
+  "mypageActivityHistoryTitle": "活动记录",
+  "mypagePrimaryPreferencesTitle": "基本信息",
+  "mypagePrimaryPreferencesDescription": "可以修改你的语言和国籍信息。",
+  "mypageMyLanguage": "我的语言",
+  "mypageMyCountry": "我的国籍",
+  "mypageEnglishNameOptional": "英文名（可选）",
+  "mypageSaving": "保存中...",
+  "mypagePrimaryPreferencesSubmit": "保存",
+  "mypageUpdating": "更新中...",
+  "mypageBusinessIntroTitle": "简介",
+  "mypageBusinessIntroDescription": "请填写会显示在主办方页面上的一句话简介。",
+  "mypageBusinessIntroHint": "自然地介绍你提供的体验内容。",
+  "mypageSaveIntroduction": "保存简介",
+  "mypageActiveExperiencesTitle": "进行中的体验",
+  "mypageRemoveFriend": "删除好友",
+  "mypageBlocked": "已屏蔽",
+  "mypageBlockUser": "屏蔽用户",
+  "mypageSelectLanguageAndCountry": "请选择语言和国家。",
+  "mypageInvalidLanguageOrCountry": "不支持该语言或国家。",
+  "mypagePrimaryPreferencesSaved": "基本信息已保存。",
+  "mypagePrimaryPreferencesSaveError": "无法保存基本信息，请稍后再试。",
+  "mypageFriendRemoved": "已删除好友。",
+  "mypageFriendAdded": "已添加为好友。",
+  "mypageFriendUpdateError": "无法更新好友状态，请稍后再试。",
+  "mypageBlockedUserAdded": "已屏蔽该用户。",
+  "mypageBlockUserError": "无法屏蔽该用户，请稍后再试。",
+  "mypageUnblockedUser": "已解除屏蔽。",
+  "mypageUnblockUserError": "无法解除屏蔽，请稍后再试。",
+  "mypageBusinessIntroRequired": "请输入简介。",
+  "mypageBusinessIntroTooLong": "简介请控制在 300 字以内。",
+  "mypageBusinessIntroSaved": "简介已保存。",
+  "mypageBusinessIntroSaveError": "无法保存简介，请稍后再试。",
+  "mypageProfileImageSaved": "头像已保存。",
+  "mypageProfileImageSaveError": "无法保存头像，请稍后再试。",
+  "mypageProfileImageInvalidFormat": "仅支持上传 JPG、PNG、WEBP、GIF 格式图片。",
+  "mypageProfileImageUploadError": "无法上传头像，请稍后再试。",
+  "mypageProfileImageConfirmError": "头像上传确认失败，请稍后再试。",
+  "mypageActivityRegionSaved": "活动地区已保存。",
+  "mypageActivityRegionSaveError": "无法保存活动地区，请稍后再试。",
+  "mypageWithdrawalAgreementRequired": "申请注销前需要先同意相关内容。",
+  "mypageWithdrawalSignatureRequired": "请输入签名。",
+  "mypageWithdrawalSignatureMismatch": "输入的签名与会员姓名不一致。",
+  "mypageWithdrawalAgreementText": "我同意个人信息管理及 30 天后最终删除政策。",
+  "mypageWithdrawalSubmitted": "注销申请已提交。",
+  "mypageWithdrawalSubmitError": "无法处理注销申请，请稍后再试。",
+  "mypageLogoutError": "无法退出登录，请稍后再试。",
+  "mypageTermsDetailUnavailable": "无法加载条款详情。",
+  "mypageSupportLinkCopied": "已复制客服中心链接。",
+  "mypagePrivacyLinkCopied": "已复制隐私政策链接。",
+  "mypageCurrentLocationResolveError": "无法确认当前位置，请稍后再试。",
+  "mypageNeighborhoodRequired": "请输入活动地区。",
+  "mypageNeighborhoodLookupError": "无法确认你输入的地区，请重新检查。",
+  "mypageNeighborhoodVerificationRequired": "请选择已确认的活动地区。",
+  "mypageActivityRegionDialogDescription": "你可以使用当前位置，或手动输入来设置活动地区。",
+  "mypageResolvingCurrentLocation": "正在确认当前位置。",
+  "mypageResolvingNeighborhood": "正在确认你输入的地区。",
+  "mypageConfirmManualNeighborhood": "使用这个输入地区",
+  "mypageSelectedActivityRegion": "已选择的活动地区：{name}",
+  "@mypageSelectedActivityRegion": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "mypageSaveActivityRegion": "保存活动地区",
+  "mypageLocationServiceDisabledMessage": "如需使用当前位置，请先开启设备定位服务。也可以通过手动输入继续。",
+  "mypageLocationPermissionDisabledMessage": "如需使用当前位置，请在应用设置中允许定位权限。也可以通过手动输入继续。",
+  "mypageProfileImageNotice": "选择头像需要访问照片库权限。",
+  "mypageProfileImageRecovery": "请选择允许访问照片库后再试，也可以在应用设置中修改。",
+  "mypageProfileImageFailure": "无法加载头像，请检查文件状态。",
+  "mypageProfileImageRestoreFallback": "无法恢复你之前选择的头像，请重新选择。",
+  "mypageProfileImageRestoredCount": "已恢复之前选择的 {restoredCount} 张头像图片。",
+  "@mypageProfileImageRestoredCount": {
+    "placeholders": {
+      "restoredCount": {
+        "type": "int"
+      }
+    }
+  },
+  "mypageWithdrawalTitle": "注销账号",
+  "mypageWithdrawalDescription": "确定要继续注销账号吗？\n提交后，账号会立即停用。\n如果你在 30 天内重新注册或重新登录，注销将被取消。\n\n30 天后，除法律要求保留的信息外，会员资料和服务使用记录将被永久删除，且无法恢复。",
+  "mypageWithdrawalAgreementCheckbox": "我同意个人信息管理及 30 天后最终删除政策。",
+  "mypageWithdrawalSignatureLabel": "签名输入",
+  "mypageWithdrawalSignatureHint": "输入 {name}",
+  "@mypageWithdrawalSignatureHint": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "mypageWithdrawalSubmittedNotice": "注销申请已受理。在你重新登录之前，账号将被视为停用状态。",
+  "mypageWithdrawalRequest": "申请注销",
+  "mypageMetricActivities": "活动数",
+  "mypageMetricFriends": "好友数",
+  "mypageMetricReviews": "评价数",
+  "mypageMetricRecruitingExperiences": "招募中的体验",
+  "mypageMetricTotalParticipants": "累计参与者",
+  "mypageMetricAverageRating": "平均评分",
+  "mypageMetricReceivedReviews": "收到的评价",
+  "mypageActivityRegionUnset": "未设置活动地区",
+  "mypageParticipantCount": "{current} / {capacity}人",
+  "@mypageParticipantCount": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "capacity": {
+        "type": "int"
+      }
+    }
+  },
+  "mypageConsentTypeServiceTerms": "服务使用条款",
+  "mypageConsentTypePrivacyCollection": "个人信息收集与使用同意",
+  "mypageConsentTypeLocationService": "基于位置服务使用同意",
+  "mypageConsentTypeAgeOver14": "已满 14 周岁确认",
+  "mypageHostBadge": "HOST",
+  "mypageEditActivityCta": "编辑活动",
+  "mypageBadgeTraditional": "传统达人",
+  "mypageBadgeActivePerson": "活力伙伴",
+  "mypageBadgeFestive": "庆典爱好者",
+  "mypageBadgeTourist": "本地探索家",
+  "mypageBadgeUnlockedTitle": "获得了新徽章",
+  "mypageBadgeUnlockedDescription": "已记录你参与 {category} 活动的经历。",
+  "@mypageBadgeUnlockedDescription": {
+    "placeholders": {
+      "category": {}
+    }
+  },
+  "galleryPermissionNoticeTitle": "照片权限说明",
+  "galleryPermissionSelectPhoto": "选择照片",
+  "galleryPermissionRecoveryTitle": "需要照片访问权限",
+  "authLoginRequired": "需要先登录。",
+  "commonRequestError": "处理请求时发生错误。",
+  "chatJustNow": "刚刚",
+  "chatMinutesAgo": "{count}分钟前",
+  "@chatMinutesAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chatHoursAgo": "{count}小时前",
+  "@chatHoursAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chatYesterday": "昨天",
+  "chatLastYear": "去年",
+  "chatPhotoCount": "{count}张照片",
+  "@chatPhotoCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chatViewOriginal": "查看原文",
+  "chatViewTranslation": "查看翻译",
+  "chatParticipantCount": "{count}人参与",
+  "@chatParticipantCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chatFilterGroup": "群聊",
+  "chatFilterDirect": "私聊",
+  "chatListGuidance": "参加活动后，会自动加入群聊。\n与好友的私聊会自动创建。\n无法与非好友用户聊天。",
+  "chatComposerHint": "请输入消息",
+  "reportReasonRequired": "请输入举报原因。",
+  "reportImageInvalidFormat": "举报图片仅支持 JPG、PNG、WEBP、GIF 格式。",
+  "reportImageUploadError": "无法上传举报图片，请稍后再试。",
+  "reportImageConfirmError": "举报图片上传确认失败，请稍后再试。",
+  "createGroupFlowTitle": "创建小组",
+  "createClassFlowTitle": "创建课程",
+  "createEntityGroup": "小组",
+  "createEntityClass": "课程",
+  "createGroupSubmit": "创建小组",
+  "createClassSubmit": "创建课程",
+  "createGroupEditTitle": "编辑小组",
+  "createClassEditTitle": "编辑课程",
+  "createGroupUpdateSubmit": "保存小组修改",
+  "createClassUpdateSubmit": "保存课程修改",
+  "createPaidLabel": "收费",
+  "createEditCompleted": "{entity}已更新。",
+  "@createEditCompleted": {
+    "placeholders": {
+      "entity": {}
+    }
+  },
+  "createSubmitCompleted": "{entity}已创建。",
+  "@createSubmitCompleted": {
+    "placeholders": {
+      "entity": {}
+    }
+  },
+  "createChatProvisionFailed": "{entity}已创建，但暂时无法准备聊天室。请稍后再试。",
+  "@createChatProvisionFailed": {
+    "placeholders": {
+      "entity": {}
+    }
+  },
+  "createSubmitFailedNetwork": "无法创建{entity}。请检查网络后重试。",
+  "@createSubmitFailedNetwork": {
+    "placeholders": {
+      "entity": {}
+    }
+  },
+  "createSubmitFailedServer": "无法创建{entity}。请稍后再试。",
+  "@createSubmitFailedServer": {
+    "placeholders": {
+      "entity": {}
+    }
+  },
+  "createDeleteFailedNetwork": "无法删除。请检查网络后重试。",
+  "createDeleteFailedServer": "无法删除。请稍后再试。",
+  "createLoadEditFailedNetwork": "无法加载要编辑的{entity}信息。请检查网络后重试。",
+  "@createLoadEditFailedNetwork": {
+    "placeholders": {
+      "entity": {}
+    }
+  },
+  "createLoadEditFailedServer": "无法加载要编辑的{entity}信息。请稍后再试。",
+  "@createLoadEditFailedServer": {
+    "placeholders": {
+      "entity": {}
+    }
+  },
+  "createValidationSelectCategory": "请选择至少一个分类。",
+  "createValidationSelectClassCategoryFirst": "请先选择适合课程的分类。",
+  "createValidationSelectPlaceOrManual": "请选择地点或手动输入地点。",
+  "createValidationSelectPlace": "请选择地点。",
+  "createValidationEnterEntityName": "请输入{entity}名称。",
+  "@createValidationEnterEntityName": {
+    "placeholders": {
+      "entity": {}
+    }
+  },
+  "createValidationTitleMaxLength": "名称不能超过 40 个字符。",
+  "createValidationDescriptionMaxLength": "说明不能超过 1000 个字符。",
+  "createValidationSelectDate": "请选择日期。",
+  "createValidationNoPastDate": "不能选择过去的日期。",
+  "createValidationSelectStartEndTime": "请选择开始时间和结束时间。",
+  "createValidationEndAfterStart": "结束时间必须晚于开始时间。",
+  "createValidationCapacityRange": "参与人数必须在 2 到 20 人之间。",
+  "createValidationSelectDeadline": "请选择报名截止日期和时间。",
+  "createValidationSelectDeadlineTogether": "请同时选择报名截止日期和时间。",
+  "createValidationDeadlineFuture": "报名截止时间必须晚于当前时间。",
+  "createValidationDeadlineBeforeStart": "报名截止时间必须早于开始时间。",
+  "createValidationSelectLanguage": "请至少选择一种语言。",
+  "createValidationSelectPriceType": "请选择价格类型。",
+  "createValidationEnterPaidPrice": "如果是收费活动，请输入金额。",
+  "createValidationPriceRange": "金额请输入 1 韩元到 1000000 韩元之间。",
+  "createValidationRegisterImage": "请至少上传一张封面图。",
+  "createGroupInfoTitle": "请输入小组信息",
+  "createClassInfoTitle": "请输入课程信息",
+  "createValidationIntro": "填写下方必填信息后即可立即发布。",
+  "createSelectedCategoryTitle": "已选分类",
+  "createSelectedPlaceTitle": "已选地点",
+  "createGroupNameLabel": "小组名称",
+  "createClassNameLabel": "课程名称",
+  "createGroupNameHint": "例如：一起逛北村韩屋",
+  "createClassNameHint": "例如：传统茶一日体验课",
+  "createDescriptionTitle": "详细说明",
+  "createDescriptionHint": "请填写流程、准备物品，以及参与者需要了解的内容。",
+  "createDateTimeTitle": "日程",
+  "createDateLabel": "活动日期",
+  "createDatePlaceholder": "请选择日期",
+  "createStartTimeLabel": "开始时间",
+  "createStartTimePlaceholder": "请选择开始时间",
+  "createEndTimeLabel": "结束时间",
+  "createEndTimePlaceholder": "请选择结束时间",
+  "createCapacityTitle": "参与人数",
+  "createCapacityValue": "{count}人",
+  "@createCapacityValue": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "createCapacityHelper": "最少 2 人，最多 20 人",
+  "createDeadlineTitle": "报名截止",
+  "createDeadlineDateLabel": "截止日期",
+  "createDeadlineTimeLabel": "截止时间",
+  "createNotSelected": "未选择",
+  "createLanguagesTitle": "使用语言",
+  "createPriceTitle": "参加费用",
+  "createPaidPriceHint": "请输入参加费用",
+  "createAudienceTitle": "推荐对象",
+  "createPrimaryImageTitle": "封面图片",
+  "createPrimaryImageRequiredHint": "请至少上传一张封面图。",
+  "createPrimaryImageSelectionHint": "第一张图片会设为封面，点击其他图片可更换封面。",
+  "createPrimaryImageBadge": "封面",
+  "createDeleting": "删除中...",
+  "createDeleteAction": "删除{entity}",
+  "@createDeleteAction": {
+    "placeholders": {
+      "entity": {}
+    }
+  },
+  "createPlaceGroupTitle": "请选择小组地点",
+  "createPlaceClassTitle": "请选择课程地点",
+  "createPlaceGroupDescription": "可以选择推荐地点，或手动输入小组地点。",
+  "createPlaceClassDescription": "可以搜索符合分类的地点，或手动输入课程地点。",
+  "createClassCategoryTitle": "课程分类",
+  "createCategoryDetailTitle": "细分类别",
+  "createManualPlaceTitle": "手动输入",
+  "createManualPlaceNameHint": "请输入地点名称",
+  "createManualPlaceAddressHint": "请输入地址",
+  "createOrSearchTitle": "或搜索地点",
+  "createPlaceSearchHint": "按地点名称搜索",
+  "createManualPlacePreviewDescription": "将使用您手动输入的地点信息发布。",
+  "createSearchResultsTitle": "搜索结果",
+  "createSearchEmptyTitle": "没有搜索结果",
+  "createSearchEmptyBody": "请尝试使用其他关键词搜索。",
+  "createSearchInitialTitle": "请搜索地点",
+  "createSearchInitialBody": "输入地点名称或地址后，将显示可供选择的结果。",
+  "createRecommendedTitle": "推荐地点",
+  "createRefresh": "刷新",
+  "createRecommendedEmptyTitle": "暂无推荐地点",
+  "createRecommendedEmptyBody": "请更换分类或手动搜索。",
+  "createMapPlaceholder": "选择地点后，这里会显示其位置。",
+  "createCategoryPromptTitle": "你想创建什么样的体验？",
+  "createCategoryPromptDescription": "请选择最符合你要发布的小组或课程的分类。",
+  "createCompletedEditDescription": "修改内容已保存，并会立即展示给参与者。",
+  "createCompletedCreateDescription": "现在大家已经可以在 MateYa 中发现它了。",
+  "createBackToPrevious": "返回",
+  "createBackToHome": "返回首页",
+  "createStepCategory": "分类",
+  "createStepPlaceGroup": "地点",
+  "createStepPlaceClass": "地点",
+  "createStepDetailsGroup": "填写信息",
+  "createStepDetailsClass": "填写信息",
+  "createCompletedProgress": "完成",
+  "createCategoryTitleCultureTradition": "文化 / 传统",
+  "createCategoryTitleEventPerformanceFestival": "活动 / 演出 / 庆典",
+  "createCategoryTitleActivityLeports": "活动 / 休闲运动",
+  "createCategoryDescriptionTourist": "适合围绕代表性景点展开的聚会。",
+  "createCategoryDescriptionTravelCourse": "适合包含移动路线的旅行型行程。",
+  "createCategoryDescriptionCultureTradition": "推荐用于传统文化、手工艺、历史体验活动。",
+  "createCategoryDescriptionFestival": "适合演出、庆典和季节性活动。",
+  "createCategoryDescriptionSports": "适合运动、观赛以及体育主题聚会。",
+  "createCategoryDescriptionActivityLeports": "适合户外体验和更活跃的休闲运动活动。",
+  "createCategoryDescriptionPublicFacility": "推荐用于展览、公共空间和社区活动。",
+  "createCategoryDescriptionShopping": "很适合市场、购物街和本地店铺巡游。",
+  "createEventDatePickerHelp": "选择{entity}日期",
+  "@createEventDatePickerHelp": {
+    "placeholders": {
+      "entity": {}
+    }
+  },
+  "createStartTimePickerHelp": "选择开始时间",
+  "createEndTimePickerHelp": "选择结束时间",
+  "createDeadlineDatePickerHelp": "选择报名截止日期",
+  "createDeadlineTimePickerHelp": "选择报名截止时间",
+  "createDeleteDialogTitle": "要删除这个{entity}吗？",
+  "@createDeleteDialogTitle": {
+    "placeholders": {
+      "entity": {}
+    }
+  },
+  "createDeleteDialogBody": "删除后将无法恢复。",
+  "@createDeleteDialogBody": {
+    "placeholders": {
+      "entity": {}
+    }
+  },
+  "createDeleteButton": "删除",
+  "createDeleteCompleted": "已删除。",
+  "createInitializationLoadError": "无法加载{entity}信息。",
+  "@createInitializationLoadError": {
+    "placeholders": {
+      "entity": {}
+    }
+  },
+  "createInitializationRetryBody": "请稍后重试。如果问题持续存在，请返回上一页后重新进入。",
+  "createSavingEntity": "正在保存{entity}...",
+  "@createSavingEntity": {
+    "placeholders": {
+      "entity": {}
+    }
+  },
+  "createSubmittingEntity": "正在创建{entity}...",
+  "@createSubmittingEntity": {
+    "placeholders": {
+      "entity": {}
+    }
+  },
+  "createSelectPlaceAction": "选择地点",
+  "createImagePickerNotice": "要附加图片，需要允许访问照片库。即使不授予权限，也可以继续填写其他信息。",
+  "createImagePickerRecovery": "要继续附加图片，需要允许访问照片库。请重试，或在应用设置中开启权限。",
+  "createImagePickerFailure": "无法加载所选图片。请检查文件后重试。",
+  "createImagePickerRestoreFallback": "无法恢复之前选择的图片，请重新选择。",
+  "createImagePickerRestoredCount": "已恢复之前选择的 {count} 张图片。",
+  "@createImagePickerRestoredCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "createRecommendedLoadFailedNetwork": "无法加载推荐地点。请检查网络后重试。",
+  "createRecommendedLoadFailedServer": "无法加载推荐地点。请稍后再试。",
+  "createPlaceSearchQueryRequired": "请输入地点名称。",
+  "createPlaceSearchFailedNetwork": "地点搜索失败。请检查网络后重试。",
+  "createPlaceSearchFailedServer": "地点搜索失败。请稍后再试。",
+  "createPlaceCoordinateRequired": "该地点没有位置信息，无法选择。",
+  "createPlaceMapCoordinateRequired": "该地点没有位置信息，无法显示在地图上。",
+  "createImageLimitExceeded": "最多可添加 {max} 张图片。",
+  "@createImageLimitExceeded": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "createImageInvalidFormat": "仅支持添加 JPG、PNG、WEBP、GIF 格式的图片。",
+  "createImageMaxSize": "每张图片最大可为 10MB。",
+  "createPlaceDescriptionFallback": "请确认位置后再选择。",
+  "createExistingPlaceDescription": "现有活动地点",
+  "createResolveServerCategoryFailed": "无法根据所选地点确定服务器分类。请选择其他地点。",
+  "createUploadImageRequired": "请至少上传一张封面图。",
+  "createUploadImageInvalidFormat": "仅支持上传 JPG、PNG、WEBP、GIF 格式的图片。",
+  "createUploadImageFailed": "图片上传失败。请稍后再试。",
+  "createUploadImageConfirmFailed": "无法确认已上传的图片。请稍后再试。",
+  "onboardingValidationNameRequired": "请输入姓名。",
+  "onboardingValidationNameMaxLength": "姓名不能超过 30 个字符。",
+  "onboardingValidationNameCharacters": "请输入姓名本身，不要包含数字或特殊字符。",
+  "onboardingValidationPhoneRequired": "请输入电话号码。",
+  "onboardingValidationPhoneDigitsOnly": "电话号码只能输入数字。",
+  "onboardingValidationPhoneMaxLength": "电话号码最多可输入 15 位。",
+  "onboardingValidationPhoneInvalid": "请输入正确的电话号码。",
+  "onboardingValidationVerificationCodeRequired": "请输入 6 位验证码。",
+  "onboardingValidationVerificationExpired": "验证码已过期，请重新获取。",
+  "onboardingValidationVerificationMismatch": "验证码不匹配。",
+  "onboardingValidationBusinessNameRequired": "请输入商号名称。",
+  "onboardingValidationOpeningDateRequired": "请输入 8 位开业日期。",
+  "onboardingValidationOpeningDateDigitsOnly": "开业日期只能输入数字。",
+  "onboardingValidationOpeningDateInvalid": "请输入正确的开业日期。",
+  "onboardingValidationBusinessNumberRequired": "请输入正确的 10 位营业执照号码。",
+  "onboardingValidationBusinessNumberDigitsOnly": "营业执照号码只能输入数字。",
+  "onboardingLocationErrorServiceDisabled": "定位服务已关闭。请使用手动输入继续。",
+  "onboardingLocationErrorPermissionDenied": "没有定位权限时，无法使用当前位置自动认证。你仍然可以通过手动输入继续，并在授权后重新尝试。",
+  "onboardingLocationErrorPermissionPermanentlyDenied": "定位权限已关闭，无法使用当前位置自动认证。请在应用设置中允许权限，或使用手动输入继续。",
+  "onboardingLocationErrorAccuracyLow": "定位精度过低，难以进行自动认证。",
+  "onboardingLocationErrorAddressNotFound": "未找到地址。请使用手动输入继续。",
+  "onboardingLocationErrorUnknown": "无法获取位置信息。请使用手动输入继续。",
+  "onboardingLocationQueryRequired": "请输入所在地区名称。",
+  "onboardingLocationQueryNotFound": "未找到你输入的地区。",
+  "onboardingLocationCurrentFallback": "当前位置",
+  "homeParticipantCount": "{current}/{capacity} 参与",
+  "@homeParticipantCount": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "capacity": {
+        "type": "int"
+      }
+    }
+  },
+  "homeFavoritesSubtitle": "把你的兴趣分享给世界。",
+  "homeFavoritesEmptyTitle": "你还没有收藏任何活动。",
+  "homeFavoritesEmptyDescription": "收藏你喜欢的活动后，就可以在这里再次查看。",
+  "homeNearbyCultureMap": "附近的传统文化",
+  "onboardingTermsPendingEffectiveDate": "确认中",
+  "onboardingTermsServiceTitle": "服务使用条款",
+  "onboardingTermsServiceSummary": "说明使用 MateYa 服务的基本条件、用户责任以及服务运营标准。",
+  "onboardingTermsServiceSection1Title": "服务目的",
+  "onboardingTermsServiceSection1Body": "MateYa 是一个帮助本地用户和国际用户安全地发现并参与小组、课程和基于地区活动的平台。",
+  "onboardingTermsServiceSection2Title": "注册与账号管理",
+  "onboardingTermsServiceSection2Body": "会员必须使用本人名义的信息注册，并完成手机验证和条款同意后方可使用服务。账号信息发生变化时，应及时保持最新状态。",
+  "onboardingTermsServiceSection3Title": "服务使用条件",
+  "onboardingTermsServiceSection3Body": "会员必须遵守相关法律法规和本条款，不得侵犯他人权利或妨碍服务运营。部分功能可能需要身份确认或额外认证。",
+  "onboardingTermsServiceSection4Title": "禁止行为",
+  "onboardingTermsServiceSection4Body": "禁止注册虚假信息、冒充他人、违法宣传、发布淫秽或仇恨内容、异常自动化访问或试图绕过运营政策。违反时，可能会采取删除内容、限制使用或暂停账号等措施。",
+  "onboardingTermsServiceSection5Title": "服务中断与变更",
+  "onboardingTermsServiceSection5Body": "MateYa 可能因维护、故障应对、政策调整或外部合作因素，对部分服务进行变更或暂时中断。重要变更将通过应用内公告或其他适当方式通知。",
+  "onboardingTermsServiceSection6Title": "责任限制",
+  "onboardingTermsServiceSection6Body": "对于因不可抗力、通信故障或用户自身原因造成的损失，MateYa 可在法律允许范围内限制责任。但公司存在故意或重大过失的情况除外。",
+  "onboardingTermsServiceSection7Title": "联系方式",
+  "onboardingTermsServiceSection7Body": "如在使用服务过程中需要咨询，可通过应用内客服渠道或运营团队邮箱提交。提交内容将根据运营政策依次处理。",
+  "onboardingTermsPrivacyTitle": "同意向第三方提供个人信息",
+  "onboardingTermsPrivacySummary": "说明在活动运营、预约进行和客户应对所需范围内，向第三方提供个人信息的标准。",
+  "onboardingTermsPrivacySection1Title": "接收方",
+  "onboardingTermsPrivacySection1Body": "在 MateYa 内运营小组/课程的主持人，或服务运营所需的合作商户",
+  "onboardingTermsPrivacySection2Title": "提供目的",
+  "onboardingTermsPrivacySection2Body": "确认报名申请、与主持人顺利协调日程、支持现场运营、处理客户咨询及纠纷",
+  "onboardingTermsPrivacySection3Title": "提供项目",
+  "onboardingTermsPrivacySection3Body": "姓名、手机号、活动报名信息、主要语言以及提供服务所需的最少参与记录",
+  "onboardingTermsPrivacySection4Title": "保存与使用期限",
+  "onboardingTermsPrivacySection4Body": "信息将保存至提供目的达成时，或法律规定的保存义务期限届满时，之后会及时删除或匿名化。",
+  "onboardingTermsPrivacySection5Title": "拒绝同意的权利及不利影响",
+  "onboardingTermsPrivacySection5Body": "会员可以拒绝同意向第三方提供个人信息。但部分需要活动参与、预约确认或与主持人联系的服务可能会受到限制。",
+  "onboardingTermsLocationTitle": "基于位置服务使用条款",
+  "onboardingTermsLocationSummary": "说明如何利用当前位置和活动地区信息提供附近小组与推荐结果，以及相关的保护标准。",
+  "onboardingTermsLocationSection1Title": "目的",
+  "onboardingTermsLocationSection1Body": "本条款旨在说明 MateYa 提供的基于位置服务的使用条件与流程、公司和用户的权利义务，以及位置信息保护标准。",
+  "onboardingTermsLocationSection2Title": "位置信息的收集与使用",
+  "onboardingTermsLocationSection2Body": "公司会在用户请求的功能范围内使用当前位置或活动地区信息，并且仅限于以下目的。",
+  "onboardingTermsLocationSection2Point1": "地区认证和活动地区确认",
+  "onboardingTermsLocationSection2Point2": "附近小组推荐及按距离排序",
+  "onboardingTermsLocationSection2Point3": "提供符合地区的内容和更安全的参与体验",
+  "onboardingTermsLocationSection3Title": "保存与使用期限",
+  "onboardingTermsLocationSection3Body": "实时位置信息在即时性功能处理完成后不会保存。但活动地区认证结果等服务运营所需的最少信息，可根据相关法律或内部运营标准保存必要期限，之后会及时删除或匿名化。",
+  "onboardingTermsLocationSection4Title": "用户权利",
+  "onboardingTermsLocationSection4Body": "用户可随时通过设备设置或应用内权限设置撤回提供位置信息的同意，并可自行选择是否使用基于位置的服务。撤回同意后，部分推荐功能或地区认证功能可能会受到限制。",
+  "onboardingTermsLocationSection5Title": "公司的义务",
+  "onboardingTermsLocationSection5Body": "公司会依据相关法律和内部安全标准安全管理位置信息，不会超出使用目的范围使用，也不会在未获得单独同意的情况下向第三方提供。同时，公司会及时确认用户咨询和投诉，并提供必要的说明。",
+  "onboardingTermsLocationSection6Title": "联系方式",
+  "onboardingTermsLocationSection6Body": "有关基于位置服务的咨询，可通过应用内客服渠道或运营团队咨询窗口提交。提交内容将根据内部政策依次处理。",
+  "onboardingTermsAgeTitle": "确认已满 14 周岁",
+  "onboardingTermsAgeSummary": "MateYa 仅允许年满 14 周岁的用户注册，本条说明与年龄确认相关的使用限制标准。",
+  "onboardingTermsAgeSection1Title": "年龄确认",
+  "onboardingTermsAgeSection1Body": "会员在注册时必须确认并同意自己已满 14 周岁。",
+  "onboardingTermsAgeSection2Title": "注册限制",
+  "onboardingTermsAgeSection2Body": "未满 14 周岁的用户不得注册 MateYa 或使用服务。",
+  "onboardingTermsAgeSection3Title": "虚假确认的处理",
+  "onboardingTermsAgeSection3Body": "如确认存在虚假年龄确认后注册的情况，可能会限制服务使用、终止账号，或要求进行额外确认程序。",
+  "chatAttachmentRecoveryFailed": "无法恢复刚才选择的照片，请重新选择。",
+  "chatAttachmentSheetTitle": "添加照片",
+  "chatAttachmentSheetDescription": "你可以从相册选择多张照片，或直接用相机拍摄后发送。",
+  "chatAttachmentGalleryTitle": "从相册选择",
+  "chatAttachmentGallerySubtitle": "可一次选择多张照片。",
+  "chatAttachmentCameraTitle": "拍摄照片",
+  "chatAttachmentCameraSubtitle": "立即拍摄 1 张照片并附加。",
+  "chatAttachmentGuideFormats": "支持格式: JPG, PNG, WEBP, GIF, HEIC, HEIF",
+  "chatAttachmentGuideMaxSize": "最大大小: 10MB",
+  "chatAttachmentGuideMaxCount": "每条消息最多 {count} 张",
+  "@chatAttachmentGuideMaxCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chatAttachmentPhotoPermissionTitle": "照片权限提示",
+  "chatAttachmentCameraPermissionTitle": "相机权限提示",
+  "chatAttachmentPhotoPermissionMessage": "在聊天中附加照片需要访问照片库。即使拒绝权限，你仍可继续使用文字聊天。",
+  "chatAttachmentCameraPermissionMessage": "在聊天中拍照并发送需要相机权限。即使拒绝权限，你仍可继续使用文字聊天。",
+  "chatAttachmentPhotoSelect": "选择照片",
+  "chatAttachmentOpenCamera": "打开相机",
+  "chatAttachmentPhotoRecoveryTitle": "需要照片访问权限",
+  "chatAttachmentCameraRecoveryTitle": "需要相机权限",
+  "chatAttachmentPhotoRecoveryMessage": "附加照片需要访问照片库。即使没有权限，你仍可继续文字聊天，并可重试或在应用设置中允许权限。",
+  "chatAttachmentCameraRecoveryMessage": "附加聊天拍摄的照片需要相机权限。即使没有权限，你仍可继续文字聊天，并可重试或在应用设置中允许权限。",
+  "chatAttachmentLoadFailed": "无法加载照片。请检查权限和文件状态。",
+  "chatAttachmentAddedCount": "已附加 {count} 张照片。",
+  "@chatAttachmentAddedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chatAttachmentRejectedTypeCount": "已排除 {count} 张不支持格式的照片。",
+  "@chatAttachmentRejectedTypeCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chatAttachmentRejectedSizeCount": "已排除 {count} 张超过 10MB 的照片。",
+  "@chatAttachmentRejectedSizeCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chatAttachmentOverflowCount": "最多可附加 {count} 张照片。",
+  "@chatAttachmentOverflowCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chatAttachmentPhotoOnly": "照片",
+  "chatAttachmentInvalidFormat": "仅支持发送 JPG、PNG、WEBP、GIF、HEIC、HEIF 格式的图片。",
+  "chatAttachmentUploadFailed": "无法上传聊天图片，请稍后再试。",
+  "chatListLoadError": "无法加载聊天列表。",
+  "chatListEmptyTitle": "没有可显示的聊天室。",
+  "chatListEmptyBody": "请尝试更改筛选条件或开始新的对话。",
+  "chatListLoadMoreHint": "滚动以加载更多聊天室。",
+  "chatListLoadMoreFailedNetwork": "无法加载更多聊天室。请检查网络连接。",
+  "chatListLoadMoreFailedServer": "无法加载更多聊天室。请稍后再试。",
+  "chatRoomMissing": "找不到聊天室信息。",
+  "chatBackToList": "返回列表",
+  "chatRoomLoadError": "无法加载聊天室。",
+  "chatOlderMessagesHint": "向上滚动以加载更早的消息。",
+  "chatOlderMessagesFailedNetwork": "无法加载更早的消息。请检查网络连接。",
+  "chatOlderMessagesFailedServer": "无法加载更早的消息。请稍后再试。",
+  "chatReadSyncFailed": "无法将已读状态同步到服务器，稍后会再次尝试。",
+  "chatSendFailedNetwork": "无法发送消息。请检查网络连接。",
+  "chatSendFailedServer": "无法发送消息。请稍后再试。",
+  "chatMe": "我",
+  "chatDefaultDirectRoomTitle": "一对一聊天",
+  "chatDefaultGroupRoomTitle": "聊天室",
+  "chatRealtimeConnectionError": "无法连接实时聊天。",
+  "chatRealtimeMessageError": "无法处理实时聊天消息。",
+  "homeActivityRegionFallback": "活动地区",
+  "homeNearbyMapLoadError": "无法加载地图上的地点。",
+  "homeNearbyMapCurrentLocationLabel": "基于当前位置",
+  "homeNearbyMapSearchHint": "你想找什么？",
+  "homeNearbyMapEmptyTitle": "未找到附近地点",
+  "homeNearbyMapEmptyBody": "请尝试更换关键词，或重新获取当前位置。",
+  "homeNearbyMapListTitle": "附近地点列表",
+  "homeNearbyMapPlaceCount": "{count}处",
+  "@homeNearbyMapPlaceCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "homeNearbyMapListButton": "查看列表",
+  "homeNearbyMapBadgeFallback": "附近地点",
+  "homeNearbyMapParseError": "无法解析地点数据。",
+  "homeNearbyMapLocationLoadError": "无法获取当前位置。",
+  "homeNearbyMapLocationRefreshError": "无法重新获取当前位置。",
+  "homeNearbyMapLocationRequired": "查看地图前请先确认位置信息。",
+  "homeNearbyMapPlacesLoadError": "无法加载地点，请稍后再试。",
+  "detailsActivityRequired": "请先加载活动详情。",
+  "detailsFavoriteToggleError": "无法更改收藏状态，请稍后再试。",
+  "detailsJoinAlreadyRequested": "你已经申请参加这个活动了。",
+  "detailsJoinAlreadyJoined": "你已经在参加这个活动了。",
+  "detailsJoinHostedByMe": "这是你创建的活动。",
+  "detailsJoinRequestError": "无法完成参加申请，请稍后再试。",
+  "detailsParticipantRemoveError": "无法移除参与者，请稍后再试。",
+  "detailsPendingCancelError": "无法取消申请，请稍后再试。",
+  "detailsPendingApproveError": "无法批准参加申请，请稍后再试。",
+  "detailsReviewRequired": "请先加载评价详情。",
+  "detailsHelpfulToggleError": "无法更改“有帮助”状态，请稍后再试。",
+  "detailsReviewValidationRequired": "请输入评分和评价内容。",
+  "detailsReviewSubmitError": "无法发布评价，请稍后再试。",
+  "detailsLoadError": "无法加载活动详情，请稍后再试。",
+  "detailsReviewSortLatest": "最新",
+  "detailsReviewSortOldest": "最早",
+  "detailsReviewSortHighestRating": "评分从高到低",
+  "detailsReviewSortLowestRating": "评分从低到高",
+  "detailsJoinAvailable": "参加活动",
+  "detailsJoinRequested": "已申请",
+  "detailsJoinJoined": "已参加",
+  "detailsJoinHost": "我的活动",
+  "detailsReviewSummary": "{average}（{count}条评价）",
+  "@detailsReviewSummary": {
+    "placeholders": {
+      "average": {},
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "detailsParticipantSummary": "{current}/{capacity} 人参与",
+  "@detailsParticipantSummary": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "capacity": {
+        "type": "int"
+      }
+    }
+  },
+  "detailsParticipantsJoined": "{count} 人已参与",
+  "@detailsParticipantsJoined": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "detailsParticipantsRemaining": "还剩 {count} 个名额",
+  "@detailsParticipantsRemaining": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "detailsRecruitmentClosed": "报名结束",
+  "detailsIntroduction": "活动介绍",
+  "detailsReviewsTitle": "{count} 条评价",
+  "@detailsReviewsTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "detailsReviewsEmpty": "还没有评价，来留下第一条吧。",
+  "detailsPriceLabel": "体验费用",
+  "detailsJoinRequesting": "申请中...",
+  "detailsReviewRatingSummary": "共 {count} 条评价",
+  "@detailsReviewRatingSummary": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "detailsReviewRating": "{rating} 分",
+  "@detailsReviewRating": {
+    "placeholders": {
+      "rating": {
+        "type": "int"
+      }
+    }
+  },
+  "detailsReviewHelpfulCount": "对 {count} 人有帮助",
+  "@detailsReviewHelpfulCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "detailsReviewViewOriginal": "查看原文",
+  "detailsReviewViewTranslation": "查看翻译",
+  "detailsRepresentativeImage": "封面",
+  "detailsReviewGalleryNotice": "要在评价中添加图片，需要访问你的照片库。即使不授权，你仍然可以继续填写文字评价和评分。",
+  "detailsReviewGalleryRecovery": "要添加评价图片，需要访问你的照片库。即使没有权限，你仍然可以继续提交文字评价和评分，也可以稍后重试或前往应用设置开启权限。",
+  "detailsReviewGalleryFailure": "无法加载图片，请检查权限和文件状态。",
+  "detailsReviewGalleryRestoreError": "无法恢复你之前选择的评价图片，请重新选择。",
+  "detailsReviewRestoredCount": "已恢复你之前选择的 {restoredCount} 张评价图片。",
+  "@detailsReviewRestoredCount": {
+    "placeholders": {
+      "restoredCount": {
+        "type": "int"
+      }
+    }
+  },
+  "detailsReviewSubmitted": "评价已发布。",
+  "detailsReviewComposerTitle": "写评价",
+  "detailsReviewComposerHint": "请写下这次活动中让你满意的地方，\n或对下一位参加者有帮助的内容。",
+  "detailsBodyCount": "{count}/{max} 字",
+  "@detailsBodyCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "detailsReviewImageSectionTitle": "图片（最多 {max} 张）",
+  "@detailsReviewImageSectionTitle": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "detailsReviewSubmitting": "发布中...",
+  "detailsReviewSubmit": "发布评价",
+  "detailsReviewImageGuide": "第一张图片会作为封面图，\n长按可以调整顺序。",
+  "detailsShareCopied": "已复制分享链接。可以直接粘贴到你常用的聊天工具中。",
+  "detailsReportActivityReload": "请重新加载活动信息后再举报。",
+  "detailsParticipantsListTitle": "参与用户列表",
+  "detailsParticipantRemoved": "已移除参与者。",
+  "detailsPendingParticipantsListTitle": "申请用户列表",
+  "detailsPendingCancelled": "已取消申请。",
+  "detailsParticipantSwipeHint": "可滑动删除或取消申请",
+  "detailsReviewListReportSubject": "{title} 评价列表",
+  "@detailsReviewListReportSubject": {
+    "placeholders": {
+      "title": {}
+    }
+  },
+  "detailsReviewLoadMoreHint": "滚动以加载更多评价。",
+  "detailsReviewImageInvalidFormat": "只能上传 JPG、PNG、WEBP、GIF 格式的评价图片。",
+  "detailsReviewImageUploadError": "无法上传评价图片，请稍后再试。",
+  "detailsMe": "我",
+  "commonInvalidServerResponse": "服务器响应格式不正确。",
+  "onboardingVerificationResendLimitNotice": "验证码每天最多可重新获取 5 次。你目前已请求 {count} 次。",
+  "@onboardingVerificationResendLimitNotice": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "onboardingVerificationResendLimitReached": "验证码每天最多可重新获取 5 次。",
+  "onboardingVerificationSent": "验证码已发送。",
+  "onboardingVerificationResent": "验证码已重新发送。",
+  "onboardingBusinessVerificationCompleted": "商家认证已完成。请继续进行手机认证。",
+  "onboardingConsentRequired": "请同意所有必需条款。",
+  "homeExploreLoadMoreFailedNetwork": "无法加载更多结果。请检查网络连接。",
+  "homeExploreLoadMoreFailedServer": "无法加载更多结果。请稍后再试。"
+}

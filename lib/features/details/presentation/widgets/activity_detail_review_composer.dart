@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../../shared/localization/mateya_localizations.dart';
 import '../../../../shared/media/mateya_gallery_picker.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../../shared/widgets/mateya_button.dart';
@@ -22,16 +23,6 @@ class ReviewComposerSheet extends StatefulWidget {
 
 class _ReviewComposerSheetState extends State<ReviewComposerSheet> {
   static const int _maxImageCount = 5;
-  static const MateyaGalleryPickerMessages
-  _galleryPickerMessages = MateyaGalleryPickerMessages(
-    noticeMessage:
-        '후기에 사진을 첨부하려면 사진 보관함 접근 권한이 필요합니다. 권한을 거부하셔도 후기 텍스트 작성과 평점 등록은 계속할 수 있습니다.',
-    recoveryMessage:
-        '후기 사진 첨부를 사용하려면 사진 보관함 접근 권한이 필요합니다. 권한이 없어도 텍스트 후기와 평점 등록은 계속할 수 있고, 다시 시도하거나 앱 설정에서 권한을 허용할 수 있습니다.',
-    failureMessage: '사진을 불러오지 못했어요. 권한과 파일 상태를 확인해 주세요.',
-    restoreFallbackErrorMessage: '이전에 선택하던 후기 이미지를 복구하지 못했어요. 다시 선택해 주세요.',
-    restoredCountMessage: _reviewRestoredCountMessage,
-  );
 
   final ImagePicker _imagePicker = ImagePicker();
   final TextEditingController _bodyController = TextEditingController();
@@ -65,12 +56,24 @@ class _ReviewComposerSheetState extends State<ReviewComposerSheet> {
 
   bool get _canSubmit => _rating > 0 && _bodyController.text.trim().isNotEmpty;
 
+  MateyaGalleryPickerMessages _galleryPickerMessages(BuildContext context) {
+    final l10n = context.l10n;
+    return MateyaGalleryPickerMessages(
+      noticeMessage: l10n.detailsReviewGalleryNotice,
+      recoveryMessage: l10n.detailsReviewGalleryRecovery,
+      failureMessage: l10n.detailsReviewGalleryFailure,
+      restoreFallbackErrorMessage: l10n.detailsReviewGalleryRestoreError,
+      restoredCountMessage: (restoredCount) =>
+          l10n.detailsReviewRestoredCount(restoredCount),
+    );
+  }
+
   Future<void> _restoreLostImages() async {
     await restoreLostMateyaGalleryImages(
       context: context,
       readLostData: _imagePicker.retrieveLostData,
       availableSlots: _maxImageCount - _images.length,
-      messages: _galleryPickerMessages,
+      messages: _galleryPickerMessages(context),
       onRestored: (files) async {
         if (!mounted || files.isEmpty) {
           return;
@@ -92,7 +95,7 @@ class _ReviewComposerSheetState extends State<ReviewComposerSheet> {
       context,
       imagePicker: _imagePicker,
       availableSlots: available,
-      messages: _galleryPickerMessages,
+      messages: _galleryPickerMessages(context),
     );
     if (!mounted || picked.isEmpty) {
       return;
@@ -121,6 +124,7 @@ class _ReviewComposerSheetState extends State<ReviewComposerSheet> {
       return;
     }
 
+    final l10n = context.l10n;
     final navigator = Navigator.of(context);
     final messenger = ScaffoldMessenger.of(context);
 
@@ -144,7 +148,9 @@ class _ReviewComposerSheetState extends State<ReviewComposerSheet> {
 
     if (message == null) {
       navigator.pop();
-      messenger.showSnackBar(const SnackBar(content: Text('후기를 등록했어요.')));
+      messenger.showSnackBar(
+        SnackBar(content: Text(l10n.detailsReviewSubmitted)),
+      );
       return;
     }
 
@@ -153,6 +159,7 @@ class _ReviewComposerSheetState extends State<ReviewComposerSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final viewInsets = MediaQuery.of(context).viewInsets;
     final textLength = _bodyController.text.length;
 
@@ -181,7 +188,7 @@ class _ReviewComposerSheetState extends State<ReviewComposerSheet> {
                       ),
                       Expanded(
                         child: Text(
-                          '후기 작성하기',
+                          l10n.detailsReviewComposerTitle,
                           textAlign: TextAlign.center,
                           style: Theme.of(context).textTheme.titleLarge,
                         ),
@@ -230,18 +237,16 @@ class _ReviewComposerSheetState extends State<ReviewComposerSheet> {
                           focusNode: _focusNode,
                           maxLines: 5,
                           maxLength: 500,
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
                             counterText: '',
                             border: InputBorder.none,
-                            hintText:
-                                '활동에서 좋았던 점이나 다음 참가자에게 도움이 될\n'
-                                '내용을 남겨 주세요.',
+                            hintText: l10n.detailsReviewComposerHint,
                           ),
                           style: Theme.of(context).textTheme.bodyLarge,
                           onChanged: (_) => setState(() {}),
                         ),
                         Text(
-                          '$textLength/500 자',
+                          l10n.detailsBodyCount(textLength, 500),
                           style: Theme.of(context).textTheme.bodySmall,
                         ),
                       ],
@@ -249,7 +254,7 @@ class _ReviewComposerSheetState extends State<ReviewComposerSheet> {
                   ),
                   const SizedBox(height: 18),
                   Text(
-                    '이미지 (최대 5장)',
+                    l10n.detailsReviewImageSectionTitle(_maxImageCount),
                     style: Theme.of(
                       context,
                     ).textTheme.titleLarge?.copyWith(fontSize: 17),
@@ -341,14 +346,16 @@ class _ReviewComposerSheetState extends State<ReviewComposerSheet> {
                   ),
                   const SizedBox(height: 20),
                   MateyaButton(
-                    label: _isSubmitting ? '작성 중...' : '작성하기',
+                    label: _isSubmitting
+                        ? l10n.detailsReviewSubmitting
+                        : l10n.detailsReviewSubmit,
                     enabled: _canSubmit && !_isSubmitting,
                     onPressed: _canSubmit && !_isSubmitting ? _submit : null,
                   ),
                   const SizedBox(height: 14),
                   Center(
                     child: Text(
-                      '첫 번째 사진이 대표 이미지가 되며,\n길게 눌러 순서를 바꿀 수 있어요.',
+                      l10n.detailsReviewImageGuide,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: AppColors.textSecondary,
                       ),
@@ -363,10 +370,6 @@ class _ReviewComposerSheetState extends State<ReviewComposerSheet> {
       ),
     );
   }
-}
-
-String _reviewRestoredCountMessage(int restoredCount) {
-  return '이전에 선택하던 후기 이미지 $restoredCount장을 복구했어요.';
 }
 
 class _ReviewImagePlaceholderTile extends StatelessWidget {

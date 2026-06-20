@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../shared/localization/mateya_localizations.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../../shared/widgets/mateya_text_field.dart';
 import '../../../onboarding/domain/onboarding_flow.dart';
@@ -35,6 +36,7 @@ class PlaceStepView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final theme = Theme.of(context);
     final selectedPlace = controller.selectedPlace;
     final showEmptyResult =
@@ -47,15 +49,15 @@ class PlaceStepView extends StatelessWidget {
       children: <Widget>[
         Text(
           controller.flowType == CreateFlowType.group
-              ? '진행할 장소를 찾아주세요'
-              : '클래스 장소를 선택해 주세요',
+              ? l10n.createPlaceGroupTitle
+              : l10n.createPlaceClassTitle,
           style: theme.textTheme.headlineMedium,
         ),
         const SizedBox(height: 10),
         Text(
           controller.flowType == CreateFlowType.group
-              ? '검색 결과 또는 추천 목록에서 1곳을 선택하면 지도에 바로 표시됩니다.'
-              : '클래스는 서비스 카테고리를 먼저 맞춘 뒤, 추천 장소를 고르거나 장소명과 주소를 직접 입력할 수 있습니다.',
+              ? l10n.createPlaceGroupDescription
+              : l10n.createPlaceClassDescription,
           style: theme.textTheme.bodyMedium?.copyWith(
             color: AppColors.textSecondary,
           ),
@@ -63,7 +65,7 @@ class PlaceStepView extends StatelessWidget {
         const SizedBox(height: 24),
         if (controller.flowType ==
             CreateFlowType.classRegistration) ...<Widget>[
-          Text('클래스 카테고리', style: theme.textTheme.titleLarge),
+          Text(l10n.createClassCategoryTitle, style: theme.textTheme.titleLarge),
           const SizedBox(height: 10),
           Wrap(
             spacing: 10,
@@ -86,14 +88,14 @@ class PlaceStepView extends StatelessWidget {
           ],
           if (controller.availableCategoryDetails.isNotEmpty) ...<Widget>[
             const SizedBox(height: 20),
-            Text('세부유형', style: theme.textTheme.titleLarge),
+            Text(l10n.createCategoryDetailTitle, style: theme.textTheme.titleLarge),
             const SizedBox(height: 10),
             Wrap(
               spacing: 10,
               runSpacing: 10,
               children: <Widget>[
                 SelectableChip(
-                  label: '전체',
+                  label: l10n.commonAll,
                   selected: controller.selectedCategoryDetailCode == null,
                   onTap: () => onCategoryDetailSelected(null),
                 ),
@@ -109,28 +111,28 @@ class PlaceStepView extends StatelessWidget {
             ),
           ],
           const SizedBox(height: 20),
-          Text('직접 장소 입력', style: theme.textTheme.titleLarge),
+          Text(l10n.createManualPlaceTitle, style: theme.textTheme.titleLarge),
           const SizedBox(height: 10),
           MateyaTextField(
             controller: manualPlaceNameController,
-            hintText: '예: 성수 티 스튜디오',
+            hintText: l10n.createManualPlaceNameHint,
             errorText: controller.errorFor('manualPlaceName'),
             onChanged: controller.updateManualPlaceName,
           ),
           const SizedBox(height: 12),
           MateyaTextField(
             controller: manualPlaceAddressController,
-            hintText: '예: 서울 성동구 성수일로 32',
+            hintText: l10n.createManualPlaceAddressHint,
             errorText: controller.errorFor('manualPlaceAddress'),
             onChanged: controller.updateManualPlaceAddress,
           ),
           const SizedBox(height: 20),
-          Text('또는 검색으로 선택', style: theme.textTheme.titleLarge),
+          Text(l10n.createOrSearchTitle, style: theme.textTheme.titleLarge),
           const SizedBox(height: 10),
         ],
         MateyaTextField(
           controller: searchController,
-          hintText: '장소명으로 검색',
+          hintText: l10n.createPlaceSearchHint,
           errorText: controller.errorFor('searchQuery'),
           onChanged: onSearchChanged,
           onSubmitted: (_) => onSearch(),
@@ -152,7 +154,7 @@ class PlaceStepView extends StatelessWidget {
               id: 'manual-preview',
               name: controller.manualPlaceName.trim(),
               address: controller.manualPlaceAddress.trim(),
-              description: '직접 입력한 클래스 장소',
+              description: l10n.createManualPlacePreviewDescription,
               distanceKm: 0,
             ),
           ),
@@ -162,15 +164,15 @@ class PlaceStepView extends StatelessWidget {
           InlineErrorText(text: controller.errorFor('place')!),
         ],
         const SizedBox(height: 24),
-        Text('검색 결과', style: theme.textTheme.titleLarge),
+        Text(l10n.createSearchResultsTitle, style: theme.textTheme.titleLarge),
         const SizedBox(height: 10),
         if (controller.placePhase == AsyncPhase.loading && hasSearched)
           const LoadingPlaceList()
         else if (showEmptyResult)
-          const EmptyStateCard(
+          EmptyStateCard(
             icon: Icons.search_off_rounded,
-            title: '검색 결과가 없어요',
-            body: '다른 키워드로 다시 검색해 주세요.',
+            title: l10n.createSearchEmptyTitle,
+            body: l10n.createSearchEmptyBody,
           )
         else if (hasSearched)
           ...controller.searchResults.map(
@@ -184,10 +186,10 @@ class PlaceStepView extends StatelessWidget {
             ),
           )
         else
-          const EmptyStateCard(
+          EmptyStateCard(
             icon: Icons.travel_explore_rounded,
-            title: '장소를 검색해 보세요',
-            body: '`장소명` 기준 검색과 추천 목록 선택을 모두 지원하도록 프론트 흐름을 준비했습니다.',
+            title: l10n.createSearchInitialTitle,
+            body: l10n.createSearchInitialBody,
           ),
         const SizedBox(height: 20),
         PlaceMapCard(
@@ -198,11 +200,14 @@ class PlaceStepView extends StatelessWidget {
         Row(
           children: <Widget>[
             Expanded(
-              child: Text('내 동네 기준 추천', style: theme.textTheme.titleLarge),
+              child: Text(
+                l10n.createRecommendedTitle,
+                style: theme.textTheme.titleLarge,
+              ),
             ),
             TextButton(
               onPressed: controller.loadRecommendedPlaces,
-              child: const Text('새로고침'),
+              child: Text(l10n.createRefresh),
             ),
           ],
         ),
@@ -211,10 +216,10 @@ class PlaceStepView extends StatelessWidget {
             controller.placePhase == AsyncPhase.loading)
           const LoadingPlaceList()
         else if (controller.recommendedPlaces.isEmpty)
-          const EmptyStateCard(
+          EmptyStateCard(
             icon: Icons.location_off_outlined,
-            title: '추천 장소가 없어요',
-            body: '카테고리를 바꾸거나 직접 검색해서 장소를 선택해 주세요.',
+            title: l10n.createRecommendedEmptyTitle,
+            body: l10n.createRecommendedEmptyBody,
           )
         else
           ...controller.recommendedPlaces.map(

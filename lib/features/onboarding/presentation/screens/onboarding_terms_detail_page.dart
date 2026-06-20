@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../shared/localization/mateya_localizations.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../../shared/widgets/mateya_header.dart';
 import '../../domain/onboarding_terms.dart';
@@ -32,6 +33,7 @@ class OnboardingTermsDetailContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final theme = Theme.of(context);
 
     return SingleChildScrollView(
@@ -51,7 +53,7 @@ class OnboardingTermsDetailContent extends StatelessWidget {
             ),
           ),
           Text(
-            '시행일: ${document.effectiveDateLabel}',
+            l10n.onboardingTermsEffectiveDate(document.effectiveDateLabel),
             style: theme.textTheme.bodyMedium?.copyWith(
               color: AppColors.textSecondary,
             ),
@@ -68,7 +70,7 @@ class OnboardingTermsDetailContent extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Text(
-                  '목차',
+                  l10n.onboardingTermsContents,
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w700,
                   ),
@@ -80,7 +82,10 @@ class OnboardingTermsDetailContent extends StatelessWidget {
                       bottom: index == document.sections.length - 1 ? 0 : 10,
                     ),
                     child: Text(
-                      '제${index + 1}조 ${document.sections[index].title}',
+                      l10n.onboardingTermsSectionTitle(
+                        index + 1,
+                        document.sections[index].title,
+                      ),
                       style: theme.textTheme.bodyMedium?.copyWith(height: 1.5),
                     ),
                   ),
@@ -122,13 +127,14 @@ class _TermsSectionView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final theme = Theme.of(context);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Text(
-          '제$index조 ${section.title}',
+          l10n.onboardingTermsSectionTitle(index, section.title),
           style: theme.textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.w700,
           ),

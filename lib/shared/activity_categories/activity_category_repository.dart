@@ -1,5 +1,6 @@
 import '../../app/app_config.dart';
 import '../auth/auth_session.dart';
+import '../localization/mateya_localizations.dart';
 import '../network/mateya_api_client.dart';
 
 class ActivityCategoryMetadata {
@@ -32,57 +33,59 @@ class ActivityCategoryDetailMetadata {
   final bool active;
 }
 
-const List<ActivityCategoryMetadata> kFallbackActivityCategories =
-    <ActivityCategoryMetadata>[
-      ActivityCategoryMetadata(
-        code: 'TOURIST_ATTRACTION',
-        label: '관광지',
-        displayOrder: 1,
-        active: true,
-      ),
-      ActivityCategoryMetadata(
-        code: 'TRAVEL_COURSE',
-        label: '여행코스',
-        displayOrder: 2,
-        active: true,
-      ),
-      ActivityCategoryMetadata(
-        code: 'CULTURE_TRADITION',
-        label: '문화/전통',
-        displayOrder: 3,
-        active: true,
-      ),
-      ActivityCategoryMetadata(
-        code: 'EVENT_PERFORMANCE_FESTIVAL',
-        label: '행사/공연/축제',
-        displayOrder: 4,
-        active: true,
-      ),
-      ActivityCategoryMetadata(
-        code: 'SPORTS',
-        label: '스포츠',
-        displayOrder: 5,
-        active: true,
-      ),
-      ActivityCategoryMetadata(
-        code: 'ACTIVITY_LEPORTS',
-        label: '액티비티/레포츠',
-        displayOrder: 6,
-        active: true,
-      ),
-      ActivityCategoryMetadata(
-        code: 'PUBLIC_FACILITY',
-        label: '공공시설',
-        displayOrder: 7,
-        active: true,
-      ),
-      ActivityCategoryMetadata(
-        code: 'SHOPPING',
-        label: '쇼핑',
-        displayOrder: 8,
-        active: true,
-      ),
-    ];
+List<ActivityCategoryMetadata> get kFallbackActivityCategories {
+  final l10n = MateyaLocalizations.current;
+  return <ActivityCategoryMetadata>[
+    ActivityCategoryMetadata(
+      code: 'TOURIST_ATTRACTION',
+      label: l10n.activityCategoryTouristAttraction,
+      displayOrder: 1,
+      active: true,
+    ),
+    ActivityCategoryMetadata(
+      code: 'TRAVEL_COURSE',
+      label: l10n.activityCategoryTravelCourse,
+      displayOrder: 2,
+      active: true,
+    ),
+    ActivityCategoryMetadata(
+      code: 'CULTURE_TRADITION',
+      label: l10n.activityCategoryCultureTradition,
+      displayOrder: 3,
+      active: true,
+    ),
+    ActivityCategoryMetadata(
+      code: 'EVENT_PERFORMANCE_FESTIVAL',
+      label: l10n.activityCategoryEventPerformanceFestival,
+      displayOrder: 4,
+      active: true,
+    ),
+    ActivityCategoryMetadata(
+      code: 'SPORTS',
+      label: l10n.activityCategorySports,
+      displayOrder: 5,
+      active: true,
+    ),
+    ActivityCategoryMetadata(
+      code: 'ACTIVITY_LEPORTS',
+      label: l10n.activityCategoryActivityLeports,
+      displayOrder: 6,
+      active: true,
+    ),
+    ActivityCategoryMetadata(
+      code: 'PUBLIC_FACILITY',
+      label: l10n.activityCategoryPublicFacility,
+      displayOrder: 7,
+      active: true,
+    ),
+    ActivityCategoryMetadata(
+      code: 'SHOPPING',
+      label: l10n.activityCategoryShopping,
+      displayOrder: 8,
+      active: true,
+    ),
+  ];
+}
 
 abstract interface class ActivityCategoryRepository {
   Future<List<ActivityCategoryMetadata>> fetchActivityCategories();

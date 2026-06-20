@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../../../app/app_config.dart';
 import '../../../../shared/activity_categories/activity_category_repository.dart';
 import '../../../../shared/auth/auth_session.dart';
+import '../../../../shared/localization/mateya_localizations.dart';
 import '../../../../shared/media/mateya_gallery_picker.dart';
 import '../../../../shared/navigation/mateya_auth_flow.dart';
 import '../../../../shared/permissions/mateya_permission_dialogs.dart';
@@ -41,17 +42,6 @@ class MyPageFlowPage extends StatefulWidget {
 }
 
 class _MyPageFlowPageState extends State<MyPageFlowPage> {
-  static const MateyaGalleryPickerMessages
-  _profileImagePickerMessages = MateyaGalleryPickerMessages(
-    noticeMessage:
-        '프로필 사진을 변경하려면 사진 보관함 접근 권한이 필요합니다. 권한을 거부하면 현재 프로필 사진은 유지됩니다.',
-    recoveryMessage:
-        '프로필 사진을 변경하려면 사진 보관함 접근 권한이 필요합니다. 다시 시도하거나 앱 설정에서 권한을 허용할 수 있습니다.',
-    failureMessage: '프로필 사진을 불러오지 못했어요. 권한과 파일 상태를 확인해 주세요.',
-    restoreFallbackErrorMessage: '이전에 선택하던 프로필 이미지를 복구하지 못했어요. 다시 선택해 주세요.',
-    restoredCountMessage: _profileImageRestoredCountMessage,
-  );
-
   final ImagePicker _imagePicker = ImagePicker();
   final NeighborhoodLocationRepository _locationRepository =
       DeviceNeighborhoodLocationRepository();
@@ -142,6 +132,7 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return AnimatedBuilder(
       animation: widget.controller,
       builder: (context, _) {
@@ -155,7 +146,7 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
               MyPageAsyncPhase.loading => const MyPageLoadingView(),
               MyPageAsyncPhase.networkError ||
               MyPageAsyncPhase.serverError => MyPageRetryView(
-                message: widget.controller.errorMessage ?? '마이페이지를 불러오지 못했어요.',
+                message: widget.controller.errorMessage ?? l10n.mypageLoadError,
                 onRetry: widget.controller.retry,
               ),
               MyPageAsyncPhase.success ||
@@ -293,7 +284,7 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
   }
 
   Future<void> _openGeneralReportSheet() {
-    return showMateyaReportSheet(context, subjectLabel: 'MateYa');
+    return showMateyaReportSheet(context, subjectLabel: context.l10n.appTitle);
   }
 
   void _openPrimaryPreferences() {
@@ -328,9 +319,9 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
       title: entry.title,
     );
     if (document == null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('상세 약관을 아직 준비하지 못했어요.')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.l10n.mypageTermsDetailUnavailable)),
+      );
       return;
     }
 
@@ -380,14 +371,14 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
   Future<void> _openCustomerSupport() async {
     await _openExternalLinkWithCopyFallback(
       AppConfig.customerSupportUrl,
-      failureMessage: '문의 링크를 열지 못해 주소를 복사했어요.',
+      failureMessage: context.l10n.mypageSupportLinkCopied,
     );
   }
 
   Future<void> _openPrivacyPolicy() async {
     await _openExternalLinkWithCopyFallback(
       AppConfig.privacyPolicyUrl,
-      failureMessage: '개인정보처리방침 링크를 열지 못해 주소를 복사했어요.',
+      failureMessage: context.l10n.mypagePrivacyLinkCopied,
     );
   }
 
@@ -448,7 +439,7 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
     final pickedFile = await pickMateyaGalleryImage(
       context,
       imagePicker: _imagePicker,
-      messages: _profileImagePickerMessages,
+      messages: _buildProfileImagePickerMessages(context),
       maxWidth: 2400,
     );
     if (!mounted || pickedFile == null) {
@@ -458,6 +449,7 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
   }
 
   Future<void> _openActivityRegionDialog() async {
+    final l10n = context.l10n;
     final manualController = TextEditingController();
     var selectedNeighborhood = _sessionNeighborhoodSelection();
     var isResolvingCurrent = false;
@@ -494,7 +486,9 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
 
                 setDialogState(() {
                   isResolvingCurrent = false;
-                  errorText = result.failure?.message ?? '현재 위치를 확인하지 못했어요.';
+                  errorText =
+                      result.failure?.message ??
+                      l10n.mypageCurrentLocationResolveError;
                 });
                 if (result.failure != null) {
                   await _handleActivityRegionLocationFailure(result.failure!);
@@ -505,7 +499,7 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
                 final trimmed = manualController.text.trim();
                 if (trimmed.isEmpty) {
                   setDialogState(() {
-                    errorText = '동네명을 입력해 주세요.';
+                    errorText = l10n.mypageNeighborhoodRequired;
                   });
                   return;
                 }
@@ -525,7 +519,9 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
                     errorText = '';
                   } else {
                     selectedNeighborhood = null;
-                    errorText = result.failure?.message ?? '입력한 동네를 찾지 못했어요.';
+                    errorText =
+                        result.failure?.message ??
+                        l10n.mypageNeighborhoodLookupError;
                   }
                 });
               }
@@ -533,7 +529,7 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
               Future<void> submit() async {
                 if (selectedNeighborhood == null) {
                   setDialogState(() {
-                    errorText = '현재 위치 인증 또는 직접 입력 확인이 필요해요.';
+                    errorText = l10n.mypageNeighborhoodVerificationRequired;
                   });
                   return;
                 }
@@ -552,7 +548,8 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
                 }
                 setDialogState(() {
                   errorText =
-                      widget.controller.errorMessage ?? '활동 지역을 저장하지 못했어요.';
+                      widget.controller.errorMessage ??
+                      l10n.mypageActivityRegionSaveError;
                 });
               }
 
@@ -577,7 +574,7 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
                         children: <Widget>[
                           Expanded(
                             child: Text(
-                              '활동 지역 변경',
+                              l10n.mypageEditActivityRegion,
                               style: Theme.of(context).textTheme.titleLarge,
                             ),
                           ),
@@ -590,7 +587,7 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
                         ],
                       ),
                       Text(
-                        '현재 위치 인증 또는 직접 입력으로 활동 지역을 변경할 수 있어요.',
+                        l10n.mypageActivityRegionDialogDescription,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: AppColors.textSecondary,
                         ),
@@ -605,13 +602,15 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
                         onPressed: isBusy ? null : resolveCurrent,
                         icon: const Icon(Icons.my_location_rounded),
                         label: Text(
-                          isResolvingCurrent ? '현재 위치 확인 중...' : '현재 위치로 인증하기',
+                          isResolvingCurrent
+                              ? l10n.mypageResolvingCurrentLocation
+                              : l10n.onboardingUseCurrentLocation,
                         ),
                       ),
                       const SizedBox(height: 16),
                       MateyaTextField(
                         controller: manualController,
-                        hintText: '우만동',
+                        hintText: l10n.onboardingNeighborhoodHint,
                         onSubmitted: (_) => resolveManual(),
                       ),
                       const SizedBox(height: 8),
@@ -620,14 +619,18 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
                         child: TextButton(
                           onPressed: isBusy ? null : resolveManual,
                           child: Text(
-                            isResolvingManual ? '동네 확인 중...' : '직접 입력 확인',
+                            isResolvingManual
+                                ? l10n.mypageResolvingNeighborhood
+                                : l10n.mypageConfirmManualNeighborhood,
                           ),
                         ),
                       ),
                       if (selectedNeighborhood != null) ...<Widget>[
                         const SizedBox(height: 8),
                         Text(
-                          '선택된 활동 지역: ${selectedNeighborhood!.displayName}',
+                          l10n.mypageSelectedActivityRegion(
+                            selectedNeighborhood!.displayName,
+                          ),
                           style: Theme.of(context).textTheme.bodyMedium
                               ?.copyWith(
                                 color: AppColors.brandGreen,
@@ -650,8 +653,8 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
                           onPressed: isBusy ? null : submit,
                           child: Text(
                             widget.controller.isUpdatingActivityRegion
-                                ? '저장 중...'
-                                : '활동 지역 저장',
+                                ? l10n.mypageSaving
+                                : l10n.mypageSaveActivityRegion,
                           ),
                         ),
                       ),
@@ -685,21 +688,20 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
   Future<void> _handleActivityRegionLocationFailure(
     LocationFailure failure,
   ) async {
+    final l10n = context.l10n;
     switch (failure.type) {
       case LocationFailureType.serviceDisabled:
         await showMateyaLocationSettingsDialog(
           context,
-          title: '위치 서비스가 꺼져 있어요',
-          message:
-              '현재 위치로 활동 지역을 변경하려면 기기 위치 서비스를 켜야 합니다. 켜지 않아도 직접 입력으로 계속 진행할 수 있습니다.',
+          title: l10n.locationServiceDisabledTitle,
+          message: l10n.mypageLocationServiceDisabledMessage,
         );
         break;
       case LocationFailureType.permissionPermanentlyDenied:
         await showMateyaAppSettingsDialog(
           context,
-          title: '위치 권한이 꺼져 있어요',
-          message:
-              '현재 위치 자동 인증을 사용하려면 앱 설정에서 위치 권한을 허용해야 합니다. 권한을 허용하지 않아도 직접 입력은 계속할 수 있습니다.',
+          title: l10n.locationPermissionDisabledTitle,
+          message: l10n.mypageLocationPermissionDisabledMessage,
         );
         break;
       case LocationFailureType.permissionDenied ||
@@ -725,6 +727,16 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
   }
 }
 
-String _profileImageRestoredCountMessage(int restoredCount) {
-  return '이전에 선택하던 프로필 이미지 $restoredCount장을 복구했어요.';
+MateyaGalleryPickerMessages _buildProfileImagePickerMessages(
+  BuildContext context,
+) {
+  final l10n = context.l10n;
+  return MateyaGalleryPickerMessages(
+    noticeMessage: l10n.mypageProfileImageNotice,
+    recoveryMessage: l10n.mypageProfileImageRecovery,
+    failureMessage: l10n.mypageProfileImageFailure,
+    restoreFallbackErrorMessage: l10n.mypageProfileImageRestoreFallback,
+    restoredCountMessage: (restoredCount) =>
+        l10n.mypageProfileImageRestoredCount(restoredCount),
+  );
 }

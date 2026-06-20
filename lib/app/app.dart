@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../shared/auth/auth_session.dart';
+import '../shared/localization/app_locale_controller.dart';
+import '../shared/localization/mateya_localizations.dart';
 import '../shared/logging/app_logger.dart';
 import '../shared/network/mateya_api_client.dart';
 import '../features/home/presentation/screens/home_flow_page.dart';
@@ -21,6 +23,7 @@ class MateyaApp extends StatefulWidget {
 
 class _MateyaAppState extends State<MateyaApp> with WidgetsBindingObserver {
   final AppLogger _logger = AppLogger.instance;
+  final AppLocaleController _localeController = AppLocaleController.instance;
   late final MateyaApiClient _apiClient;
   FlowKind? _initialFlowKind;
   bool _isResolvingInitialRoute = true;
@@ -128,26 +131,34 @@ class _MateyaAppState extends State<MateyaApp> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     final session = AuthSessionStore.instance.session;
-    return MaterialApp(
-      title: 'MateYa',
-      debugShowCheckedModeBanner: false,
-      theme: buildMateyaTheme(),
-      home: _isResolvingInitialRoute
-          ? const _AppBootstrapLoadingView()
-          : session != null
-          ? HomeFlowPage(flowKind: _initialFlowKind ?? FlowKind.guest)
-          : OnboardingFlowPage(
-              controller: OnboardingController(
-                locationRepository: DeviceNeighborhoodLocationRepository(),
-                authRepository: ApiOnboardingAuthRepository(
-                  apiClient: MateyaApiClient(
-                    baseUrl: AppConfig.apiBaseUrl,
-                    sessionStore: AuthSessionStore.instance,
+    return AnimatedBuilder(
+      animation: _localeController,
+      builder: (context, _) {
+        return MaterialApp(
+          onGenerateTitle: (context) => context.l10n.appTitle,
+          debugShowCheckedModeBanner: false,
+          theme: buildMateyaTheme(),
+          locale: _localeController.locale,
+          supportedLocales: MateyaLocalizations.supportedLocales,
+          localizationsDelegates: MateyaLocalizations.delegates,
+          home: _isResolvingInitialRoute
+              ? const _AppBootstrapLoadingView()
+              : session != null
+              ? HomeFlowPage(flowKind: _initialFlowKind ?? FlowKind.guest)
+              : OnboardingFlowPage(
+                  controller: OnboardingController(
+                    locationRepository: DeviceNeighborhoodLocationRepository(),
+                    authRepository: ApiOnboardingAuthRepository(
+                      apiClient: MateyaApiClient(
+                        baseUrl: AppConfig.apiBaseUrl,
+                        sessionStore: AuthSessionStore.instance,
+                      ),
+                    ),
+                    authSessionStore: AuthSessionStore.instance,
                   ),
                 ),
-                authSessionStore: AuthSessionStore.instance,
-              ),
-            ),
+        );
+      },
     );
   }
 }

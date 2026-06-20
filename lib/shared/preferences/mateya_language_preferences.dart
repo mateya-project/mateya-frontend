@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MateyaLanguagePreferences {
@@ -12,6 +13,8 @@ class MateyaLanguagePreferences {
   String _cachedLanguageCode = _defaultLanguageCode;
 
   String get currentCodeOrDefault => _cachedLanguageCode;
+
+  Locale get currentLocaleOrDefault => localeFromCode(_cachedLanguageCode);
 
   Future<String> currentCode() async {
     final preferences = await SharedPreferences.getInstance();
@@ -29,24 +32,63 @@ class MateyaLanguagePreferences {
     await preferences.setString(_storageKey, normalized);
   }
 
-  String get primaryLanguageCode =>
-      _normalizeProfileLanguageCode(_cachedLanguageCode);
+  Future<Locale> currentLocale() async {
+    final code = await currentCode();
+    return localeFromCode(code);
+  }
 
-  String get primaryCountryCode => switch (primaryLanguageCode) {
-    'ko' => 'KR',
-    'en' => 'US',
-    'zh' => 'CN',
-    'ja' => 'JP',
-    _ => 'KR',
-  };
+  String get primaryLanguageCode =>
+      primaryLanguageCodeFromCode(_cachedLanguageCode);
+
+  String get primaryCountryCode =>
+      primaryCountryCodeFromCode(_cachedLanguageCode);
 
   static bool _isSupportedLanguageCode(String? code) {
     return code == 'ko' || code == 'en' || code == 'zh-Hans' || code == 'ja';
   }
 
+  static List<Locale> get supportedLocales => const <Locale>[
+    Locale('ko'),
+    Locale('en'),
+    Locale('ja'),
+    Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans'),
+  ];
+
+  static Locale localeFromCode(String code) {
+    return switch (_normalizeDialogLanguageCode(code)) {
+      'en' => const Locale('en'),
+      'ja' => const Locale('ja'),
+      'zh-Hans' => const Locale.fromSubtags(
+        languageCode: 'zh',
+        scriptCode: 'Hans',
+      ),
+      _ => const Locale('ko'),
+    };
+  }
+
+  static String codeFromLocale(Locale locale) {
+    final languageCode = locale.languageCode.toLowerCase();
+    final scriptCode = locale.scriptCode?.toLowerCase();
+    if (languageCode == 'zh' && scriptCode == 'hans') {
+      return 'zh-Hans';
+    }
+    return _normalizeDialogLanguageCode(languageCode);
+  }
+
   static String _normalizeDialogLanguageCode(String code) {
-    if (_isSupportedLanguageCode(code)) {
-      return code;
+    final trimmed = code.trim();
+    if (_isSupportedLanguageCode(trimmed)) {
+      return trimmed;
+    }
+    if (trimmed.toLowerCase() == 'zh') {
+      return 'zh-Hans';
+    }
+    if (trimmed.toLowerCase() == 'zh-hans') {
+      return 'zh-Hans';
+    }
+    final lowerCased = trimmed.toLowerCase();
+    if (_isSupportedLanguageCode(lowerCased)) {
+      return lowerCased;
     }
     return _defaultLanguageCode;
   }
@@ -59,6 +101,20 @@ class MateyaLanguagePreferences {
     return switch (normalized) {
       'ko' || 'en' || 'ja' => normalized,
       _ => 'ko',
+    };
+  }
+
+  static String primaryLanguageCodeFromCode(String code) {
+    return _normalizeProfileLanguageCode(code);
+  }
+
+  static String primaryCountryCodeFromCode(String code) {
+    return switch (primaryLanguageCodeFromCode(code)) {
+      'ko' => 'KR',
+      'en' => 'US',
+      'zh' => 'CN',
+      'ja' => 'JP',
+      _ => 'KR',
     };
   }
 }

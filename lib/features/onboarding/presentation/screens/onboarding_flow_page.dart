@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../shared/localization/mateya_localizations.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../application/onboarding_controller.dart';
 import '../../domain/onboarding_flow.dart';
@@ -80,6 +81,7 @@ class _OnboardingFlowPageState extends State<OnboardingFlowPage> {
   }
 
   Widget _buildStep(BuildContext context, OnboardingController controller) {
+    final l10n = context.l10n;
     return switch (controller.step) {
       OnboardingStep.welcome => WelcomeStepView(
         key: const ValueKey<String>('welcome'),
@@ -88,7 +90,7 @@ class _OnboardingFlowPageState extends State<OnboardingFlowPage> {
       ),
       OnboardingStep.guestConsent => ConsentOverlayStepView(
         key: const ValueKey<String>('guest-consent'),
-        title: '이름을 입력해 주세요',
+        title: l10n.onboardingEnterName,
         onBack: controller.goBack,
         agreementState: controller.agreementState,
         onToggleAll: controller.toggleAllAgreements,
@@ -122,7 +124,7 @@ class _OnboardingFlowPageState extends State<OnboardingFlowPage> {
       ),
       OnboardingStep.hostConsent => ConsentOverlayStepView(
         key: const ValueKey<String>('host-consent'),
-        title: '상호명을 입력해 주세요',
+        title: l10n.onboardingEnterBusinessName,
         onBack: controller.goBack,
         agreementState: controller.agreementState,
         onToggleAll: controller.toggleAllAgreements,
@@ -134,12 +136,12 @@ class _OnboardingFlowPageState extends State<OnboardingFlowPage> {
         onNext: controller.confirmConsent,
         canProceed: controller.isConsentComplete,
         previewChild: Column(
-          children: const <Widget>[
-            SinglePreviewField(hintText: 'NICE 평가 정보'),
+          children: <Widget>[
+            SinglePreviewField(hintText: l10n.onboardingBusinessNameHint),
             SizedBox(height: 58),
-            BusinessNumberPreview(),
+            const BusinessNumberPreview(),
             SizedBox(height: 58),
-            SinglePreviewField(hintText: '홍길동'),
+            SinglePreviewField(hintText: l10n.onboardingBusinessOwnerHint),
           ],
         ),
       ),

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 
 import '../../../shared/activity_categories/activity_category_repository.dart';
+import '../../../shared/localization/mateya_localizations.dart';
 import '../../onboarding/domain/onboarding_flow.dart';
 import '../data/home_repository.dart';
 import '../domain/home_models.dart';
@@ -22,11 +23,6 @@ class HomeController extends ChangeNotifier {
   final FlowKind? _flowKind;
   final ExploreFilter _defaultFilter;
   final Duration searchDebounceDuration;
-  static const ActivityCategory _allCategory = ActivityCategory(
-    id: 'all',
-    label: '전체',
-    isAll: true,
-  );
 
   AsyncPhase _homePhase = AsyncPhase.idle;
   AsyncPhase _explorePhase = AsyncPhase.idle;
@@ -73,7 +69,11 @@ class HomeController extends ChangeNotifier {
   List<ActivityItem> get exploreActivities => _exploreActivities;
   List<ActivityItem> get favoriteActivities => _favoriteActivities;
   List<ActivityCategory> get availableCategories => <ActivityCategory>[
-    _allCategory,
+    ActivityCategory(
+      id: 'all',
+      label: MateyaLocalizations.current.commonAll,
+      isAll: true,
+    ),
     ..._categoryMetadata
         .where((category) => category.active)
         .map(
@@ -182,26 +182,27 @@ class HomeController extends ChangeNotifier {
   }
 
   String? validateFilterDraft(ExploreFilter draft) {
+    final l10n = MateyaLocalizations.current;
     if (draft.categoryIds.isEmpty) {
-      return '카테고리를 1개 이상 선택해 주세요.';
+      return l10n.homeSelectAtLeastOneCategory;
     }
     if (draft.languages.isEmpty) {
-      return '언어를 1개 이상 선택해 주세요.';
+      return l10n.homeSelectAtLeastOneLanguage;
     }
     if (draft.languages.any(
       (code) => !kSupportedExploreLanguageCodes.contains(code),
     )) {
-      return '둘러보기 언어 필터는 한국어, 영어, 중국어, 일본어만 지원합니다.';
+      return l10n.homeUnsupportedExploreLanguageFilter;
     }
     if (draft.endDate != null &&
         draft.startDate != null &&
         draft.endDate!.isBefore(draft.startDate!)) {
-      return '종료일은 시작일보다 빠를 수 없어요.';
+      return l10n.homeEndDateBeforeStartDateError;
     }
     if (draft.minPrice != null &&
         draft.maxPrice != null &&
         draft.maxPrice! < draft.minPrice!) {
-      return '최대 금액은 최소 금액보다 크거나 같아야 해요.';
+      return l10n.homeMaxPriceLessThanMinPriceError;
     }
     return null;
   }
@@ -238,6 +239,7 @@ class HomeController extends ChangeNotifier {
   }
 
   Future<void> refreshExplore() async {
+    final l10n = MateyaLocalizations.current;
     final validationMessage = validateFilterDraft(_filter);
     if (validationMessage != null) {
       _explorePhase = AsyncPhase.validationError;
@@ -281,21 +283,22 @@ class HomeController extends ChangeNotifier {
           ? AsyncPhase.networkError
           : AsyncPhase.serverError;
       _exploreErrorMessage = error.type == HomeLoadFailureType.network
-          ? '네트워크 연결을 확인한 뒤 다시 시도해 주세요.'
-          : '서버 응답이 지연되고 있어요. 잠시 후 다시 시도해 주세요.';
+          ? l10n.commonNetworkRetry
+          : l10n.homeExploreError;
     } catch (_) {
       if (requestVersion != _exploreRequestVersion) {
         return;
       }
 
       _explorePhase = AsyncPhase.serverError;
-      _exploreErrorMessage = '결과를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.';
+      _exploreErrorMessage = l10n.homeExploreError;
     }
 
     notifyListeners();
   }
 
   Future<void> loadMoreExplore() async {
+    final l10n = MateyaLocalizations.current;
     if (_explorePhase != AsyncPhase.success ||
         !_hasNextExplore ||
         _isLoadingMoreExplore ||
@@ -337,23 +340,23 @@ class HomeController extends ChangeNotifier {
 
       _isLoadingMoreExplore = false;
       _exploreLoadMoreErrorMessage = error.type == HomeLoadFailureType.network
-          ? '추가 결과를 불러오지 못했어요. 네트워크를 확인해 주세요.'
-          : '추가 결과를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.';
+          ? l10n.homeExploreLoadMoreFailedNetwork
+          : l10n.homeExploreLoadMoreFailedServer;
     } catch (_) {
       if (requestVersion != _exploreRequestVersion) {
         return;
       }
 
       _isLoadingMoreExplore = false;
-      _exploreLoadMoreErrorMessage = '추가 결과를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.';
+      _exploreLoadMoreErrorMessage = l10n.homeExploreLoadMoreFailedServer;
     }
 
     notifyListeners();
   }
 
   String get plusActionLabel => switch (_flowKind) {
-    FlowKind.host => '클래스 등록',
-    FlowKind.guest || null => '모임 생성',
+    FlowKind.host => MateyaLocalizations.current.homeCreateClass,
+    FlowKind.guest || null => MateyaLocalizations.current.homeCreateGroup,
   };
 
   List<ActivityItem> get homePopularActivities {
@@ -372,6 +375,7 @@ class HomeController extends ChangeNotifier {
   }
 
   Future<void> _loadHomeActivities() async {
+    final l10n = MateyaLocalizations.current;
     _homePhase = AsyncPhase.loading;
     _homeErrorMessage = null;
     notifyListeners();
@@ -385,17 +389,18 @@ class HomeController extends ChangeNotifier {
           ? AsyncPhase.networkError
           : AsyncPhase.serverError;
       _homeErrorMessage = error.type == HomeLoadFailureType.network
-          ? '네트워크 연결을 확인한 뒤 다시 시도해 주세요.'
-          : '서버 응답이 지연되고 있어요. 잠시 후 다시 시도해 주세요.';
+          ? l10n.commonNetworkRetry
+          : l10n.homeLoadError;
     } catch (_) {
       _homePhase = AsyncPhase.serverError;
-      _homeErrorMessage = '데이터를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.';
+      _homeErrorMessage = l10n.homeLoadError;
     }
 
     notifyListeners();
   }
 
   Future<void> _loadFavoriteActivities() async {
+    final l10n = MateyaLocalizations.current;
     _favoritePhase = AsyncPhase.loading;
     _favoriteErrorMessage = null;
     notifyListeners();
@@ -410,11 +415,11 @@ class HomeController extends ChangeNotifier {
           ? AsyncPhase.networkError
           : AsyncPhase.serverError;
       _favoriteErrorMessage = error.type == HomeLoadFailureType.network
-          ? '네트워크 연결을 확인한 뒤 다시 시도해 주세요.'
-          : '즐겨찾기 목록을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.';
+          ? l10n.commonNetworkRetry
+          : l10n.homeFavoritesLoadError;
     } catch (_) {
       _favoritePhase = AsyncPhase.serverError;
-      _favoriteErrorMessage = '즐겨찾기 목록을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.';
+      _favoriteErrorMessage = l10n.homeFavoritesLoadError;
     }
 
     notifyListeners();

@@ -7,6 +7,7 @@ import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'app/app.dart';
 import 'app/app_config.dart';
 import 'shared/auth/auth_session.dart';
+import 'shared/localization/app_locale_controller.dart';
 import 'shared/logging/app_logger.dart';
 
 Future<void> main() async {
@@ -26,6 +27,7 @@ Future<void> main() async {
   await runZonedGuarded(
     () async {
       await AuthSessionStore.instance.initialize();
+      await AppLocaleController.instance.initialize();
       logger.info(
         'App bootstrap started',
         context: <String, Object?>{

@@ -106,7 +106,7 @@ class MockActivityDetailRepository implements ActivityDetailRepository {
     await Future<void>.delayed(const Duration(milliseconds: 180));
     return ActivityReview(
       id: 'review-${DateTime.now().microsecondsSinceEpoch}',
-      authorName: '나',
+      authorName: MateyaLocalizations.current.detailsMe,
       submittedAt: DateTime.now(),
       rating: rating,
       originalText: body.trim(),

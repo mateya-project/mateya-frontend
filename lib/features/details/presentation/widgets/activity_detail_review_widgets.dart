@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../shared/localization/mateya_localizations.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../domain/activity_detail_models.dart';
 import 'activity_detail_formatters.dart';
@@ -12,6 +13,7 @@ class RatingSummaryPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return SectionCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -34,7 +36,7 @@ class RatingSummaryPanel extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            '전체 ${summary.totalCount}개 후기',
+            l10n.detailsReviewRatingSummary(summary.totalCount),
             style: Theme.of(context).textTheme.bodySmall,
           ),
           const SizedBox(height: 22),
@@ -95,6 +97,7 @@ class ReviewCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -148,7 +151,7 @@ class ReviewCard extends StatelessWidget {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          '${review.rating}점',
+                          l10n.detailsReviewRating(review.rating),
                           style: Theme.of(context).textTheme.bodyMedium,
                         ),
                       ],
@@ -211,7 +214,7 @@ class ReviewCard extends StatelessWidget {
           Row(
             children: <Widget>[
               Text(
-                '${review.helpfulCount}명에게 도움이 됨',
+                l10n.detailsReviewHelpfulCount(review.helpfulCount),
                 style: Theme.of(
                   context,
                 ).textTheme.bodyMedium?.copyWith(color: AppColors.brandGreen),
@@ -226,7 +229,11 @@ class ReviewCard extends StatelessWidget {
                     minimumSize: Size.zero,
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
-                  child: Text(review.isTranslationVisible ? '원문 보기' : '번역 보기'),
+                  child: Text(
+                    review.isTranslationVisible
+                        ? l10n.detailsReviewViewOriginal
+                        : l10n.detailsReviewViewTranslation,
+                  ),
                 ),
             ],
           ),
@@ -250,6 +257,7 @@ class ReviewImageTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Stack(
       children: <Widget>[
         ClipRRect(
@@ -270,7 +278,7 @@ class ReviewImageTile extends StatelessWidget {
               borderRadius: BorderRadius.circular(999),
             ),
             child: Text(
-              index == 0 ? '대표' : '${index + 1}',
+              index == 0 ? l10n.detailsRepresentativeImage : '${index + 1}',
               style: Theme.of(
                 context,
               ).textTheme.bodySmall?.copyWith(color: Colors.white),

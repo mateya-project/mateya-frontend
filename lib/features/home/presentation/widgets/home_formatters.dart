@@ -1,49 +1,38 @@
+import 'package:intl/intl.dart';
+
+import '../../../../shared/localization/mateya_localizations.dart';
 import '../../../../shared/time/korean_time.dart';
 
 String formatPrice(int price) {
+  final l10n = MateyaLocalizations.current;
   if (price == 0) {
-    return 'FREE';
+    return l10n.commonFree;
   }
-  final digits = price.toString();
-  final buffer = StringBuffer('₩ ');
-  for (var index = 0; index < digits.length; index += 1) {
-    final reverseIndex = digits.length - index;
-    buffer.write(digits[index]);
-    if (reverseIndex > 1 && reverseIndex % 3 == 1) {
-      buffer.write(',');
-    }
-  }
-  return buffer.toString();
+  final locale = MateyaLocalizations.locale.toLanguageTag();
+  return NumberFormat.currency(
+    locale: locale,
+    symbol: '₩ ',
+    decimalDigits: 0,
+  ).format(price);
 }
 
 String formatShortDate(DateTime dateTime) {
-  const months = <String>[
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'May',
-    'Jun',
-    'Jul',
-    'Aug',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dec',
-  ];
-  return '${months[dateTime.month - 1]} ${dateTime.day}';
+  return DateFormat.MMMd(
+    MateyaLocalizations.locale.toLanguageTag(),
+  ).format(dateTime);
 }
 
 String formatMonthDay(DateTime dateTime) => formatShortDate(dateTime);
 
 String formatRelativeDate(DateTime dateTime) {
+  final l10n = MateyaLocalizations.current;
   final now = mateyaNowInKst();
   final target = DateTime(dateTime.year, dateTime.month, dateTime.day);
   final normalizedNow = DateTime(now.year, now.month, now.day);
   final difference = target.difference(normalizedNow).inDays;
   return switch (difference) {
-    0 => '오늘',
-    1 => '내일',
+    0 => l10n.commonToday,
+    1 => l10n.commonTomorrow,
     _ => formatMonthDay(dateTime),
   };
 }
@@ -53,10 +42,9 @@ String formatTimeRange(DateTime start, DateTime end) {
 }
 
 String formatKoreanTime(DateTime dateTime) {
-  final period = dateTime.hour >= 12 ? '오후' : '오전';
-  final hour = dateTime.hour % 12 == 0 ? 12 : dateTime.hour % 12;
-  final minute = dateTime.minute.toString().padLeft(2, '0');
-  return '$period $hour:$minute';
+  return DateFormat.jm(
+    MateyaLocalizations.locale.toLanguageTag(),
+  ).format(dateTime);
 }
 
 String formatIsoDate(DateTime dateTime) {

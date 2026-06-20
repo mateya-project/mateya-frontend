@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../../shared/localization/mateya_localizations.dart';
 import '../../../../shared/media/image_picker_lost_data.dart';
 import '../../../../shared/permissions/mateya_permission_dialogs.dart';
 import '../../../../shared/report/report_repository.dart';
@@ -205,12 +206,13 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
   }
 
   Future<void> _restoreLostAttachments() async {
+    final l10n = context.l10n;
     if (!await _consumePendingAttachmentRecoveryFlag()) {
       return;
     }
     final recovery = await recoverLostImagePickerData(
       _imagePicker.retrieveLostData,
-      fallbackErrorMessage: '이전에 선택하던 사진을 복구하지 못했어요. 다시 선택해 주세요.',
+      fallbackErrorMessage: l10n.chatAttachmentRecoveryFailed,
     );
     if (!mounted || recovery.isEmpty) {
       return;
@@ -234,6 +236,7 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (context) {
+        final l10n = context.l10n;
         final theme = Theme.of(context);
         return SafeArea(
           top: false,
@@ -259,10 +262,13 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
                   ),
                 ),
                 const SizedBox(height: 18),
-                Text('사진 첨부', style: theme.textTheme.titleLarge),
+                Text(
+                  l10n.chatAttachmentSheetTitle,
+                  style: theme.textTheme.titleLarge,
+                ),
                 const SizedBox(height: 8),
                 Text(
-                  '앨범에서 여러 장을 고르거나 카메라로 바로 촬영해 보낼 수 있어요.',
+                  l10n.chatAttachmentSheetDescription,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: AppColors.textSecondary,
                   ),
@@ -270,16 +276,16 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
                 const SizedBox(height: 18),
                 AttachmentActionTile(
                   icon: Icons.photo_library_outlined,
-                  title: '앨범에서 선택',
-                  subtitle: '여러 장을 한 번에 고를 수 있습니다.',
+                  title: l10n.chatAttachmentGalleryTitle,
+                  subtitle: l10n.chatAttachmentGallerySubtitle,
                   onTap: () =>
                       Navigator.of(context).pop(_AttachmentAction.gallery),
                 ),
                 const SizedBox(height: 12),
                 AttachmentActionTile(
                   icon: Icons.photo_camera_outlined,
-                  title: '카메라로 촬영',
-                  subtitle: '사진 1장을 바로 찍어 첨부합니다.',
+                  title: l10n.chatAttachmentCameraTitle,
+                  subtitle: l10n.chatAttachmentCameraSubtitle,
                   onTap: () =>
                       Navigator.of(context).pop(_AttachmentAction.camera),
                 ),
@@ -291,12 +297,16 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
                     color: AppColors.appSurface,
                     borderRadius: BorderRadius.circular(18),
                   ),
-                  child: const Column(
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                      GuideRow(text: '허용 형식: JPG, PNG, WEBP, GIF, HEIC, HEIF'),
-                      GuideRow(text: '최대 크기: 10MB'),
-                      GuideRow(text: '메시지당 최대 10장'),
+                      GuideRow(text: l10n.chatAttachmentGuideFormats),
+                      GuideRow(text: l10n.chatAttachmentGuideMaxSize),
+                      GuideRow(
+                        text: l10n.chatAttachmentGuideMaxCount(
+                          _maxAttachmentCount,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -313,12 +323,16 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
 
     final shouldContinue = await showMateyaPermissionNoticeDialog(
       context,
-      title: action == _AttachmentAction.gallery ? '사진 권한 안내' : '카메라 권한 안내',
+      title: action == _AttachmentAction.gallery
+          ? context.l10n.chatAttachmentPhotoPermissionTitle
+          : context.l10n.chatAttachmentCameraPermissionTitle,
       message: action == _AttachmentAction.gallery
-          ? '채팅에서 사진을 첨부하려면 사진 보관함 접근 권한이 필요합니다. 권한을 거부하셔도 텍스트 채팅은 계속 이용할 수 있습니다.'
-          : '채팅에서 사진을 바로 촬영해 보내려면 카메라 권한이 필요합니다. 권한을 거부하셔도 텍스트 채팅은 계속 이용할 수 있습니다.',
-      confirmLabel: action == _AttachmentAction.gallery ? '사진 선택하기' : '카메라 열기',
-      cancelLabel: '나중에',
+          ? context.l10n.chatAttachmentPhotoPermissionMessage
+          : context.l10n.chatAttachmentCameraPermissionMessage,
+      confirmLabel: action == _AttachmentAction.gallery
+          ? context.l10n.chatAttachmentPhotoSelect
+          : context.l10n.chatAttachmentOpenCamera,
+      cancelLabel: context.l10n.commonLater,
       rememberKey: action == _AttachmentAction.gallery
           ? 'permission.notice.photo_library'
           : 'permission.notice.camera',
@@ -369,12 +383,12 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
         final actionResult = await showMateyaPermissionRecoveryDialog(
           context,
           title: error.code == 'camera_access_denied'
-              ? '카메라 권한이 필요해요'
-              : '사진 권한이 필요해요',
+              ? context.l10n.chatAttachmentCameraRecoveryTitle
+              : context.l10n.chatAttachmentPhotoRecoveryTitle,
           message: error.code == 'camera_access_denied'
-              ? '사진 촬영 첨부를 사용하려면 카메라 권한이 필요합니다. 권한이 없어도 텍스트 채팅은 계속할 수 있고, 다시 시도하거나 앱 설정에서 권한을 허용할 수 있습니다.'
-              : '사진 첨부를 사용하려면 사진 보관함 접근 권한이 필요합니다. 권한이 없어도 텍스트 채팅은 계속할 수 있고, 다시 시도하거나 앱 설정에서 권한을 허용할 수 있습니다.',
-          retryLabel: '다시 시도',
+              ? context.l10n.chatAttachmentCameraRecoveryMessage
+              : context.l10n.chatAttachmentPhotoRecoveryMessage,
+          retryLabel: context.l10n.commonRetry,
         );
         if (!mounted) {
           return;
@@ -387,7 +401,7 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
       if (!mounted) {
         return;
       }
-      _showPendingMessage('사진을 불러오지 못했어요. 권한과 파일 상태를 확인해 주세요.');
+      _showPendingMessage(context.l10n.chatAttachmentLoadFailed);
     } finally {
       await _clearPendingAttachmentRecovery();
     }
@@ -417,6 +431,7 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
     List<XFile> pickedFiles, {
     required ChatAttachmentSource source,
   }) async {
+    final l10n = context.l10n;
     final attachments = <ChatAttachment>[];
     var rejectedTypeCount = 0;
     var rejectedSizeCount = 0;
@@ -456,16 +471,24 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
     if (attachments.isNotEmpty &&
         rejectedTypeCount == 0 &&
         rejectedSizeCount == 0) {
-      _showPendingMessage('사진 ${attachments.length - overflowCount}장을 첨부했어요.');
+      _showPendingMessage(
+        l10n.chatAttachmentAddedCount(attachments.length - overflowCount),
+      );
     }
     if (rejectedTypeCount > 0) {
-      _showPendingMessage('지원하지 않는 형식의 사진 $rejectedTypeCount장은 제외했어요.');
+      _showPendingMessage(
+        l10n.chatAttachmentRejectedTypeCount(rejectedTypeCount),
+      );
     }
     if (rejectedSizeCount > 0) {
-      _showPendingMessage('10MB를 초과한 사진 $rejectedSizeCount장은 제외했어요.');
+      _showPendingMessage(
+        l10n.chatAttachmentRejectedSizeCount(rejectedSizeCount),
+      );
     }
     if (overflowCount > 0) {
-      _showPendingMessage('사진은 최대 $_maxAttachmentCount장까지 첨부할 수 있어요.');
+      _showPendingMessage(
+        l10n.chatAttachmentOverflowCount(_maxAttachmentCount),
+      );
     }
   }
 
@@ -539,7 +562,9 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
     return switch (widget.controller.listPhase) {
       AsyncPhase.idle || AsyncPhase.loading => const ChatListSkeleton(),
       AsyncPhase.networkError || AsyncPhase.serverError => ChatRetryState(
-        message: widget.controller.listErrorMessage ?? '채팅 목록을 불러오지 못했어요.',
+        message:
+            widget.controller.listErrorMessage ??
+            context.l10n.chatListLoadError,
         onRetry: widget.controller.retryRooms,
       ),
       AsyncPhase.success ||
@@ -550,9 +575,9 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
   Widget _buildRoomList(BuildContext context) {
     final rooms = widget.controller.visibleRooms;
     if (rooms.isEmpty) {
-      return const ChatEmptyState(
-        title: '표시할 채팅방이 없어요.',
-        message: '필터를 바꾸거나 새로운 대화를 시작해 보세요.',
+      return ChatEmptyState(
+        title: context.l10n.chatListEmptyTitle,
+        message: context.l10n.chatListEmptyBody,
       );
     }
 
@@ -573,7 +598,7 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
                   : Text(
-                      '스크롤하면 채팅방을 더 불러옵니다.',
+                      context.l10n.chatListLoadMoreHint,
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
             ),
@@ -592,9 +617,9 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
     final room = widget.controller.currentRoom;
     if (room == null) {
       return ChatRetryState(
-        message: '채팅방 정보를 찾을 수 없어요.',
+        message: context.l10n.chatRoomMissing,
         onRetry: widget.controller.closeRoom,
-        retryLabel: '목록으로',
+        retryLabel: context.l10n.chatBackToList,
       );
     }
 
@@ -626,7 +651,9 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
     return switch (widget.controller.roomPhase) {
       AsyncPhase.loading || AsyncPhase.idle => const ChatDetailSkeleton(),
       AsyncPhase.networkError || AsyncPhase.serverError => ChatRetryState(
-        message: widget.controller.roomErrorMessage ?? '채팅방을 불러오지 못했어요.',
+        message:
+            widget.controller.roomErrorMessage ??
+            context.l10n.chatRoomLoadError,
         onRetry: widget.controller.retryRoom,
       ),
       AsyncPhase.success || AsyncPhase.validationError => ListView(
@@ -645,7 +672,7 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
                     : Text(
-                        '위로 스크롤하면 이전 메시지를 더 불러옵니다.',
+                        context.l10n.chatOlderMessagesHint,
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
               ),

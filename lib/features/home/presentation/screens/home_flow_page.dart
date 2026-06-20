@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../shared/activity_categories/activity_category_repository.dart';
 import '../../../../shared/auth/auth_session.dart';
+import '../../../../shared/localization/mateya_localizations.dart';
 import '../../../../shared/navigation/mateya_auth_flow.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../../shared/widgets/mateya_bottom_navigation.dart';
@@ -102,7 +103,9 @@ class _HomeFlowPageState extends State<HomeFlowPage> {
           sessionUser?.activityLatitude != null &&
               sessionUser?.activityLongitude != null
           ? NeighborhoodSelection(
-              displayName: sessionUser?.activityRegionName ?? '활동 지역',
+              displayName:
+                  sessionUser?.activityRegionName ??
+                  MateyaLocalizations.current.homeActivityRegionFallback,
               latitude: sessionUser!.activityLatitude!,
               longitude: sessionUser.activityLongitude!,
             )

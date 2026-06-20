@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../../shared/auth/auth_session.dart';
+import '../../../../shared/localization/mateya_localizations.dart';
 import '../../../../shared/navigation/mateya_auth_flow.dart';
 import '../../../../shared/report/report_repository.dart';
 import '../../../../shared/theme/app_tokens.dart';
@@ -53,9 +54,9 @@ class _ActivityDetailPageState extends State<ActivityDetailPage> {
     if (!mounted) {
       return;
     }
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('공유 링크를 복사했어요. 원하는 메신저에 바로 붙여넣을 수 있습니다.')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(context.l10n.detailsShareCopied)));
   }
 
   Future<void> _handleFavoriteTap() async {
@@ -108,7 +109,7 @@ class _ActivityDetailPageState extends State<ActivityDetailPage> {
   Future<String?> _submitActivityReport(String body, List<XFile> images) async {
     final detail = widget.controller.detail;
     if (detail == null) {
-      return '활동 정보를 다시 불러온 뒤 신고해 주세요.';
+      return context.l10n.detailsReportActivityReload;
     }
 
     try {
@@ -179,6 +180,7 @@ class _ActivityDetailPageState extends State<ActivityDetailPage> {
     return AnimatedBuilder(
       animation: widget.controller,
       builder: (context, _) {
+        final l10n = context.l10n;
         final detail = widget.controller.detail;
         return Scaffold(
           backgroundColor: AppColors.background,
@@ -186,7 +188,7 @@ class _ActivityDetailPageState extends State<ActivityDetailPage> {
             AsyncPhase.loading || AsyncPhase.idle => const DetailLoadingState(),
             AsyncPhase.networkError ||
             AsyncPhase.serverError => DetailErrorState(
-              message: widget.controller.errorMessage ?? '활동 정보를 불러오지 못했어요.',
+              message: widget.controller.errorMessage ?? l10n.detailsLoadError,
               onRetry: widget.controller.retry,
             ),
             AsyncPhase.success || AsyncPhase.validationError =>
@@ -285,6 +287,7 @@ class ActivityParticipantRequestPage extends StatelessWidget {
     return AnimatedBuilder(
       animation: controller,
       builder: (context, _) {
+        final l10n = context.l10n;
         final detail = controller.detail!;
         final remaining =
             detail.activity.participantCapacity -
@@ -310,12 +313,16 @@ class ActivityParticipantRequestPage extends StatelessWidget {
                     Row(
                       children: <Widget>[
                         Text(
-                          '${detail.activity.participantCount}명 참여중',
+                          l10n.detailsParticipantsJoined(
+                            detail.activity.participantCount,
+                          ),
                           style: Theme.of(context).textTheme.titleLarge,
                         ),
                         const Spacer(),
                         Text(
-                          remaining > 0 ? '$remaining명 남았어요' : '모집 마감',
+                          remaining > 0
+                              ? l10n.detailsParticipantsRemaining(remaining)
+                              : l10n.detailsRecruitmentClosed,
                           style: Theme.of(context).textTheme.bodyMedium
                               ?.copyWith(color: AppColors.brandGreen),
                         ),
@@ -341,7 +348,7 @@ class ActivityParticipantRequestPage extends StatelessWidget {
               ),
               const SizedBox(height: 22),
               Text(
-                '참여 유저 목록',
+                l10n.detailsParticipantsListTitle,
                 style: Theme.of(context).textTheme.headlineMedium,
               ),
               const SizedBox(height: 14),
@@ -371,7 +378,7 @@ class ActivityParticipantRequestPage extends StatelessWidget {
                         return;
                       }
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('참여자를 삭제했어요.')),
+                        SnackBar(content: Text(l10n.detailsParticipantRemoved)),
                       );
                     } else {
                       controller.armParticipantRemoval(participant.id);
@@ -391,7 +398,7 @@ class ActivityParticipantRequestPage extends StatelessWidget {
                       return false;
                     }
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('참여자를 삭제했어요.')),
+                      SnackBar(content: Text(l10n.detailsParticipantRemoved)),
                     );
                     return true;
                   },
@@ -400,7 +407,7 @@ class ActivityParticipantRequestPage extends StatelessWidget {
               ],
               const SizedBox(height: 16),
               Text(
-                '신청 유저 목록',
+                l10n.detailsPendingParticipantsListTitle,
                 style: Theme.of(context).textTheme.headlineMedium,
               ),
               const SizedBox(height: 14),
@@ -437,9 +444,9 @@ class ActivityParticipantRequestPage extends StatelessWidget {
                       ).showSnackBar(SnackBar(content: Text(message)));
                       return false;
                     }
-                    ScaffoldMessenger.of(
-                      context,
-                    ).showSnackBar(const SnackBar(content: Text('신청을 취소했어요.')));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(l10n.detailsPendingCancelled)),
+                    );
                     return true;
                   },
                 ),
@@ -447,7 +454,7 @@ class ActivityParticipantRequestPage extends StatelessWidget {
               ],
               const SizedBox(height: 8),
               Text(
-                '슬라이드 해서 삭제하거나 취소할 수 있어요',
+                l10n.detailsParticipantSwipeHint,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: AppColors.textSecondary,
@@ -598,6 +605,7 @@ class _ActivityReviewListPageState extends State<ActivityReviewListPage> {
     return AnimatedBuilder(
       animation: widget.controller,
       builder: (context, _) {
+        final l10n = context.l10n;
         final detail = widget.controller.detail!;
         final summary = widget.controller.reviewSummary;
         final reviews = widget.controller.visibleReviews;
@@ -609,7 +617,7 @@ class _ActivityReviewListPageState extends State<ActivityReviewListPage> {
             child: Padding(
               padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
               child: MateyaButton(
-                label: '후기 작성하기',
+                label: l10n.detailsReviewComposerTitle,
                 onPressed: _openReviewComposer,
               ),
             ),
@@ -620,8 +628,9 @@ class _ActivityReviewListPageState extends State<ActivityReviewListPage> {
               children: <Widget>[
                 MateyaHeader.backArrow(
                   onBack: () => Navigator.of(context).pop(),
-                  onReportTap: () =>
-                      _openReportSheet('${detail.activity.title} 리뷰 목록'),
+                  onReportTap: () => _openReportSheet(
+                    l10n.detailsReviewListReportSubject(detail.activity.title),
+                  ),
                 ),
                 Expanded(
                   child: ListView(
@@ -698,7 +707,7 @@ class _ActivityReviewListPageState extends State<ActivityReviewListPage> {
                           padding: const EdgeInsets.only(top: 24),
                           child: Center(
                             child: Text(
-                              '스크롤하면 후기를 더 불러옵니다.',
+                              l10n.detailsReviewLoadMoreHint,
                               style: Theme.of(context).textTheme.bodySmall,
                             ),
                           ),

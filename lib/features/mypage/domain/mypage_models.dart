@@ -1,3 +1,5 @@
+import '../../../shared/localization/mateya_localizations.dart';
+
 enum MyPageAsyncPhase {
   idle,
   loading,
@@ -348,20 +350,26 @@ class MyPageRepositoryException implements Exception {
   final String? message;
 }
 
-const List<SelectionOption> kMyPageLanguageOptions = <SelectionOption>[
-  SelectionOption(code: 'ko', label: '한국어'),
-  SelectionOption(code: 'en', label: '영어'),
-  SelectionOption(code: 'ja', label: '일본어'),
-  SelectionOption(code: 'zh', label: '중국어'),
-];
+List<SelectionOption> get kMyPageLanguageOptions {
+  final l10n = MateyaLocalizations.current;
+  return <SelectionOption>[
+    SelectionOption(code: 'ko', label: l10n.languageKorean),
+    SelectionOption(code: 'en', label: l10n.languageEnglish),
+    SelectionOption(code: 'ja', label: l10n.languageJapanese),
+    SelectionOption(code: 'zh', label: l10n.languageChineseSimplified),
+  ];
+}
 
-const List<SelectionOption> kMyPageCountryOptions = <SelectionOption>[
-  SelectionOption(code: 'kr', label: '대한민국'),
-  SelectionOption(code: 'jp', label: '일본'),
-  SelectionOption(code: 'cn', label: '중국'),
-  SelectionOption(code: 'vn', label: '베트남'),
-  SelectionOption(code: 'us', label: '미국'),
-  SelectionOption(code: 'th', label: '태국'),
-];
+List<SelectionOption> get kMyPageCountryOptions {
+  final l10n = MateyaLocalizations.current;
+  return <SelectionOption>[
+    SelectionOption(code: 'kr', label: l10n.countryKorea),
+    SelectionOption(code: 'jp', label: l10n.countryJapan),
+    SelectionOption(code: 'cn', label: l10n.countryChina),
+    SelectionOption(code: 'vn', label: l10n.countryVietnam),
+    SelectionOption(code: 'us', label: l10n.countryUnitedStates),
+    SelectionOption(code: 'th', label: l10n.countryThailand),
+  ];
+}
 
 const Object _sentinel = Object();

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../shared/localization/mateya_localizations.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../../shared/widgets/mateya_skeleton.dart';
 
@@ -8,12 +9,12 @@ class ChatRetryState extends StatelessWidget {
     super.key,
     required this.message,
     required this.onRetry,
-    this.retryLabel = '다시 시도',
+    this.retryLabel,
   });
 
   final String message;
   final VoidCallback onRetry;
-  final String retryLabel;
+  final String? retryLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +46,7 @@ class ChatRetryState extends StatelessWidget {
                 backgroundColor: AppColors.brandGreen,
                 foregroundColor: Colors.white,
               ),
-              child: Text(retryLabel),
+              child: Text(retryLabel ?? context.l10n.commonRetry),
             ),
           ],
         ),
@@ -143,15 +144,10 @@ class ChatListSkeleton extends StatelessWidget {
 class ChatListGuidance extends StatelessWidget {
   const ChatListGuidance({super.key});
 
-  static const String _message =
-      '활동에 참여하면 자동으로 단체채팅방에 가입됩니다.\n'
-      '개인 채팅은 친구인 유저와 자동으로 생성됩니다.\n'
-      '친구가 아닌 유저와는 채팅할 수 없습니다.';
-
   @override
   Widget build(BuildContext context) {
     return Text(
-      _message,
+      context.l10n.chatListGuidance,
       textAlign: TextAlign.center,
       style: Theme.of(context).textTheme.bodySmall?.copyWith(
         color: AppColors.textMuted,

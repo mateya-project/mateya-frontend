@@ -4,6 +4,7 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../app/app_config.dart';
 import '../auth/auth_session.dart';
+import '../localization/mateya_localizations.dart';
 import '../network/http_transport.dart';
 import '../network/mateya_api_client.dart';
 
@@ -48,7 +49,9 @@ class ReportRepository {
   }) async {
     final trimmedReason = reason.trim();
     if (trimmedReason.isEmpty) {
-      throw const ReportRepositoryException('신고 사유를 입력해 주세요.');
+      throw ReportRepositoryException(
+        MateyaLocalizations.current.reportReasonRequired,
+      );
     }
 
     try {
@@ -94,8 +97,8 @@ class ReportRepository {
         : image.name;
     final contentType = _contentTypeFor(fileName);
     if (contentType == null) {
-      throw const ReportRepositoryException(
-        'JPG, PNG, WEBP, GIF 형식의 신고 이미지만 업로드할 수 있어요.',
+      throw ReportRepositoryException(
+        MateyaLocalizations.current.reportImageInvalidFormat,
       );
     }
 
@@ -117,8 +120,8 @@ class ReportRepository {
     final uploadUrl = presignedJson['uploadUrl'] as String?;
     final objectKey = presignedJson['objectKey'] as String?;
     if (uploadUrl == null || objectKey == null) {
-      throw const ReportRepositoryException(
-        '신고 이미지를 업로드하지 못했어요. 잠시 후 다시 시도해 주세요.',
+      throw ReportRepositoryException(
+        MateyaLocalizations.current.reportImageUploadError,
       );
     }
 
@@ -133,8 +136,8 @@ class ReportRepository {
       bodyBytes: fileBytes,
     );
     if (uploadResponse.statusCode < 200 || uploadResponse.statusCode >= 300) {
-      throw const ReportRepositoryException(
-        '신고 이미지를 업로드하지 못했어요. 잠시 후 다시 시도해 주세요.',
+      throw ReportRepositoryException(
+        MateyaLocalizations.current.reportImageUploadError,
       );
     }
 
@@ -146,8 +149,8 @@ class ReportRepository {
     final confirmedJson = _asMap(confirmedData);
     final publicUrl = confirmedJson['publicUrl'] as String?;
     if (publicUrl == null || publicUrl.isEmpty) {
-      throw const ReportRepositoryException(
-        '신고 이미지 업로드 확인에 실패했어요. 잠시 후 다시 시도해 주세요.',
+      throw ReportRepositoryException(
+        MateyaLocalizations.current.reportImageConfirmError,
       );
     }
     return publicUrl;

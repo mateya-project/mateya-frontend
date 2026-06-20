@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../shared/localization/mateya_localizations.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../../shared/widgets/mateya_button.dart';
 import '../../../../shared/widgets/mateya_header.dart';
@@ -89,6 +90,7 @@ class OtherProfileView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Column(
       children: <Widget>[
         MateyaHeader.backArrow(onBack: onBack),
@@ -119,7 +121,9 @@ class OtherProfileView extends StatelessWidget {
               const SizedBox(height: 32),
               if (data.isFriend)
                 MateyaButton(
-                  label: isBusy ? '처리 중...' : '친구 삭제하기',
+                  label: isBusy
+                      ? l10n.commonProcessing
+                      : l10n.mypageRemoveFriend,
                   enabled: !isBusy,
                   onPressed: onFriendTap,
                 )
@@ -128,7 +132,9 @@ class OtherProfileView extends StatelessWidget {
                   child: TextButton(
                     onPressed: data.isBlocked ? null : onBlockTap,
                     child: Text(
-                      data.isBlocked ? '차단됨' : '유저차단하기',
+                      data.isBlocked
+                          ? l10n.mypageBlocked
+                          : l10n.mypageBlockUser,
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                         color: AppColors.textMuted,
                         decoration: TextDecoration.underline,
@@ -174,14 +180,15 @@ class SettingsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Column(
       children: <Widget>[
         MateyaHeader.backArrow(onBack: onBack, onReportTap: onReport),
         Expanded(
           child: CustomScrollView(
             slivers: <Widget>[
-              const SliverToBoxAdapter(
-                child: _SettingsTitleBar(title: '나의 메이트야'),
+              SliverToBoxAdapter(
+                child: _SettingsTitleBar(title: l10n.mypageTitle),
               ),
               const SliverToBoxAdapter(
                 child: Padding(
@@ -225,42 +232,45 @@ class SettingsView extends StatelessWidget {
               const SliverToBoxAdapter(child: SizedBox(height: 18)),
               SliverToBoxAdapter(
                 child: _SettingsMenuItem(
-                  title: '내 언어 · 국가 변경하기',
+                  title: l10n.mypageEditPrimaryPreferences,
                   onTap: onEditPrimaryPreferences,
                 ),
               ),
               SliverToBoxAdapter(
                 child: _SettingsMenuItem(
-                  title: '활동 지역 변경하기',
+                  title: l10n.mypageEditActivityRegion,
                   onTap: onEditActivityRegion,
                 ),
               ),
               SliverToBoxAdapter(
                 child: _SettingsMenuItem(
-                  title: '개인정보 수집·이용 동의 내역',
+                  title: l10n.mypageConsentHistoryTitle,
                   onTap: onOpenConsentHistory,
                 ),
               ),
               SliverToBoxAdapter(
                 child: _SettingsMenuItem(
-                  title: '개인정보처리방침 보기',
+                  title: l10n.mypageOpenPrivacyPolicy,
                   onTap: onOpenPrivacyPolicy,
                 ),
               ),
               SliverToBoxAdapter(
                 child: _SettingsMenuItem(
-                  title: '고객센터 문의하기',
+                  title: l10n.mypageOpenCustomerSupport,
                   onTap: onOpenCustomerSupport,
                 ),
               ),
               SliverToBoxAdapter(
                 child: _SettingsMenuItem(
-                  title: '차단 유저 목록 보기',
+                  title: l10n.mypageOpenBlockedUsers,
                   onTap: onOpenBlockedUsers,
                 ),
               ),
               SliverToBoxAdapter(
-                child: _SettingsMenuItem(title: '로그아웃 하기', onTap: onLogout),
+                child: _SettingsMenuItem(
+                  title: l10n.mypageLogout,
+                  onTap: onLogout,
+                ),
               ),
               SliverFillRemaining(
                 hasScrollBody: false,
@@ -271,7 +281,7 @@ class SettingsView extends StatelessWidget {
                     child: TextButton(
                       onPressed: onWithdrawal,
                       child: Text(
-                        '회원 탈퇴하기',
+                        l10n.mypageOpenWithdrawal,
                         style: Theme.of(context).textTheme.titleMedium
                             ?.copyWith(
                               color: AppColors.textMuted,
@@ -304,6 +314,7 @@ class ConsentHistoryView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Column(
       children: <Widget>[
         MateyaHeader.backArrow(onBack: onBack),
@@ -312,12 +323,12 @@ class ConsentHistoryView extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(20, 22, 20, 24),
             children: <Widget>[
               Text(
-                '개인정보 수집·이용 동의 내역',
+                l10n.mypageConsentHistoryTitle,
                 style: Theme.of(context).textTheme.headlineMedium,
               ),
               const SizedBox(height: 10),
               Text(
-                '약관명, 동의 여부, 동의 날짜를 확인하고 상세 약관도 다시 볼 수 있어요.',
+                l10n.mypageConsentHistoryDescription,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: AppColors.textSecondary,
                 ),
@@ -326,7 +337,7 @@ class ConsentHistoryView extends StatelessWidget {
               if (entries.isEmpty)
                 MyPageSectionCard(
                   child: Text(
-                    '확인할 동의 내역이 아직 없어요.',
+                    l10n.mypageConsentHistoryEmpty,
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                 )
@@ -341,20 +352,28 @@ class ConsentHistoryView extends StatelessWidget {
                           style: Theme.of(context).textTheme.titleLarge,
                         ),
                         const SizedBox(height: 12),
-                        _DetailRow(label: '약관', value: entry.versionLabel),
-                        const SizedBox(height: 8),
                         _DetailRow(
-                          label: '동의여부',
-                          value: entry.agreed ? '동의' : '미동의',
+                          label: l10n.mypageConsentVersion,
+                          value: entry.versionLabel,
                         ),
                         const SizedBox(height: 8),
-                        _DetailRow(label: '동의날짜', value: entry.agreedAtLabel),
+                        _DetailRow(
+                          label: l10n.mypageConsentStatus,
+                          value: entry.agreed
+                              ? l10n.mypageConsentAgreed
+                              : l10n.mypageConsentDeclined,
+                        ),
+                        const SizedBox(height: 8),
+                        _DetailRow(
+                          label: l10n.mypageConsentDate,
+                          value: entry.agreedAtLabel,
+                        ),
                         const SizedBox(height: 14),
                         Align(
                           alignment: Alignment.centerRight,
                           child: TextButton(
                             onPressed: () => onOpenDetail(entry),
-                            child: const Text('상세보기'),
+                            child: Text(l10n.commonSeeDetails),
                           ),
                         ),
                       ],
@@ -384,6 +403,7 @@ class BlockedUsersView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Column(
       children: <Widget>[
         MateyaHeader.backArrow(onBack: onBack),
@@ -392,14 +412,14 @@ class BlockedUsersView extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(20, 22, 20, 24),
             children: <Widget>[
               Text(
-                '차단한 유저 목록',
+                l10n.mypageBlockedUsersTitle,
                 style: Theme.of(context).textTheme.headlineMedium,
               ),
               const SizedBox(height: 20),
               if (users.isEmpty)
                 MyPageSectionCard(
                   child: Text(
-                    '차단한 유저가 없어요.',
+                    l10n.mypageBlockedUsersEmpty,
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                 )
@@ -468,6 +488,7 @@ class RecentActivitiesView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Column(
       children: <Widget>[
         MateyaHeader.backArrow(onBack: onBack),
@@ -476,12 +497,12 @@ class RecentActivitiesView extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
             children: <Widget>[
               Text(
-                '최근 활동 보기',
+                l10n.mypageRecentActivitiesTitle,
                 style: Theme.of(context).textTheme.headlineMedium,
               ),
               const SizedBox(height: 8),
               Text(
-                '참여/개설 이력을 최근순으로 확인하고, 클래스인 경우에만 리뷰 평점을 노출합니다.',
+                l10n.mypageRecentActivitiesDescription,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: AppColors.textSecondary,
                 ),
@@ -526,6 +547,7 @@ class _RecentActivitySummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final theme = Theme.of(context);
 
     return MyPageSectionCard(
@@ -533,7 +555,7 @@ class _RecentActivitySummaryCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Text(
-            '나의 활동 현황',
+            l10n.mypageActivitySummaryTitle,
             style: theme.textTheme.titleLarge?.copyWith(
               fontSize: 18,
               fontWeight: FontWeight.w700,
@@ -544,26 +566,26 @@ class _RecentActivitySummaryCard extends StatelessWidget {
             children: <Widget>[
               Expanded(
                 child: _RecentActivityMetric(
-                  label: '전체',
+                  label: l10n.commonAll,
                   value: '$totalCount',
                   highlight: true,
                 ),
               ),
               Expanded(
                 child: _RecentActivityMetric(
-                  label: '개설',
+                  label: l10n.mypageHostedCount,
                   value: '$hostedCount',
                 ),
               ),
               Expanded(
                 child: _RecentActivityMetric(
-                  label: '참여',
+                  label: l10n.mypageJoinedCount,
                   value: '$joinedCount',
                 ),
               ),
               Expanded(
                 child: _RecentActivityMetric(
-                  label: '후기',
+                  label: l10n.mypageReviewCount,
                   value: '$reviewCount',
                 ),
               ),
@@ -625,6 +647,7 @@ class _CenteredProfileCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return MyPageSectionCard(
       child: Stack(
         children: <Widget>[
@@ -674,8 +697,8 @@ class _CenteredProfileCard extends StatelessWidget {
                   ),
                   child: Text(
                     profile.isActiveWithin30Days
-                        ? 'Active member'
-                        : 'Inactive member',
+                        ? l10n.mypageActiveMember
+                        : l10n.mypageInactiveMember,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: AppColors.brandGreen,
                       fontWeight: FontWeight.w600,
@@ -748,6 +771,7 @@ class _BadgeGridSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final badgeSlots = buildMyPageBadgeSlots(badges);
     final earnedBadgeCount = badgeSlots.where((slot) => slot.isEarned).length;
 
@@ -758,7 +782,7 @@ class _BadgeGridSection extends StatelessWidget {
           children: <Widget>[
             Expanded(
               child: Text(
-                'My Badges',
+                l10n.mypageBadgesTitle,
                 style: Theme.of(context).textTheme.headlineMedium,
               ),
             ),
@@ -772,7 +796,7 @@ class _BadgeGridSection extends StatelessWidget {
         ),
         const SizedBox(height: 6),
         Text(
-          '다양한 활동에 참여하고 뱃지를 모아보세요',
+          l10n.mypageBadgesDescription,
           style: Theme.of(
             context,
           ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
@@ -827,7 +851,7 @@ class _BadgeGridTile extends StatelessWidget {
       ),
     );
 
-    return Semantics(label: slot.visual.label, child: badgeImage);
+    return Semantics(label: slot.visual.localizedLabel, child: badgeImage);
   }
 }
 
@@ -858,7 +882,7 @@ class _BadgeGridTileFallback extends StatelessWidget {
             ),
             const SizedBox(height: 10),
             Text(
-              slot.visual.label,
+              slot.visual.localizedLabel,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.center,
@@ -891,6 +915,7 @@ class _RecentActivityListSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
@@ -898,12 +923,12 @@ class _RecentActivityListSection extends StatelessWidget {
           children: <Widget>[
             Expanded(
               child: Text(
-                'Recent Activities',
+                l10n.mypageRecentActivitiesSectionTitle,
                 style: Theme.of(context).textTheme.headlineMedium,
               ),
             ),
             if (showButton)
-              TextButton(onPressed: onViewAll, child: const Text('See all')),
+              TextButton(onPressed: onViewAll, child: Text(l10n.commonSeeAll)),
           ],
         ),
         const SizedBox(height: 10),
@@ -1162,6 +1187,7 @@ class PrimaryPreferencesView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Column(
       children: <Widget>[
         MateyaHeader.backArrow(onBack: onBack),
@@ -1172,33 +1198,33 @@ class PrimaryPreferencesView extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Text(
-                  '내 언어 · 국가 선택',
+                  l10n.mypagePrimaryPreferencesTitle,
                   style: Theme.of(context).textTheme.headlineMedium,
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  '설정이 완료되면 마이페이지 프로필 영역에 즉시 반영됩니다.',
+                  l10n.mypagePrimaryPreferencesDescription,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: AppColors.textSecondary,
                   ),
                 ),
                 const SizedBox(height: 24),
                 MyPageSelectionField(
-                  label: '내 언어',
+                  label: l10n.mypageMyLanguage,
                   value: currentLanguageCode,
                   items: languageOptions,
                   onChanged: onLanguageChanged,
                 ),
                 const SizedBox(height: 16),
                 MyPageSelectionField(
-                  label: '내 국가',
+                  label: l10n.mypageMyCountry,
                   value: currentCountryCode,
                   items: countryOptions,
                   onChanged: onCountryChanged,
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  '영어 이름 (선택)',
+                  l10n.mypageEnglishNameOptional,
                   style: Theme.of(
                     context,
                   ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
@@ -1231,7 +1257,9 @@ class PrimaryPreferencesView extends StatelessWidget {
                 ],
                 const Spacer(),
                 MateyaButton(
-                  label: isSaving ? '저장 중...' : '설정 완료',
+                  label: isSaving
+                      ? l10n.mypageSaving
+                      : l10n.mypagePrimaryPreferencesSubmit,
                   enabled: !isSaving,
                   onPressed: onSave,
                 ),
@@ -1272,6 +1300,7 @@ class BusinessMyPageView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Column(
       children: <Widget>[
         const MateyaHeader.noBackArrow(),
@@ -1304,7 +1333,9 @@ class BusinessMyPageView extends StatelessWidget {
                         : AppColors.brandGreen,
                   ),
                   label: Text(
-                    isUpdatingActivityRegion ? '변경 중...' : '활동 지역 변경',
+                    isUpdatingActivityRegion
+                        ? l10n.mypageUpdating
+                        : l10n.mypageEditActivityRegion,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: isUpdatingActivityRegion
                           ? AppColors.textSecondary
@@ -1322,12 +1353,12 @@ class BusinessMyPageView extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     Text(
-                      '한줄소개 수정',
+                      l10n.mypageBusinessIntroTitle,
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      '사업자 소개는 최대 500자까지 저장합니다.',
+                      l10n.mypageBusinessIntroDescription,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: AppColors.textSecondary,
                       ),
@@ -1335,7 +1366,7 @@ class BusinessMyPageView extends StatelessWidget {
                     const SizedBox(height: 16),
                     MateyaTextField(
                       controller: introductionController,
-                      hintText: '운영 스타일을 소개해 주세요.',
+                      hintText: l10n.mypageBusinessIntroHint,
                       maxLength: 500,
                       maxLines: 5,
                       minLines: 5,
@@ -1351,7 +1382,9 @@ class BusinessMyPageView extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
                     MateyaButton(
-                      label: isSaving ? '저장 중...' : '소개 저장',
+                      label: isSaving
+                          ? l10n.mypageSaving
+                          : l10n.mypageSaveIntroduction,
                       enabled: !isSaving,
                       onPressed: onSave,
                     ),
@@ -1364,7 +1397,7 @@ class BusinessMyPageView extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     Text(
-                      '운영중인 체험',
+                      l10n.mypageActiveExperiencesTitle,
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                     const SizedBox(height: 16),

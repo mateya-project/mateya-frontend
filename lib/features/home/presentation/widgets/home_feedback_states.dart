@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../shared/localization/mateya_localizations.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../../shared/widgets/mateya_skeleton.dart';
 
@@ -11,6 +12,7 @@ class RetryState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Center(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -30,7 +32,7 @@ class RetryState extends StatelessWidget {
               style: FilledButton.styleFrom(
                 backgroundColor: AppColors.brandGreen,
               ),
-              child: const Text('다시 시도'),
+              child: Text(l10n.commonRetry),
             ),
           ],
         ),
@@ -44,6 +46,7 @@ class EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Center(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 32),
@@ -57,14 +60,14 @@ class EmptyState extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              '조건에 맞는 활동이 아직 없어요.',
+              l10n.homeEmptyTitle,
               style: Theme.of(
                 context,
               ).textTheme.titleLarge?.copyWith(fontSize: 18),
             ),
             const SizedBox(height: 8),
             Text(
-              '검색어 또는 필터를 조정해서 다시 찾아보세요.',
+              l10n.homeEmptyDescription,
               textAlign: TextAlign.center,
               style: Theme.of(
                 context,

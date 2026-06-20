@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../shared/localization/mateya_localizations.dart';
 import '../../../../shared/theme/app_tokens.dart';
 
 class ActivityImage extends StatelessWidget {
@@ -104,6 +105,7 @@ class ParticipantLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final style = compact
         ? Theme.of(
             context,
@@ -120,7 +122,7 @@ class ParticipantLabel extends StatelessWidget {
           size: compact ? 18 : 20,
         ),
         const SizedBox(width: 4),
-        Text('$current/$capacity 참여', style: style),
+        Text(l10n.homeParticipantCount(current, capacity), style: style),
       ],
     );
   }

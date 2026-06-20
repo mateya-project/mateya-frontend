@@ -58,9 +58,9 @@ void main() {
         .getSize(find.byKey(const ValueKey<String>('language-option-en')))
         .height;
 
-    expect(find.text('영어'), findsOneWidget);
-    expect(find.text('중국어(간체자)'), findsOneWidget);
-    expect(find.text('일본어'), findsOneWidget);
+    expect(find.text('English'), findsOneWidget);
+    expect(find.text('简体中文'), findsOneWidget);
+    expect(find.text('日本語'), findsOneWidget);
     expect(find.byIcon(Icons.keyboard_arrow_up_rounded), findsOneWidget);
     expect((panelTop - toggleBottom).abs(), lessThanOrEqualTo(1));
     expect(optionHeight, toggleHeight);
@@ -70,7 +70,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byIcon(Icons.keyboard_arrow_down_rounded), findsOneWidget);
-    expect(find.text('영어'), findsOneWidget);
+    expect(find.text('English'), findsOneWidget);
     expect(
       find.byKey(const ValueKey<String>('language-option-en')),
       findsNothing,

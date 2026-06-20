@@ -41,7 +41,9 @@ void _toggleAgreement(
 
 void _confirmConsent(OnboardingController controller) {
   if (!controller.isConsentComplete) {
-    controller._emitToast('필수 약관에 모두 동의해 주세요.');
+    controller._emitToast(
+      MateyaLocalizations.current.onboardingConsentRequired,
+    );
     return;
   }
 

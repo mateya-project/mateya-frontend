@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../shared/localization/mateya_localizations.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../domain/home_models.dart';
 import 'explore_filter_fields.dart';
@@ -52,6 +53,7 @@ class _ExploreFilterSheetState extends State<ExploreFilterSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final viewInsets = MediaQuery.of(context).viewInsets;
 
     return Container(
@@ -74,7 +76,7 @@ class _ExploreFilterSheetState extends State<ExploreFilterSheet> {
                     children: <Widget>[
                       Expanded(
                         child: Text(
-                          '필터',
+                          l10n.homeFilterTitle,
                           textAlign: TextAlign.center,
                           style: Theme.of(context).textTheme.headlineMedium,
                         ),
@@ -99,7 +101,7 @@ class _ExploreFilterSheetState extends State<ExploreFilterSheet> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         FilterSection(
-                          title: '정렬',
+                          title: l10n.homeFilterSort,
                           child: Wrap(
                             spacing: 8,
                             runSpacing: 8,
@@ -117,7 +119,7 @@ class _ExploreFilterSheetState extends State<ExploreFilterSheet> {
                           ),
                         ),
                         FilterSection(
-                          title: '카테고리',
+                          title: l10n.homeFilterCategory,
                           child: Wrap(
                             spacing: 8,
                             runSpacing: 8,
@@ -134,7 +136,7 @@ class _ExploreFilterSheetState extends State<ExploreFilterSheet> {
                           ),
                         ),
                         FilterSection(
-                          title: '참가대상',
+                          title: l10n.homeFilterAudience,
                           child: Wrap(
                             spacing: 8,
                             runSpacing: 8,
@@ -151,7 +153,7 @@ class _ExploreFilterSheetState extends State<ExploreFilterSheet> {
                           ),
                         ),
                         FilterSection(
-                          title: '언어',
+                          title: l10n.homeFilterLanguage,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
@@ -179,7 +181,7 @@ class _ExploreFilterSheetState extends State<ExploreFilterSheet> {
                           ),
                         ),
                         FilterSection(
-                          title: '지역',
+                          title: l10n.homeFilterRegion,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
@@ -221,14 +223,14 @@ class _ExploreFilterSheetState extends State<ExploreFilterSheet> {
                               Row(
                                 children: <Widget>[
                                   Text(
-                                    '내 지역',
+                                    l10n.homeFilterNear,
                                     style: Theme.of(
                                       context,
                                     ).textTheme.bodySmall,
                                   ),
                                   const Spacer(),
                                   Text(
-                                    '먼 지역',
+                                    l10n.homeFilterFar,
                                     style: Theme.of(
                                       context,
                                     ).textTheme.bodySmall,
@@ -239,14 +241,15 @@ class _ExploreFilterSheetState extends State<ExploreFilterSheet> {
                           ),
                         ),
                         FilterSection(
-                          title: '일정',
+                          title: l10n.homeFilterSchedule,
                           child: Row(
                             children: <Widget>[
                               Expanded(
                                 child: DateField(
                                   label: _draft.startDate == null
-                                      ? '시작일'
+                                      ? l10n.homeFilterStartDate
                                       : formatIsoDate(_draft.startDate!),
+                                  isPlaceholder: _draft.startDate == null,
                                   onTap: () async {
                                     final selected = await _pickDate(
                                       _draft.startDate,
@@ -268,8 +271,9 @@ class _ExploreFilterSheetState extends State<ExploreFilterSheet> {
                               Expanded(
                                 child: DateField(
                                   label: _draft.endDate == null
-                                      ? '종료일'
+                                      ? l10n.homeFilterEndDate
                                       : formatIsoDate(_draft.endDate!),
+                                  isPlaceholder: _draft.endDate == null,
                                   onTap: () async {
                                     final selected = await _pickDate(
                                       _draft.endDate,
@@ -288,13 +292,13 @@ class _ExploreFilterSheetState extends State<ExploreFilterSheet> {
                           ),
                         ),
                         FilterSection(
-                          title: '비용',
+                          title: l10n.homeFilterCost,
                           child: Row(
                             children: <Widget>[
                               Expanded(
                                 child: CompactNumberField(
                                   controller: _minPriceController,
-                                  hintText: '최소금액',
+                                  hintText: l10n.homeFilterMinPrice,
                                   onChanged: (_) => _syncPriceDraft(),
                                 ),
                               ),
@@ -305,7 +309,7 @@ class _ExploreFilterSheetState extends State<ExploreFilterSheet> {
                               Expanded(
                                 child: CompactNumberField(
                                   controller: _maxPriceController,
-                                  hintText: '최대금액',
+                                  hintText: l10n.homeFilterMaxPrice,
                                   onChanged: (_) => _syncPriceDraft(),
                                 ),
                               ),
@@ -313,7 +317,7 @@ class _ExploreFilterSheetState extends State<ExploreFilterSheet> {
                           ),
                         ),
                         FilterSection(
-                          title: '모집상태',
+                          title: l10n.homeFilterStatus,
                           child: Wrap(
                             spacing: 8,
                             runSpacing: 8,
@@ -359,8 +363,8 @@ class _ExploreFilterSheetState extends State<ExploreFilterSheet> {
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                               ),
-                              child: const Text(
-                                '초기화',
+                              child: Text(
+                                l10n.commonReset,
                                 style: TextStyle(
                                   decoration: TextDecoration.underline,
                                 ),
@@ -378,7 +382,7 @@ class _ExploreFilterSheetState extends State<ExploreFilterSheet> {
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                 ),
-                                child: const Text('적용하기'),
+                                child: Text(l10n.commonApply),
                               ),
                             ),
                           ],
@@ -488,17 +492,18 @@ class _ExploreFilterSheetState extends State<ExploreFilterSheet> {
   }
 
   String _buildDistanceSummary() {
+    final l10n = context.l10n;
     final regionName = widget.activityRegionName?.trim();
     final targetLabel = switch (_draft.distance) {
-      DistanceRangeOption.local => '내 지역',
-      DistanceRangeOption.within1km => '1km 이내',
-      DistanceRangeOption.within5km => '5km 이내',
-      DistanceRangeOption.within10km => '10km 이내',
+      DistanceRangeOption.local => l10n.homeDistanceLocal,
+      DistanceRangeOption.within1km => l10n.homeDistanceWithin1km,
+      DistanceRangeOption.within5km => l10n.homeDistanceWithin5km,
+      DistanceRangeOption.within10km => l10n.homeDistanceWithin10km,
     };
 
     if (regionName == null || regionName.isEmpty) {
-      return '활동 지역 기준 $targetLabel';
+      return l10n.homeFilterDistanceFromActivityRegion(targetLabel);
     }
-    return '$regionName 기준 $targetLabel';
+    return l10n.homeFilterDistanceFromRegion(regionName, targetLabel);
   }
 }

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../localization/mateya_localizations.dart';
 import '../media/mateya_gallery_picker.dart';
 import '../theme/app_tokens.dart';
 import 'mateya_button.dart';
@@ -37,7 +38,7 @@ class MateyaReportIcon extends StatelessWidget {
       width: size,
       height: size,
       colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
-      semanticsLabel: '신고하기',
+      semanticsLabel: context.l10n.reportSemanticsLabel,
     );
   }
 }
@@ -72,16 +73,6 @@ class MateyaReportSheet extends StatefulWidget {
 
 class _MateyaReportSheetState extends State<MateyaReportSheet> {
   static const int _maxImageCount = 5;
-  static const MateyaGalleryPickerMessages
-  _galleryPickerMessages = MateyaGalleryPickerMessages(
-    noticeMessage:
-        '신고 이미지 첨부를 사용하려면 사진 보관함 접근 권한이 필요합니다. 권한이 없어도 신고 사유 텍스트 작성은 계속할 수 있습니다.',
-    recoveryMessage:
-        '신고 이미지 첨부를 사용하려면 사진 보관함 접근 권한이 필요합니다. 다시 시도하거나 앱 설정에서 권한을 허용할 수 있습니다.',
-    failureMessage: '사진을 불러오지 못했어요. 권한과 파일 상태를 확인해 주세요.',
-    restoreFallbackErrorMessage: '이전에 선택하던 신고 이미지를 복구하지 못했어요. 다시 선택해 주세요.',
-    restoredCountMessage: _reportRestoredCountMessage,
-  );
 
   final ImagePicker _imagePicker = ImagePicker();
   final TextEditingController _bodyController = TextEditingController();
@@ -113,12 +104,24 @@ class _MateyaReportSheetState extends State<MateyaReportSheet> {
 
   bool get _canSubmit => _bodyController.text.trim().isNotEmpty;
 
+  MateyaGalleryPickerMessages _galleryPickerMessages(BuildContext context) {
+    final l10n = context.l10n;
+    return MateyaGalleryPickerMessages(
+      noticeMessage: l10n.reportNoticeMessage,
+      recoveryMessage: l10n.reportRecoveryMessage,
+      failureMessage: l10n.reportFailureMessage,
+      restoreFallbackErrorMessage: l10n.reportRestoreFallbackErrorMessage,
+      restoredCountMessage: (restoredCount) =>
+          l10n.reportRestoredCount(restoredCount),
+    );
+  }
+
   Future<void> _restoreLostImages() async {
     await restoreLostMateyaGalleryImages(
       context: context,
       readLostData: _imagePicker.retrieveLostData,
       availableSlots: _maxImageCount - _images.length,
-      messages: _galleryPickerMessages,
+      messages: _galleryPickerMessages(context),
       onRestored: (files) async {
         if (!mounted || files.isEmpty) {
           return;
@@ -140,7 +143,7 @@ class _MateyaReportSheetState extends State<MateyaReportSheet> {
       context,
       imagePicker: _imagePicker,
       availableSlots: available,
-      messages: _galleryPickerMessages,
+      messages: _galleryPickerMessages(context),
     );
     if (!mounted || picked.isEmpty) {
       return;
@@ -183,7 +186,11 @@ class _MateyaReportSheetState extends State<MateyaReportSheet> {
     if (message == null) {
       navigator.pop();
       messenger.showSnackBar(
-        SnackBar(content: Text('${widget.subjectLabel} 신고가 접수되었어요.')),
+        SnackBar(
+          content: Text(
+            context.l10n.reportSubmittedMessage(widget.subjectLabel),
+          ),
+        ),
       );
       return;
     }
@@ -193,6 +200,7 @@ class _MateyaReportSheetState extends State<MateyaReportSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final viewInsets = MediaQuery.of(context).viewInsets;
     final textLength = _bodyController.text.length;
 
@@ -221,7 +229,7 @@ class _MateyaReportSheetState extends State<MateyaReportSheet> {
                       ),
                       Expanded(
                         child: Text(
-                          '신고하기',
+                          l10n.reportTitle,
                           textAlign: TextAlign.center,
                           style: Theme.of(context).textTheme.titleLarge,
                         ),
@@ -249,20 +257,16 @@ class _MateyaReportSheetState extends State<MateyaReportSheet> {
                           focusNode: _focusNode,
                           maxLines: 5,
                           maxLength: 500,
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
                             counterText: '',
                             border: InputBorder.none,
-                            hintText:
-                                '신고 사유를 구체적으로 작성해주세요.\n'
-                                '(예: 욕설, 사기 의심, 부적절한 게시물,\n'
-                                '스팸, 괴롭힘 등) 신고 내용은 운영 정책에\n'
-                                '따라 검토됩니다.',
+                            hintText: l10n.reportBodyHint,
                           ),
                           style: Theme.of(context).textTheme.bodyLarge,
                           onChanged: (_) => setState(() {}),
                         ),
                         Text(
-                          '$textLength/500 자',
+                          l10n.reportBodyCount(textLength, 500),
                           style: Theme.of(context).textTheme.bodySmall,
                         ),
                       ],
@@ -270,7 +274,7 @@ class _MateyaReportSheetState extends State<MateyaReportSheet> {
                   ),
                   const SizedBox(height: 18),
                   Text(
-                    '이미지 (최대 5장)',
+                    l10n.reportImageSectionTitle(_maxImageCount),
                     style: Theme.of(
                       context,
                     ).textTheme.titleLarge?.copyWith(fontSize: 17),
@@ -303,15 +307,16 @@ class _MateyaReportSheetState extends State<MateyaReportSheet> {
                   ),
                   const SizedBox(height: 20),
                   MateyaButton(
-                    label: _isSubmitting ? '접수 중...' : '신고하기',
+                    label: _isSubmitting
+                        ? l10n.reportSubmitting
+                        : l10n.reportTitle,
                     enabled: _canSubmit && !_isSubmitting,
                     onPressed: _submit,
                   ),
                   const SizedBox(height: 14),
                   Center(
                     child: Text(
-                      '접수된 신고는 영업일 기준 최대 7일 이내에 검토되며,\n'
-                      '허위 신고 또는 신고 사유가 불명확한 경우 처리되지 않을 수 있습니다.',
+                      l10n.reportReviewNotice,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: AppColors.textSecondary,
                       ),
@@ -326,10 +331,6 @@ class _MateyaReportSheetState extends State<MateyaReportSheet> {
       ),
     );
   }
-}
-
-String _reportRestoredCountMessage(int restoredCount) {
-  return '이전에 선택하던 신고 이미지 $restoredCount장을 복구했어요.';
 }
 
 class _ReportImageTile extends StatelessWidget {

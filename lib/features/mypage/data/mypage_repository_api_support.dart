@@ -15,7 +15,9 @@ ProfileSummary _buildPersonalProfile(
     id: '${meProfileJson['id']}',
     name: meProfileJson['displayName'] as String? ?? '',
     englishName: meProfileJson['englishName'] as String?,
-    residence: (meProfileJson['activityRegionName'] as String?) ?? '활동 지역 미설정',
+    residence: _activityRegionOrFallback(
+      meProfileJson['activityRegionName'] as String?,
+    ),
     primaryLanguageCode: languageCode,
     primaryLanguageLabel: _languageLabel(languageCode),
     primaryCountryCode: countryCode,
@@ -39,7 +41,9 @@ ProfileSummary _buildOtherProfile(Map<String, dynamic> pageJson) {
     id: '${pageJson['id']}',
     name: pageJson['displayName'] as String? ?? '',
     englishName: pageJson['englishName'] as String?,
-    residence: (pageJson['activityRegionName'] as String?) ?? '활동 지역 미설정',
+    residence: _activityRegionOrFallback(
+      pageJson['activityRegionName'] as String?,
+    ),
     primaryLanguageCode: languageCode,
     primaryLanguageLabel: _languageLabel(languageCode),
     primaryCountryCode: countryCode,
@@ -73,8 +77,9 @@ BusinessMyPageData _buildBusinessPage({
       englishName: userProfileJson['englishName'] as String?,
       residence:
           (hostPageJson['placeAddress'] as String?) ??
-          (userProfileJson['activityRegionName'] as String?) ??
-          '활동 지역 미설정',
+          _activityRegionOrFallback(
+            userProfileJson['activityRegionName'] as String?,
+          ),
       primaryLanguageCode: languageCode,
       primaryLanguageLabel: _languageLabel(languageCode),
       primaryCountryCode: countryCode,
@@ -87,24 +92,7 @@ BusinessMyPageData _buildBusinessPage({
       oneLineIntroduction: hostPageJson['intro'] as String?,
       placeLabel: hostPageJson['placeName'] as String?,
     ),
-    metrics: <ProfileMetric>[
-      ProfileMetric(
-        label: '모집중 체험',
-        value: '${statsJson['recruitingExperienceCount'] as int? ?? 0}',
-      ),
-      ProfileMetric(
-        label: '누적 참가자',
-        value: '${statsJson['totalParticipantCount'] as int? ?? 0}',
-      ),
-      ProfileMetric(
-        label: '평균 평점',
-        value: _formatRating(statsJson['averageRating'] as num?),
-      ),
-      ProfileMetric(
-        label: '받은 후기',
-        value: '${statsJson['reviewCount'] as int? ?? 0}',
-      ),
-    ],
+    metrics: _buildBusinessMetrics(statsJson),
     activeExperiences:
         ((hostPageJson['operatingActivities'] as List<Object?>?) ??
                 const <Object?>[])
@@ -124,8 +112,9 @@ BusinessMyPageData _fallbackBusinessPage(Map<String, dynamic> userProfileJson) {
       id: '${userProfileJson['id']}',
       name: userProfileJson['displayName'] as String? ?? '',
       englishName: userProfileJson['englishName'] as String?,
-      residence:
-          (userProfileJson['activityRegionName'] as String?) ?? '활동 지역 미설정',
+      residence: _activityRegionOrFallback(
+        userProfileJson['activityRegionName'] as String?,
+      ),
       primaryLanguageCode: languageCode,
       primaryLanguageLabel: _languageLabel(languageCode),
       primaryCountryCode: countryCode,
@@ -134,12 +123,7 @@ BusinessMyPageData _fallbackBusinessPage(Map<String, dynamic> userProfileJson) {
       activityCountryLabel: _activityCountryLabel(activityCountryCode),
       profileImageUrl: userProfileJson['profileImageUrl'] as String?,
     ),
-    metrics: const <ProfileMetric>[
-      ProfileMetric(label: '모집중 체험', value: '0'),
-      ProfileMetric(label: '누적 참가자', value: '0'),
-      ProfileMetric(label: '평균 평점', value: '-'),
-      ProfileMetric(label: '받은 후기', value: '0'),
-    ],
+    metrics: _buildBusinessMetrics(const <String, dynamic>{}),
     activeExperiences: const <ActivityHistoryEntry>[],
   );
 }
@@ -219,8 +203,10 @@ ActivityHistoryEntry _parseActivityHistoryEntry(Object? value) {
     title: json['title'] as String? ?? '',
     dateLabel: _formatDate(startAt),
     timeLabel: '${_formatTime(startAt)} - ${_formatTime(endAt)}',
-    priceLabel: priceType == 'FREE' ? '무료' : _formatCurrency(priceAmount),
-    participantLabel: '$participantCount / $capacity명',
+    priceLabel: priceType == 'FREE'
+        ? MateyaLocalizations.current.commonFree
+        : _formatCurrency(priceAmount),
+    participantLabel: _participantLabel(participantCount, capacity),
     imageUrl: json['imageUrl'] as String? ?? '',
     rating: (json['reviewRating'] as num?)?.toDouble(),
     isHostedByMe: json['hostedByMe'] as bool? ?? false,
@@ -232,9 +218,57 @@ BlockedUserSummary _parseBlockedUserSummary(Object? value) {
   return BlockedUserSummary(
     id: '${json['userId'] ?? ''}',
     name: json['displayName'] as String? ?? '',
-    residence: (json['activityRegionName'] as String?) ?? '활동 지역 미설정',
+    residence: _activityRegionOrFallback(json['activityRegionName'] as String?),
     profileImageUrl: json['profileImageUrl'] as String?,
   );
+}
+
+String _activityRegionOrFallback(String? regionName) {
+  final trimmed = regionName?.trim();
+  if (trimmed == null || trimmed.isEmpty) {
+    return MateyaLocalizations.current.mypageActivityRegionUnset;
+  }
+  return trimmed;
+}
+
+List<ProfileMetric> _buildPersonalMetrics(Map<String, dynamic> statsJson) {
+  final l10n = MateyaLocalizations.current;
+  return <ProfileMetric>[
+    ProfileMetric(
+      label: l10n.mypageMetricActivities,
+      value: '${statsJson['totalActivityCount'] as int? ?? 0}',
+    ),
+    ProfileMetric(
+      label: l10n.mypageMetricFriends,
+      value: '${statsJson['friendCount'] as int? ?? 0}',
+    ),
+    ProfileMetric(
+      label: l10n.mypageMetricReviews,
+      value: '${statsJson['reviewCount'] as int? ?? 0}',
+    ),
+  ];
+}
+
+List<ProfileMetric> _buildBusinessMetrics(Map<String, dynamic> statsJson) {
+  final l10n = MateyaLocalizations.current;
+  return <ProfileMetric>[
+    ProfileMetric(
+      label: l10n.mypageMetricRecruitingExperiences,
+      value: '${statsJson['recruitingExperienceCount'] as int? ?? 0}',
+    ),
+    ProfileMetric(
+      label: l10n.mypageMetricTotalParticipants,
+      value: '${statsJson['totalParticipantCount'] as int? ?? 0}',
+    ),
+    ProfileMetric(
+      label: l10n.mypageMetricAverageRating,
+      value: _formatRating(statsJson['averageRating'] as num?),
+    ),
+    ProfileMetric(
+      label: l10n.mypageMetricReceivedReviews,
+      value: '${statsJson['reviewCount'] as int? ?? 0}',
+    ),
+  ];
 }
 
 bool _isActiveWithin30Days(String? isoString) {
@@ -249,9 +283,7 @@ bool _isActiveWithin30Days(String? isoString) {
 }
 
 String _formatDate(DateTime value) {
-  final month = '${value.month}'.padLeft(2, '0');
-  final day = '${value.day}'.padLeft(2, '0');
-  return '${value.year}.$month.$day';
+  return DateFormat.yMd(_intlLocale()).format(value);
 }
 
 String _formatTime(DateTime value) {
@@ -261,16 +293,11 @@ String _formatTime(DateTime value) {
 }
 
 String _formatCurrency(int amount) {
-  final digits = amount.toString();
-  final buffer = StringBuffer();
-  for (var index = 0; index < digits.length; index += 1) {
-    final reversedIndex = digits.length - index;
-    buffer.write(digits[index]);
-    if (reversedIndex > 1 && reversedIndex % 3 == 1) {
-      buffer.write(',');
-    }
-  }
-  return '${buffer.toString()}원';
+  return NumberFormat.currency(
+    locale: _intlLocale(),
+    symbol: '₩ ',
+    decimalDigits: 0,
+  ).format(amount);
 }
 
 String _formatRating(num? value) {
@@ -278,6 +305,26 @@ String _formatRating(num? value) {
     return '-';
   }
   return value.toStringAsFixed(1);
+}
+
+String _participantLabel(int participantCount, int capacity) {
+  return MateyaLocalizations.current.mypageParticipantCount(
+    participantCount,
+    capacity,
+  );
+}
+
+String _intlLocale() {
+  final locale = MateyaLocalizations.locale;
+  if (locale.scriptCode case final String scriptCode
+      when scriptCode.isNotEmpty) {
+    return '${locale.languageCode}_$scriptCode';
+  }
+  if (locale.countryCode case final String countryCode
+      when countryCode.isNotEmpty) {
+    return '${locale.languageCode}_$countryCode';
+  }
+  return locale.languageCode;
 }
 
 String _languageLabel(String code) {
@@ -301,13 +348,14 @@ String? _activityCountryLabel(String? code) {
   if (code == null || code.isEmpty) {
     return null;
   }
+  final l10n = MateyaLocalizations.current;
   return switch (code.toUpperCase()) {
-    'KR' => 'Korea',
-    'JP' => 'Japan',
-    'CN' => 'China',
-    'VN' => 'Vietnam',
-    'US' => 'United States',
-    'TH' => 'Thailand',
+    'KR' => l10n.countryKorea,
+    'JP' => l10n.countryJapan,
+    'CN' => l10n.countryChina,
+    'VN' => l10n.countryVietnam,
+    'US' => l10n.countryUnitedStates,
+    'TH' => l10n.countryThailand,
     _ => code.toUpperCase(),
   };
 }
@@ -321,17 +369,21 @@ String _countryLabel(String code) {
       normalized.toUpperCase();
 }
 
-String _categoryLabel(String? code) => switch (code) {
-  'TOURIST_ATTRACTION' => '관광지',
-  'TRAVEL_COURSE' => '여행코스',
-  'CULTURE_TRADITION' => '문화/전통',
-  'EVENT_PERFORMANCE_FESTIVAL' => '행사/공연/축제',
-  'SPORTS' => '스포츠',
-  'ACTIVITY_LEPORTS' => '액티비티/레포츠',
-  'SHOPPING' => '쇼핑',
-  'PUBLIC_FACILITY' => '공공시설',
-  _ => '기타',
-};
+String _categoryLabel(String? code) {
+  final l10n = MateyaLocalizations.current;
+  return switch (code) {
+    'TOURIST_ATTRACTION' => l10n.activityCategoryTouristAttraction,
+    'TRAVEL_COURSE' => l10n.activityCategoryTravelCourse,
+    'CULTURE_TRADITION' => l10n.activityCategoryCultureTradition,
+    'EVENT_PERFORMANCE_FESTIVAL' =>
+      l10n.activityCategoryEventPerformanceFestival,
+    'SPORTS' => l10n.activityCategorySports,
+    'ACTIVITY_LEPORTS' => l10n.activityCategoryActivityLeports,
+    'SHOPPING' => l10n.activityCategoryShopping,
+    'PUBLIC_FACILITY' => l10n.activityCategoryPublicFacility,
+    _ => l10n.activityCategoryOther,
+  };
+}
 
 MyPageRepositoryException _mapApiException(MateyaApiException error) {
   if (error.type == ApiFailureType.network) {

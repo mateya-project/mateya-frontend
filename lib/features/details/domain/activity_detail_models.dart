@@ -1,4 +1,5 @@
 import '../../home/domain/home_models.dart';
+import '../../../shared/localization/mateya_localizations.dart';
 
 enum ActivityDetailLoadFailureType { network, validation, server }
 
@@ -232,23 +233,29 @@ class HelpfulToggleState {
 }
 
 extension ReviewSortOptionX on ReviewSortOption {
-  String get label => switch (this) {
-    ReviewSortOption.latest => '최신순',
-    ReviewSortOption.oldest => '오래된순',
-    ReviewSortOption.highestRating => '평점 높은순',
-    ReviewSortOption.lowestRating => '평점 낮은순',
-  };
+  String get label {
+    final l10n = MateyaLocalizations.current;
+    return switch (this) {
+      ReviewSortOption.latest => l10n.detailsReviewSortLatest,
+      ReviewSortOption.oldest => l10n.detailsReviewSortOldest,
+      ReviewSortOption.highestRating => l10n.detailsReviewSortHighestRating,
+      ReviewSortOption.lowestRating => l10n.detailsReviewSortLowestRating,
+    };
+  }
 }
 
 extension ActivityParticipationStateX on ActivityParticipationState {
   bool get canRequestJoin => this == ActivityParticipationState.available;
 
-  String get ctaLabel => switch (this) {
-    ActivityParticipationState.available => '참가하기',
-    ActivityParticipationState.requested => '신청 완료',
-    ActivityParticipationState.joined => '참가중',
-    ActivityParticipationState.host => '내 모임',
-  };
+  String get ctaLabel {
+    final l10n = MateyaLocalizations.current;
+    return switch (this) {
+      ActivityParticipationState.available => l10n.detailsJoinAvailable,
+      ActivityParticipationState.requested => l10n.detailsJoinRequested,
+      ActivityParticipationState.joined => l10n.detailsJoinJoined,
+      ActivityParticipationState.host => l10n.detailsJoinHost,
+    };
+  }
 }
 
 const Object _detailSentinel = Object();

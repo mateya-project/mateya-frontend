@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../shared/localization/mateya_localizations.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../../shared/widgets/mateya_interaction.dart';
 
@@ -61,7 +62,7 @@ class HomePlusActionOverlay extends StatelessWidget {
                       const SizedBox(height: 12),
                       _OverlayActionButton(
                         icon: Icons.map_outlined,
-                        label: '내 주변 전통문화',
+                        label: context.l10n.homeNearbyCultureMap,
                         onTap: onNearbyCultureTap,
                       ),
                     ],

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../../shared/localization/mateya_localizations.dart';
 import '../../../../shared/media/mateya_gallery_picker.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../../shared/widgets/mateya_button.dart';
@@ -21,17 +22,6 @@ class CreateFlowPage extends StatefulWidget {
 }
 
 class _CreateFlowPageState extends State<CreateFlowPage> {
-  static const MateyaGalleryPickerMessages
-  _galleryPickerMessages = MateyaGalleryPickerMessages(
-    noticeMessage:
-        '활동 대표 이미지를 등록하기 위해 사진 보관함 접근 권한이 필요합니다. 권한을 거부하셔도 활동 정보 입력은 계속 진행할 수 있습니다.',
-    recoveryMessage:
-        '대표 이미지를 추가하려면 사진 보관함 접근 권한이 필요합니다. 권한이 없어도 활동 정보 입력은 계속할 수 있고, 다시 시도하거나 앱 설정에서 권한을 허용할 수 있습니다.',
-    failureMessage: '이미지를 불러오지 못했어요. 권한과 파일 상태를 확인해 주세요.',
-    restoreFallbackErrorMessage: '이전에 선택하던 이미지를 복구하지 못했어요. 다시 선택해 주세요.',
-    restoredCountMessage: _createRestoredCountMessage,
-  );
-
   final ImagePicker _imagePicker = ImagePicker();
   final ScrollController _detailsScrollController = ScrollController();
   final Map<String, GlobalKey> _detailSectionKeys = <String, GlobalKey>{
@@ -138,7 +128,7 @@ class _CreateFlowPageState extends State<CreateFlowPage> {
       readLostData: _imagePicker.retrieveLostData,
       availableSlots:
           CreateController.maxImageCount - widget.controller.images.length,
-      messages: _galleryPickerMessages,
+      messages: _galleryPickerMessages(context),
       suppressErrorMessage: suppressErrorMessage,
       onRestored: widget.controller.addImages,
     );
@@ -155,7 +145,7 @@ class _CreateFlowPageState extends State<CreateFlowPage> {
       context,
       imagePicker: _imagePicker,
       availableSlots: remaining,
-      messages: _galleryPickerMessages,
+      messages: _galleryPickerMessages(context),
       maxWidth: 2400,
     );
     if (!mounted || picked.isEmpty) {
@@ -172,7 +162,9 @@ class _CreateFlowPageState extends State<CreateFlowPage> {
       firstDate: today,
       lastDate: today.add(const Duration(days: 365)),
       initialDate: widget.controller.eventDate ?? today,
-      helpText: '${widget.controller.flowType.entityLabel} 날짜 선택',
+      helpText: context.l10n.createEventDatePickerHelp(
+        widget.controller.flowType.entityLabel,
+      ),
     );
     if (picked == null) {
       return;
@@ -185,7 +177,7 @@ class _CreateFlowPageState extends State<CreateFlowPage> {
       context: context,
       initialTime:
           widget.controller.startTime ?? const TimeOfDay(hour: 19, minute: 0),
-      helpText: '시작 시간 선택',
+      helpText: context.l10n.createStartTimePickerHelp,
     );
     if (picked == null) {
       return;
@@ -198,7 +190,7 @@ class _CreateFlowPageState extends State<CreateFlowPage> {
       context: context,
       initialTime:
           widget.controller.endTime ?? const TimeOfDay(hour: 21, minute: 0),
-      helpText: '종료 시간 선택',
+      helpText: context.l10n.createEndTimePickerHelp,
     );
     if (picked == null) {
       return;
@@ -220,7 +212,7 @@ class _CreateFlowPageState extends State<CreateFlowPage> {
       firstDate: today,
       lastDate: lastDate,
       initialDate: initialDate.isAfter(lastDate) ? lastDate : initialDate,
-      helpText: '모집 마감 날짜 선택',
+      helpText: context.l10n.createDeadlineDatePickerHelp,
     );
     if (picked == null) {
       return;
@@ -234,7 +226,7 @@ class _CreateFlowPageState extends State<CreateFlowPage> {
       initialTime:
           widget.controller.deadlineTime ??
           const TimeOfDay(hour: 18, minute: 0),
-      helpText: '모집 마감 시간 선택',
+      helpText: context.l10n.createDeadlineTimePickerHelp,
     );
     if (picked == null) {
       return;
@@ -246,20 +238,25 @@ class _CreateFlowPageState extends State<CreateFlowPage> {
     final shouldDelete = await showDialog<bool>(
       context: context,
       builder: (context) {
+        final l10n = context.l10n;
         return AlertDialog(
-          title: Text('${widget.controller.flowType.entityLabel} 삭제'),
+          title: Text(
+            l10n.createDeleteDialogTitle(
+              widget.controller.flowType.entityLabel,
+            ),
+          ),
           content: Text(
-            '이 ${widget.controller.flowType.entityLabel}을 삭제하면 복구할 수 없습니다. 계속할까요?',
+            l10n.createDeleteDialogBody(widget.controller.flowType.entityLabel),
           ),
           actions: <Widget>[
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('취소'),
+              child: Text(l10n.commonCancel),
             ),
             TextButton(
               onPressed: () => Navigator.of(context).pop(true),
               style: TextButton.styleFrom(foregroundColor: AppColors.error),
-              child: const Text('삭제'),
+              child: Text(l10n.createDeleteButton),
             ),
           ],
         );
@@ -275,7 +272,7 @@ class _CreateFlowPageState extends State<CreateFlowPage> {
     }
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(const SnackBar(content: Text('삭제가 완료됐어요.')));
+    ).showSnackBar(SnackBar(content: Text(context.l10n.createDeleteCompleted)));
     Navigator.of(context).pop();
   }
 
@@ -338,6 +335,7 @@ class _CreateFlowPageState extends State<CreateFlowPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return AnimatedBuilder(
       animation: widget.controller,
       builder: (context, _) {
@@ -366,13 +364,15 @@ class _CreateFlowPageState extends State<CreateFlowPage> {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        '${widget.controller.flowType.entityLabel} 정보를 불러오지 못했어요.',
+                        l10n.createInitializationLoadError(
+                          widget.controller.flowType.entityLabel,
+                        ),
                         style: Theme.of(context).textTheme.titleLarge,
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 10),
                       Text(
-                        '잠시 후 다시 시도하거나 이전 화면으로 돌아가 주세요.',
+                        l10n.createInitializationRetryBody,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: AppColors.textSecondary,
                         ),
@@ -380,13 +380,13 @@ class _CreateFlowPageState extends State<CreateFlowPage> {
                       ),
                       const SizedBox(height: 20),
                       MateyaButton(
-                        label: '다시 시도',
+                        label: l10n.commonRetry,
                         onPressed: widget.controller.retryInitializeEditDraft,
                       ),
                       const SizedBox(height: 10),
                       TextButton(
                         onPressed: () => Navigator.of(context).pop(),
-                        child: const Text('뒤로 가기'),
+                        child: Text(l10n.createBackToPrevious),
                       ),
                     ],
                   ),
@@ -403,7 +403,7 @@ class _CreateFlowPageState extends State<CreateFlowPage> {
                 if (widget.controller.step == CreateStep.completed)
                   CreateFlowHeader(
                     title: widget.controller.screenTitle,
-                    progressLabel: '완료',
+                    progressLabel: l10n.createCompletedProgress,
                     onBack: _handleBack,
                   )
                 else
@@ -451,18 +451,21 @@ class _CreateFlowPageState extends State<CreateFlowPage> {
   }
 
   String _submitButtonLabel() {
+    final l10n = MateyaLocalizations.current;
     if (widget.controller.step == CreateStep.details) {
       if (widget.controller.submitPhase == AsyncPhase.loading) {
         return widget.controller.isEditMode
-            ? '${widget.controller.flowType.entityLabel} 저장 중...'
-            : '${widget.controller.flowType.entityLabel} 등록 중...';
+            ? l10n.createSavingEntity(widget.controller.flowType.entityLabel)
+            : l10n.createSubmittingEntity(
+                widget.controller.flowType.entityLabel,
+              );
       }
       return widget.controller.submitActionLabel;
     }
     if (widget.controller.step == CreateStep.category) {
-      return '장소 선택하기';
+      return l10n.createSelectPlaceAction;
     }
-    return '다음';
+    return l10n.commonNext;
   }
 
   IconData? _submitButtonTrailingIcon() {
@@ -521,6 +524,14 @@ class _CreateFlowPageState extends State<CreateFlowPage> {
   }
 }
 
-String _createRestoredCountMessage(int restoredCount) {
-  return '이전에 선택하던 이미지 $restoredCount장을 복구했어요.';
+MateyaGalleryPickerMessages _galleryPickerMessages(BuildContext context) {
+  final l10n = context.l10n;
+  return MateyaGalleryPickerMessages(
+    noticeMessage: l10n.createImagePickerNotice,
+    recoveryMessage: l10n.createImagePickerRecovery,
+    failureMessage: l10n.createImagePickerFailure,
+    restoreFallbackErrorMessage: l10n.createImagePickerRestoreFallback,
+    restoredCountMessage: (restoredCount) =>
+        l10n.createImagePickerRestoredCount(restoredCount),
+  );
 }

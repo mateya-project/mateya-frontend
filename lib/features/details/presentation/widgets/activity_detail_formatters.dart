@@ -1,34 +1,31 @@
+import 'package:intl/intl.dart';
+
+import '../../../../shared/localization/mateya_localizations.dart';
+
 String formatLongDate(DateTime value) {
-  return '${value.year}년 ${value.month.toString().padLeft(2, '0')}월 ${value.day.toString().padLeft(2, '0')}일';
+  return DateFormat.yMMMMd(
+    MateyaLocalizations.locale.toLanguageTag(),
+  ).format(value);
 }
 
 String formatReviewDate(DateTime value) {
-  return '${value.year}년 ${value.month}월 ${value.day}일';
+  return DateFormat.yMMMd(
+    MateyaLocalizations.locale.toLanguageTag(),
+  ).format(value);
 }
 
 String formatTimeRange(DateTime start, DateTime end) {
-  return '${_formatPeriod(start)} ${_formatHourMinute(start)} ~ ${_formatHourMinute(end)}';
-}
-
-String _formatPeriod(DateTime value) => value.hour < 12 ? '오전' : '오후';
-
-String _formatHourMinute(DateTime value) {
-  final hour = value.hour % 12 == 0 ? 12 : value.hour % 12;
-  return '${hour.toString().padLeft(2, '0')}:${value.minute.toString().padLeft(2, '0')}';
+  final locale = MateyaLocalizations.locale.toLanguageTag();
+  return '${DateFormat.jm(locale).format(start)} - ${DateFormat.jm(locale).format(end)}';
 }
 
 String formatPrice(int price) {
   if (price == 0) {
-    return '무료';
+    return MateyaLocalizations.current.commonFree;
   }
-  final digits = price.toString();
-  final buffer = StringBuffer();
-  for (var index = 0; index < digits.length; index += 1) {
-    final reverseIndex = digits.length - index;
-    buffer.write(digits[index]);
-    if (reverseIndex > 1 && reverseIndex % 3 == 1) {
-      buffer.write(',');
-    }
-  }
-  return '${buffer.toString()}원';
+  return NumberFormat.currency(
+    locale: MateyaLocalizations.locale.toLanguageTag(),
+    symbol: '₩ ',
+    decimalDigits: 0,
+  ).format(price);
 }

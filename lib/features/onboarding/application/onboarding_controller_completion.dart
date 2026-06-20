@@ -4,10 +4,11 @@ Future<void> _completeGuestSignup(
   OnboardingController controller, {
   required NeighborhoodSelection neighborhood,
 }) async {
+  final l10n = MateyaLocalizations.current;
   final verificationToken = _requireVerificationToken(
     controller,
     expiredStep: OnboardingStep.guestPhone,
-    expiredMessage: '인증이 만료되어 인증번호를 다시 받아야 해요.',
+    expiredMessage: l10n.onboardingVerificationExpired,
   );
   if (verificationToken == null) {
     return;
@@ -37,10 +38,11 @@ Future<void> _completeGuestSignup(
 }
 
 Future<void> _completeHostSignup(OnboardingController controller) async {
+  final l10n = MateyaLocalizations.current;
   final verificationToken = _requireVerificationToken(
     controller,
     expiredStep: OnboardingStep.guestPhone,
-    expiredMessage: '인증이 만료되어 인증번호를 다시 받아야 해요.',
+    expiredMessage: l10n.onboardingVerificationExpired,
   );
   if (verificationToken == null) {
     return;
@@ -251,12 +253,13 @@ String? _requireVerificationToken(
 }
 
 String? _requireBusinessVerificationToken(OnboardingController controller) {
+  final l10n = MateyaLocalizations.current;
   final expiresAt = controller._businessVerificationExpiresAt;
   if (controller._businessVerificationToken == null ||
       expiresAt == null ||
       expiresAt.isBefore(DateTime.now())) {
     controller._authPhase = AsyncPhase.validationError;
-    controller._emitToast('사업자 인증이 만료되어 다시 인증해야 해요.');
+    controller._emitToast(l10n.onboardingBusinessVerificationExpired);
     controller._step = OnboardingStep.hostBusiness;
     controller._notifyChanged();
     return null;

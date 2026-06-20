@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
+import '../../../../shared/localization/mateya_localizations.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../domain/mypage_models.dart';
 import 'mypage_activity_widgets.dart';
+import 'mypage_badge_catalog.dart';
 
 class MyPageProfileHeroCard extends StatelessWidget {
   const MyPageProfileHeroCard({
@@ -20,6 +22,7 @@ class MyPageProfileHeroCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return MyPageSectionCard(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -59,7 +62,9 @@ class MyPageProfileHeroCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(999),
                       ),
                       child: Text(
-                        profile.isActiveWithin30Days ? '30일 내 접속' : '최근 접속 없음',
+                        profile.isActiveWithin30Days
+                            ? l10n.mypageActiveWithin30Days
+                            : l10n.mypageNoRecentActivity,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: profile.isActiveWithin30Days
                               ? AppColors.brandGreen
@@ -143,11 +148,15 @@ class MyPageBadgeSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return MyPageSectionCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text('뱃지', style: Theme.of(context).textTheme.titleLarge),
+          Text(
+            l10n.mypageBadgeLabel,
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
           const SizedBox(height: 16),
           Wrap(
             spacing: 10,
@@ -168,7 +177,8 @@ class MyPageBadgeSection extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         Text(
-                          badge.label,
+                          findMyPageBadgeVisual(badge)?.localizedLabel ??
+                              badge.label,
                           style: Theme.of(context).textTheme.bodyLarge
                               ?.copyWith(
                                 fontWeight: FontWeight.w700,
@@ -208,6 +218,7 @@ class MyPageRecentActivityPreviewSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return MyPageSectionCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -216,12 +227,15 @@ class MyPageRecentActivityPreviewSection extends StatelessWidget {
             children: <Widget>[
               Expanded(
                 child: Text(
-                  '활동 이력',
+                  l10n.mypageActivityHistoryTitle,
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
               ),
               if (showButton)
-                TextButton(onPressed: onViewAll, child: const Text('전체보기')),
+                TextButton(
+                  onPressed: onViewAll,
+                  child: Text(l10n.commonSeeAll),
+                ),
             ],
           ),
           const SizedBox(height: 12),

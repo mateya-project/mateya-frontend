@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../localization/mateya_localizations.dart';
 import '../theme/app_tokens.dart';
 import 'mateya_interaction.dart';
 
@@ -27,6 +28,7 @@ class MateyaBottomNavigation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Material(
       color: Colors.white,
       child: Container(
@@ -41,7 +43,7 @@ class MateyaBottomNavigation extends StatelessWidget {
             children: <Widget>[
               Expanded(
                 child: _BottomItem(
-                  label: 'Home',
+                  label: l10n.bottomNavigationHome,
                   icon: Icons.home_rounded,
                   active: currentTab == MateyaBottomTab.home,
                   onTap: onHomeTap,
@@ -49,7 +51,7 @@ class MateyaBottomNavigation extends StatelessWidget {
               ),
               Expanded(
                 child: _BottomItem(
-                  label: 'Explore',
+                  label: l10n.bottomNavigationExplore,
                   icon: Icons.explore_rounded,
                   active: currentTab == MateyaBottomTab.explore,
                   onTap: onExploreTap,
@@ -107,7 +109,7 @@ class MateyaBottomNavigation extends StatelessWidget {
               ),
               Expanded(
                 child: _BottomItem(
-                  label: 'Chat',
+                  label: l10n.bottomNavigationChat,
                   icon: Icons.chat_bubble_rounded,
                   active: currentTab == MateyaBottomTab.chat,
                   onTap: onChatTap,
@@ -115,7 +117,7 @@ class MateyaBottomNavigation extends StatelessWidget {
               ),
               Expanded(
                 child: _BottomItem(
-                  label: 'Profile',
+                  label: l10n.bottomNavigationProfile,
                   icon: Icons.person_rounded,
                   active: currentTab == MateyaBottomTab.profile,
                   onTap: onProfileTap,

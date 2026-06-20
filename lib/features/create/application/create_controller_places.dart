@@ -1,6 +1,7 @@
 part of 'create_controller.dart';
 
 Future<void> _loadRecommendedPlacesFor(CreateController controller) async {
+  final l10n = MateyaLocalizations.current;
   controller._placePhase = AsyncPhase.loading;
   controller._fieldErrors.remove('place');
   controller._notifyChanged();
@@ -20,24 +21,25 @@ Future<void> _loadRecommendedPlacesFor(CreateController controller) async {
         : AsyncPhase.serverError;
     controller._emitToast(
       error.type == CreateRepositoryFailureType.network
-          ? '추천 장소를 불러오지 못했어요. 네트워크 상태를 확인해 주세요.'
-          : '추천 장소를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.',
+          ? l10n.createRecommendedLoadFailedNetwork
+          : l10n.createRecommendedLoadFailedServer,
     );
   } catch (_) {
     controller._recommendedPlaces = const <CreatePlaceSuggestion>[];
     controller._placePhase = AsyncPhase.serverError;
-    controller._emitToast('추천 장소를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.');
+    controller._emitToast(l10n.createRecommendedLoadFailedServer);
   }
 
   controller._notifyChanged();
 }
 
 Future<void> _searchPlacesFor(CreateController controller) async {
+  final l10n = MateyaLocalizations.current;
   final query = controller._searchQuery.trim();
   if (query.isEmpty) {
     controller._fieldErrors = <String, String?>{
       ...controller._fieldErrors,
-      'searchQuery': '장소명을 입력해 주세요.',
+      'searchQuery': l10n.createPlaceSearchQueryRequired,
     };
     controller._notifyChanged();
     return;
@@ -62,13 +64,13 @@ Future<void> _searchPlacesFor(CreateController controller) async {
         : AsyncPhase.serverError;
     controller._emitToast(
       error.type == CreateRepositoryFailureType.network
-          ? '장소 검색에 실패했어요. 연결 상태를 확인한 뒤 다시 시도해 주세요.'
-          : '장소 검색에 실패했어요. 잠시 후 다시 시도해 주세요.',
+          ? l10n.createPlaceSearchFailedNetwork
+          : l10n.createPlaceSearchFailedServer,
     );
   } catch (_) {
     controller._searchResults = const <CreatePlaceSuggestion>[];
     controller._placePhase = AsyncPhase.serverError;
-    controller._emitToast('장소 검색에 실패했어요. 잠시 후 다시 시도해 주세요.');
+    controller._emitToast(l10n.createPlaceSearchFailedServer);
   }
 
   controller._notifyChanged();

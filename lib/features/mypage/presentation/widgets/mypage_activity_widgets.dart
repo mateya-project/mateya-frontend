@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../shared/localization/mateya_localizations.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../domain/mypage_models.dart';
 
@@ -15,6 +16,7 @@ class MyPageActivityHistoryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return InkWell(
       borderRadius: BorderRadius.circular(16),
       onTap: onTap,
@@ -88,7 +90,7 @@ class MyPageActivityHistoryCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(999),
                       ),
                       child: Text(
-                        onTap == null ? 'HOST' : '편집',
+                        onTap == null ? l10n.mypageHostBadge : l10n.commonEdit,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Colors.white,
                           fontWeight: FontWeight.w700,
@@ -103,7 +105,7 @@ class MyPageActivityHistoryCard extends StatelessWidget {
                     child: Row(
                       children: <Widget>[
                         Text(
-                          '수정하기',
+                          l10n.mypageEditActivityCta,
                           style: Theme.of(context).textTheme.bodySmall
                               ?.copyWith(
                                 color: Colors.white,

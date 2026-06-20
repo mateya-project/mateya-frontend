@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 
+import '../../../../shared/localization/mateya_localizations.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../../shared/widgets/mateya_skeleton.dart';
 import '../../domain/onboarding_flow.dart';
@@ -129,6 +130,7 @@ class AgreementRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final theme = Theme.of(context);
     final detailTap = onDetailTap ?? () => onChanged(!selected);
 
@@ -137,7 +139,7 @@ class AgreementRow extends StatelessWidget {
       children: <Widget>[
         Semantics(
           checked: selected,
-          label: '$label 동의',
+          label: l10n.onboardingAgreementSemantics(label),
           child: InkWell(
             key: checkboxKey,
             onTap: () => onChanged(!selected),
@@ -317,10 +319,14 @@ class BusinessNumberPreview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Text('사업자 번호', style: Theme.of(context).textTheme.titleLarge),
+        Text(
+          l10n.onboardingBusinessNumberLabel,
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
         const SizedBox(height: 21),
         Row(
           children: const <Widget>[

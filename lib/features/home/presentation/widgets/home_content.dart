@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../../../../shared/localization/mateya_localizations.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../onboarding/domain/onboarding_flow.dart';
 import '../../application/home_controller.dart';
@@ -24,6 +25,7 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
       child: Column(
@@ -31,8 +33,8 @@ class HomeScreen extends StatelessWidget {
           const SizedBox(height: 16),
           HomeSearchBar(
             readOnly: true,
-            hintText: '언제든 어디서든',
-            helperText: '누구와도 메이트가 되는 곳, 메이트야',
+            hintText: l10n.homeSearchHeroHint,
+            helperText: l10n.homeSearchHeroHelper,
             onTap: onSearchTap,
             onFilterTap: onSearchTap,
           ),
@@ -61,6 +63,7 @@ class HomeContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     switch (controller.homePhase) {
       case AsyncPhase.loading:
       case AsyncPhase.idle:
@@ -68,7 +71,7 @@ class HomeContent extends StatelessWidget {
       case AsyncPhase.networkError:
       case AsyncPhase.serverError:
         return RetryState(
-          message: controller.homeErrorMessage ?? '데이터를 불러오지 못했어요.',
+          message: controller.homeErrorMessage ?? l10n.homeLoadError,
           onRetry: controller.retry,
         );
       case AsyncPhase.success:
@@ -78,7 +81,10 @@ class HomeContent extends StatelessWidget {
         return ListView(
           padding: const EdgeInsets.only(bottom: 24),
           children: <Widget>[
-            Text('인기 급상승 🔥', style: Theme.of(context).textTheme.headlineLarge),
+            Text(
+              l10n.homeTrendingTitle,
+              style: Theme.of(context).textTheme.headlineLarge,
+            ),
             const SizedBox(height: 16),
             if (featured != null)
               FeaturedActivityCard(
@@ -87,7 +93,7 @@ class HomeContent extends StatelessWidget {
               ),
             const SizedBox(height: 24),
             Text(
-              '함께할 수 있는 경험',
+              l10n.homeSharedExperiencesTitle,
               style: Theme.of(context).textTheme.headlineLarge,
             ),
             const SizedBox(height: 23),
@@ -122,6 +128,7 @@ class ExploreScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
       child: Column(
@@ -130,8 +137,8 @@ class ExploreScreen extends StatelessWidget {
           HomeSearchBar(
             controller: searchController,
             focusNode: searchFocusNode,
-            hintText: '이름, 장소를 검색해 보세요',
-            helperText: '누구와도 메이트가 되는 곳, 메이트야',
+            hintText: l10n.homeExploreSearchHint,
+            helperText: l10n.homeSearchHeroHelper,
             onChanged: controller.updateSearchQuery,
             onFilterTap: onOpenFilter,
           ),
@@ -164,7 +171,8 @@ class ExploreScreen extends StatelessWidget {
             child: switch (controller.explorePhase) {
               AsyncPhase.loading || AsyncPhase.idle => const ExploreSkeleton(),
               AsyncPhase.networkError || AsyncPhase.serverError => RetryState(
-                message: controller.exploreErrorMessage ?? '결과를 불러오지 못했어요.',
+                message:
+                    controller.exploreErrorMessage ?? l10n.homeExploreError,
                 onRetry: controller.retry,
               ),
               AsyncPhase.success || AsyncPhase.validationError =>
@@ -236,12 +244,14 @@ class FavoritesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
       child: switch (controller.favoritePhase) {
         AsyncPhase.loading || AsyncPhase.idle => const ExploreSkeleton(),
         AsyncPhase.networkError || AsyncPhase.serverError => RetryState(
-          message: controller.favoriteErrorMessage ?? '즐겨찾기 목록을 불러오지 못했어요.',
+          message:
+              controller.favoriteErrorMessage ?? l10n.homeFavoritesLoadError,
           onRetry: controller.retry,
         ),
         AsyncPhase.success || AsyncPhase.validationError => Builder(
@@ -255,12 +265,12 @@ class FavoritesScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Text(
-                        '즐겨찾기 목록',
+                        l10n.homeFavoritesTitle,
                         style: Theme.of(context).textTheme.headlineMedium,
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        '당신의 관심을 세상과 공유하세요.',
+                        l10n.homeFavoritesSubtitle,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: AppColors.textSecondary,
                         ),
@@ -277,14 +287,14 @@ class FavoritesScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        '아직 즐겨찾기한 활동이 없어요.',
+                        l10n.homeFavoritesEmptyTitle,
                         style: Theme.of(
                           context,
                         ).textTheme.titleLarge?.copyWith(fontSize: 18),
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        '마음에 드는 활동을 저장하면 여기서 다시 볼 수 있어요.',
+                        l10n.homeFavoritesEmptyDescription,
                         textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: AppColors.textSecondary,
@@ -307,12 +317,12 @@ class FavoritesScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Text(
-                        '즐겨찾기 목록',
+                        l10n.homeFavoritesTitle,
                         style: Theme.of(context).textTheme.headlineMedium,
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        '당신의 관심을 세상과 공유하세요.',
+                        l10n.homeFavoritesSubtitle,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: AppColors.textSecondary,
                         ),

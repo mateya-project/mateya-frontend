@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../../../shared/localization/mateya_localizations.dart';
 import '../../../../shared/permissions/mateya_permission_dialogs.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../../shared/widgets/mateya_button.dart';
@@ -46,6 +47,7 @@ class _PhoneStepViewState extends State<PhoneStepView> {
   @override
   Widget build(BuildContext context) {
     final controller = widget.controller;
+    final l10n = context.l10n;
     final theme = Theme.of(context);
     final hasSentVerificationCode = controller.hasSentVerificationCode;
 
@@ -71,16 +73,21 @@ class _PhoneStepViewState extends State<PhoneStepView> {
               children: <Widget>[
                 const SizedBox(height: 32),
                 Text(
-                  hasSentVerificationCode ? '인증번호를 입력해주세요' : '휴대폰 번호를 입력해주세요',
+                  hasSentVerificationCode
+                      ? l10n.onboardingEnterVerificationCode
+                      : l10n.onboardingEnterPhoneNumber,
                   style: theme.textTheme.headlineLarge,
                 ),
                 const SizedBox(height: 32),
-                Text('전화번호', style: theme.textTheme.titleLarge),
+                Text(
+                  l10n.onboardingPhoneNumberLabel,
+                  style: theme.textTheme.titleLarge,
+                ),
                 const SizedBox(height: 24),
                 MateyaTextField(
                   controller: _phoneController,
                   readOnly: hasSentVerificationCode,
-                  hintText: '예)01012341234',
+                  hintText: l10n.onboardingPhoneNumberHint,
                   keyboardType: TextInputType.phone,
                   inputFormatters: <TextInputFormatter>[
                     FilteringTextInputFormatter.digitsOnly,
@@ -91,20 +98,23 @@ class _PhoneStepViewState extends State<PhoneStepView> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  '휴대폰 번호를 입력하면 인증번호를 받을 수 있어요.',
+                  l10n.onboardingPhoneNumberHelper,
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: AppColors.textSecondary,
                   ),
                 ),
                 const SizedBox(height: 46),
-                Text('인증번호', style: theme.textTheme.titleLarge),
+                Text(
+                  l10n.onboardingVerificationCodeLabel,
+                  style: theme.textTheme.titleLarge,
+                ),
                 const SizedBox(height: 21),
                 MateyaTextField(
                   controller: _verificationController,
                   readOnly: !hasSentVerificationCode,
                   hintText: hasSentVerificationCode
                       ? null
-                      : '인증번호 받기를 누르면 입력할 수 있어요.',
+                      : l10n.onboardingVerificationCodeHint,
                   keyboardType: TextInputType.number,
                   inputFormatters: <TextInputFormatter>[
                     FilteringTextInputFormatter.digitsOnly,
@@ -136,7 +146,7 @@ class _PhoneStepViewState extends State<PhoneStepView> {
                         highlightColor: Colors.transparent,
                         borderRadius: BorderRadius.circular(8),
                         child: Text(
-                          '인증번호 다시받기',
+                          l10n.onboardingResendVerificationCode,
                           style: theme.textTheme.bodySmall?.copyWith(
                             decoration: TextDecoration.underline,
                           ),
@@ -157,7 +167,9 @@ class _PhoneStepViewState extends State<PhoneStepView> {
                       controller.debugVerificationCode != null) ...<Widget>[
                     const SizedBox(height: 12),
                     Text(
-                      '테스트용 인증번호: ${controller.debugVerificationCode}',
+                      l10n.onboardingDebugVerificationCode(
+                        controller.debugVerificationCode!,
+                      ),
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: AppColors.brandGreen,
                       ),
@@ -173,10 +185,10 @@ class _PhoneStepViewState extends State<PhoneStepView> {
           padding: const EdgeInsets.fromLTRB(20, 0, 20, 26),
           child: MateyaButton(
             label: controller.isAuthLoading
-                ? '처리 중...'
+                ? l10n.commonProcessing
                 : controller.hasSentVerificationCode
-                ? '인증하기'
-                : '인증번호 받기',
+                ? l10n.onboardingVerify
+                : l10n.onboardingRequestVerificationCode,
             tone: MateyaButtonTone.dark,
             enabled:
                 !controller.isAuthLoading &&
@@ -277,6 +289,7 @@ class _NeighborhoodAutoStepViewState extends State<NeighborhoodAutoStepView> {
   }
 
   Future<void> _handleLocationFailure() async {
+    final l10n = context.l10n;
     final failure = widget.controller.locationFailure;
     if (failure == null || _lastHandledFailureType == failure.type) {
       return;
@@ -288,17 +301,15 @@ class _NeighborhoodAutoStepViewState extends State<NeighborhoodAutoStepView> {
       case LocationFailureType.serviceDisabled:
         await showMateyaLocationSettingsDialog(
           context,
-          title: '위치 서비스가 꺼져 있어요',
-          message:
-              '현재 위치로 동네 인증을 진행하려면 기기 위치 서비스를 켜야 합니다. 켜지 않아도 동네를 직접 입력해 가입을 계속할 수 있습니다.',
+          title: l10n.locationServiceDisabledTitle,
+          message: l10n.onboardingLocationServiceDisabledMessage,
         );
         break;
       case LocationFailureType.permissionPermanentlyDenied:
         await showMateyaAppSettingsDialog(
           context,
-          title: '위치 권한이 꺼져 있어요',
-          message:
-              '현재 위치 자동 인증을 사용하려면 앱 설정에서 위치 권한을 허용해야 합니다. 권한을 허용하지 않아도 직접 입력으로 가입을 계속할 수 있습니다.',
+          title: l10n.locationPermissionDisabledTitle,
+          message: l10n.onboardingLocationPermissionDisabledMessage,
         );
         break;
       case LocationFailureType.permissionDenied ||
@@ -313,6 +324,7 @@ class _NeighborhoodAutoStepViewState extends State<NeighborhoodAutoStepView> {
   @override
   Widget build(BuildContext context) {
     final controller = widget.controller;
+    final l10n = context.l10n;
     final theme = Theme.of(context);
 
     return Column(
@@ -343,18 +355,22 @@ class _NeighborhoodAutoStepViewState extends State<NeighborhoodAutoStepView> {
                       Text(
                         controller.completionMode == AuthCompletionMode.login &&
                                 controller.previousNeighborhoodLabel != null
-                            ? '이전에 "${controller.previousNeighborhoodLabel}"으로 등록했어요.'
+                            ? l10n.onboardingPreviousNeighborhood(
+                                controller.previousNeighborhoodLabel!,
+                              )
                             : controller.selectedNeighborhood != null
                             ? controller.resolvedNeighborhoodMessage
                             : controller.locationFailure?.message ??
-                                  '현재 위치를 확인하고 있어요.',
+                                  l10n.onboardingResolvingCurrentLocation,
                         style: theme.textTheme.bodyLarge,
                       ),
                     ],
                   ),
                 ),
                 MateyaButton(
-                  label: controller.isAuthLoading ? '처리 중...' : '동네인증 완료하기',
+                  label: controller.isAuthLoading
+                      ? l10n.commonProcessing
+                      : l10n.onboardingCompleteNeighborhood,
                   enabled:
                       controller.canCompleteNeighborhood &&
                       !controller.isAuthLoading,
@@ -370,11 +386,12 @@ class _NeighborhoodAutoStepViewState extends State<NeighborhoodAutoStepView> {
                           _startLocationVerificationFlow(showNotice: false),
                       child: Text(switch (controller.locationFailure?.type) {
                         LocationFailureType.permissionDenied =>
-                          '현재 위치 권한 다시 요청',
+                          l10n.onboardingRetryLocationPermission,
                         LocationFailureType.permissionPermanentlyDenied =>
-                          '설정 변경 후 다시 확인',
-                        LocationFailureType.serviceDisabled => '위치 서비스 다시 확인',
-                        _ => '현재 위치 다시 확인',
+                          l10n.onboardingRetryAfterSettingsChange,
+                        LocationFailureType.serviceDisabled =>
+                          l10n.onboardingRetryLocationService,
+                        _ => l10n.onboardingRetryCurrentLocation,
                       }),
                     ),
                   ),
@@ -389,14 +406,16 @@ class _NeighborhoodAutoStepViewState extends State<NeighborhoodAutoStepView> {
                     child: Text.rich(
                       TextSpan(
                         style: theme.textTheme.bodyMedium,
-                        children: const <InlineSpan>[
+                        children: <InlineSpan>[
                           TextSpan(
-                            text: '인증이 어려워요.  ',
-                            style: TextStyle(color: AppColors.textSecondary),
+                            text: l10n.onboardingNeedHelp,
+                            style: const TextStyle(
+                              color: AppColors.textSecondary,
+                            ),
                           ),
                           TextSpan(
-                            text: '직접 입력하기 >',
-                            style: TextStyle(color: AppColors.brandGreen),
+                            text: l10n.onboardingManualInputCta,
+                            style: const TextStyle(color: AppColors.brandGreen),
                           ),
                         ],
                       ),
@@ -425,6 +444,7 @@ class OnboardingLocationPermissionDialogContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final theme = Theme.of(context);
 
     return ConstrainedBox(
@@ -436,7 +456,7 @@ class OnboardingLocationPermissionDialogContent extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Text(
-              '위치 권한 안내',
+              l10n.onboardingLocationPermissionNoticeTitle,
               style: theme.textTheme.headlineLarge?.copyWith(
                 fontSize: 20,
                 fontWeight: FontWeight.w800,
@@ -444,7 +464,7 @@ class OnboardingLocationPermissionDialogContent extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              '동네 인증 및 내 주변 활동 추천을 위해 위치 정보가 필요합니다.\n위치 권한을 허용하지 않아도 동네를 직접 입력하여\n가입을 계속할 수 있습니다.',
+              l10n.onboardingLocationPermissionNoticeMessage,
               style: theme.textTheme.titleLarge?.copyWith(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
@@ -471,7 +491,7 @@ class OnboardingLocationPermissionDialogContent extends StatelessWidget {
                     color: Colors.white,
                   ),
                 ),
-                child: const Text('현재 위치로 인증하기'),
+                child: Text(l10n.onboardingUseCurrentLocation),
               ),
             ),
             const SizedBox(height: 8),
@@ -487,7 +507,7 @@ class OnboardingLocationPermissionDialogContent extends StatelessWidget {
                     decorationColor: const Color(0xFF9B9B9B),
                   ),
                 ),
-                child: const Text('직접 입력하기'),
+                child: Text(l10n.onboardingManualInput),
               ),
             ),
           ],
@@ -528,6 +548,7 @@ class _NeighborhoodManualStepViewState
   @override
   Widget build(BuildContext context) {
     final controller = widget.controller;
+    final l10n = context.l10n;
     final theme = Theme.of(context);
 
     _queryController.value = _queryController.value.copyWith(
@@ -560,13 +581,13 @@ class _NeighborhoodManualStepViewState
                 Text(
                   controller.selectedNeighborhood != null
                       ? controller.resolvedNeighborhoodMessage
-                      : '00시 00동 또는 00동 형식으로 입력해 주세요.',
+                      : l10n.onboardingManualNeighborhoodHelper,
                   style: theme.textTheme.bodyLarge,
                 ),
                 const SizedBox(height: 24),
                 MateyaTextField(
                   controller: _queryController,
-                  hintText: '우만동',
+                  hintText: l10n.onboardingNeighborhoodHint,
                   errorText: controller.errorFor('manualNeighborhood'),
                   onChanged: controller.updateManualNeighborhoodQuery,
                   onSubmitted: (_) => controller.resolveManualNeighborhood(),
@@ -575,7 +596,9 @@ class _NeighborhoodManualStepViewState
                 Padding(
                   padding: const EdgeInsets.only(bottom: 26),
                   child: MateyaButton(
-                    label: controller.isAuthLoading ? '처리 중...' : '동네인증 완료하기',
+                    label: controller.isAuthLoading
+                        ? l10n.commonProcessing
+                        : l10n.onboardingCompleteNeighborhood,
                     enabled:
                         controller.canCompleteNeighborhood &&
                         !controller.isAuthLoading,

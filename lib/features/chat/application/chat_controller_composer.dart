@@ -67,6 +67,7 @@ void _chatToggleTranslation(
 }
 
 Future<void> _chatSendMessage(ChatController controller) async {
+  final l10n = MateyaLocalizations.current;
   final room = controller.currentRoom;
   final message = controller._draft.trim();
   if (room == null ||
@@ -97,7 +98,7 @@ Future<void> _chatSendMessage(ChatController controller) async {
       final current = controller.currentRoom ?? room;
       final outgoingGroup = ChatMessageGroup(
         id: 'pending-${now.microsecondsSinceEpoch}',
-        sender: const ChatParticipant(id: 'me', name: '나'),
+        sender: ChatParticipant(id: 'me', name: l10n.chatMe),
         sentAt: now,
         isMine: true,
         bubbles: sentBubbles,
@@ -118,12 +119,12 @@ Future<void> _chatSendMessage(ChatController controller) async {
     controller._pushToast(
       error.message ??
           (error.type == ChatLoadFailureType.network
-              ? '메시지를 전송하지 못했어요. 네트워크를 확인해 주세요.'
-              : '메시지를 전송하지 못했어요. 잠시 후 다시 시도해 주세요.'),
+              ? l10n.chatSendFailedNetwork
+              : l10n.chatSendFailedServer),
     );
   } catch (_) {
     controller._roomPhase = AsyncPhase.validationError;
-    controller._pushToast('메시지를 전송하지 못했어요. 잠시 후 다시 시도해 주세요.');
+    controller._pushToast(l10n.chatSendFailedServer);
   } finally {
     controller._isSending = false;
   }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../../../shared/localization/mateya_localizations.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../../shared/widgets/mateya_text_field.dart';
 import '../../application/create_controller.dart';
@@ -43,6 +44,7 @@ class DetailsStepView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final theme = Theme.of(context);
     final selectedPlace = controller.selectedPlace;
     final manualSummary =
@@ -79,13 +81,13 @@ class DetailsStepView extends StatelessWidget {
       children: <Widget>[
         Text(
           controller.flowType == CreateFlowType.group
-              ? '모임 정보를 입력해 주세요'
-              : '클래스 정보를 입력해 주세요',
+              ? l10n.createGroupInfoTitle
+              : l10n.createClassInfoTitle,
           style: theme.textTheme.headlineMedium,
         ),
         const SizedBox(height: 10),
         Text(
-          '필수 항목이 모두 채워져야 등록 버튼이 활성화되도록 프론트 검증을 먼저 구현했습니다.',
+          l10n.createValidationIntro,
           style: theme.textTheme.bodyMedium?.copyWith(
             color: AppColors.textSecondary,
           ),
@@ -93,7 +95,7 @@ class DetailsStepView extends StatelessWidget {
         const SizedBox(height: 24),
         if (controller.flowType == CreateFlowType.group) ...<Widget>[
           SummaryCard(
-            title: '선택한 카테고리',
+            title: l10n.createSelectedCategoryTitle,
             body: controller.availableCategories
                 .where(
                   (category) =>
@@ -106,7 +108,7 @@ class DetailsStepView extends StatelessWidget {
         ],
         if (selectedPlace != null || manualSummary != null) ...<Widget>[
           SummaryCard(
-            title: '선택한 장소',
+            title: l10n.createSelectedPlaceTitle,
             body: selectedPlace != null
                 ? '${selectedPlace.name}\n${selectedPlace.address}'
                 : manualSummary!,
@@ -119,15 +121,17 @@ class DetailsStepView extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Text(
-                controller.flowType == CreateFlowType.group ? '모임명' : '클래스 이름',
+                controller.flowType == CreateFlowType.group
+                    ? l10n.createGroupNameLabel
+                    : l10n.createClassNameLabel,
                 style: theme.textTheme.titleLarge,
               ),
               const SizedBox(height: 10),
               MateyaTextField(
                 controller: titleController,
                 hintText: controller.flowType == CreateFlowType.group
-                    ? '예: 북촌 한옥 다도 체험 같이 가요'
-                    : '예: 초보자를 위한 전통 다도 클래스',
+                    ? l10n.createGroupNameHint
+                    : l10n.createClassNameHint,
                 errorText: controller.errorFor('title'),
                 maxLength: 100,
                 onChanged: controller.updateTitle,
@@ -141,11 +145,11 @@ class DetailsStepView extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Text('소개', style: theme.textTheme.titleLarge),
+              Text(l10n.createDescriptionTitle, style: theme.textTheme.titleLarge),
               const SizedBox(height: 10),
               MultilineField(
                 controller: descriptionController,
-                hintText: '활동 소개, 준비물, 분위기 등을 자유롭게 적어 주세요.',
+                hintText: l10n.createDescriptionHint,
                 maxLength: 3000,
                 errorText: controller.errorFor('description'),
                 onChanged: controller.updateDescription,
@@ -159,12 +163,12 @@ class DetailsStepView extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Text('날짜와 시간', style: theme.textTheme.titleLarge),
+              Text(l10n.createDateTimeTitle, style: theme.textTheme.titleLarge),
               const SizedBox(height: 10),
               PickerField(
-                label: '날짜',
+                label: l10n.createDateLabel,
                 value: formatCreateDate(controller.eventDate),
-                placeholder: '날짜 선택',
+                placeholder: l10n.createDatePlaceholder,
                 errorText: controller.errorFor('eventDate'),
                 icon: Icons.calendar_today_rounded,
                 onTap: onPickEventDate,
@@ -176,9 +180,9 @@ class DetailsStepView extends StatelessWidget {
                   children: <Widget>[
                     Expanded(
                       child: PickerField(
-                        label: '시작 시간',
+                        label: l10n.createStartTimeLabel,
                         value: formatCreateTime(controller.startTime),
-                        placeholder: '시작 시간',
+                        placeholder: l10n.createStartTimePlaceholder,
                         errorText: null,
                         icon: Icons.schedule_rounded,
                         onTap: onPickStartTime,
@@ -187,9 +191,9 @@ class DetailsStepView extends StatelessWidget {
                     const SizedBox(width: 12),
                     Expanded(
                       child: PickerField(
-                        label: '종료 시간',
+                        label: l10n.createEndTimeLabel,
                         value: formatCreateTime(controller.endTime),
-                        placeholder: '종료 시간',
+                        placeholder: l10n.createEndTimePlaceholder,
                         errorText: null,
                         icon: Icons.schedule_rounded,
                         onTap: onPickEndTime,
@@ -211,7 +215,7 @@ class DetailsStepView extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Text('모집 인원', style: theme.textTheme.titleLarge),
+              Text(l10n.createCapacityTitle, style: theme.textTheme.titleLarge),
               const SizedBox(height: 10),
               CapacityStepper(
                 value: controller.participantCapacity,
@@ -236,13 +240,16 @@ class DetailsStepView extends StatelessWidget {
               Row(
                 children: <Widget>[
                   Expanded(
-                    child: Text('모집 마감', style: theme.textTheme.titleLarge),
+                    child: Text(
+                      l10n.createDeadlineTitle,
+                      style: theme.textTheme.titleLarge,
+                    ),
                   ),
                   if (controller.deadlineDate != null ||
                       controller.deadlineTime != null)
                     TextButton(
                       onPressed: controller.clearDeadline,
-                      child: const Text('초기화'),
+                      child: Text(l10n.commonReset),
                     ),
                 ],
               ),
@@ -251,9 +258,9 @@ class DetailsStepView extends StatelessWidget {
                 children: <Widget>[
                   Expanded(
                     child: PickerField(
-                      label: '마감 날짜',
+                      label: l10n.createDeadlineDateLabel,
                       value: formatCreateDate(controller.deadlineDate),
-                      placeholder: '선택 안 함',
+                      placeholder: l10n.createNotSelected,
                       errorText: null,
                       icon: Icons.event_available_rounded,
                       onTap: onPickDeadlineDate,
@@ -262,9 +269,9 @@ class DetailsStepView extends StatelessWidget {
                   const SizedBox(width: 12),
                   Expanded(
                     child: PickerField(
-                      label: '마감 시간',
+                      label: l10n.createDeadlineTimeLabel,
                       value: formatCreateTime(controller.deadlineTime),
-                      placeholder: '선택 안 함',
+                      placeholder: l10n.createNotSelected,
                       errorText: null,
                       icon: Icons.alarm_rounded,
                       onTap: onPickDeadlineTime,
@@ -285,7 +292,7 @@ class DetailsStepView extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Text('진행 언어', style: theme.textTheme.titleLarge),
+              Text(l10n.createLanguagesTitle, style: theme.textTheme.titleLarge),
               const SizedBox(height: 12),
               Wrap(
                 spacing: 10,
@@ -315,7 +322,7 @@ class DetailsStepView extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Text('비용', style: theme.textTheme.titleLarge),
+              Text(l10n.createPriceTitle, style: theme.textTheme.titleLarge),
               const SizedBox(height: 12),
               Row(
                 children: CreatePriceType.values
@@ -346,7 +353,7 @@ class DetailsStepView extends StatelessWidget {
                   key: sectionKeys['price'],
                   child: MateyaTextField(
                     controller: priceController,
-                    hintText: '예: 15000',
+                    hintText: l10n.createPaidPriceHint,
                     keyboardType: TextInputType.number,
                     inputFormatters: <TextInputFormatter>[
                       FilteringTextInputFormatter.digitsOnly,
@@ -360,7 +367,7 @@ class DetailsStepView extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 24),
-        Text('참가 대상', style: theme.textTheme.titleLarge),
+        Text(l10n.createAudienceTitle, style: theme.textTheme.titleLarge),
         const SizedBox(height: 12),
         Wrap(
           spacing: 10,
@@ -384,7 +391,10 @@ class DetailsStepView extends StatelessWidget {
               Row(
                 children: <Widget>[
                   Expanded(
-                    child: Text('대표 이미지', style: theme.textTheme.titleLarge),
+                    child: Text(
+                      l10n.createPrimaryImageTitle,
+                      style: theme.textTheme.titleLarge,
+                    ),
                   ),
                   Text(
                     '${controller.images.length}/${CreateController.maxImageCount}',
@@ -425,8 +435,8 @@ class DetailsStepView extends StatelessWidget {
               const SizedBox(height: 12),
               Text(
                 controller.images.isEmpty
-                    ? '대표 이미지는 최소 1장 필요해요.'
-                    : '대표 이미지는 초록 테두리로 표시돼요. 다른 사진을 탭하면 변경할 수 있어요.',
+                    ? l10n.createPrimaryImageRequiredHint
+                    : l10n.createPrimaryImageSelectionHint,
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: AppColors.textSecondary,
                 ),
@@ -452,8 +462,8 @@ class DetailsStepView extends StatelessWidget {
             ),
             child: Text(
               controller.isDeleteLoading
-                  ? '삭제 중...'
-                  : '${controller.flowType.entityLabel} 삭제하기',
+                  ? l10n.createDeleting
+                  : l10n.createDeleteAction(controller.flowType.entityLabel),
             ),
           ),
         ],

@@ -12,6 +12,7 @@ Future<void> _chatRetryRooms(ChatController controller) {
 }
 
 Future<void> _chatLoadMoreRooms(ChatController controller) async {
+  final l10n = MateyaLocalizations.current;
   if (controller._isLoadingMoreRooms ||
       !controller._hasMoreRooms ||
       controller._nextRoomsPage == null) {
@@ -35,8 +36,8 @@ Future<void> _chatLoadMoreRooms(ChatController controller) async {
     controller._pushToast(
       error.message ??
           (error.type == ChatLoadFailureType.network
-              ? '채팅 목록을 더 불러오지 못했어요. 네트워크를 확인해 주세요.'
-              : '채팅 목록을 더 불러오지 못했어요. 잠시 후 다시 시도해 주세요.'),
+              ? l10n.chatListLoadMoreFailedNetwork
+              : l10n.chatListLoadMoreFailedServer),
     );
   } finally {
     controller._isLoadingMoreRooms = false;
@@ -45,6 +46,7 @@ Future<void> _chatLoadMoreRooms(ChatController controller) async {
 }
 
 Future<void> _chatLoadRooms(ChatController controller) async {
+  final l10n = MateyaLocalizations.current;
   controller._listPhase = AsyncPhase.loading;
   controller._listErrorMessage = null;
   controller._notifyChanged();
@@ -63,11 +65,11 @@ Future<void> _chatLoadRooms(ChatController controller) async {
     controller._listErrorMessage =
         error.message ??
         (error.type == ChatLoadFailureType.network
-            ? '네트워크 연결을 확인한 뒤 다시 시도해 주세요.'
-            : '채팅 목록을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.');
+            ? l10n.commonNetworkRetry
+            : l10n.chatListLoadError);
   } catch (_) {
     controller._listPhase = AsyncPhase.serverError;
-    controller._listErrorMessage = '채팅 목록을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.';
+    controller._listErrorMessage = l10n.chatListLoadError;
   }
 
   controller._notifyChanged();

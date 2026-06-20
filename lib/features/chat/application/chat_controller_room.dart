@@ -12,6 +12,7 @@ Future<void> _chatOpenRoom(
   ChatController controller, {
   required String roomId,
 }) async {
+  final l10n = MateyaLocalizations.current;
   _chatStopRealtime(controller);
   controller._selectedRoomId = roomId;
   controller._roomPhase = AsyncPhase.loading;
@@ -33,7 +34,7 @@ Future<void> _chatOpenRoom(
     try {
       await controller._repository.markRoomAsRead(roomId);
     } on ChatRepositoryException {
-      controller._pushToast('읽음 상태를 서버에 반영하지 못했어요. 다음에 다시 시도합니다.');
+      controller._pushToast(l10n.chatReadSyncFailed);
     }
     _chatStartRealtime(controller, roomId: roomId);
     controller._roomPhase = AsyncPhase.success;
@@ -45,17 +46,18 @@ Future<void> _chatOpenRoom(
     controller._roomErrorMessage =
         error.message ??
         (error.type == ChatLoadFailureType.network
-            ? '네트워크 연결을 확인한 뒤 다시 시도해 주세요.'
-            : '채팅방을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.');
+            ? l10n.commonNetworkRetry
+            : l10n.chatRoomLoadError);
   } catch (_) {
     controller._roomPhase = AsyncPhase.serverError;
-    controller._roomErrorMessage = '채팅방을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.';
+    controller._roomErrorMessage = l10n.chatRoomLoadError;
   }
 
   controller._notifyChanged();
 }
 
 Future<void> _chatLoadOlderMessages(ChatController controller) async {
+  final l10n = MateyaLocalizations.current;
   final roomId = controller._selectedRoomId;
   final room = controller.currentRoom;
   if (roomId == null ||
@@ -86,8 +88,8 @@ Future<void> _chatLoadOlderMessages(ChatController controller) async {
     controller._pushToast(
       error.message ??
           (error.type == ChatLoadFailureType.network
-              ? '이전 메시지를 불러오지 못했어요. 네트워크를 확인해 주세요.'
-              : '이전 메시지를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.'),
+              ? l10n.chatOlderMessagesFailedNetwork
+              : l10n.chatOlderMessagesFailedServer),
     );
   } finally {
     controller._isLoadingOlderMessages = false;

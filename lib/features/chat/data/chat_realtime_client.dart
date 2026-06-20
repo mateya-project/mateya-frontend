@@ -4,6 +4,7 @@ import 'package:stomp_dart_client/stomp_dart_client.dart';
 
 import '../../../app/app_config.dart';
 import '../../../shared/auth/auth_session.dart';
+import '../../../shared/localization/mateya_localizations.dart';
 import '../../../shared/logging/app_logger.dart';
 import '../domain/chat_models.dart';
 
@@ -142,7 +143,10 @@ class ChatRealtimeClient {
               body: _trimFrameBody(frame.body),
             ),
           );
-          _reportConnectionError(frame.body ?? '실시간 채팅 연결에 실패했어요.');
+          _reportConnectionError(
+            frame.body ??
+                MateyaLocalizations.current.chatRealtimeConnectionError,
+          );
         },
         onWebSocketError: (error) {
           _logger.warning(
@@ -150,7 +154,9 @@ class ChatRealtimeClient {
             error: error,
             context: _logContext(roomId),
           );
-          _reportConnectionError('실시간 채팅 연결에 실패했어요.');
+          _reportConnectionError(
+            MateyaLocalizations.current.chatRealtimeConnectionError,
+          );
         },
         onWebSocketDone: () {
           _logger.info(
@@ -245,7 +251,7 @@ class ChatRealtimeClient {
         stackTrace: stackTrace,
         context: <String, Object?>{'roomId': _roomId},
       );
-      _reportError('실시간 채팅 메시지를 처리하지 못했어요.');
+      _reportError(MateyaLocalizations.current.chatRealtimeMessageError);
     }
   }
 

@@ -63,9 +63,11 @@ void _updateManualNeighborhoodQuery(
 }
 
 Future<void> _resolveManualNeighborhood(OnboardingController controller) async {
+  final l10n = MateyaLocalizations.current;
   final trimmed = controller._manualNeighborhoodQuery.trim();
   if (trimmed.isEmpty) {
-    controller._fieldErrors['manualNeighborhood'] = '동네를 입력해 주세요.';
+    controller._fieldErrors['manualNeighborhood'] =
+        l10n.onboardingLocationQueryRequired;
     controller._notifyChanged();
     return;
   }
@@ -87,7 +89,7 @@ Future<void> _resolveManualNeighborhood(OnboardingController controller) async {
     controller._selectedNeighborhood = null;
     controller._locationFailure = result.failure;
     controller._fieldErrors['manualNeighborhood'] =
-        result.failure?.message ?? '동네를 찾지 못했어요.';
+        result.failure?.message ?? l10n.onboardingLocationQueryNotFound;
   }
   controller._notifyChanged();
 }

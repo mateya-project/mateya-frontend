@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import '../localization/app_locale_controller.dart';
+import '../localization/mateya_localizations.dart';
 import '../preferences/mateya_language_preferences.dart';
 import '../theme/app_tokens.dart';
 import 'mateya_language_dialog.dart';
@@ -282,7 +284,7 @@ class _MateyaTextLogo extends StatelessWidget {
       height: 22,
       width: 92,
       fit: BoxFit.contain,
-      semanticsLabel: 'MateYa',
+      semanticsLabel: context.l10n.appTitle,
     );
   }
 }
@@ -310,7 +312,7 @@ class _LanguageButton extends StatelessWidget {
             if (selectedCode == null) {
               return;
             }
-            await preferences.setCurrentCode(selectedCode);
+            await AppLocaleController.instance.setLanguageCode(selectedCode);
           },
       icon: Icons.language_rounded,
       size: 32,
@@ -384,7 +386,7 @@ class MateyaBrandLockup extends StatelessWidget {
         const _MateyaWordmark(fontSize: 28),
         const SizedBox(height: 12),
         Text(
-          '한국의정과 문화를 나누는\n특별한 여정의 시작',
+          context.l10n.brandLockupSubtitle,
           textAlign: TextAlign.center,
           style: theme.textTheme.bodyMedium?.copyWith(
             fontSize: 14,
