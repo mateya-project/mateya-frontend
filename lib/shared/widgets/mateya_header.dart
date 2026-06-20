@@ -163,8 +163,8 @@ class _ChatDetailHeader extends StatelessWidget {
           Positioned(
             left: 66,
             right: onReportTap == null ? 66 : 108,
-            top: 16,
-            bottom: 16,
+            top: 15,
+            bottom: 15,
             child: _ChatDetailTitle(title: title, subtitle: subtitle),
           ),
           Align(
@@ -239,6 +239,7 @@ class _ChatDetailTitle extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Column(
+      mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
