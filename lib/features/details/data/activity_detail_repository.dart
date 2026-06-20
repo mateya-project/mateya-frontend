@@ -2,9 +2,11 @@ import 'dart:io';
 
 import '../../../app/app_config.dart';
 import '../../../shared/auth/auth_session.dart';
+import '../../../shared/localization/app_locale_controller.dart';
 import '../../../shared/localization/mateya_localizations.dart';
 import '../../../shared/network/http_transport.dart';
 import '../../../shared/network/mateya_api_client.dart';
+import '../../../shared/preferences/mateya_language_preferences.dart';
 import '../../../shared/time/korean_time.dart';
 import '../../home/domain/home_models.dart';
 import '../domain/activity_detail_models.dart';
@@ -42,6 +44,11 @@ abstract interface class ActivityDetailRepository {
   });
 
   Future<HelpfulToggleState> toggleHelpful({required String reviewId});
+
+  Future<ActivityReview> fetchReview({
+    required String reviewId,
+    required bool original,
+  });
 
   Future<ActivityReview> submitReview({
     required String activityId,

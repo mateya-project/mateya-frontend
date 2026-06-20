@@ -181,6 +181,23 @@ class ApiActivityDetailRepository implements ActivityDetailRepository {
   }
 
   @override
+  Future<ActivityReview> fetchReview({
+    required String reviewId,
+    required bool original,
+  }) async {
+    try {
+      final data = await _apiClient.getJson(
+        '/api/v1/reviews/$reviewId',
+        requiresAuth: true,
+        queryParameters: <String, String>{'original': '$original'},
+      );
+      return _parseReview(data);
+    } on MateyaApiException catch (error) {
+      throw _mapApiException(error);
+    }
+  }
+
+  @override
   Future<ActivityReview> submitReview({
     required String activityId,
     required int rating,

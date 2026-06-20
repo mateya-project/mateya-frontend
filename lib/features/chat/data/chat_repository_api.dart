@@ -97,6 +97,24 @@ class ApiChatRepository implements ChatRepository {
   }
 
   @override
+  Future<ChatMessageGroup> fetchMessage({
+    required String roomId,
+    required String messageId,
+    required bool original,
+  }) async {
+    try {
+      final data = await _apiClient.getJson(
+        '/api/v1/chats/$roomId/messages/$messageId',
+        requiresAuth: true,
+        queryParameters: <String, String>{'original': '$original'},
+      );
+      return _parseMessageGroup(data);
+    } on MateyaApiException catch (error) {
+      throw _mapApiException(error);
+    }
+  }
+
+  @override
   Future<List<ChatBubble>> sendMessage({
     required String roomId,
     required String text,

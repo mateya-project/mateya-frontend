@@ -75,6 +75,9 @@ ChatMessageGroup _parseMessageGroup(Object? value) {
   final senderId = '${json['senderUserId']}';
   final isMine = senderId == '${_chatRepositorySessionStore?.session?.user.id}';
   final bubble = _parseMessageBubble(json);
+  final canToggleTranslation = _canToggleTranslation(
+    json['originalLanguage'] as String?,
+  );
 
   return ChatMessageGroup(
     id: '${json['id']}',
@@ -86,6 +89,7 @@ ChatMessageGroup _parseMessageGroup(Object? value) {
     sentAt: _parseDateTime(json['sentAt']) ?? mateyaNowInKst(),
     isMine: isMine,
     isTranslatedVisible: !isMine && bubble.translatedText != null,
+    canToggleTranslation: !isMine && canToggleTranslation,
     bubbles: <ChatBubble>[bubble],
   );
 }
@@ -117,6 +121,17 @@ ChatBubble _parseMessageBubble(Object? value) {
             ),
           ],
   );
+}
+
+bool _canToggleTranslation(String? originalLanguageCode) {
+  if (originalLanguageCode == null || originalLanguageCode.trim().isEmpty) {
+    return false;
+  }
+  final currentLanguageCode =
+      MateyaLanguagePreferences.primaryLanguageCodeFromCode(
+        AppLocaleController.instance.languageCode,
+      );
+  return originalLanguageCode.trim().toLowerCase() != currentLanguageCode;
 }
 
 DateTime? _parseDateTime(Object? value) {

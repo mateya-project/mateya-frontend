@@ -44,21 +44,69 @@ void _chatRemoveDraftAttachment(
   controller._notifyChanged();
 }
 
-void _chatToggleTranslation(
+Future<void> _chatToggleTranslation(
   ChatController controller, {
   required String groupId,
-}) {
+}) async {
   final room = controller.currentRoom;
   if (room == null) {
     return;
   }
+  final targetGroup = room.messageGroups
+      .where((group) => group.id == groupId)
+      .firstOrNull;
+  if (targetGroup == null || !targetGroup.supportsTranslation) {
+    return;
+  }
+  if (targetGroup.isTranslatedVisible) {
+    final updatedGroups = room.messageGroups
+        .map((group) {
+          if (group.id != groupId) {
+            return group;
+          }
+          return group.copyWith(isTranslatedVisible: false);
+        })
+        .toList(growable: false);
+    _chatReplaceRoom(controller, room.copyWith(messageGroups: updatedGroups));
+    controller._notifyChanged();
+    return;
+  }
+
+  ChatMessageGroup resolvedGroup = targetGroup;
+  final hasTranslatedText = targetGroup.bubbles.any(
+    (bubble) =>
+        bubble.translatedText != null &&
+        bubble.translatedText!.trim().isNotEmpty,
+  );
+  if (!hasTranslatedText) {
+    try {
+      resolvedGroup = await controller.repository.fetchMessage(
+        roomId: room.id,
+        messageId: groupId,
+        original: false,
+      );
+    } on ChatRepositoryException catch (error) {
+      controller._pushToast(
+        error.message ??
+            (error.type == ChatLoadFailureType.network
+                ? MateyaLocalizations.current.commonNetworkRetry
+                : MateyaLocalizations.current.chatRoomLoadError),
+      );
+      controller._notifyChanged();
+      return;
+    }
+  }
 
   final updatedGroups = room.messageGroups
       .map((group) {
-        if (group.id != groupId || !group.supportsTranslation) {
+        if (group.id != groupId) {
           return group;
         }
-        return group.copyWith(isTranslatedVisible: !group.isTranslatedVisible);
+        return group.copyWith(
+          bubbles: resolvedGroup.bubbles,
+          canToggleTranslation: resolvedGroup.canToggleTranslation,
+          isTranslatedVisible: true,
+        );
       })
       .toList(growable: false);
 

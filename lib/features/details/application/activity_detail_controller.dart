@@ -350,18 +350,55 @@ class ActivityDetailController extends ChangeNotifier {
     }
   }
 
-  void toggleTranslation(String reviewId) {
+  Future<void> toggleTranslation(String reviewId) async {
     final current = _detail;
     if (current == null) {
       return;
     }
+    final targetReview = current.reviews
+        .where((review) => review.id == reviewId)
+        .firstOrNull;
+    if (targetReview == null || !targetReview.supportsTranslation) {
+      return;
+    }
+    if (targetReview.isTranslationVisible) {
+      final nextReviews = current.reviews
+          .map((review) {
+            if (review.id != reviewId) {
+              return review;
+            }
+            return review.copyWith(isTranslationVisible: false);
+          })
+          .toList(growable: false);
+      _detail = current.copyWith(reviews: nextReviews);
+      notifyListeners();
+      return;
+    }
+
+    ActivityReview resolvedReview = targetReview;
+    if (targetReview.translatedText == null ||
+        targetReview.translatedText!.trim().isEmpty) {
+      try {
+        resolvedReview = await repository.fetchReview(
+          reviewId: reviewId,
+          original: false,
+        );
+      } on ActivityDetailRepositoryException catch (error) {
+        _errorMessage = error.message;
+        notifyListeners();
+        return;
+      }
+    }
+
     final nextReviews = current.reviews
         .map((review) {
-          if (review.id != reviewId || !review.supportsTranslation) {
+          if (review.id != reviewId) {
             return review;
           }
           return review.copyWith(
-            isTranslationVisible: !review.isTranslationVisible,
+            translatedText: resolvedReview.translatedText,
+            canToggleTranslation: resolvedReview.canToggleTranslation,
+            isTranslationVisible: true,
           );
         })
         .toList(growable: false);

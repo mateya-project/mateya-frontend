@@ -840,9 +840,13 @@ class _ActivityReviewListPageState extends State<ActivityReviewListPage> {
                             _handleHelpfulTap(reviews[index].id);
                           },
                           onTranslationTap: reviews[index].supportsTranslation
-                              ? () => widget.controller.toggleTranslation(
-                                  reviews[index].id,
-                                )
+                              ? () {
+                                  unawaited(
+                                    widget.controller.toggleTranslation(
+                                      reviews[index].id,
+                                    ),
+                                  );
+                                }
                               : null,
                         ),
                         if (index != reviews.length - 1)

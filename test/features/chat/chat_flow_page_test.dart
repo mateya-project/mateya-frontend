@@ -157,6 +157,18 @@ class _TestChatRepository implements ChatRepository {
   }
 
   @override
+  Future<ChatMessageGroup> fetchMessage({
+    required String roomId,
+    required String messageId,
+    required bool original,
+  }) async {
+    final room = _rooms.firstWhere((item) => item.id == roomId);
+    return _cloneGroup(
+      room.messageGroups.firstWhere((group) => group.id == messageId),
+    );
+  }
+
+  @override
   Future<List<ChatBubble>> sendMessage({
     required String roomId,
     required String text,

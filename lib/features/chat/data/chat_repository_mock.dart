@@ -78,6 +78,26 @@ class MockChatRepository implements ChatRepository {
   }
 
   @override
+  Future<ChatMessageGroup> fetchMessage({
+    required String roomId,
+    required String messageId,
+    required bool original,
+  }) async {
+    await Future<void>.delayed(const Duration(milliseconds: 180));
+    final room = _mockRooms.where((item) => item.id == roomId).firstOrNull;
+    final group = room?.messageGroups
+        .where((item) => item.id == messageId)
+        .firstOrNull;
+    if (group == null) {
+      throw const ChatRepositoryException(ChatLoadFailureType.server);
+    }
+    if (original) {
+      return _cloneGroup(group).copyWith(isTranslatedVisible: false);
+    }
+    return _cloneGroup(group).copyWith(isTranslatedVisible: true);
+  }
+
+  @override
   Future<List<ChatBubble>> sendMessage({
     required String roomId,
     required String text,

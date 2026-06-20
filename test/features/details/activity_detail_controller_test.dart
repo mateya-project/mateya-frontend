@@ -91,6 +91,22 @@ void main() {
       expect(controller.phase, AsyncPhase.networkError);
       expect(controller.errorMessage, contains('네트워크'));
     });
+
+    test('translation toggle fetches translated review on demand', () async {
+      final controller = ActivityDetailController(
+        repository: _FakeActivityDetailRepository.success(),
+        activity: _seedActivity(),
+      );
+
+      await controller.initialize();
+      await controller.toggleTranslation('review-0');
+
+      final updated = controller.visibleReviews.firstWhere(
+        (review) => review.id == 'review-0',
+      );
+      expect(updated.isTranslationVisible, isTrue);
+      expect(updated.visibleBody, 'Translated review 0');
+    });
   });
 }
 
@@ -140,6 +156,7 @@ class _FakeActivityDetailRepository implements ActivityDetailRepository {
             submittedAt: DateTime(2026, 6, 14).subtract(Duration(days: index)),
             rating: index == 8 ? 1 : 5 - (index % 5),
             originalText: '후기 본문 $index',
+            canToggleTranslation: index == 0,
             helpfulCount: index,
           ),
       ],
@@ -186,6 +203,23 @@ class _FakeActivityDetailRepository implements ActivityDetailRepository {
   @override
   Future<HelpfulToggleState> toggleHelpful({required String reviewId}) async {
     return const HelpfulToggleState(helpful: true, helpfulCount: 17);
+  }
+
+  @override
+  Future<ActivityReview> fetchReview({
+    required String reviewId,
+    required bool original,
+  }) async {
+    return ActivityReview(
+      id: reviewId,
+      authorName: '작성자0',
+      submittedAt: DateTime(2026, 6, 14),
+      rating: 5,
+      originalText: '후기 본문 0',
+      translatedText: original ? null : 'Translated review 0',
+      canToggleTranslation: true,
+      isTranslationVisible: !original,
+    );
   }
 
   @override

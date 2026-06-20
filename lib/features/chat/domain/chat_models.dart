@@ -135,6 +135,7 @@ class ChatMessageGroup {
     required this.bubbles,
     this.isMine = false,
     this.isTranslatedVisible = false,
+    this.canToggleTranslation = false,
   });
 
   final String id;
@@ -143,9 +144,12 @@ class ChatMessageGroup {
   final List<ChatBubble> bubbles;
   final bool isMine;
   final bool isTranslatedVisible;
+  final bool canToggleTranslation;
 
   bool get supportsTranslation =>
-      !isMine && bubbles.any((bubble) => bubble.translatedText != null);
+      !isMine &&
+      (canToggleTranslation ||
+          bubbles.any((bubble) => bubble.translatedText != null));
 
   String get translationToggleLabel {
     final l10n = MateyaLocalizations.current;
@@ -170,6 +174,7 @@ class ChatMessageGroup {
     List<ChatBubble>? bubbles,
     bool? isMine,
     bool? isTranslatedVisible,
+    bool? canToggleTranslation,
   }) {
     return ChatMessageGroup(
       id: id ?? this.id,
@@ -178,6 +183,7 @@ class ChatMessageGroup {
       bubbles: bubbles ?? this.bubbles,
       isMine: isMine ?? this.isMine,
       isTranslatedVisible: isTranslatedVisible ?? this.isTranslatedVisible,
+      canToggleTranslation: canToggleTranslation ?? this.canToggleTranslation,
     );
   }
 }
@@ -203,9 +209,8 @@ class ChatRoom {
   final int unreadCount;
   final List<ChatMessageGroup> messageGroups;
 
-  String get subtitle => MateyaLocalizations.current.chatParticipantCount(
-    participantCount,
-  );
+  String get subtitle =>
+      MateyaLocalizations.current.chatParticipantCount(participantCount);
 
   String get lastMessagePreview =>
       messageGroups.isEmpty ? '' : messageGroups.last.previewText;

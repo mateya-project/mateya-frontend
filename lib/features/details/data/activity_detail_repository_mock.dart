@@ -97,6 +97,27 @@ class MockActivityDetailRepository implements ActivityDetailRepository {
   }
 
   @override
+  Future<ActivityReview> fetchReview({
+    required String reviewId,
+    required bool original,
+  }) async {
+    await Future<void>.delayed(const Duration(milliseconds: 120));
+    final review = _reviewSeedsById.values
+        .expand((items) => items)
+        .where((item) => item.id == reviewId)
+        .firstOrNull;
+    if (review == null) {
+      throw const ActivityDetailRepositoryException(
+        ActivityDetailLoadFailureType.server,
+      );
+    }
+    if (original || review.translatedText == null) {
+      return review.copyWith(isTranslationVisible: false);
+    }
+    return review.copyWith(isTranslationVisible: true);
+  }
+
+  @override
   Future<ActivityReview> submitReview({
     required String activityId,
     required int rating,

@@ -709,7 +709,11 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
                       unawaited(_openSenderProfile(group.sender.id));
                     },
                     onToggleTranslation: group.supportsTranslation
-                        ? () => widget.controller.toggleTranslation(group.id)
+                        ? () {
+                            unawaited(
+                              widget.controller.toggleTranslation(group.id),
+                            );
+                          }
                         : null,
                   ),
             const SizedBox(height: 14),

@@ -339,9 +339,13 @@ class DetailBody extends StatelessWidget {
                 },
                 onTranslationTap:
                     controller.previewReviews[index].supportsTranslation
-                    ? () => controller.toggleTranslation(
-                        controller.previewReviews[index].id,
-                      )
+                    ? () {
+                        unawaited(
+                          controller.toggleTranslation(
+                            controller.previewReviews[index].id,
+                          ),
+                        );
+                      }
                     : null,
               ),
               if (index != controller.previewReviews.length - 1)
