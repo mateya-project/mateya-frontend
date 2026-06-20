@@ -38,6 +38,7 @@ ActivityReview _parseReview(Object? value) {
     rating: json['rating'] as int? ?? 0,
     originalText: originalBody ?? translatedBody ?? '',
     translatedText: visibleTranslation,
+    isTranslationVisible: visibleTranslation != null,
     helpfulCount: json['helpfulCount'] as int? ?? 0,
     isHelpfulByMe: json['helpfulByMe'] as bool? ?? false,
     imageUrls: ((json['imageUrls'] as List<Object?>?) ?? const <Object?>[])

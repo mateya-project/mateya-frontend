@@ -59,6 +59,7 @@ final List<ChatRoom> _mockRooms = <ChatRoom>[
         id: 'g-2',
         sender: _jiwon,
         sentAt: _now.subtract(const Duration(minutes: 20)),
+        isTranslatedVisible: true,
         bubbles: const <ChatBubble>[
           ChatBubble(
             originalText: '가나다라마바사',

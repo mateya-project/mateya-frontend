@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../shared/localization/mateya_localizations.dart';
 import '../../../../shared/media/image_picker_lost_data.dart';
+import '../../../../shared/navigation/mateya_user_profile_navigation.dart';
 import '../../../../shared/permissions/mateya_permission_dialogs.dart';
 import '../../../../shared/report/report_repository.dart';
 import '../../../../shared/theme/app_tokens.dart';
@@ -210,6 +211,10 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
       subjectLabel: room.title,
       onSubmit: (body, images) => _submitChatReport(room, body, images),
     );
+  }
+
+  Future<void> _openSenderProfile(String userId) async {
+    await openMateyaUserProfile(context, userId);
   }
 
   Future<void> _restoreLostAttachments() async {
@@ -700,6 +705,9 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
                 ? OutgoingGroup(group: group)
                 : IncomingGroup(
                     group: group,
+                    onAvatarTap: () {
+                      unawaited(_openSenderProfile(group.sender.id));
+                    },
                     onToggleTranslation: group.supportsTranslation
                         ? () => widget.controller.toggleTranslation(group.id)
                         : null,

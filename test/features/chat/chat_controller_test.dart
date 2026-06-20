@@ -100,15 +100,16 @@ void main() {
         final before = controller.currentRoom!.messageGroups.firstWhere(
           (group) => group.id == 'g-2',
         );
-        expect(before.visibleTexts.first, '가나다라마바사');
+        expect(before.visibleTexts.first, 'See you all at the palace gate.');
+        expect(before.translationToggleLabel, '원문 보기');
 
         controller.toggleTranslation('g-2');
 
         final after = controller.currentRoom!.messageGroups.firstWhere(
           (group) => group.id == 'g-2',
         );
-        expect(after.visibleTexts.first, 'See you all at the palace gate.');
-        expect(after.translationToggleLabel, '원문 보기');
+        expect(after.visibleTexts.first, '가나다라마바사');
+        expect(after.translationToggleLabel, '번역 보기');
       },
     );
 

@@ -72,9 +72,7 @@ void main() {
     expect(backTapCount, 1);
   });
 
-  testWidgets('non-friend other profile shows add friend button', (
-    tester,
-  ) async {
+  testWidgets('non-friend other profile shows block button', (tester) async {
     tester.view.devicePixelRatio = 1;
     tester.view.physicalSize = const Size(430, 1400);
     addTearDown(tester.view.resetPhysicalSize);
@@ -113,11 +111,55 @@ void main() {
     await tester.pump();
 
     final button = tester.widget<MateyaButton>(find.byType(MateyaButton));
-    expect(button.label, '친구 추가');
+    expect(button.label, '유저차단하기');
     expect(
       find.byKey(const PageStorageKey<String>('mypage-other-profile-scroll')),
       findsOneWidget,
     );
+  });
+
+  testWidgets('friend other profile shows remove friend button', (
+    tester,
+  ) async {
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(430, 1400);
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: buildMateyaTheme(),
+        locale: const Locale('ko'),
+        supportedLocales: MateyaLocalizations.supportedLocales,
+        localizationsDelegates: MateyaLocalizations.delegates,
+        home: OtherProfileView(
+          data: const OtherProfileData(
+            profile: ProfileSummary(
+              id: 'user-4',
+              name: '친구 사용자',
+              residence: '연남동',
+              primaryLanguageCode: 'ko',
+              primaryLanguageLabel: '한국어',
+              primaryCountryCode: 'kr',
+              primaryCountryLabel: '대한민국',
+            ),
+            metrics: <ProfileMetric>[],
+            badges: <ActivityBadge>[],
+            recentActivities: <ActivityHistoryEntry>[],
+            isFriend: true,
+          ),
+          isBusy: false,
+          onBack: _noop,
+          onFriendTap: _noop,
+          onBlockTap: _noop,
+        ),
+      ),
+    );
+
+    await tester.pump();
+
+    final button = tester.widget<MateyaButton>(find.byType(MateyaButton));
+    expect(button.label, '친구삭제하기');
   });
 
   testWidgets('other profile badge section uses non-personal copy', (

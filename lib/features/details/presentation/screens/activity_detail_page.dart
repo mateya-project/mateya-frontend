@@ -3,19 +3,15 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
-import '../../../../shared/auth/auth_session.dart';
 import '../../../../shared/localization/mateya_localizations.dart';
-import '../../../../shared/navigation/mateya_auth_flow.dart';
 import '../../../../shared/navigation/mateya_route_observer.dart';
+import '../../../../shared/navigation/mateya_user_profile_navigation.dart';
 import '../../../../shared/report/report_repository.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../../shared/widgets/mateya_button.dart';
 import '../../../../shared/widgets/mateya_header.dart';
 import '../../../../shared/widgets/mateya_profile_avatar.dart';
 import '../../../../shared/widgets/mateya_report_sheet.dart';
-import '../../../mypage/application/mypage_controller.dart';
-import '../../../mypage/data/mypage_repository.dart';
-import '../../../mypage/presentation/screens/mypage_flow_page.dart';
 import '../../../mypage/presentation/widgets/mypage_activity_widgets.dart';
 import '../../../onboarding/domain/onboarding_flow.dart';
 import '../../application/activity_detail_controller.dart';
@@ -155,7 +151,7 @@ class _ActivityDetailPageState extends State<ActivityDetailPage>
   }
 
   Future<void> _openProfile(String userId) async {
-    await _openActivityUserProfile(context, userId);
+    await openMateyaUserProfile(context, userId);
     await _refreshDetail();
   }
 
@@ -253,56 +249,6 @@ class _ActivityDetailPageState extends State<ActivityDetailPage>
       },
     );
   }
-}
-
-bool _isHostRole(String? role) {
-  final normalizedRole = role?.trim().toUpperCase() ?? '';
-  return normalizedRole == 'BUSINESS' || normalizedRole == 'HOST';
-}
-
-Future<void> _openActivityUserProfile(
-  BuildContext context,
-  String userId,
-) async {
-  if (userId.isEmpty) {
-    return;
-  }
-  final session = AuthSessionStore.instance.session;
-  final currentUserId = session?.user.id.toString();
-  final isHostFlow = _isHostRole(session?.user.role);
-  final hasSession = AuthSessionStore.instance.hasSession;
-  if (!hasSession) {
-    await replaceWithMateyaOnboardingFlow(context);
-    return;
-  }
-
-  if (currentUserId != null && currentUserId == userId) {
-    await Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (_) => MyPageFlowPage(
-          controller: MyPageController(
-            repository: ApiMyPageRepository(),
-            flowKind: isHostFlow ? FlowKind.host : FlowKind.guest,
-          ),
-          onRootBack: () => Navigator.of(context).pop(),
-        ),
-      ),
-    );
-    return;
-  }
-
-  await Navigator.of(context).push(
-    MaterialPageRoute<void>(
-      builder: (_) => MyPageFlowPage(
-        controller: MyPageController(
-          repository: ApiMyPageRepository(),
-          flowKind: FlowKind.guest,
-          initialOtherProfileUserId: userId,
-        ),
-        onRootBack: () => Navigator.of(context).pop(),
-      ),
-    ),
-  );
 }
 
 class _ActivityDetailLifecycleObserver with WidgetsBindingObserver {
@@ -785,7 +731,7 @@ class _ActivityReviewListPageState extends State<ActivityReviewListPage> {
   }
 
   Future<void> _openProfile(String userId) async {
-    await _openActivityUserProfile(context, userId);
+    await openMateyaUserProfile(context, userId);
     if (!mounted) {
       return;
     }

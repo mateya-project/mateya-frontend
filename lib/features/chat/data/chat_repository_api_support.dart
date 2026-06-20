@@ -74,6 +74,7 @@ ChatMessageGroup _parseMessageGroup(Object? value) {
   final json = _asMap(value);
   final senderId = '${json['senderUserId']}';
   final isMine = senderId == '${_chatRepositorySessionStore?.session?.user.id}';
+  final bubble = _parseMessageBubble(json);
 
   return ChatMessageGroup(
     id: '${json['id']}',
@@ -84,7 +85,8 @@ ChatMessageGroup _parseMessageGroup(Object? value) {
     ),
     sentAt: _parseDateTime(json['sentAt']) ?? mateyaNowInKst(),
     isMine: isMine,
-    bubbles: <ChatBubble>[_parseMessageBubble(json)],
+    isTranslatedVisible: !isMine && bubble.translatedText != null,
+    bubbles: <ChatBubble>[bubble],
   );
 }
 
