@@ -57,7 +57,12 @@ class _ReviewComposerSheetState extends State<ReviewComposerSheet> {
     _bodyController.text = widget.initialBody;
     _images.addAll(widget.initialImageUrls);
     _focusNode.addListener(_handleFocusChanged);
-    _restoreLostImages();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+      _restoreLostImages();
+    });
   }
 
   @override
@@ -224,18 +229,11 @@ class _ReviewComposerSheetState extends State<ReviewComposerSheet> {
                     children: List<Widget>.generate(5, (index) {
                       final star = index + 1;
                       final isActive = star <= _rating;
-                      return IconButton(
+                      return _AnimatedReviewStarButton(
+                        key: ValueKey<int>(star),
+                        star: star,
+                        active: isActive,
                         onPressed: () => setState(() => _rating = star),
-                        visualDensity: VisualDensity.compact,
-                        icon: Icon(
-                          isActive
-                              ? Icons.star_rounded
-                              : Icons.star_border_rounded,
-                          color: isActive
-                              ? AppColors.textPrimary
-                              : AppColors.fieldBorderLight,
-                          size: 34,
-                        ),
                       );
                     }),
                   ),
@@ -388,6 +386,94 @@ class _ReviewComposerSheetState extends State<ReviewComposerSheet> {
                 ],
               ),
             ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _AnimatedReviewStarButton extends StatefulWidget {
+  const _AnimatedReviewStarButton({
+    super.key,
+    required this.star,
+    required this.active,
+    required this.onPressed,
+  });
+
+  final int star;
+  final bool active;
+  final VoidCallback onPressed;
+
+  @override
+  State<_AnimatedReviewStarButton> createState() =>
+      _AnimatedReviewStarButtonState();
+}
+
+class _AnimatedReviewStarButtonState extends State<_AnimatedReviewStarButton>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 240),
+  );
+  late final Animation<double> _scale =
+      TweenSequence<double>(<TweenSequenceItem<double>>[
+        TweenSequenceItem<double>(
+          tween: Tween<double>(
+            begin: 1,
+            end: 1.16,
+          ).chain(CurveTween(curve: Curves.easeOut)),
+          weight: 50,
+        ),
+        TweenSequenceItem<double>(
+          tween: Tween<double>(
+            begin: 1.16,
+            end: 1,
+          ).chain(CurveTween(curve: Curves.easeOutBack)),
+          weight: 50,
+        ),
+      ]).animate(_controller);
+
+  @override
+  void didUpdateWidget(covariant _AnimatedReviewStarButton oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.active != widget.active) {
+      _controller.forward(from: 0);
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final icon = widget.active ? Icons.star_rounded : Icons.star_border_rounded;
+    final iconColor = widget.active
+        ? AppColors.textPrimary
+        : AppColors.fieldBorderLight;
+
+    return ScaleTransition(
+      scale: _scale,
+      child: IconButton(
+        key: ValueKey<String>('review-star-${widget.star}'),
+        onPressed: widget.onPressed,
+        visualDensity: VisualDensity.compact,
+        icon: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 160),
+          transitionBuilder: (child, animation) {
+            return FadeTransition(
+              opacity: animation,
+              child: ScaleTransition(scale: animation, child: child),
+            );
+          },
+          child: Icon(
+            icon,
+            key: ValueKey<bool>(widget.active),
+            color: iconColor,
+            size: 34,
           ),
         ),
       ),

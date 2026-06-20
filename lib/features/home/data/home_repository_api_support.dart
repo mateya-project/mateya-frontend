@@ -1,18 +1,16 @@
 part of 'home_repository.dart';
 
-final ActivityCategory _fallbackCategory = ActivityCategory(
-  id: 'PUBLIC_FACILITY',
-  label: _fallbackCategoryLabel('PUBLIC_FACILITY'),
-);
-
-final Map<String, ActivityCategory> _categoryByServerCode =
-    Map<String, ActivityCategory>.unmodifiable(<String, ActivityCategory>{
-      for (final category in kFallbackActivityCategories)
-        category.code: ActivityCategory(
-          id: category.code,
-          label: category.label,
-        ),
-    });
+ActivityCategory _categoryForServerCode(String code) {
+  for (final category in kFallbackActivityCategories) {
+    if (category.code == code) {
+      return ActivityCategory(id: category.code, label: category.label);
+    }
+  }
+  return ActivityCategory(
+    id: 'PUBLIC_FACILITY',
+    label: _fallbackCategoryLabel('PUBLIC_FACILITY'),
+  );
+}
 
 String _fallbackCategoryLabel(String code) {
   for (final category in kFallbackActivityCategories) {

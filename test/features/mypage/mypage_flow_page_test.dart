@@ -247,6 +247,44 @@ void main() {
       findsOneWidget,
     );
   });
+
+  testWidgets('personal home badge tap shows unlock requirement snack bar', (
+    tester,
+  ) async {
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(430, 1400);
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final controller = MyPageController(
+      repository: _ImmediateMyPageRepository(),
+      flowKind: FlowKind.guest,
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: buildMateyaTheme(),
+        locale: const Locale('ko'),
+        supportedLocales: MateyaLocalizations.supportedLocales,
+        localizationsDelegates: MateyaLocalizations.delegates,
+        home: MediaQuery(
+          data: const MediaQueryData(padding: EdgeInsets.only(top: 24)),
+          child: MyPageFlowPage(controller: controller, onRootBack: _noop),
+        ),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(
+      find.byKey(const ValueKey<String>('mypage-badge-tile-traditional')),
+    );
+    await tester.tap(
+      find.byKey(const ValueKey<String>('mypage-badge-tile-traditional')),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('전통문화 카테고리 체험을 한 개 이상 참여하세요.'), findsOneWidget);
+  });
 }
 
 void _noop() {}

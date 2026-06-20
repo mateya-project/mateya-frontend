@@ -442,6 +442,10 @@
   "mypageBadgeActivePerson": "アクティブメイト",
   "mypageBadgeFestive": "フェス好き",
   "mypageBadgeTourist": "ローカル探検家",
+  "mypageBadgeRequirementTraditional": "伝統文化カテゴリの体験に1回以上参加してください。",
+  "mypageBadgeRequirementActivePerson": "スポーツまたはアクティビティ/レジャースポーツカテゴリの体験に1回以上参加してください。",
+  "mypageBadgeRequirementFestive": "イベント/公演/祭りカテゴリの体験に1回以上参加してください。",
+  "mypageBadgeRequirementTourist": "観光地または旅行コースカテゴリの体験に1回以上参加してください。",
   "mypageBadgeUnlockedTitle": "新しいバッジを獲得しました",
   "mypageBadgeUnlockedDescription": "{category} 活動への参加が反映されました。",
   "@mypageBadgeUnlockedDescription": {

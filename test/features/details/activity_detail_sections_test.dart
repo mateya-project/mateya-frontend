@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mateya_app/features/details/domain/activity_detail_models.dart';
+import 'package:mateya_app/features/details/presentation/widgets/activity_detail_primitives.dart';
 import 'package:mateya_app/features/details/presentation/widgets/activity_detail_sections.dart';
 import 'package:mateya_app/features/home/domain/home_models.dart';
 import 'package:mateya_app/shared/localization/mateya_localizations.dart';
@@ -25,6 +26,29 @@ void main() {
     );
 
     expect(find.byIcon(Icons.share_outlined), findsNothing);
+  });
+
+  testWidgets('detail bottom bar renders animated favorite button', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: buildMateyaTheme(),
+        locale: const Locale('ko'),
+        supportedLocales: MateyaLocalizations.supportedLocales,
+        localizationsDelegates: MateyaLocalizations.delegates,
+        home: Scaffold(
+          body: DetailBottomBar(
+            detail: _detail(),
+            onFavoriteTap: () async {},
+            onJoinTap: () async {},
+          ),
+        ),
+      ),
+    );
+
+    expect(find.byType(BottomGlyphButton), findsOneWidget);
+    expect(find.byType(AnimatedToggleActionButton), findsOneWidget);
   });
 }
 

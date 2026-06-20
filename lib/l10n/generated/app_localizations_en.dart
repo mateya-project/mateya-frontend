@@ -1061,6 +1061,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mypageBadgeTourist => 'Local Explorer';
 
   @override
+  String get mypageBadgeRequirementTraditional =>
+      'Join at least one experience in the Traditional Culture category.';
+
+  @override
+  String get mypageBadgeRequirementActivePerson =>
+      'Join at least one experience in the Sports or Activities/Leports category.';
+
+  @override
+  String get mypageBadgeRequirementFestive =>
+      'Join at least one experience in the Events/Performances/Festivals category.';
+
+  @override
+  String get mypageBadgeRequirementTourist =>
+      'Join at least one experience in the Tourist Attraction or Travel Course category.';
+
+  @override
   String get mypageBadgeUnlockedTitle => 'You earned a new badge';
 
   @override

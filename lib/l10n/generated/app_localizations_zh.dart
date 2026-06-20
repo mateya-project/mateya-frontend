@@ -991,6 +991,18 @@ class AppLocalizationsZh extends AppLocalizations {
   String get mypageBadgeTourist => '本地探索家';
 
   @override
+  String get mypageBadgeRequirementTraditional => '請至少參加 1 次傳統文化分類體驗。';
+
+  @override
+  String get mypageBadgeRequirementActivePerson => '請至少參加 1 次體育或休閒活動分類體驗。';
+
+  @override
+  String get mypageBadgeRequirementFestive => '請至少參加 1 次活動/演出/慶典分類體驗。';
+
+  @override
+  String get mypageBadgeRequirementTourist => '請至少參加 1 次景點或旅行路線分類體驗。';
+
+  @override
   String get mypageBadgeUnlockedTitle => '获得了新徽章';
 
   @override
@@ -3336,6 +3348,18 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get mypageBadgeTourist => '本地探索家';
+
+  @override
+  String get mypageBadgeRequirementTraditional => '请至少参加 1 次传统文化分类体验。';
+
+  @override
+  String get mypageBadgeRequirementActivePerson => '请至少参加 1 次体育或休闲活动分类体验。';
+
+  @override
+  String get mypageBadgeRequirementFestive => '请至少参加 1 次活动/演出/庆典分类体验。';
+
+  @override
+  String get mypageBadgeRequirementTourist => '请至少参加 1 次景点或旅行路线分类体验。';
 
   @override
   String get mypageBadgeUnlockedTitle => '获得了新徽章';

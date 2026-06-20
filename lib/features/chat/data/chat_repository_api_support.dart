@@ -88,7 +88,7 @@ ChatMessageGroup _parseMessageGroup(Object? value) {
     ),
     sentAt: _parseDateTime(json['sentAt']) ?? mateyaNowInKst(),
     isMine: isMine,
-    isTranslatedVisible: !isMine && bubble.translatedText != null,
+    isTranslatedVisible: !isMine && bubble.hasMeaningfulTranslatedText,
     canToggleTranslation: !isMine && canToggleTranslation,
     bubbles: <ChatBubble>[bubble],
   );
@@ -101,14 +101,14 @@ ChatBubble _parseMessageBubble(Object? value) {
   final translatedText = json['text'] as String?;
   final originalText = json['originalText'] as String?;
   final imageUrl = json['imageUrl'] as String?;
+  final normalizedTranslatedText = _resolveMeaningfulTranslatedText(
+    originalText: originalText,
+    translatedText: translatedText,
+  );
   return ChatBubble(
     originalText: originalText ?? translatedText,
-    translatedText:
-        translatedText != null &&
-            originalText != null &&
-            translatedText != originalText
-        ? translatedText
-        : null,
+    translatedText: normalizedTranslatedText,
+    translationResolved: originalText != null,
     attachments: imageUrl == null
         ? const <ChatAttachment>[]
         : <ChatAttachment>[
@@ -121,6 +121,23 @@ ChatBubble _parseMessageBubble(Object? value) {
             ),
           ],
   );
+}
+
+String? _resolveMeaningfulTranslatedText({
+  required String? originalText,
+  required String? translatedText,
+}) {
+  final normalizedTranslated = translatedText?.trim();
+  if (normalizedTranslated == null || normalizedTranslated.isEmpty) {
+    return null;
+  }
+  final normalizedOriginal = originalText?.trim();
+  if (normalizedOriginal != null &&
+      normalizedOriginal.isNotEmpty &&
+      normalizedOriginal == normalizedTranslated) {
+    return null;
+  }
+  return translatedText;
 }
 
 bool _canToggleTranslation(String? originalLanguageCode) {

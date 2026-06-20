@@ -57,7 +57,6 @@ class _HomeFlowPageState extends State<HomeFlowPage> with RouteAware {
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
   bool _isPlusOverlayOpen = false;
-  bool _hasInitializedNearbyCultureMap = false;
   bool _isRedirectingToAuth = false;
   PageRoute<dynamic>? _route;
 
@@ -451,10 +450,6 @@ class _HomeFlowPageState extends State<HomeFlowPage> with RouteAware {
   Future<void> _openNearbyCultureMap() async {
     _dismissPlusOverlay();
     _controller.openNearbyCultureMap();
-    if (_hasInitializedNearbyCultureMap) {
-      return;
-    }
-    _hasInitializedNearbyCultureMap = true;
     await _nearbyCultureMapController.initialize();
   }
 }

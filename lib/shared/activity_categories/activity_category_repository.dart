@@ -2,6 +2,7 @@ import '../../app/app_config.dart';
 import '../auth/auth_session.dart';
 import '../localization/mateya_localizations.dart';
 import '../network/mateya_api_client.dart';
+import '../preferences/mateya_language_preferences.dart';
 
 class ActivityCategoryMetadata {
   const ActivityCategoryMetadata({
@@ -105,21 +106,23 @@ class ApiActivityCategoryRepository implements ActivityCategoryRepository {
        _now = now ?? DateTime.now;
 
   static const Duration _cacheTtl = Duration(hours: 12);
-  static List<ActivityCategoryMetadata>? _cachedItems;
-  static DateTime? _cachedAt;
+  static final Map<String, List<ActivityCategoryMetadata>> _cachedItemsByCode =
+      <String, List<ActivityCategoryMetadata>>{};
+  static final Map<String, DateTime> _cachedAtByCode = <String, DateTime>{};
 
   final MateyaApiClient _apiClient;
   final DateTime Function() _now;
 
   static void debugResetCache() {
-    _cachedItems = null;
-    _cachedAt = null;
+    _cachedItemsByCode.clear();
+    _cachedAtByCode.clear();
   }
 
   @override
   Future<List<ActivityCategoryMetadata>> fetchActivityCategories() async {
-    final cachedItems = _cachedItems;
-    final cachedAt = _cachedAt;
+    final cacheKey = MateyaLanguagePreferences.instance.currentCodeOrDefault;
+    final cachedItems = _cachedItemsByCode[cacheKey];
+    final cachedAt = _cachedAtByCode[cacheKey];
     if (cachedItems != null &&
         cachedItems.isNotEmpty &&
         cachedAt != null &&
@@ -142,8 +145,8 @@ class ApiActivityCategoryRepository implements ActivityCategoryRepository {
               (left, right) => left.displayOrder.compareTo(right.displayOrder),
             );
       if (items.isNotEmpty) {
-        _cachedItems = items;
-        _cachedAt = _now();
+        _cachedItemsByCode[cacheKey] = items;
+        _cachedAtByCode[cacheKey] = _now();
         return items;
       }
     } on MateyaApiException {

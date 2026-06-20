@@ -74,9 +74,7 @@ Future<void> _chatToggleTranslation(
 
   ChatMessageGroup resolvedGroup = targetGroup;
   final hasTranslatedText = targetGroup.bubbles.any(
-    (bubble) =>
-        bubble.translatedText != null &&
-        bubble.translatedText!.trim().isNotEmpty,
+    (bubble) => bubble.hasMeaningfulTranslatedText,
   );
   if (!hasTranslatedText) {
     try {
@@ -85,6 +83,9 @@ Future<void> _chatToggleTranslation(
         messageId: groupId,
         original: false,
       );
+      if (!controller._canMutateState) {
+        return;
+      }
     } on ChatRepositoryException catch (error) {
       controller._pushToast(
         error.message ??
@@ -105,7 +106,9 @@ Future<void> _chatToggleTranslation(
         return group.copyWith(
           bubbles: resolvedGroup.bubbles,
           canToggleTranslation: resolvedGroup.canToggleTranslation,
-          isTranslatedVisible: true,
+          isTranslatedVisible: resolvedGroup.bubbles.any(
+            (bubble) => bubble.hasMeaningfulTranslatedText,
+          ),
         );
       })
       .toList(growable: false);
@@ -137,6 +140,9 @@ Future<void> _chatSendMessage(ChatController controller) async {
       text: message,
       attachments: pendingAttachments,
     );
+    if (!controller._canMutateState) {
+      return;
+    }
 
     controller._draft = '';
     controller._draftAttachments = const <ChatAttachment>[];

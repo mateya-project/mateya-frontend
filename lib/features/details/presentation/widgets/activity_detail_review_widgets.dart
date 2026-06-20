@@ -90,6 +90,7 @@ class ReviewCard extends StatelessWidget {
     required this.review,
     required this.onHelpfulTap,
     required this.onTranslationTap,
+    this.isHelpfulActionInFlight = false,
     this.onAuthorTap,
     this.onEditTap,
     this.onDeleteTap,
@@ -98,6 +99,7 @@ class ReviewCard extends StatelessWidget {
   final ActivityReview review;
   final VoidCallback onHelpfulTap;
   final VoidCallback? onTranslationTap;
+  final bool isHelpfulActionInFlight;
   final VoidCallback? onAuthorTap;
   final VoidCallback? onEditTap;
   final VoidCallback? onDeleteTap;
@@ -221,26 +223,10 @@ class ReviewCard extends StatelessWidget {
                     else
                       const SizedBox(height: 24),
                     const SizedBox(height: 8),
-                    InkWell(
+                    HelpfulCircleButton(
+                      isSelected: review.isHelpfulByMe,
+                      enabled: !isHelpfulActionInFlight,
                       onTap: onHelpfulTap,
-                      borderRadius: BorderRadius.circular(999),
-                      child: Container(
-                        width: 48,
-                        height: 48,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(color: AppColors.fieldBorderLight),
-                        ),
-                        child: Icon(
-                          review.isHelpfulByMe
-                              ? Icons.favorite_rounded
-                              : Icons.favorite_border_rounded,
-                          color: review.isHelpfulByMe
-                              ? AppColors.brandGreen
-                              : AppColors.textPrimary,
-                          size: 28,
-                        ),
-                      ),
                     ),
                   ],
                 ),

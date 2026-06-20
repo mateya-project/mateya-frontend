@@ -3,9 +3,16 @@ part of 'chat_controller.dart';
 void _chatStartRealtime(ChatController controller, {required String roomId}) {
   controller.repository.subscribeToRoomMessages(
     roomId: roomId,
-    onMessage: (message) =>
-        _chatMergeRealtimeMessage(controller, roomId: roomId, message: message),
+    onMessage: (message) {
+      if (!controller._canMutateState) {
+        return;
+      }
+      _chatMergeRealtimeMessage(controller, roomId: roomId, message: message);
+    },
     onError: (message) {
+      if (!controller._canMutateState) {
+        return;
+      }
       controller._pushToast(message);
       controller._notifyChanged();
     },
@@ -25,6 +32,9 @@ void _chatMergeRealtimeMessage(
   required String roomId,
   required ChatMessageGroup message,
 }) {
+  if (!controller._canMutateState) {
+    return;
+  }
   final room = controller.currentRoom;
   if (room == null || room.id != roomId) {
     return;
@@ -81,7 +91,8 @@ Future<void> _chatPollLatestMessages(
   ChatController controller, {
   required String roomId,
 }) async {
-  if (controller._selectedRoomId != roomId ||
+  if (!controller._canMutateState ||
+      controller._selectedRoomId != roomId ||
       controller._roomPhase != AsyncPhase.success ||
       controller._isPollingRealtimeFallback ||
       controller.repository.isRealtimeConnectedForRoom(roomId)) {
@@ -99,6 +110,9 @@ Future<void> _chatPollLatestMessages(
       roomId: roomId,
       page: 0,
     );
+    if (!controller._canMutateState) {
+      return;
+    }
     if (controller._selectedRoomId != roomId) {
       return;
     }

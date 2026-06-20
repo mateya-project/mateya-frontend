@@ -138,9 +138,9 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
       animation: widget.controller,
       builder: (context, _) {
         _syncFormValues();
-        return Material(
-          color: AppColors.background,
-          child: SafeArea(
+        return Scaffold(
+          backgroundColor: AppColors.background,
+          body: SafeArea(
             child: MateyaFadeSlideSwitcher(
               duration: const Duration(milliseconds: 240),
               child: switch (widget.controller.phase) {

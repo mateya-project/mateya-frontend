@@ -45,6 +45,7 @@ void main() {
 
     expect(resolveMyPageBadgeVisualKey(badge), 'tourist');
     expect(findMyPageBadgeVisual(badge)?.localizedLabel, isNotEmpty);
+    expect(findMyPageBadgeVisual(badge)?.unlockRequirementMessage, isNotEmpty);
   });
 
   test('active person slot uses local assets for earned state', () {

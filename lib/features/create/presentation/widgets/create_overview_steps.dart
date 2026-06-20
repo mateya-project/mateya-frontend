@@ -126,7 +126,7 @@ class CategoryStepView extends StatelessWidget {
                 crossAxisCount: 2,
                 crossAxisSpacing: 16,
                 mainAxisSpacing: 16,
-                mainAxisExtent: compactWidth ? 232 : 216,
+                mainAxisExtent: compactWidth ? 244 : 228,
               ),
               itemCount: controller.availableCategories.length,
               itemBuilder: (context, index) {
@@ -139,6 +139,7 @@ class CategoryStepView extends StatelessWidget {
                   selected: controller.selectedCategoryIds.contains(
                     category.id,
                   ),
+                  compact: compactWidth,
                   onTap: () => controller.toggleCategory(category.id),
                 );
               },
@@ -445,6 +446,7 @@ class _CategorySelectionCard extends StatelessWidget {
     required this.description,
     required this.icon,
     required this.selected,
+    required this.compact,
     required this.onTap,
   });
 
@@ -452,11 +454,14 @@ class _CategorySelectionCard extends StatelessWidget {
   final String description;
   final IconData icon;
   final bool selected;
+  final bool compact;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final titleBoxHeight = compact ? 62.0 : 56.0;
+    final descriptionBoxHeight = compact ? 76.0 : 68.0;
 
     return Material(
       color: Colors.transparent,
@@ -478,21 +483,30 @@ class _CategorySelectionCard extends StatelessWidget {
             children: <Widget>[
               Icon(icon, size: 40, color: AppColors.textPrimary),
               const Spacer(),
-              Text(
-                title,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: theme.textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w700,
+              SizedBox(
+                height: titleBoxHeight,
+                child: Align(
+                  alignment: Alignment.topLeft,
+                  child: Text(
+                    title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
                 ),
               ),
               const SizedBox(height: 6),
-              Text(
-                description,
-                maxLines: 4,
-                overflow: TextOverflow.ellipsis,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: AppColors.textMuted,
+              SizedBox(
+                height: descriptionBoxHeight,
+                child: Text(
+                  description,
+                  maxLines: compact ? 4 : 3,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: AppColors.textMuted,
+                  ),
                 ),
               ),
             ],

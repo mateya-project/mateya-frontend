@@ -162,25 +162,218 @@ class HeroCircleButton extends StatelessWidget {
 }
 
 class BottomGlyphButton extends StatelessWidget {
-  const BottomGlyphButton({super.key, required this.icon, required this.onTap});
+  const BottomGlyphButton({
+    super.key,
+    required this.isSelected,
+    required this.onTap,
+    this.enabled = true,
+  });
 
-  final IconData icon;
+  final bool isSelected;
   final VoidCallback onTap;
+  final bool enabled;
 
   @override
   Widget build(BuildContext context) {
-    return InkResponse(
+    return AnimatedToggleActionButton(
+      selected: isSelected,
+      enabled: enabled,
       onTap: onTap,
-      radius: 24,
-      child: Container(
-        width: 46,
-        height: 46,
-        decoration: BoxDecoration(
-          color: AppColors.subtleBackground,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: AppColors.divider),
+      selectedIcon: Icons.favorite_rounded,
+      unselectedIcon: Icons.favorite_border_rounded,
+      selectedIconColor: AppColors.brandGreen,
+      unselectedIconColor: AppColors.textPrimary,
+      width: 46,
+      height: 46,
+      iconSize: 24,
+      backgroundColor: AppColors.subtleBackground,
+      selectedBackgroundColor: AppColors.softGreenBorder,
+      borderColor: AppColors.divider,
+      selectedBorderColor: AppColors.brandGreenLight,
+      borderRadius: BorderRadius.circular(14),
+      splashRadius: 24,
+    );
+  }
+}
+
+class HelpfulCircleButton extends StatelessWidget {
+  const HelpfulCircleButton({
+    super.key,
+    required this.isSelected,
+    required this.onTap,
+    this.enabled = true,
+  });
+
+  final bool isSelected;
+  final VoidCallback onTap;
+  final bool enabled;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedToggleActionButton(
+      selected: isSelected,
+      enabled: enabled,
+      onTap: onTap,
+      selectedIcon: Icons.favorite_rounded,
+      unselectedIcon: Icons.favorite_border_rounded,
+      selectedIconColor: AppColors.brandGreen,
+      unselectedIconColor: AppColors.textPrimary,
+      width: 48,
+      height: 48,
+      iconSize: 28,
+      backgroundColor: Colors.white,
+      selectedBackgroundColor: AppColors.softGreenBorder,
+      borderColor: AppColors.fieldBorderLight,
+      selectedBorderColor: AppColors.brandGreenLight,
+      shape: BoxShape.circle,
+      splashRadius: 26,
+    );
+  }
+}
+
+class AnimatedToggleActionButton extends StatefulWidget {
+  const AnimatedToggleActionButton({
+    super.key,
+    required this.selected,
+    required this.onTap,
+    required this.selectedIcon,
+    required this.unselectedIcon,
+    required this.selectedIconColor,
+    required this.unselectedIconColor,
+    required this.width,
+    required this.height,
+    required this.iconSize,
+    required this.backgroundColor,
+    required this.selectedBackgroundColor,
+    required this.borderColor,
+    required this.selectedBorderColor,
+    this.enabled = true,
+    this.shape = BoxShape.rectangle,
+    this.borderRadius,
+    this.splashRadius = 24,
+  });
+
+  final bool selected;
+  final VoidCallback onTap;
+  final IconData selectedIcon;
+  final IconData unselectedIcon;
+  final Color selectedIconColor;
+  final Color unselectedIconColor;
+  final double width;
+  final double height;
+  final double iconSize;
+  final Color backgroundColor;
+  final Color selectedBackgroundColor;
+  final Color borderColor;
+  final Color selectedBorderColor;
+  final bool enabled;
+  final BoxShape shape;
+  final BorderRadius? borderRadius;
+  final double splashRadius;
+
+  @override
+  State<AnimatedToggleActionButton> createState() =>
+      _AnimatedToggleActionButtonState();
+}
+
+class _AnimatedToggleActionButtonState extends State<AnimatedToggleActionButton>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 300),
+  );
+  late final Animation<double> _scale =
+      TweenSequence<double>(<TweenSequenceItem<double>>[
+        TweenSequenceItem<double>(
+          tween: Tween<double>(
+            begin: 1,
+            end: 1.14,
+          ).chain(CurveTween(curve: Curves.easeOut)),
+          weight: 45,
         ),
-        child: Icon(icon, color: AppColors.textPrimary),
+        TweenSequenceItem<double>(
+          tween: Tween<double>(
+            begin: 1.14,
+            end: 0.97,
+          ).chain(CurveTween(curve: Curves.easeInOut)),
+          weight: 25,
+        ),
+        TweenSequenceItem<double>(
+          tween: Tween<double>(
+            begin: 0.97,
+            end: 1,
+          ).chain(CurveTween(curve: Curves.easeOutBack)),
+          weight: 30,
+        ),
+      ]).animate(_controller);
+
+  @override
+  void didUpdateWidget(covariant AnimatedToggleActionButton oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.selected != widget.selected) {
+      _controller.forward(from: 0);
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final icon = widget.selected ? widget.selectedIcon : widget.unselectedIcon;
+    final iconColor = widget.selected
+        ? widget.selectedIconColor
+        : widget.unselectedIconColor;
+
+    return ScaleTransition(
+      scale: _scale,
+      child: InkResponse(
+        onTap: widget.enabled ? widget.onTap : null,
+        radius: widget.splashRadius,
+        child: AnimatedOpacity(
+          duration: const Duration(milliseconds: 180),
+          opacity: widget.enabled ? 1 : 0.6,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 180),
+            curve: Curves.easeOut,
+            width: widget.width,
+            height: widget.height,
+            decoration: BoxDecoration(
+              color: widget.selected
+                  ? widget.selectedBackgroundColor
+                  : widget.backgroundColor,
+              shape: widget.shape,
+              borderRadius: widget.shape == BoxShape.circle
+                  ? null
+                  : widget.borderRadius,
+              border: Border.all(
+                color: widget.selected
+                    ? widget.selectedBorderColor
+                    : widget.borderColor,
+              ),
+            ),
+            child: Center(
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 180),
+                transitionBuilder: (child, animation) {
+                  return FadeTransition(
+                    opacity: animation,
+                    child: ScaleTransition(scale: animation, child: child),
+                  );
+                },
+                child: Icon(
+                  icon,
+                  key: ValueKey<bool>(widget.selected),
+                  color: iconColor,
+                  size: widget.iconSize,
+                ),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
