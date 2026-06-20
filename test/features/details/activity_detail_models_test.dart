@@ -25,4 +25,23 @@ void main() {
       expect(host.displayName, '박민정 · Bak Minjeong');
     });
   });
+
+  group('ActivityReview.visibleBody', () {
+    test(
+      'falls back to original text when translation is marked visible but missing',
+      () {
+        final review = ActivityReview(
+          id: 'review-1',
+          authorName: '작성자',
+          submittedAt: DateTime(2026, 6, 20),
+          rating: 5,
+          originalText: '원문 후기',
+          canToggleTranslation: true,
+          isTranslationVisible: true,
+        );
+
+        expect(review.visibleBody, '원문 후기');
+      },
+    );
+  });
 }

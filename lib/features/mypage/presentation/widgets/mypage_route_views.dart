@@ -877,11 +877,33 @@ class _BadgeGridTile extends StatelessWidget {
   final MyPageBadgeDisplaySlot slot;
   static const double _badgeAspectRatio = 118 / 140;
   static const double _badgeRadius = 20;
+  static const List<double> _lockedBadgeColorMatrix = <double>[
+    0.2126,
+    0.7152,
+    0.0722,
+    0,
+    0,
+    0.2126,
+    0.7152,
+    0.0722,
+    0,
+    0,
+    0.2126,
+    0.7152,
+    0.0722,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+  ];
 
   @override
   Widget build(BuildContext context) {
-    final badgeChild = Image.asset(
-      slot.visual.assetPathFor(slot.isEarned),
+    final badgeArtwork = Image.asset(
+      slot.visual.activeAssetPath,
       fit: BoxFit.cover,
       filterQuality: FilterQuality.medium,
       excludeFromSemantics: true,
@@ -889,11 +911,79 @@ class _BadgeGridTile extends StatelessWidget {
           (BuildContext context, Object error, StackTrace? stackTrace) =>
               _BadgeGridTileFallback(slot: slot),
     );
+    final badgeChild = slot.isEarned
+        ? badgeArtwork
+        : ColorFiltered(
+            colorFilter: const ColorFilter.matrix(_lockedBadgeColorMatrix),
+            child: Opacity(opacity: 0.62, child: badgeArtwork),
+          );
     final badgeImage = AspectRatio(
       aspectRatio: _badgeAspectRatio,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(_badgeRadius),
-        child: badgeChild,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: slot.isEarned ? Colors.white : const Color(0xFFF3F1EB),
+          borderRadius: BorderRadius.circular(_badgeRadius),
+          border: Border.all(
+            color: slot.isEarned ? AppColors.divider : const Color(0xFFE1DBCF),
+          ),
+          boxShadow: slot.isEarned
+              ? const <BoxShadow>[
+                  BoxShadow(
+                    color: Color(0x12000000),
+                    blurRadius: 12,
+                    offset: Offset(0, 6),
+                  ),
+                ]
+              : const <BoxShadow>[],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(_badgeRadius),
+          child: Stack(
+            fit: StackFit.expand,
+            children: <Widget>[
+              badgeChild,
+              if (!slot.isEarned)
+                const DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: <Color>[Color(0x66FFFFFF), Color(0x99F3F1EB)],
+                    ),
+                  ),
+                ),
+              if (!slot.isEarned)
+                Positioned(
+                  top: 10,
+                  right: 10,
+                  child: Container(
+                    key: ValueKey<String>(
+                      'mypage-badge-lock-${slot.visual.key}',
+                    ),
+                    width: 28,
+                    height: 28,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.92),
+                      shape: BoxShape.circle,
+                      border: Border.all(color: const Color(0xFFD9D2C3)),
+                      boxShadow: const <BoxShadow>[
+                        BoxShadow(
+                          color: Color(0x14000000),
+                          blurRadius: 8,
+                          offset: Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: const Icon(
+                      Icons.lock_rounded,
+                      size: 15,
+                      color: Color(0xFF8F8777),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
       ),
     );
 

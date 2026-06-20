@@ -49,33 +49,121 @@ class IncomingGroup extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 8),
-              for (final bubble in group.bubbles) ...<Widget>[
-                IncomingBubble(
-                  bubble: bubble,
-                  isTranslatedVisible: group.isTranslatedVisible,
-                ),
-                const SizedBox(height: 8),
-              ],
-              Row(
-                children: <Widget>[
-                  Text(
-                    formatMeridiemTime(group.sentAt),
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: AppColors.fieldBorder,
-                    ),
-                  ),
-                  const Spacer(),
-                  if (onToggleTranslation != null)
-                    MateyaTranslationToggleButton(
-                      label: group.translationToggleLabel,
-                      onPressed: onToggleTranslation!,
-                    ),
-                ],
+              _IncomingBubbleCluster(
+                group: group,
+                onToggleTranslation: onToggleTranslation,
               ),
             ],
           ),
         ),
       ],
+    );
+  }
+}
+
+class _IncomingBubbleCluster extends StatefulWidget {
+  const _IncomingBubbleCluster({
+    required this.group,
+    required this.onToggleTranslation,
+  });
+
+  final ChatMessageGroup group;
+  final VoidCallback? onToggleTranslation;
+
+  @override
+  State<_IncomingBubbleCluster> createState() => _IncomingBubbleClusterState();
+}
+
+class _IncomingBubbleClusterState extends State<_IncomingBubbleCluster> {
+  final GlobalKey _bubbleColumnKey = GlobalKey();
+  double? _bubbleColumnWidth;
+
+  @override
+  void initState() {
+    super.initState();
+    _scheduleWidthMeasurement();
+  }
+
+  @override
+  void didUpdateWidget(covariant _IncomingBubbleCluster oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.group != widget.group ||
+        oldWidget.onToggleTranslation != widget.onToggleTranslation) {
+      _scheduleWidthMeasurement();
+    }
+  }
+
+  void _scheduleWidthMeasurement() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+      final renderObject =
+          _bubbleColumnKey.currentContext?.findRenderObject() as RenderBox?;
+      final measuredWidth = renderObject?.size.width;
+      if (measuredWidth == null || measuredWidth == _bubbleColumnWidth) {
+        return;
+      }
+      setState(() {
+        _bubbleColumnWidth = measuredWidth;
+      });
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 298),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            KeyedSubtree(
+              key: _bubbleColumnKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  for (final bubble in widget.group.bubbles) ...<Widget>[
+                    IncomingBubble(
+                      bubble: bubble,
+                      isTranslatedVisible: widget.group.isTranslatedVisible,
+                    ),
+                    const SizedBox(height: 8),
+                  ],
+                ],
+              ),
+            ),
+            SizedBox(
+              width: _bubbleColumnWidth,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(
+                    formatMeridiemTime(widget.group.sentAt),
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: AppColors.fieldBorder,
+                    ),
+                  ),
+                  if (widget.onToggleTranslation != null)
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 4),
+                        child: MateyaTranslationToggleButton(
+                          label: widget.group.translationToggleLabel,
+                          onPressed: widget.onToggleTranslation!,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

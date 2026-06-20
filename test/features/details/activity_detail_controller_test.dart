@@ -107,15 +107,40 @@ void main() {
       expect(updated.isTranslationVisible, isTrue);
       expect(updated.visibleBody, 'Translated review 0');
     });
+
+    test(
+      'translation toggle keeps original text when translated review is unavailable',
+      () async {
+        final controller = ActivityDetailController(
+          repository: _FakeActivityDetailRepository.success(
+            translatedReviewText: null,
+          ),
+          activity: _seedActivity(),
+        );
+
+        await controller.initialize();
+        await controller.toggleTranslation('review-0');
+
+        final updated = controller.visibleReviews.firstWhere(
+          (review) => review.id == 'review-0',
+        );
+        expect(updated.isTranslationVisible, isFalse);
+        expect(updated.visibleBody, '후기 본문 0');
+      },
+    );
   });
 }
 
 class _FakeActivityDetailRepository implements ActivityDetailRepository {
-  _FakeActivityDetailRepository.success() : _failureType = null;
+  _FakeActivityDetailRepository.success({
+    this.translatedReviewText = 'Translated review 0',
+  }) : _failureType = null;
 
-  _FakeActivityDetailRepository.failure(this._failureType);
+  _FakeActivityDetailRepository.failure(this._failureType)
+    : translatedReviewText = 'Translated review 0';
 
   final ActivityDetailLoadFailureType? _failureType;
+  final String? translatedReviewText;
 
   @override
   Future<ActivityDetail> fetchDetail(ActivityItem activity) async {
@@ -210,15 +235,17 @@ class _FakeActivityDetailRepository implements ActivityDetailRepository {
     required String reviewId,
     required bool original,
   }) async {
+    final translatedText = original ? null : translatedReviewText;
     return ActivityReview(
       id: reviewId,
       authorName: '작성자0',
       submittedAt: DateTime(2026, 6, 14),
       rating: 5,
       originalText: '후기 본문 0',
-      translatedText: original ? null : 'Translated review 0',
+      translatedText: translatedText,
       canToggleTranslation: true,
-      isTranslationVisible: !original,
+      isTranslationVisible:
+          translatedText != null && translatedText.trim().isNotEmpty,
     );
   }
 

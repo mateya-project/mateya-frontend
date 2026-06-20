@@ -206,6 +206,47 @@ void main() {
     expect(find.text('획득한 뱃지'), findsOneWidget);
     expect(find.text('아직 공개된 뱃지가 없어요.'), findsOneWidget);
   });
+
+  testWidgets('personal home shows locked overlays for unearned badge slots', (
+    tester,
+  ) async {
+    final controller = MyPageController(
+      repository: _ImmediateMyPageRepository(),
+      flowKind: FlowKind.guest,
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: buildMateyaTheme(),
+        locale: const Locale('ko'),
+        supportedLocales: MateyaLocalizations.supportedLocales,
+        localizationsDelegates: MateyaLocalizations.delegates,
+        home: MediaQuery(
+          data: const MediaQueryData(padding: EdgeInsets.only(top: 24)),
+          child: MyPageFlowPage(controller: controller, onRootBack: _noop),
+        ),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byKey(const ValueKey<String>('mypage-badge-lock-traditional')),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const ValueKey<String>('mypage-badge-lock-active_person')),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const ValueKey<String>('mypage-badge-lock-festive')),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const ValueKey<String>('mypage-badge-lock-tourist')),
+      findsOneWidget,
+    );
+  });
 }
 
 void _noop() {}
