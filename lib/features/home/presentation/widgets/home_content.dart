@@ -79,6 +79,7 @@ class HomeContent extends StatelessWidget {
         final featured = controller.featuredActivity;
         final popular = controller.homePopularActivities;
         return ListView(
+          key: const PageStorageKey<String>('home-content-scroll'),
           padding: const EdgeInsets.only(bottom: 24),
           children: <Widget>[
             Text(
@@ -191,6 +192,9 @@ class ExploreScreen extends StatelessWidget {
                             ),
                           Expanded(
                             child: ListView.separated(
+                              key: const PageStorageKey<String>(
+                                'explore-content-scroll',
+                              ),
                               padding: const EdgeInsets.only(
                                 top: 6,
                                 bottom: 16,
@@ -259,6 +263,7 @@ class FavoritesScreen extends StatelessWidget {
             final activities = controller.favoriteActivities;
             if (activities.isEmpty) {
               return ListView(
+                key: const PageStorageKey<String>('favorites-empty-scroll'),
                 padding: const EdgeInsets.only(top: 4, bottom: 24),
                 children: <Widget>[
                   Column(
@@ -307,6 +312,7 @@ class FavoritesScreen extends StatelessWidget {
             }
 
             return ListView.separated(
+              key: const PageStorageKey<String>('favorites-content-scroll'),
               padding: const EdgeInsets.only(top: 4, bottom: 24),
               itemCount: activities.length + 1,
               separatorBuilder: (_, _) =>

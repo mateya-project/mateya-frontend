@@ -89,11 +89,13 @@ class ReviewCard extends StatelessWidget {
     required this.review,
     required this.onHelpfulTap,
     required this.onTranslationTap,
+    this.onAuthorTap,
   });
 
   final ActivityReview review;
   final VoidCallback onHelpfulTap;
   final VoidCallback? onTranslationTap;
+  final VoidCallback? onAuthorTap;
 
   @override
   Widget build(BuildContext context) {
@@ -118,47 +120,62 @@ class ReviewCard extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              AvatarCircle(
-                imageUrl: review.authorAvatarUrl,
-                size: 48,
-                initials: review.authorName.isNotEmpty
-                    ? review.authorName.substring(0, 1)
-                    : 'U',
-              ),
-              const SizedBox(width: 12),
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text(
-                      review.authorName,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      formatReviewDate(review.submittedAt),
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                    const SizedBox(height: 2),
-                    Row(
+                child: InkWell(
+                  onTap: onAuthorTap,
+                  borderRadius: BorderRadius.circular(14),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 2),
+                    child: Row(
                       children: <Widget>[
-                        const Icon(
-                          Icons.star_rounded,
-                          size: 18,
-                          color: AppColors.textPrimary,
+                        AvatarCircle(
+                          imageUrl: review.authorAvatarUrl,
+                          size: 48,
+                          initials: review.authorName.isNotEmpty
+                              ? review.authorName.substring(0, 1)
+                              : 'U',
                         ),
-                        const SizedBox(width: 4),
-                        Text(
-                          l10n.detailsReviewRating(review.rating),
-                          style: Theme.of(context).textTheme.bodyMedium,
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Text(
+                                review.authorName,
+                                style: Theme.of(context).textTheme.titleMedium
+                                    ?.copyWith(fontWeight: FontWeight.w700),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                formatReviewDate(review.submittedAt),
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                              const SizedBox(height: 2),
+                              Row(
+                                children: <Widget>[
+                                  const Icon(
+                                    Icons.star_rounded,
+                                    size: 18,
+                                    color: AppColors.textPrimary,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    l10n.detailsReviewRating(review.rating),
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.bodyMedium,
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
-                  ],
+                  ),
                 ),
               ),
+              const SizedBox(width: 12),
               InkWell(
                 onTap: onHelpfulTap,
                 borderRadius: BorderRadius.circular(999),

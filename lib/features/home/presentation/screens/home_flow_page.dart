@@ -6,6 +6,7 @@ import '../../../../shared/activity_categories/activity_category_repository.dart
 import '../../../../shared/auth/auth_session.dart';
 import '../../../../shared/localization/mateya_localizations.dart';
 import '../../../../shared/navigation/mateya_auth_flow.dart';
+import '../../../../shared/navigation/mateya_route_observer.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../../shared/widgets/mateya_bottom_navigation.dart';
 import '../../../../shared/widgets/mateya_header.dart';
@@ -46,7 +47,7 @@ class HomeFlowPage extends StatefulWidget {
   State<HomeFlowPage> createState() => _HomeFlowPageState();
 }
 
-class _HomeFlowPageState extends State<HomeFlowPage> {
+class _HomeFlowPageState extends State<HomeFlowPage> with RouteAware {
   late final HomeController _controller;
   late final ChatController _chatController;
   late final MyPageController _myPageController;
@@ -58,6 +59,7 @@ class _HomeFlowPageState extends State<HomeFlowPage> {
   bool _isPlusOverlayOpen = false;
   bool _hasInitializedNearbyCultureMap = false;
   bool _isRedirectingToAuth = false;
+  PageRoute<dynamic>? _route;
 
   @override
   void initState() {
@@ -116,7 +118,22 @@ class _HomeFlowPageState extends State<HomeFlowPage> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final route = ModalRoute.of(context);
+    if (route is! PageRoute<dynamic> || identical(route, _route)) {
+      return;
+    }
+    if (_route != null) {
+      mateyaRouteObserver.unsubscribe(this);
+    }
+    _route = route;
+    mateyaRouteObserver.subscribe(this, route);
+  }
+
+  @override
   void dispose() {
+    mateyaRouteObserver.unsubscribe(this);
     _searchController.dispose();
     _searchFocusNode.dispose();
     _chatController.dispose();
@@ -124,6 +141,15 @@ class _HomeFlowPageState extends State<HomeFlowPage> {
     _nearbyCultureMapController.dispose();
     _controller.dispose();
     super.dispose();
+  }
+
+  @override
+  void didPopNext() {
+    Future.wait<void>(<Future<void>>[
+      _controller.refreshAfterActivityMutation(),
+      _chatController.retryRooms(),
+      _myPageController.retry(),
+    ]);
   }
 
   Future<void> _openFilterSheet() async {
@@ -199,6 +225,14 @@ class _HomeFlowPageState extends State<HomeFlowPage> {
         ),
       ),
     );
+    if (!mounted) {
+      return;
+    }
+    await Future.wait<void>(<Future<void>>[
+      _controller.refreshAfterActivityMutation(),
+      _chatController.retryRooms(),
+      _myPageController.retry(),
+    ]);
   }
 
   @override

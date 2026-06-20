@@ -139,19 +139,23 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
         _syncFormValues();
         return Material(
           color: AppColors.background,
-          child: MateyaFadeSlideSwitcher(
-            duration: const Duration(milliseconds: 240),
-            child: switch (widget.controller.phase) {
-              MyPageAsyncPhase.idle ||
-              MyPageAsyncPhase.loading => const MyPageLoadingView(),
-              MyPageAsyncPhase.networkError ||
-              MyPageAsyncPhase.serverError => MyPageRetryView(
-                message: widget.controller.errorMessage ?? l10n.mypageLoadError,
-                onRetry: widget.controller.retry,
-              ),
-              MyPageAsyncPhase.success ||
-              MyPageAsyncPhase.validationError => _buildRouteView(),
-            },
+          child: SafeArea(
+            child: MateyaFadeSlideSwitcher(
+              duration: const Duration(milliseconds: 240),
+              child: switch (widget.controller.phase) {
+                MyPageAsyncPhase.idle ||
+                MyPageAsyncPhase.loading => const MyPageLoadingView(),
+                MyPageAsyncPhase.networkError ||
+                MyPageAsyncPhase.serverError => MyPageRetryView(
+                  message:
+                      widget.controller.errorMessage ?? l10n.mypageLoadError,
+                  onRetry: _handleRetry,
+                  onBack: _buildRetryBackAction(),
+                ),
+                MyPageAsyncPhase.success ||
+                MyPageAsyncPhase.validationError => _buildRouteView(),
+              },
+            ),
           ),
         );
       },
@@ -281,6 +285,42 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
         },
       ),
     };
+  }
+
+  VoidCallback? _buildRetryBackAction() {
+    final controller = widget.controller;
+
+    return switch (controller.route) {
+      MyPageRoute.otherProfile =>
+        widget.onRootBack != null &&
+                controller.initialOtherProfileUserId != null &&
+                controller.initialOtherProfileUserId!.isNotEmpty
+            ? widget.onRootBack!
+            : controller.openPersonalHome,
+      MyPageRoute.recentActivities => controller.openPersonalHome,
+      MyPageRoute.settings => controller.openPersonalHome,
+      MyPageRoute.primaryPreferences => controller.openSettings,
+      MyPageRoute.consentHistory => controller.openSettings,
+      MyPageRoute.blockedUsers => controller.openSettings,
+      MyPageRoute.personalHome || MyPageRoute.businessHome => widget.onRootBack,
+    };
+  }
+
+  void _handleRetry() {
+    switch (widget.controller.route) {
+      case MyPageRoute.otherProfile:
+        unawaited(widget.controller.openOtherProfile());
+        return;
+      case MyPageRoute.personalHome:
+      case MyPageRoute.recentActivities:
+      case MyPageRoute.settings:
+      case MyPageRoute.primaryPreferences:
+      case MyPageRoute.consentHistory:
+      case MyPageRoute.blockedUsers:
+      case MyPageRoute.businessHome:
+        unawaited(widget.controller.retry());
+        return;
+    }
   }
 
   Future<void> _openGeneralReportSheet() {

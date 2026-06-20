@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../shared/localization/mateya_localizations.dart';
 import '../../../../shared/theme/app_tokens.dart';
+import '../../../../shared/widgets/mateya_profile_avatar.dart';
 import '../../domain/mypage_models.dart';
 
 class MyPageActivityHistoryCard extends StatelessWidget {
@@ -370,27 +371,10 @@ class MyPageAvatarImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(size / 2),
-      child: SizedBox(
-        width: size,
-        height: size,
-        child: imageUrl == null
-            ? Container(
-                color: AppColors.subtleBackground,
-                child: const Icon(Icons.person_rounded),
-              )
-            : Image.network(
-                imageUrl!,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    color: AppColors.subtleBackground,
-                    child: const Icon(Icons.person_rounded),
-                  );
-                },
-              ),
-      ),
+    return MateyaProfileAvatar(
+      imageUrl: imageUrl,
+      size: size,
+      iconScale: 0.52,
     );
   }
 }

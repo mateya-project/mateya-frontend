@@ -716,6 +716,16 @@ class AppLocalizationsEn extends AppLocalizations {
       'You can earn badges based on the categories of activities you joined.';
 
   @override
+  String get mypageOtherBadgesTitle => 'Earned badges';
+
+  @override
+  String get mypageOtherBadgesDescription =>
+      'These are the badges this user has earned.';
+
+  @override
+  String get mypageOtherBadgesEmpty => 'This user has no public badges yet.';
+
+  @override
   String get mypageRecentActivitiesSectionTitle => 'Activity history';
 
   @override
@@ -764,6 +774,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mypageActiveExperiencesTitle => 'Active experiences';
 
   @override
+  String get mypageAddFriend => 'Add friend';
+
+  @override
   String get mypageRemoveFriend => 'Remove friend';
 
   @override
@@ -803,6 +816,9 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get mypageBlockUserError =>
       'Could not block the user. Please try again later.';
+
+  @override
+  String get mypageUnblockAction => 'Unblock';
 
   @override
   String get mypageUnblockedUser => 'User unblocked.';
@@ -2446,6 +2462,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get detailsParticipantRemoved => 'The participant has been removed.';
+
+  @override
+  String get detailsParticipantActionViewProfile => 'View profile';
+
+  @override
+  String get detailsParticipantActionApprove => 'Approve request';
+
+  @override
+  String get detailsParticipantActionRemove => 'Remove participant';
+
+  @override
+  String get detailsParticipantActionCancelRequest => 'Cancel request';
 
   @override
   String get detailsPendingParticipantsListTitle => 'Pending requests';

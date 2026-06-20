@@ -38,15 +38,6 @@ class FeaturedActivityCard extends StatelessWidget {
                   filled: true,
                 ),
               ),
-              const Positioned(
-                right: 16,
-                top: 16,
-                child: Icon(
-                  Icons.favorite_border_rounded,
-                  color: Colors.white,
-                  size: 30,
-                ),
-              ),
             ],
           ),
           const SizedBox(height: 18),

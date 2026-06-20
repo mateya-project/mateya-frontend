@@ -683,6 +683,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String get mypageBadgesDescription => '根据你参与的活动分类，可以获得不同徽章。';
 
   @override
+  String get mypageOtherBadgesTitle => '已获得的徽章';
+
+  @override
+  String get mypageOtherBadgesDescription => '这是该用户已获得的徽章。';
+
+  @override
+  String get mypageOtherBadgesEmpty => '该用户还没有公开徽章。';
+
+  @override
   String get mypageRecentActivitiesSectionTitle => '活动记录';
 
   @override
@@ -728,6 +737,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get mypageActiveExperiencesTitle => '进行中的体验';
 
   @override
+  String get mypageAddFriend => '添加好友';
+
+  @override
   String get mypageRemoveFriend => '删除好友';
 
   @override
@@ -762,6 +774,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get mypageBlockUserError => '无法屏蔽该用户，请稍后再试。';
+
+  @override
+  String get mypageUnblockAction => '解除屏蔽';
 
   @override
   String get mypageUnblockedUser => '已解除屏蔽。';
@@ -2236,6 +2251,18 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get detailsParticipantRemoved => '已移除参与者。';
+
+  @override
+  String get detailsParticipantActionViewProfile => '查看个人资料';
+
+  @override
+  String get detailsParticipantActionApprove => '批准申请';
+
+  @override
+  String get detailsParticipantActionRemove => '移除参与者';
+
+  @override
+  String get detailsParticipantActionCancelRequest => '取消申请';
 
   @override
   String get detailsPendingParticipantsListTitle => '申请用户列表';
@@ -2973,6 +3000,15 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get mypageBadgesDescription => '根据你参与的活动分类，可以获得不同徽章。';
 
   @override
+  String get mypageOtherBadgesTitle => '已获得的徽章';
+
+  @override
+  String get mypageOtherBadgesDescription => '这是该用户已获得的徽章。';
+
+  @override
+  String get mypageOtherBadgesEmpty => '该用户还没有公开徽章。';
+
+  @override
   String get mypageRecentActivitiesSectionTitle => '活动记录';
 
   @override
@@ -3018,6 +3054,9 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get mypageActiveExperiencesTitle => '进行中的体验';
 
   @override
+  String get mypageAddFriend => '添加好友';
+
+  @override
   String get mypageRemoveFriend => '删除好友';
 
   @override
@@ -3052,6 +3091,9 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get mypageBlockUserError => '无法屏蔽该用户，请稍后再试。';
+
+  @override
+  String get mypageUnblockAction => '解除屏蔽';
 
   @override
   String get mypageUnblockedUser => '已解除屏蔽。';
@@ -4526,6 +4568,18 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get detailsParticipantRemoved => '已移除参与者。';
+
+  @override
+  String get detailsParticipantActionViewProfile => '查看个人资料';
+
+  @override
+  String get detailsParticipantActionApprove => '批准申请';
+
+  @override
+  String get detailsParticipantActionRemove => '移除参与者';
+
+  @override
+  String get detailsParticipantActionCancelRequest => '取消申请';
 
   @override
   String get detailsPendingParticipantsListTitle => '申请用户列表';

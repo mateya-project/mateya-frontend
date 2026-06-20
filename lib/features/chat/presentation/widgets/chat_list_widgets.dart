@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../shared/theme/app_tokens.dart';
+import '../../../../shared/widgets/mateya_profile_avatar.dart';
 import '../../../../shared/widgets/mateya_interaction.dart';
 import '../../domain/chat_models.dart';
 import 'chat_formatters.dart';
@@ -185,23 +186,7 @@ class NetworkAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final borderRadius = BorderRadius.circular(size / 2);
-
-    return ClipRRect(
-      borderRadius: borderRadius,
-      child: SizedBox(
-        width: size,
-        height: size,
-        child: imageUrl == null || imageUrl!.trim().isEmpty
-            ? FallbackAvatar(label: label, size: size)
-            : Image.network(
-                imageUrl!,
-                fit: BoxFit.cover,
-                errorBuilder: (_, _, _) =>
-                    FallbackAvatar(label: label, size: size),
-              ),
-      ),
-    );
+    return MateyaProfileAvatar(imageUrl: imageUrl, size: size);
   }
 }
 
