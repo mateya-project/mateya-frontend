@@ -8,7 +8,17 @@ import '../../../../shared/widgets/mateya_button.dart';
 import 'activity_detail_review_widgets.dart';
 
 class ReviewComposerSheet extends StatefulWidget {
-  const ReviewComposerSheet({super.key, required this.onSubmit});
+  const ReviewComposerSheet({
+    super.key,
+    required this.onSubmit,
+    this.initialRating = 0,
+    this.initialBody = '',
+    this.initialImageUrls = const <String>[],
+    this.title,
+    this.submitLabel,
+    this.submittingLabel,
+    this.successMessage,
+  });
 
   final Future<String?> Function(
     int rating,
@@ -16,6 +26,13 @@ class ReviewComposerSheet extends StatefulWidget {
     List<String> imageUrls,
   )
   onSubmit;
+  final int initialRating;
+  final String initialBody;
+  final List<String> initialImageUrls;
+  final String? title;
+  final String? submitLabel;
+  final String? submittingLabel;
+  final String? successMessage;
 
   @override
   State<ReviewComposerSheet> createState() => _ReviewComposerSheetState();
@@ -27,15 +44,18 @@ class _ReviewComposerSheetState extends State<ReviewComposerSheet> {
   final ImagePicker _imagePicker = ImagePicker();
   final TextEditingController _bodyController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
-  final List<XFile> _images = <XFile>[];
+  final List<String> _images = <String>[];
 
-  int _rating = 0;
+  late int _rating;
   int? _draggingIndex;
   bool _isSubmitting = false;
 
   @override
   void initState() {
     super.initState();
+    _rating = widget.initialRating.clamp(0, 5);
+    _bodyController.text = widget.initialBody;
+    _images.addAll(widget.initialImageUrls);
     _focusNode.addListener(_handleFocusChanged);
     _restoreLostImages();
   }
@@ -79,7 +99,7 @@ class _ReviewComposerSheetState extends State<ReviewComposerSheet> {
           return;
         }
         setState(() {
-          _images.addAll(files);
+          _images.addAll(files.map((file) => file.path));
         });
       },
     );
@@ -101,7 +121,7 @@ class _ReviewComposerSheetState extends State<ReviewComposerSheet> {
       return;
     }
     setState(() {
-      _images.addAll(picked);
+      _images.addAll(picked.map((file) => file.path));
     });
   }
 
@@ -135,7 +155,7 @@ class _ReviewComposerSheetState extends State<ReviewComposerSheet> {
     final message = await widget.onSubmit(
       _rating,
       _bodyController.text.trim(),
-      _images.map((image) => image.path).toList(growable: false),
+      List<String>.from(_images),
     );
 
     if (!mounted) {
@@ -149,7 +169,9 @@ class _ReviewComposerSheetState extends State<ReviewComposerSheet> {
     if (message == null) {
       navigator.pop();
       messenger.showSnackBar(
-        SnackBar(content: Text(l10n.detailsReviewSubmitted)),
+        SnackBar(
+          content: Text(widget.successMessage ?? l10n.detailsReviewSubmitted),
+        ),
       );
       return;
     }
@@ -188,7 +210,7 @@ class _ReviewComposerSheetState extends State<ReviewComposerSheet> {
                       ),
                       Expanded(
                         child: Text(
-                          l10n.detailsReviewComposerTitle,
+                          widget.title ?? l10n.detailsReviewComposerTitle,
                           textAlign: TextAlign.center,
                           style: Theme.of(context).textTheme.titleLarge,
                         ),
@@ -294,7 +316,7 @@ class _ReviewComposerSheetState extends State<ReviewComposerSheet> {
                                     onDragEnd: (_) =>
                                         setState(() => _draggingIndex = null),
                                     childWhenDragging: ReviewImageTile(
-                                      imagePath: item.path,
+                                      imagePath: item,
                                       index: slotIndex,
                                       onRemove: null,
                                     ),
@@ -304,14 +326,14 @@ class _ReviewComposerSheetState extends State<ReviewComposerSheet> {
                                         width: 92,
                                         height: 92,
                                         child: ReviewImageTile(
-                                          imagePath: item.path,
+                                          imagePath: item,
                                           index: slotIndex,
                                           onRemove: null,
                                         ),
                                       ),
                                     ),
                                     child: ReviewImageTile(
-                                      imagePath: item.path,
+                                      imagePath: item,
                                       index: slotIndex,
                                       onRemove: () => setState(
                                         () => _images.removeAt(slotIndex),
@@ -347,8 +369,9 @@ class _ReviewComposerSheetState extends State<ReviewComposerSheet> {
                   const SizedBox(height: 20),
                   MateyaButton(
                     label: _isSubmitting
-                        ? l10n.detailsReviewSubmitting
-                        : l10n.detailsReviewSubmit,
+                        ? (widget.submittingLabel ??
+                              l10n.detailsReviewSubmitting)
+                        : (widget.submitLabel ?? l10n.detailsReviewSubmit),
                     enabled: _canSubmit && !_isSubmitting,
                     onPressed: _canSubmit && !_isSubmitting ? _submit : null,
                   ),

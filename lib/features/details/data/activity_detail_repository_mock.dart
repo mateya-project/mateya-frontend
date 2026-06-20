@@ -134,4 +134,40 @@ class MockActivityDetailRepository implements ActivityDetailRepository {
       imageUrls: imageUrls,
     );
   }
+
+  @override
+  Future<ActivityReview> updateReview({
+    required String reviewId,
+    required int rating,
+    required String body,
+    List<String> imageUrls = const <String>[],
+  }) async {
+    await Future<void>.delayed(const Duration(milliseconds: 180));
+    for (final entry in _reviewSeedsById.entries) {
+      final index = entry.value.indexWhere((review) => review.id == reviewId);
+      if (index < 0) {
+        continue;
+      }
+      final updated = entry.value[index].copyWith(
+        rating: rating,
+        originalText: body.trim(),
+        translatedText: null,
+        isTranslationVisible: false,
+        imageUrls: List<String>.from(imageUrls),
+      );
+      entry.value[index] = updated;
+      return updated;
+    }
+    throw const ActivityDetailRepositoryException(
+      ActivityDetailLoadFailureType.validation,
+    );
+  }
+
+  @override
+  Future<void> deleteReview({required String reviewId}) async {
+    await Future<void>.delayed(const Duration(milliseconds: 180));
+    for (final entry in _reviewSeedsById.entries) {
+      entry.value.removeWhere((review) => review.id == reviewId);
+    }
+  }
 }

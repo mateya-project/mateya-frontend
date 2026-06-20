@@ -221,6 +221,26 @@ class _FakeActivityDetailRepository implements ActivityDetailRepository {
       imageUrls: imageUrls,
     );
   }
+
+  @override
+  Future<ActivityReview> updateReview({
+    required String reviewId,
+    required int rating,
+    required String body,
+    List<String> imageUrls = const <String>[],
+  }) async {
+    return ActivityReview(
+      id: reviewId,
+      authorName: '나',
+      submittedAt: DateTime(2026, 6, 20),
+      rating: rating,
+      originalText: body,
+      imageUrls: imageUrls,
+    );
+  }
+
+  @override
+  Future<void> deleteReview({required String reviewId}) async {}
 }
 
 ActivityItem _seedActivity() {

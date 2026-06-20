@@ -478,6 +478,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get commonEdit => '编辑';
 
   @override
+  String get commonDelete => '删除';
+
+  @override
   String get commonSeeAll => '查看全部';
 
   @override
@@ -2103,6 +2106,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get detailsReviewSubmitError => '无法发布评价，请稍后再试。';
 
   @override
+  String get detailsReviewUpdateError => '无法更新评价，请稍后再试。';
+
+  @override
+  String get detailsReviewDeleteError => '无法删除评价，请稍后再试。';
+
+  @override
   String get detailsLoadError => '无法加载活动详情，请稍后再试。';
 
   @override
@@ -2216,7 +2225,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get detailsReviewSubmitted => '评价已发布。';
 
   @override
+  String get detailsReviewUpdated => '评价已更新。';
+
+  @override
+  String get detailsReviewDeleted => '评价已删除。';
+
+  @override
   String get detailsReviewComposerTitle => '写评价';
+
+  @override
+  String get detailsReviewEditTitle => '编辑评价';
 
   @override
   String get detailsReviewComposerHint => '请写下这次活动中让你满意的地方，\n或对下一位参加者有帮助的内容。';
@@ -2238,7 +2256,19 @@ class AppLocalizationsZh extends AppLocalizations {
   String get detailsReviewSubmit => '发布评价';
 
   @override
+  String get detailsReviewUpdating => '保存中...';
+
+  @override
+  String get detailsReviewEditSubmit => '保存评价';
+
+  @override
   String get detailsReviewImageGuide => '第一张图片会作为封面图，\n长按可以调整顺序。';
+
+  @override
+  String get detailsReviewDeleteDialogTitle => '要删除这条评价吗？';
+
+  @override
+  String get detailsReviewDeleteDialogBody => '删除后将无法恢复。';
 
   @override
   String get detailsShareCopied => '已复制分享链接。可以直接粘贴到你常用的聊天工具中。';
@@ -2795,6 +2825,9 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get commonEdit => '编辑';
 
   @override
+  String get commonDelete => '删除';
+
+  @override
   String get commonSeeAll => '查看全部';
 
   @override
@@ -4420,6 +4453,12 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get detailsReviewSubmitError => '无法发布评价，请稍后再试。';
 
   @override
+  String get detailsReviewUpdateError => '无法更新评价，请稍后再试。';
+
+  @override
+  String get detailsReviewDeleteError => '无法删除评价，请稍后再试。';
+
+  @override
   String get detailsLoadError => '无法加载活动详情，请稍后再试。';
 
   @override
@@ -4533,7 +4572,16 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get detailsReviewSubmitted => '评价已发布。';
 
   @override
+  String get detailsReviewUpdated => '评价已更新。';
+
+  @override
+  String get detailsReviewDeleted => '评价已删除。';
+
+  @override
   String get detailsReviewComposerTitle => '写评价';
+
+  @override
+  String get detailsReviewEditTitle => '编辑评价';
 
   @override
   String get detailsReviewComposerHint => '请写下这次活动中让你满意的地方，\n或对下一位参加者有帮助的内容。';
@@ -4555,7 +4603,19 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get detailsReviewSubmit => '发布评价';
 
   @override
+  String get detailsReviewUpdating => '保存中...';
+
+  @override
+  String get detailsReviewEditSubmit => '保存评价';
+
+  @override
   String get detailsReviewImageGuide => '第一张图片会作为封面图，\n长按可以调整顺序。';
+
+  @override
+  String get detailsReviewDeleteDialogTitle => '要删除这条评价吗？';
+
+  @override
+  String get detailsReviewDeleteDialogBody => '删除后将无法恢复。';
 
   @override
   String get detailsShareCopied => '已复制分享链接。可以直接粘贴到你常用的聊天工具中。';

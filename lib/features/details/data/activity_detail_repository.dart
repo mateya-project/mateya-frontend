@@ -56,4 +56,13 @@ abstract interface class ActivityDetailRepository {
     required String body,
     List<String> imageUrls,
   });
+
+  Future<ActivityReview> updateReview({
+    required String reviewId,
+    required int rating,
+    required String body,
+    List<String> imageUrls,
+  });
+
+  Future<void> deleteReview({required String reviewId});
 }

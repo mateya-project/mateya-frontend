@@ -125,4 +125,46 @@ void main() {
     expect(find.byIcon(Icons.favorite_rounded), findsOneWidget);
     expect(find.byIcon(Icons.favorite_border_rounded), findsNothing);
   });
+
+  testWidgets('ReviewCard exposes owner menu actions when provided', (
+    tester,
+  ) async {
+    var didEdit = false;
+    var didDelete = false;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: buildMateyaTheme(),
+        locale: const Locale('en'),
+        supportedLocales: MateyaLocalizations.supportedLocales,
+        localizationsDelegates: MateyaLocalizations.delegates,
+        home: Scaffold(
+          body: ReviewCard(
+            review: ActivityReview(
+              id: 'review-5',
+              authorName: 'Mateya',
+              submittedAt: DateTime(2026, 6, 20),
+              rating: 4,
+              originalText: 'Helpful review.',
+            ),
+            onAuthorTap: () {},
+            onHelpfulTap: () {},
+            onTranslationTap: null,
+            onEditTap: () => didEdit = true,
+            onDeleteTap: () => didDelete = true,
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.byIcon(Icons.more_horiz_rounded));
+    await tester.pumpAndSettle();
+    expect(find.text('Edit'), findsOneWidget);
+    expect(find.text('Delete'), findsOneWidget);
+
+    await tester.tap(find.text('Edit'));
+    await tester.pumpAndSettle();
+    expect(didEdit, isTrue);
+    expect(didDelete, isFalse);
+  });
 }

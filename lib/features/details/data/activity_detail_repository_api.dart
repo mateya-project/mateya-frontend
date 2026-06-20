@@ -226,6 +226,47 @@ class ApiActivityDetailRepository implements ActivityDetailRepository {
     }
   }
 
+  @override
+  Future<ActivityReview> updateReview({
+    required String reviewId,
+    required int rating,
+    required String body,
+    List<String> imageUrls = const <String>[],
+  }) async {
+    try {
+      final uploadedImageUrls = await _resolveReviewImageUrls(
+        imageUrls: imageUrls,
+        apiClient: _apiClient,
+        transport: _transport,
+      );
+      final data = await _apiClient.patchJson(
+        '/api/v1/reviews/$reviewId',
+        requiresAuth: true,
+        body: <String, Object?>{
+          'rating': rating,
+          'body': body,
+          'imageUrls': uploadedImageUrls,
+          'representativeImageIndex': uploadedImageUrls.isEmpty ? null : 0,
+        },
+      );
+      return _parseReview(data);
+    } on MateyaApiException catch (error) {
+      throw _mapApiException(error);
+    }
+  }
+
+  @override
+  Future<void> deleteReview({required String reviewId}) async {
+    try {
+      await _apiClient.deleteJson(
+        '/api/v1/reviews/$reviewId',
+        requiresAuth: true,
+      );
+    } on MateyaApiException catch (error) {
+      throw _mapApiException(error);
+    }
+  }
+
   ActivityDetail _buildActivityDetail({
     required ActivityItem activity,
     required Map<String, dynamic> detailJson,

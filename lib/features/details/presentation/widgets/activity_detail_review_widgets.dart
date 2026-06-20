@@ -91,12 +91,16 @@ class ReviewCard extends StatelessWidget {
     required this.onHelpfulTap,
     required this.onTranslationTap,
     this.onAuthorTap,
+    this.onEditTap,
+    this.onDeleteTap,
   });
 
   final ActivityReview review;
   final VoidCallback onHelpfulTap;
   final VoidCallback? onTranslationTap;
   final VoidCallback? onAuthorTap;
+  final VoidCallback? onEditTap;
+  final VoidCallback? onDeleteTap;
 
   @override
   Widget build(BuildContext context) {
@@ -177,25 +181,68 @@ class ReviewCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 12),
-              InkWell(
-                onTap: onHelpfulTap,
-                borderRadius: BorderRadius.circular(999),
-                child: Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(color: AppColors.fieldBorderLight),
-                  ),
-                  child: Icon(
-                    review.isHelpfulByMe
-                        ? Icons.favorite_rounded
-                        : Icons.favorite_border_rounded,
-                    color: review.isHelpfulByMe
-                        ? AppColors.brandGreen
-                        : AppColors.textPrimary,
-                    size: 28,
-                  ),
+              SizedBox(
+                width: 56,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: <Widget>[
+                    if (onEditTap != null || onDeleteTap != null)
+                      PopupMenuButton<_ReviewMenuAction>(
+                        tooltip: MaterialLocalizations.of(
+                          context,
+                        ).showMenuTooltip,
+                        padding: EdgeInsets.zero,
+                        icon: const Icon(
+                          Icons.more_horiz_rounded,
+                          color: AppColors.textSecondary,
+                        ),
+                        onSelected: (action) {
+                          switch (action) {
+                            case _ReviewMenuAction.edit:
+                              onEditTap?.call();
+                            case _ReviewMenuAction.delete:
+                              onDeleteTap?.call();
+                          }
+                        },
+                        itemBuilder: (context) =>
+                            <PopupMenuEntry<_ReviewMenuAction>>[
+                              if (onEditTap != null)
+                                PopupMenuItem<_ReviewMenuAction>(
+                                  value: _ReviewMenuAction.edit,
+                                  child: Text(l10n.commonEdit),
+                                ),
+                              if (onDeleteTap != null)
+                                PopupMenuItem<_ReviewMenuAction>(
+                                  value: _ReviewMenuAction.delete,
+                                  child: Text(l10n.commonDelete),
+                                ),
+                            ],
+                      )
+                    else
+                      const SizedBox(height: 24),
+                    const SizedBox(height: 8),
+                    InkWell(
+                      onTap: onHelpfulTap,
+                      borderRadius: BorderRadius.circular(999),
+                      child: Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: AppColors.fieldBorderLight),
+                        ),
+                        child: Icon(
+                          review.isHelpfulByMe
+                              ? Icons.favorite_rounded
+                              : Icons.favorite_border_rounded,
+                          color: review.isHelpfulByMe
+                              ? AppColors.brandGreen
+                              : AppColors.textPrimary,
+                          size: 28,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -320,3 +367,5 @@ class ReviewImageTile extends StatelessWidget {
     );
   }
 }
+
+enum _ReviewMenuAction { edit, delete }
