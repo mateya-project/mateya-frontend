@@ -144,6 +144,9 @@ Future<void> _chatSendMessage(ChatController controller) async {
     controller._roomErrorMessage = null;
     if (!shouldWaitForRealtime) {
       final current = controller.currentRoom ?? room;
+      if (_chatHasDeliveredOutgoingGroup(current, sentBubbles)) {
+        return;
+      }
       final outgoingGroup = ChatMessageGroup(
         id: 'pending-${now.microsecondsSinceEpoch}',
         sender: ChatParticipant(id: 'me', name: l10n.chatMe),
@@ -177,4 +180,13 @@ Future<void> _chatSendMessage(ChatController controller) async {
     controller._isSending = false;
   }
   controller._notifyChanged();
+}
+
+bool _chatHasDeliveredOutgoingGroup(ChatRoom room, List<ChatBubble> bubbles) {
+  return room.messageGroups.any(
+    (group) =>
+        group.isMine &&
+        !group.id.startsWith('pending-') &&
+        _chatSameBubbles(group.bubbles, bubbles),
+  );
 }

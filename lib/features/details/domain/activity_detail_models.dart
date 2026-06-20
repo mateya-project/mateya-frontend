@@ -102,11 +102,12 @@ class ActivityReview {
   final bool isTranslationVisible;
   final List<String> imageUrls;
 
-  bool get supportsTranslation =>
-      canToggleTranslation ||
-      (translatedText != null && translatedText!.trim().isNotEmpty);
+  bool get hasTranslatedText =>
+      translatedText != null && translatedText!.trim().isNotEmpty;
 
-  String get visibleBody => isTranslationVisible && supportsTranslation
+  bool get supportsTranslation => canToggleTranslation || hasTranslatedText;
+
+  String get visibleBody => isTranslationVisible && hasTranslatedText
       ? translatedText!
       : originalText;
 

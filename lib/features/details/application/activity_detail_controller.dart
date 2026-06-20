@@ -395,10 +395,13 @@ class ActivityDetailController extends ChangeNotifier {
           if (review.id != reviewId) {
             return review;
           }
+          final translatedText = resolvedReview.translatedText;
+          final hasTranslatedText =
+              translatedText != null && translatedText.trim().isNotEmpty;
           return review.copyWith(
-            translatedText: resolvedReview.translatedText,
+            translatedText: hasTranslatedText ? translatedText : null,
             canToggleTranslation: resolvedReview.canToggleTranslation,
-            isTranslationVisible: true,
+            isTranslationVisible: hasTranslatedText,
           );
         })
         .toList(growable: false);

@@ -4,6 +4,7 @@ import 'package:mateya_app/features/chat/domain/chat_models.dart';
 import 'package:mateya_app/features/chat/presentation/widgets/chat_message_widgets.dart';
 import 'package:mateya_app/shared/localization/mateya_localizations.dart';
 import 'package:mateya_app/shared/theme/app_theme.dart';
+import 'package:mateya_app/shared/widgets/mateya_translation_toggle_button.dart';
 
 Widget buildSubject(ChatMessageGroup group, {VoidCallback? onAvatarTap}) {
   return MaterialApp(
@@ -85,4 +86,33 @@ void main() {
 
     expect(tapCount, 1);
   });
+
+  testWidgets(
+    'IncomingGroup aligns translation toggle with the incoming bubble edge',
+    (tester) async {
+      await tester.pumpWidget(
+        buildSubject(
+          ChatMessageGroup(
+            id: 'aligned',
+            sender: const ChatParticipant(id: 'user-1', name: 'Ji-Won'),
+            sentAt: DateTime(2026, 6, 20, 13, 40),
+            bubbles: const <ChatBubble>[
+              ChatBubble(
+                originalText: '안녕하세요 반갑습니다.',
+                translatedText: 'Hello, nice to meet you.',
+              ),
+            ],
+          ),
+        ),
+      );
+      await tester.pump();
+
+      final bubbleRect = tester.getRect(find.byType(IncomingBubble));
+      final toggleRect = tester.getRect(
+        find.byType(MateyaTranslationToggleButton),
+      );
+
+      expect(toggleRect.right, moreOrLessEquals(bubbleRect.right, epsilon: 1));
+    },
+  );
 }

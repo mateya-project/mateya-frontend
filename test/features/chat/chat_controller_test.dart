@@ -304,6 +304,37 @@ void main() {
     });
 
     test(
+      'sendMessage does not append pending when realtime echo arrives before request completion',
+      () async {
+        final repository = _RealtimeRaceChatRepository();
+        final controller = ChatController(
+          repository: repository,
+          now: () => DateTime(2026, 6, 14, 10, 30),
+        );
+
+        await controller.initialize();
+        await controller.openRoom('gyeongbokgung-walk');
+        controller.updateDraft('레이스 조건 메시지');
+
+        await controller.sendMessage();
+
+        expect(
+          controller.currentRoom?.messageGroups
+              .where((group) => group.visibleTexts.contains('레이스 조건 메시지'))
+              .length,
+          1,
+        );
+        expect(
+          controller.currentRoom?.messageGroups
+              .where((group) => group.id.startsWith('pending-'))
+              .isEmpty,
+          isTrue,
+        );
+        expect(controller.currentRoom?.messageGroups.last.id, 'ws-race');
+      },
+    );
+
+    test(
       'polling fallback appends messages when realtime never connects',
       () async {
         final repository = _PollingFallbackChatRepository();
@@ -372,6 +403,32 @@ class _RealtimeChatRepository extends MockChatRepository {
       return;
     }
     _onMessage?.call(message);
+  }
+}
+
+class _RealtimeRaceChatRepository extends _RealtimeChatRepository {
+  _RealtimeRaceChatRepository() {
+    realtimeConnected = false;
+  }
+
+  @override
+  Future<List<ChatBubble>> sendMessage({
+    required String roomId,
+    required String text,
+    required List<ChatAttachment> attachments,
+  }) async {
+    final trimmed = text.trim();
+    emit(
+      roomId,
+      ChatMessageGroup(
+        id: 'ws-race',
+        sender: const ChatParticipant(id: 'me', name: '나'),
+        sentAt: DateTime(2026, 6, 14, 10, 30, 1),
+        isMine: true,
+        bubbles: <ChatBubble>[ChatBubble(originalText: trimmed)],
+      ),
+    );
+    return <ChatBubble>[ChatBubble(originalText: trimmed)];
   }
 }
 

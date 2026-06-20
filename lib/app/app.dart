@@ -131,11 +131,12 @@ class _MateyaAppState extends State<MateyaApp> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    final session = AuthSessionStore.instance.session;
     return AnimatedBuilder(
       animation: _localeController,
       builder: (context, _) {
+        final session = AuthSessionStore.instance.session;
         return MaterialApp(
+          key: ValueKey<String>('mateya-app-${_localeController.languageCode}'),
           onGenerateTitle: (context) => context.l10n.appTitle,
           debugShowCheckedModeBanner: false,
           theme: buildMateyaTheme(),
