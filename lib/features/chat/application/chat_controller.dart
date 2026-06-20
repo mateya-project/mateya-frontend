@@ -16,7 +16,7 @@ class ChatController extends ChangeNotifier {
   ChatController({
     required this.repository,
     DateTime Function()? now,
-    this.realtimeFallbackPollInterval = const Duration(seconds: 5),
+    this.realtimeFallbackPollInterval = const Duration(seconds: 3),
   }) : _now = now ?? DateTime.now;
 
   final ChatRepository repository;

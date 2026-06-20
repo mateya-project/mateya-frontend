@@ -9,6 +9,7 @@ import 'app/app_config.dart';
 import 'shared/auth/auth_session.dart';
 import 'shared/localization/app_locale_controller.dart';
 import 'shared/logging/app_logger.dart';
+import 'shared/logging/naver_map_diagnostics.dart';
 
 Future<void> main() async {
   final logger = AppLogger.instance;
@@ -36,14 +37,23 @@ Future<void> main() async {
         },
       );
 
+      logger.info(
+        'Initializing Naver Map SDK',
+        context: NaverMapDiagnostics.sdkInitializationContext(),
+      );
       await FlutterNaverMap().init(
         clientId: AppConfig.naverMapClientId,
         onAuthFailed: (error) {
-          logger.warning(
-            'Naver Map authentication failed',
-            context: <String, Object?>{'error': '$error'},
-          );
+          NaverMapDiagnostics(
+            scope: 'app-bootstrap',
+            logger: logger,
+            context: NaverMapDiagnostics.sdkInitializationContext(),
+          ).authFailed(error);
         },
+      );
+      logger.info(
+        'Naver Map SDK initialized',
+        context: NaverMapDiagnostics.sdkInitializationContext(),
       );
 
       runApp(const MateyaApp());

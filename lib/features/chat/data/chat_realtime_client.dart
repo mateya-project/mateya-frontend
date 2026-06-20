@@ -12,17 +12,23 @@ typedef ChatRealtimeMessageCallback = void Function(ChatMessageGroup message);
 typedef ChatRealtimeErrorCallback = void Function(String message);
 
 class ChatRealtimeClient {
-  ChatRealtimeClient({AuthSessionStore? sessionStore, AppLogger? logger})
-    : _sessionStore = sessionStore ?? AuthSessionStore.instance,
-      _logger = logger ?? AppLogger.instance;
+  ChatRealtimeClient({
+    AuthSessionStore? sessionStore,
+    AppLogger? logger,
+    DateTime Function()? now,
+  }) : _sessionStore = sessionStore ?? AuthSessionStore.instance,
+       _logger = logger ?? AppLogger.instance,
+       _now = now ?? DateTime.now;
 
   static const Duration _reconnectDelay = Duration(seconds: 3);
   static const Duration _heartbeatInterval = Duration(seconds: 10);
   static const Duration _connectionTimeout = Duration(seconds: 5);
+  static const Duration _realtimeUnavailableCooldown = Duration(minutes: 5);
   static const String _subscriptionDestinationPrefix = '/topic/chat.rooms.';
 
   final AuthSessionStore _sessionStore;
   final AppLogger _logger;
+  final DateTime Function() _now;
 
   StompClient? _client;
   StompUnsubscribe? _unsubscribe;
@@ -31,6 +37,7 @@ class ChatRealtimeClient {
   ChatRealtimeErrorCallback? _onError;
   bool _hasConnectedInCurrentSession = false;
   bool _hasReportedInitialConnectionFailure = false;
+  DateTime? _realtimeUnavailableUntil;
 
   bool isConnectedForRoom(String roomId) =>
       _roomId == roomId && (_client?.connected ?? false);
@@ -76,6 +83,18 @@ class ChatRealtimeClient {
       ),
     );
 
+    if (_isRealtimeTemporarilyUnavailable) {
+      _logger.info(
+        'Chat realtime skipped because websocket is temporarily unavailable',
+        context: _logContext(
+          roomId,
+          url: _webSocketUrl(),
+          nextRetryAt: _realtimeUnavailableUntil?.toIso8601String(),
+        ),
+      );
+      return;
+    }
+
     final stompConnectHeaders = <String, String>{};
     late final StompClient client;
     client = StompClient(
@@ -115,6 +134,7 @@ class ChatRealtimeClient {
         onConnect: (_) {
           _hasConnectedInCurrentSession = true;
           _hasReportedInitialConnectionFailure = false;
+          _realtimeUnavailableUntil = null;
           _logger.info(
             'Chat realtime connected',
             context: _logContext(
@@ -159,18 +179,22 @@ class ChatRealtimeClient {
             frame.body ??
                 MateyaLocalizations.current.chatRealtimeConnectionError,
           );
+          _pauseRealtimeAfterInitialFailure(roomId, error: frame.body);
         },
         onWebSocketError: (error) {
+          if (_pauseRealtimeAfterInitialFailure(roomId, error: error)) {
+            return;
+          }
           _logInitialConnectionWarning(
             roomId,
             'Chat realtime WebSocket error received',
             error,
           );
-          _reportConnectionError(
-            MateyaLocalizations.current.chatRealtimeConnectionError,
-          );
         },
         onWebSocketDone: () {
+          if (_pauseRealtimeAfterInitialFailure(roomId)) {
+            return;
+          }
           _logger.info(
             'Chat realtime WebSocket done',
             context: _logContext(roomId),
@@ -304,6 +328,7 @@ class ChatRealtimeClient {
     String? body,
     String? message,
     String? url,
+    String? nextRetryAt,
     bool? hasAuthorizationHeader,
     int? reconnectDelay,
   }) {
@@ -331,6 +356,9 @@ class ChatRealtimeClient {
     }
     if (reconnectDelay != null) {
       context['reconnectDelaySeconds'] = reconnectDelay;
+    }
+    if (nextRetryAt != null) {
+      context['nextRetryAt'] = nextRetryAt;
     }
     return context;
   }
@@ -369,6 +397,14 @@ class ChatRealtimeClient {
     return buildChatWebSocketUrl(AppConfig.apiBaseUrl);
   }
 
+  bool get _isRealtimeTemporarilyUnavailable {
+    final until = _realtimeUnavailableUntil;
+    if (until == null) {
+      return false;
+    }
+    return until.isAfter(_now());
+  }
+
   void _logInitialConnectionWarning(
     String roomId,
     String message,
@@ -386,6 +422,38 @@ class ChatRealtimeClient {
       error: error,
       context: _logContext(roomId, url: _webSocketUrl()),
     );
+  }
+
+  bool _pauseRealtimeAfterInitialFailure(String roomId, {Object? error}) {
+    if (_hasConnectedInCurrentSession || _roomId != roomId) {
+      return false;
+    }
+
+    final now = _now();
+    final wasAlreadyUnavailable =
+        _realtimeUnavailableUntil != null &&
+        _realtimeUnavailableUntil!.isAfter(now);
+    _realtimeUnavailableUntil = now.add(_realtimeUnavailableCooldown);
+    _unsubscribe?.call();
+    _unsubscribe = null;
+    final client = _client;
+    _client = null;
+    client?.deactivate();
+
+    if (wasAlreadyUnavailable) {
+      return true;
+    }
+
+    _logger.warning(
+      'Chat realtime disabled after initial websocket failure',
+      error: error,
+      context: _logContext(
+        roomId,
+        url: _webSocketUrl(),
+        nextRetryAt: _realtimeUnavailableUntil?.toIso8601String(),
+      ),
+    );
+    return true;
   }
 }
 

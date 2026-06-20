@@ -36,8 +36,12 @@ void main() {
   ) async {
     tester.view.physicalSize = const Size(390, 760);
     tester.view.devicePixelRatio = 1;
+    tester.view.viewPadding = const FakeViewPadding(bottom: 34);
+    tester.view.padding = const FakeViewPadding(bottom: 34);
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
+    addTearDown(tester.view.resetViewPadding);
+    addTearDown(tester.view.resetPadding);
 
     final controller = ChatController(repository: _TestChatRepository());
     addTearDown(controller.dispose);
@@ -55,8 +59,12 @@ void main() {
   ) async {
     tester.view.physicalSize = const Size(390, 760);
     tester.view.devicePixelRatio = 1;
+    tester.view.viewPadding = const FakeViewPadding(bottom: 34);
+    tester.view.padding = const FakeViewPadding(bottom: 34);
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
+    addTearDown(tester.view.resetViewPadding);
+    addTearDown(tester.view.resetPadding);
 
     final controller = ChatController(repository: _TestChatRepository());
     addTearDown(controller.dispose);
@@ -65,6 +73,31 @@ void main() {
     await controller.openRoom('direct-room');
     await pumpChatPage(tester, controller: controller);
     await tester.pump(const Duration(milliseconds: 100));
+
+    expect(tester.takeException(), isNull);
+    expect(find.byType(ChatFlowPage), findsOneWidget);
+
+    controller.closeRoom();
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets('chat detail screen stays stable when keyboard is visible', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(390, 760);
+    tester.view.devicePixelRatio = 1;
+    tester.view.viewInsets = const FakeViewPadding(bottom: 320);
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    addTearDown(tester.view.resetViewInsets);
+
+    final controller = ChatController(repository: _TestChatRepository());
+    addTearDown(controller.dispose);
+
+    await controller.initialize();
+    await controller.openRoom('direct-room');
+    await pumpChatPage(tester, controller: controller);
+    await tester.pumpAndSettle();
 
     expect(tester.takeException(), isNull);
     expect(find.byType(ChatFlowPage), findsOneWidget);

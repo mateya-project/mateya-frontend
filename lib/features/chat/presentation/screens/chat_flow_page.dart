@@ -653,16 +653,23 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
           onReportTap: () => _openReportSheet(room),
         ),
         Expanded(child: _buildDetailBody(context, room)),
-        ChatComposer(
-          draftController: _draftController,
-          selectedAttachments: widget.controller.draftAttachments,
-          canSend: widget.controller.canSendMessage,
-          onChanged: widget.controller.updateDraft,
-          onAttachTap: _openAttachmentPicker,
-          onRemoveAttachment: widget.controller.removeDraftAttachment,
-          onSendTap: () {
-            widget.controller.sendMessage();
-          },
+        AnimatedPadding(
+          duration: const Duration(milliseconds: 180),
+          curve: Curves.easeOut,
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.viewInsetsOf(context).bottom,
+          ),
+          child: ChatComposer(
+            draftController: _draftController,
+            selectedAttachments: widget.controller.draftAttachments,
+            canSend: widget.controller.canSendMessage,
+            onChanged: widget.controller.updateDraft,
+            onAttachTap: _openAttachmentPicker,
+            onRemoveAttachment: widget.controller.removeDraftAttachment,
+            onSendTap: () {
+              widget.controller.sendMessage();
+            },
+          ),
         ),
       ],
     );

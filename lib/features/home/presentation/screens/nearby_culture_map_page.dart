@@ -3,6 +3,7 @@ import 'package:flutter_naver_map/flutter_naver_map.dart';
 
 import '../../../../shared/activity_categories/activity_category_repository.dart';
 import '../../../../shared/localization/mateya_localizations.dart';
+import '../../../../shared/logging/naver_map_diagnostics.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../../shared/widgets/mateya_skeleton.dart';
 import '../../../../shared/widgets/mateya_text_field.dart';
@@ -378,8 +379,21 @@ class _NearbyCultureMapCanvas extends StatefulWidget {
 }
 
 class _NearbyCultureMapCanvasState extends State<_NearbyCultureMapCanvas> {
+  late final NaverMapDiagnostics _diagnostics;
   NaverMapController? _mapController;
   bool _isMapReady = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _diagnostics = NaverMapDiagnostics(scope: 'nearby-culture-map');
+    _diagnostics.mounted(
+      context: <String, Object?>{
+        'placeCount': widget.places.length,
+        'selectedPlaceId': widget.selectedPlaceId,
+      },
+    );
+  }
 
   @override
   void didUpdateWidget(covariant _NearbyCultureMapCanvas oldWidget) {
@@ -389,7 +403,24 @@ class _NearbyCultureMapCanvasState extends State<_NearbyCultureMapCanvas> {
       _mapController = null;
       _isMapReady = false;
     }
+    if (oldWidget.currentLocation != widget.currentLocation ||
+        oldWidget.selectedPlaceId != widget.selectedPlaceId ||
+        oldWidget.places != widget.places) {
+      _diagnostics.inputUpdated(
+        context: <String, Object?>{
+          'placeCount': widget.places.length,
+          'selectedPlaceId': widget.selectedPlaceId,
+          'currentLocationKey': _currentLocationKey(widget.currentLocation),
+        },
+      );
+    }
     _syncMap();
+  }
+
+  @override
+  void dispose() {
+    _diagnostics.dispose();
+    super.dispose();
   }
 
   @override
@@ -407,8 +438,24 @@ class _NearbyCultureMapCanvasState extends State<_NearbyCultureMapCanvas> {
               scaleBarEnable: false,
               contentPadding: EdgeInsets.only(bottom: widget.mapUiBottomInset),
             ),
+            onMapLoaded: () {
+              _diagnostics.mapLoaded(
+                context: <String, Object?>{
+                  'placeCount': widget.places.length,
+                  'selectedPlaceId': widget.selectedPlaceId,
+                },
+              );
+            },
             onMapReady: (mapController) async {
               _mapController = mapController;
+              _diagnostics.mapReady(
+                context: <String, Object?>{
+                  'latitude': target.latitude,
+                  'longitude': target.longitude,
+                  'placeCount': widget.places.length,
+                  'selectedPlaceId': widget.selectedPlaceId,
+                },
+              );
               if (mounted && !_isMapReady) {
                 setState(() {
                   _isMapReady = true;
@@ -467,30 +514,59 @@ class _NearbyCultureMapCanvasState extends State<_NearbyCultureMapCanvas> {
   Future<void> _syncMap() async {
     final mapController = _mapController;
     if (mapController == null) {
+      _diagnostics.syncSkipped(
+        'nearby-places',
+        context: const <String, Object?>{
+          'reason': 'map-controller-unavailable',
+        },
+      );
       return;
     }
-
-    await mapController.clearOverlays(type: NOverlayType.marker);
-    final markers = <NMarker>{};
-    for (final place in widget.places.where((place) => place.hasCoordinates)) {
-      final marker = NMarker(
-        id: place.id,
-        position: NLatLng(place.latitude!, place.longitude!),
-        caption: place.id == widget.selectedPlaceId
-            ? NOverlayCaption(text: place.name)
-            : null,
-        iconTintColor: place.id == widget.selectedPlaceId
-            ? AppColors.brandGreen
-            : AppColors.brandGreenLight,
-      )..setOnTapListener((_) => widget.onMarkerTap(place.id));
-      markers.add(marker);
+    try {
+      await mapController.clearOverlays(type: NOverlayType.marker);
+      final markers = <NMarker>{};
+      for (final place in widget.places.where(
+        (place) => place.hasCoordinates,
+      )) {
+        final marker = NMarker(
+          id: place.id,
+          position: NLatLng(place.latitude!, place.longitude!),
+          caption: place.id == widget.selectedPlaceId
+              ? NOverlayCaption(text: place.name)
+              : null,
+          iconTintColor: place.id == widget.selectedPlaceId
+              ? AppColors.brandGreen
+              : AppColors.brandGreenLight,
+        )..setOnTapListener((_) => widget.onMarkerTap(place.id));
+        markers.add(marker);
+      }
+      if (markers.isNotEmpty) {
+        await mapController.addOverlayAll(markers);
+      }
+      final target = _targetLocation();
+      await mapController.updateCamera(
+        NCameraUpdate.scrollAndZoomTo(target: target, zoom: 13),
+      );
+      _diagnostics.syncSucceeded(
+        'nearby-places',
+        context: <String, Object?>{
+          'markerCount': markers.length,
+          'selectedPlaceId': widget.selectedPlaceId,
+          'latitude': target.latitude,
+          'longitude': target.longitude,
+        },
+      );
+    } catch (error, stackTrace) {
+      _diagnostics.syncFailed(
+        'nearby-places',
+        error: error,
+        stackTrace: stackTrace,
+        context: <String, Object?>{
+          'placeCount': widget.places.length,
+          'selectedPlaceId': widget.selectedPlaceId,
+        },
+      );
     }
-    if (markers.isNotEmpty) {
-      await mapController.addOverlayAll(markers);
-    }
-    await mapController.updateCamera(
-      NCameraUpdate.scrollAndZoomTo(target: _targetLocation(), zoom: 13),
-    );
   }
 }
 
