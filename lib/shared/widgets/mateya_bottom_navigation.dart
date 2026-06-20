@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_tokens.dart';
+import 'mateya_interaction.dart';
 
 enum MateyaBottomTab { home, explore, chat, profile }
 
@@ -58,7 +59,7 @@ class MateyaBottomNavigation extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 child: Transform.translate(
                   offset: const Offset(0, -6),
-                  child: _TapScale(
+                  child: MateyaTapScale(
                     pressedScale: 0.92,
                     borderRadius: BorderRadius.circular(14),
                     child: Material(
@@ -145,7 +146,7 @@ class _BottomItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final color = active ? AppColors.brandGreenLight : AppColors.navInactive;
 
-    return _TapScale(
+    return MateyaTapScale(
       borderRadius: BorderRadius.circular(14),
       child: InkWell(
         borderRadius: BorderRadius.circular(14),
@@ -169,53 +170,6 @@ class _BottomItem extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _TapScale extends StatefulWidget {
-  const _TapScale({
-    required this.child,
-    this.borderRadius,
-    this.pressedScale = 0.96,
-  });
-
-  final Widget child;
-  final BorderRadius? borderRadius;
-  final double pressedScale;
-
-  @override
-  State<_TapScale> createState() => _TapScaleState();
-}
-
-class _TapScaleState extends State<_TapScale> {
-  bool _isPressed = false;
-
-  void _setPressed(bool value) {
-    if (_isPressed == value) {
-      return;
-    }
-    setState(() {
-      _isPressed = value;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final child = widget.borderRadius == null
-        ? widget.child
-        : ClipRRect(borderRadius: widget.borderRadius!, child: widget.child);
-
-    return Listener(
-      onPointerDown: (_) => _setPressed(true),
-      onPointerUp: (_) => _setPressed(false),
-      onPointerCancel: (_) => _setPressed(false),
-      child: AnimatedScale(
-        scale: _isPressed ? widget.pressedScale : 1,
-        duration: const Duration(milliseconds: 110),
-        curve: Curves.easeOutCubic,
-        child: child,
       ),
     );
   }

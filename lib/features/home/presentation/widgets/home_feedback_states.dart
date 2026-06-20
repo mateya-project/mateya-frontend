@@ -114,15 +114,15 @@ class HomeSkeleton extends StatelessWidget {
       child: ListView(
         padding: const EdgeInsets.only(bottom: 24),
         children: const <Widget>[
-          MateyaSkeletonBlock(height: 34, width: 168),
+          MateyaSkeletonBlock(height: 32, width: 148, radius: 16),
           SizedBox(height: 16),
-          MateyaSkeletonBlock(height: 470),
-          SizedBox(height: 24),
-          MateyaSkeletonBlock(height: 34, width: 220),
+          _FeaturedActivityCardSkeleton(),
+          SizedBox(height: 28),
+          MateyaSkeletonBlock(height: 32, width: 188, radius: 16),
           SizedBox(height: 23),
-          MateyaSkeletonBlock(height: 336),
+          _VerticalActivityCardSkeleton(),
           SizedBox(height: 32),
-          MateyaSkeletonBlock(height: 336),
+          _VerticalActivityCardSkeleton(),
         ],
       ),
     );
@@ -138,15 +138,149 @@ class ExploreSkeleton extends StatelessWidget {
       child: ListView(
         padding: const EdgeInsets.only(top: 6, bottom: 16),
         children: const <Widget>[
-          MateyaSkeletonBlock(height: 110),
-          SizedBox(height: 24),
-          MateyaSkeletonBlock(height: 110),
-          SizedBox(height: 24),
-          MateyaSkeletonBlock(height: 110),
-          SizedBox(height: 24),
-          MateyaSkeletonBlock(height: 110),
+          _CompactActivityRowSkeleton(),
+          _ExploreSkeletonDivider(),
+          _CompactActivityRowSkeleton(),
+          _ExploreSkeletonDivider(),
+          _CompactActivityRowSkeleton(),
+          _ExploreSkeletonDivider(),
+          _CompactActivityRowSkeleton(),
         ],
       ),
+    );
+  }
+}
+
+class _FeaturedActivityCardSkeleton extends StatelessWidget {
+  const _FeaturedActivityCardSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: const <Widget>[
+        MateyaSkeletonBlock(height: 338, radius: 14),
+        SizedBox(height: 18),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  MateyaSkeletonBlock(height: 24, width: 212, radius: 12),
+                  SizedBox(height: 8),
+                  MateyaSkeletonBlock(height: 16, width: 160, radius: 8),
+                  SizedBox(height: 6),
+                  MateyaSkeletonBlock(height: 16, width: 192, radius: 8),
+                  SizedBox(height: 12),
+                  MateyaSkeletonBlock(height: 18, width: 84, radius: 9),
+                ],
+              ),
+            ),
+            SizedBox(width: 16),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: <Widget>[
+                MateyaSkeletonBlock(height: 20, width: 54, radius: 10),
+                SizedBox(height: 68),
+                MateyaSkeletonBlock(height: 18, width: 62, radius: 9),
+              ],
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _VerticalActivityCardSkeleton extends StatelessWidget {
+  const _VerticalActivityCardSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(13),
+      ),
+      child: const Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          MateyaSkeletonBlock(height: 236, radius: 13),
+          Padding(
+            padding: EdgeInsets.fromLTRB(13, 9, 13, 11),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      MateyaSkeletonBlock(height: 20, width: 206, radius: 10),
+                      SizedBox(height: 8),
+                      MateyaSkeletonBlock(height: 16, width: 188, radius: 8),
+                    ],
+                  ),
+                ),
+                SizedBox(width: 16),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: <Widget>[
+                    MateyaSkeletonBlock(height: 20, width: 52, radius: 10),
+                    SizedBox(height: 24),
+                    MateyaSkeletonBlock(height: 18, width: 58, radius: 9),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CompactActivityRowSkeleton extends StatelessWidget {
+  const _CompactActivityRowSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        MateyaSkeletonBlock(width: 110, height: 110, radius: 6),
+        SizedBox(width: 14),
+        Expanded(
+          child: Padding(
+            padding: EdgeInsets.only(top: 4, bottom: 4),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                MateyaSkeletonBlock(height: 18, width: 156, radius: 9),
+                SizedBox(height: 10),
+                MateyaSkeletonBlock(height: 16, width: 180, radius: 8),
+                SizedBox(height: 8),
+                MateyaSkeletonBlock(height: 16, width: 152, radius: 8),
+                SizedBox(height: 12),
+                MateyaSkeletonBlock(height: 14, width: 92, radius: 7),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ExploreSkeletonDivider extends StatelessWidget {
+  const _ExploreSkeletonDivider();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Padding(
+      padding: EdgeInsets.symmetric(vertical: 16),
+      child: Divider(height: 1, color: AppColors.divider),
     );
   }
 }

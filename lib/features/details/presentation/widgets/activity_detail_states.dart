@@ -12,49 +12,72 @@ class DetailLoadingState extends StatelessWidget {
       children: <Widget>[
         ListView(
           children: <Widget>[
-            MateyaSkeleton(
-              child: SizedBox(
-                height: 360,
-                child: Stack(
+            const SafeArea(
+              bottom: false,
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 24),
+                child: Row(
                   children: <Widget>[
-                    const Positioned.fill(
-                      child: MateyaSkeletonBlock(height: 360, radius: 0),
-                    ),
-                    SafeArea(
-                      bottom: false,
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-                        child: Row(
-                          children: const <Widget>[
-                            MateyaSkeletonBlock(
-                              width: 44,
-                              height: 44,
-                              radius: 22,
-                            ),
-                            Spacer(),
-                            MateyaSkeletonBlock(
-                              width: 88,
-                              height: 32,
-                              radius: 16,
-                            ),
-                          ],
-                        ),
+                    MateyaSkeleton(
+                      child: MateyaSkeletonBlock(
+                        width: 32,
+                        height: 32,
+                        radius: 16,
                       ),
                     ),
-                    Positioned(
-                      left: 20,
-                      bottom: 20,
-                      child: Row(
-                        children: const <Widget>[
-                          MateyaSkeletonBlock(width: 20, height: 8, radius: 8),
-                          SizedBox(width: 6),
-                          MateyaSkeletonBlock(width: 8, height: 8, radius: 8),
-                          SizedBox(width: 6),
-                          MateyaSkeletonBlock(width: 8, height: 8, radius: 8),
-                        ],
+                    Spacer(),
+                    MateyaSkeleton(
+                      child: MateyaSkeletonBlock(
+                        width: 40,
+                        height: 40,
+                        radius: 20,
                       ),
                     ),
                   ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+              child: MateyaSkeleton(
+                child: SizedBox(
+                  height: 324,
+                  child: Stack(
+                    children: <Widget>[
+                      const Positioned.fill(
+                        child: MateyaSkeletonBlock(height: 324, radius: 20),
+                      ),
+                      const Positioned(
+                        left: 12,
+                        top: 12,
+                        child: MateyaSkeletonBlock(
+                          width: 86,
+                          height: 28,
+                          radius: 14,
+                        ),
+                      ),
+                      Positioned(
+                        left: 0,
+                        right: 0,
+                        bottom: 14,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const <Widget>[
+                            MateyaSkeletonBlock(
+                              width: 16,
+                              height: 6,
+                              radius: 6,
+                            ),
+                            SizedBox(width: 6),
+                            MateyaSkeletonBlock(width: 6, height: 6, radius: 6),
+                            SizedBox(width: 6),
+                            MateyaSkeletonBlock(width: 6, height: 6, radius: 6),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -64,25 +87,120 @@ class DetailLoadingState extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: const <Widget>[
-                    MateyaSkeletonBlock(height: 36, width: 240, radius: 18),
-                    SizedBox(height: 14),
-                    MateyaSkeletonBlock(height: 36, width: 180, radius: 18),
-                    SizedBox(height: 24),
-                    MateyaSkeletonBlock(height: 18, width: 164, radius: 9),
-                    SizedBox(height: 12),
-                    MateyaSkeletonBlock(height: 18, width: 212, radius: 9),
-                    SizedBox(height: 12),
-                    MateyaSkeletonBlock(height: 18, width: 148, radius: 9),
-                    SizedBox(height: 12),
-                    MateyaSkeletonBlock(height: 18, width: 132, radius: 9),
-                    SizedBox(height: 12),
-                    MateyaSkeletonBlock(height: 18, width: 224, radius: 9),
+                    MateyaSkeletonBlock(height: 30, width: 248, radius: 15),
+                    SizedBox(height: 10),
+                    MateyaSkeletonBlock(height: 30, width: 188, radius: 15),
+                    SizedBox(height: 20),
+                    _DetailInfoLineSkeleton(width: 176),
+                    SizedBox(height: 10),
+                    _DetailInfoLineSkeleton(width: 168),
+                    SizedBox(height: 10),
+                    _DetailInfoLineSkeleton(width: 152),
+                    SizedBox(height: 10),
+                    _DetailInfoLineSkeleton(width: 142),
+                    SizedBox(height: 10),
+                    _DetailInfoLineSkeleton(width: 216),
                     SizedBox(height: 28),
-                    MateyaSkeletonBlock(height: 156, radius: 24),
+                    _DetailSectionCardSkeleton(
+                      height: 154,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Row(
+                            children: <Widget>[
+                              MateyaSkeletonBlock(
+                                height: 22,
+                                width: 116,
+                                radius: 11,
+                              ),
+                              Spacer(),
+                              MateyaSkeletonBlock(
+                                height: 18,
+                                width: 88,
+                                radius: 9,
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 16),
+                          MateyaSkeletonBlock(
+                            height: 10,
+                            width: double.infinity,
+                            radius: 999,
+                          ),
+                          SizedBox(height: 18),
+                          MateyaSkeletonBlock(
+                            height: 40,
+                            width: 214,
+                            radius: 20,
+                          ),
+                        ],
+                      ),
+                    ),
                     SizedBox(height: 20),
-                    MateyaSkeletonBlock(height: 168, radius: 24),
+                    _DetailSectionCardSkeleton(
+                      height: 90,
+                      child: Row(
+                        children: <Widget>[
+                          MateyaSkeletonBlock(
+                            width: 54,
+                            height: 54,
+                            radius: 27,
+                          ),
+                          SizedBox(width: 14),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                MateyaSkeletonBlock(
+                                  height: 20,
+                                  width: 142,
+                                  radius: 10,
+                                ),
+                                SizedBox(height: 8),
+                                MateyaSkeletonBlock(
+                                  height: 16,
+                                  width: 96,
+                                  radius: 8,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                     SizedBox(height: 20),
-                    MateyaSkeletonBlock(height: 320, radius: 24),
+                    MateyaSkeletonBlock(height: 28, width: 108, radius: 14),
+                    SizedBox(height: 10),
+                    MateyaSkeletonBlock(
+                      height: 18,
+                      width: double.infinity,
+                      radius: 9,
+                    ),
+                    SizedBox(height: 10),
+                    MateyaSkeletonBlock(
+                      height: 18,
+                      width: double.infinity,
+                      radius: 9,
+                    ),
+                    SizedBox(height: 10),
+                    MateyaSkeletonBlock(height: 18, width: 264, radius: 9),
+                    SizedBox(height: 28),
+                    Row(
+                      children: <Widget>[
+                        Expanded(
+                          child: MateyaSkeletonBlock(
+                            height: 28,
+                            width: 126,
+                            radius: 14,
+                          ),
+                        ),
+                        SizedBox(width: 20),
+                        MateyaSkeletonBlock(height: 18, width: 56, radius: 9),
+                      ],
+                    ),
+                    SizedBox(height: 12),
+                    _DetailSectionCardSkeleton(height: 168),
                   ],
                 ),
               ),
@@ -143,6 +261,43 @@ class DetailLoadingState extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _DetailInfoLineSkeleton extends StatelessWidget {
+  const _DetailInfoLineSkeleton({required this.width});
+
+  final double width;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: <Widget>[
+        const MateyaSkeletonBlock(width: 18, height: 18, radius: 9),
+        const SizedBox(width: 10),
+        MateyaSkeletonBlock(height: 18, width: width, radius: 9),
+      ],
+    );
+  }
+}
+
+class _DetailSectionCardSkeleton extends StatelessWidget {
+  const _DetailSectionCardSkeleton({required this.height, this.child});
+
+  final double height;
+  final Widget? child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: height,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+      ),
+      child: child,
     );
   }
 }

@@ -261,21 +261,21 @@ class LoadingPlaceList extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: const <Widget>[
-                  MateyaSkeletonBlock(width: 42, height: 42, radius: 21),
+                  MateyaSkeletonBlock(width: 72, height: 72, radius: 16),
                   SizedBox(width: 14),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        MateyaSkeletonBlock(height: 18, width: 148, radius: 9),
+                        MateyaSkeletonBlock(height: 22, width: 152, radius: 11),
                         SizedBox(height: 8),
-                        MateyaSkeletonBlock(height: 14, width: 196, radius: 7),
+                        MateyaSkeletonBlock(height: 16, width: 214, radius: 8),
                         SizedBox(height: 8),
-                        MateyaSkeletonBlock(height: 12, width: 164, radius: 6),
+                        MateyaSkeletonBlock(height: 14, width: 188, radius: 7),
                       ],
                     ),
                   ),
-                  SizedBox(width: 12),
+                  SizedBox(width: 10),
                   MateyaSkeletonBlock(width: 36, height: 14, radius: 7),
                 ],
               ),
