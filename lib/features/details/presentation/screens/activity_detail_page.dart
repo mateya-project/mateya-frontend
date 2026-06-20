@@ -310,6 +310,8 @@ class _ActivityDetailPageState extends State<ActivityDetailPage>
                                     detail: detail,
                                     onFavoriteTap: _handleFavoriteTap,
                                     onJoinTap: _handleJoinTap,
+                                    isFavoriteActionInFlight:
+                                        widget.controller.isMutatingFavorite,
                                     isJoinActionInFlight:
                                         widget.controller.isRequestingJoin,
                                   ),
@@ -966,6 +968,8 @@ class _ActivityReviewListPageState extends State<ActivityReviewListPage> {
                       ) ...<Widget>[
                         ReviewCard(
                           review: reviews[index],
+                          isHelpfulActionInFlight: widget.controller
+                              .isHelpfulMutationInFlight(reviews[index].id),
                           onAuthorTap: () {
                             unawaited(
                               _openProfile(reviews[index].authorUserId),

@@ -258,56 +258,62 @@ class CompactActivityRow extends StatelessWidget {
           ),
           const SizedBox(width: 16),
           Expanded(
-            child: SizedBox(
-              height: 110,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 110),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisSize: MainAxisSize.max,
                 children: <Widget>[
-                  Row(
+                  Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
-                      Expanded(
-                        child: Text(
-                          activity.title,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.bodyLarge,
-                        ),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Expanded(
+                            child: Text(
+                              activity.title,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context).textTheme.bodyLarge,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          RatingLabel(rating: activity.rating, compact: true),
+                        ],
                       ),
-                      const SizedBox(width: 8),
-                      RatingLabel(rating: activity.rating, compact: true),
-                    ],
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    activity.place,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(
-                      context,
-                    ).textTheme.bodySmall?.copyWith(color: AppColors.textMuted),
-                  ),
-                  const SizedBox(height: 7),
-                  Wrap(
-                    crossAxisAlignment: WrapCrossAlignment.center,
-                    spacing: 4,
-                    children: <Widget>[
+                      const SizedBox(height: 2),
                       Text(
-                        formatRelativeDate(activity.startAt),
+                        activity.place,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: AppColors.textMuted,
                         ),
                       ),
-                      const DotDivider(),
-                      Text(
-                        formatTimeRange(activity.startAt, activity.endAt),
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppColors.textMuted,
-                        ),
+                      const SizedBox(height: 7),
+                      Wrap(
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        spacing: 4,
+                        children: <Widget>[
+                          Text(
+                            formatRelativeDate(activity.startAt),
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(color: AppColors.textMuted),
+                          ),
+                          const DotDivider(),
+                          Text(
+                            formatTimeRange(activity.startAt, activity.endAt),
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(color: AppColors.textMuted),
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                  const Spacer(),
+                  const SizedBox(height: 10),
                   Row(
                     children: <Widget>[
                       ParticipantLabel(
@@ -316,9 +322,14 @@ class CompactActivityRow extends StatelessWidget {
                         compact: true,
                       ),
                       const Spacer(),
-                      CategoryBadge(
-                        label: activity.categoryLabel,
-                        compactOutline: true,
+                      Flexible(
+                        child: Align(
+                          alignment: Alignment.centerRight,
+                          child: CategoryBadge(
+                            label: activity.categoryLabel,
+                            compactOutline: true,
+                          ),
+                        ),
                       ),
                     ],
                   ),

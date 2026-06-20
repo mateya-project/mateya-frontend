@@ -22,6 +22,36 @@ void main() {
 
     expect(find.byIcon(Icons.favorite_border_rounded), findsNothing);
   });
+
+  testWidgets('compact row expands without vertical overflow for long copy', (
+    tester,
+  ) async {
+    await initializeDateFormatting('ko');
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: buildMateyaTheme(),
+        home: Scaffold(
+          body: Center(
+            child: SizedBox(
+              width: 350,
+              child: CompactActivityRow(
+                activity: _activity().copyWith(
+                  title: '수원화성의 도시, 수원에서 즐기는 특별한 여행과 로컬 메이트 문화 체험',
+                  categoryLabel: '전통문화 체험 코스',
+                ),
+                onTap: () {},
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull);
+  });
 }
 
 ActivityItem _activity() {

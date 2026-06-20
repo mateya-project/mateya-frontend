@@ -43,6 +43,7 @@ class ChatController extends ChangeNotifier {
   int? _nextRoomMessagesPage;
   Timer? _realtimeFallbackPollTimer;
   bool _isPollingRealtimeFallback = false;
+  bool _isDisposed = false;
 
   AsyncPhase get listPhase => _listPhase;
   AsyncPhase get roomPhase => _roomPhase;
@@ -62,6 +63,7 @@ class ChatController extends ChangeNotifier {
   bool get isDetailOpen => _selectedRoomId != null;
   bool get canSendMessage =>
       !_isSending && (_draft.trim().isNotEmpty || _draftAttachments.isNotEmpty);
+  bool get _canMutateState => !_isDisposed;
 
   ChatRoom? get currentRoom {
     if (_selectedRoomId == null) {
@@ -106,6 +108,10 @@ class ChatController extends ChangeNotifier {
 
   @override
   void dispose() {
+    if (_isDisposed) {
+      return;
+    }
+    _isDisposed = true;
     _chatStopRealtime(this);
     repository.dispose();
     super.dispose();
@@ -132,11 +138,17 @@ class ChatController extends ChangeNotifier {
   Future<void> sendMessage() => _chatSendMessage(this);
 
   void _pushToast(String message) {
+    if (_isDisposed) {
+      return;
+    }
     _toastMessage = message;
     _toastVersion += 1;
   }
 
   void _notifyChanged() {
+    if (_isDisposed) {
+      return;
+    }
     notifyListeners();
   }
 }

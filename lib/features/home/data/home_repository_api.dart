@@ -191,8 +191,7 @@ class ApiHomeRepository implements HomeRepository {
     final json = _asMap(value);
 
     final categoryCode = json['category'] as String? ?? 'PUBLIC_FACILITY';
-    final mappedCategory =
-        _categoryByServerCode[categoryCode] ?? _fallbackCategory;
+    final mappedCategory = _categoryForServerCode(categoryCode);
     final priceType = json['priceType'] as String? ?? 'FREE';
     final priceAmount = json['priceAmount'] as int? ?? 0;
 

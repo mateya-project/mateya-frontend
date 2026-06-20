@@ -27,6 +27,17 @@ class MyPageBadgeVisual {
       _ => key,
     };
   }
+
+  String get unlockRequirementMessage {
+    final l10n = MateyaLocalizations.current;
+    return switch (key) {
+      'traditional' => l10n.mypageBadgeRequirementTraditional,
+      'active_person' => l10n.mypageBadgeRequirementActivePerson,
+      'festive' => l10n.mypageBadgeRequirementFestive,
+      'tourist' => l10n.mypageBadgeRequirementTourist,
+      _ => localizedLabel,
+    };
+  }
 }
 
 class MyPageBadgeDisplaySlot {

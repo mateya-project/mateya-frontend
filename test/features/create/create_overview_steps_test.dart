@@ -138,6 +138,35 @@ void main() {
       );
     },
   );
+
+  testWidgets('category titles align within the same row on phone width', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final controller = CreateController(
+      repository: MockCreateRepository(),
+      categoryRepository: MockActivityCategoryRepository(),
+      flowType: CreateFlowType.group,
+    );
+
+    addTearDown(controller.dispose);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(body: CategoryStepView(controller: controller)),
+      ),
+    );
+    await tester.pump();
+
+    final cultureTop = tester.getTopLeft(find.text('문화/전통')).dy;
+    final festivalTop = tester.getTopLeft(find.text('행사/공연/축제')).dy;
+
+    expect(cultureTop, moreOrLessEquals(festivalTop, epsilon: 1));
+  });
 }
 
 void _noop() {}

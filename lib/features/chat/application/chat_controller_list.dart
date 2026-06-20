@@ -25,6 +25,9 @@ Future<void> _chatLoadMoreRooms(ChatController controller) async {
     final pageResult = await controller.repository.fetchRoomsPage(
       page: controller._nextRoomsPage!,
     );
+    if (!controller._canMutateState) {
+      return;
+    }
     final merged = <String, ChatRoom>{
       for (final room in controller._rooms) room.id: room,
       for (final room in pageResult.rooms) room.id: room,
@@ -53,6 +56,9 @@ Future<void> _chatLoadRooms(ChatController controller) async {
 
   try {
     final pageResult = await controller.repository.fetchRoomsPage(page: 0);
+    if (!controller._canMutateState) {
+      return;
+    }
     controller._rooms = pageResult.rooms.toList()..sort(_chatRoomSortByLatest);
     controller._hasMoreRooms = pageResult.hasNext;
     controller._nextRoomsPage = pageResult.nextPage;

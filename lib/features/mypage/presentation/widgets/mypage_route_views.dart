@@ -789,6 +789,20 @@ class _BadgeGridSection extends StatelessWidget {
   final _BadgeGridTitleMode titleMode;
   static const double _badgeSpacing = 8;
 
+  void _showBadgeRequirementSnackBar(
+    BuildContext context,
+    MyPageBadgeDisplaySlot slot,
+  ) {
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.hideCurrentSnackBar();
+    messenger.showSnackBar(
+      SnackBar(
+        behavior: SnackBarBehavior.floating,
+        content: Text(slot.visual.unlockRequirementMessage),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
@@ -857,7 +871,15 @@ class _BadgeGridSection extends StatelessWidget {
                     .map(
                       (badgeSlot) => SizedBox(
                         width: badgeWidth,
-                        child: _BadgeGridTile(slot: badgeSlot),
+                        child: _BadgeGridTile(
+                          slot: badgeSlot,
+                          onTap: shouldShowCatalogSlots
+                              ? () => _showBadgeRequirementSnackBar(
+                                  context,
+                                  badgeSlot,
+                                )
+                              : null,
+                        ),
                       ),
                     )
                     .toList(growable: false),
@@ -872,9 +894,10 @@ class _BadgeGridSection extends StatelessWidget {
 enum _BadgeGridTitleMode { mine, otherProfile }
 
 class _BadgeGridTile extends StatelessWidget {
-  const _BadgeGridTile({required this.slot});
+  const _BadgeGridTile({required this.slot, this.onTap});
 
   final MyPageBadgeDisplaySlot slot;
+  final VoidCallback? onTap;
   static const double _badgeAspectRatio = 118 / 140;
   static const double _badgeRadius = 20;
   static const List<double> _lockedBadgeColorMatrix = <double>[
@@ -987,7 +1010,25 @@ class _BadgeGridTile extends StatelessWidget {
       ),
     );
 
-    return Semantics(label: slot.visual.localizedLabel, child: badgeImage);
+    final semanticsChild = Semantics(
+      button: onTap != null,
+      label: slot.visual.localizedLabel,
+      child: badgeImage,
+    );
+
+    if (onTap == null) {
+      return semanticsChild;
+    }
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        key: ValueKey<String>('mypage-badge-tile-${slot.visual.key}'),
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(_badgeRadius),
+        child: semanticsChild,
+      ),
+    );
   }
 }
 

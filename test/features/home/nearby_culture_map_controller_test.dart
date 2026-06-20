@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mateya_app/features/home/application/nearby_culture_map_controller.dart';
 import 'package:mateya_app/features/home/data/nearby_culture_map_repository.dart';
@@ -5,8 +6,12 @@ import 'package:mateya_app/features/home/domain/nearby_culture_map_models.dart';
 import 'package:mateya_app/features/onboarding/data/location_repository.dart';
 import 'package:mateya_app/features/onboarding/domain/onboarding_flow.dart';
 import 'package:mateya_app/shared/activity_categories/activity_category_repository.dart';
+import 'package:mateya_app/shared/localization/app_locale_controller.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   group('NearbyCultureMapController', () {
     test('initializes with saved location and loads culture places', () async {
       final repository = _FakeNearbyCultureMapRepository();
@@ -60,6 +65,37 @@ void main() {
       expect(controller.phase, AsyncPhase.validationError);
       expect(controller.errorMessage, contains('현재 위치'));
     });
+
+    test('reloads category labels and places after locale changes', () async {
+      SharedPreferences.setMockInitialValues(<String, Object>{});
+      await AppLocaleController.instance.setLanguageCode('zh-Hans');
+
+      final repository = _FakeNearbyCultureMapRepository();
+      final categoryRepository = _LocaleAwareCategoryRepository();
+      final controller = NearbyCultureMapController(
+        repository: repository,
+        categoryRepository: categoryRepository,
+        locationRepository: _FakeLocationRepository.success(),
+        initialLocation: const NeighborhoodSelection(
+          displayName: '종로구',
+          latitude: 37.5798,
+          longitude: 126.9785,
+        ),
+      );
+
+      await controller.initialize();
+
+      expect(controller.categories.single.label, '文化·传统');
+      expect(categoryRepository.fetchCount, 1);
+      expect(repository.fetchCount, 1);
+
+      await AppLocaleController.instance.setLanguageCode('ko');
+      await controller.initialize();
+
+      expect(controller.categories.single.label, '문화/전통');
+      expect(categoryRepository.fetchCount, 2);
+      expect(repository.fetchCount, 2);
+    });
   });
 }
 
@@ -68,6 +104,7 @@ class _FakeNearbyCultureMapRepository implements NearbyCultureMapRepository {
   double? lastLongitude;
   String? lastCategoryCode;
   String? lastCategoryDetailCode;
+  int fetchCount = 0;
 
   @override
   Future<List<NearbyCultureMapPlace>> fetchPlaces({
@@ -79,6 +116,7 @@ class _FakeNearbyCultureMapRepository implements NearbyCultureMapRepository {
     int radiusKm = 10,
     int limit = 20,
   }) async {
+    fetchCount += 1;
     lastLatitude = latitude;
     lastLongitude = longitude;
     lastCategoryCode = categoryCode;
@@ -112,6 +150,34 @@ class _FakeCategoryRepository implements ActivityCategoryRepository {
           ActivityCategoryDetailMetadata(
             code: 'HERITAGE',
             label: '국가유산',
+            displayOrder: 1,
+            active: true,
+          ),
+        ],
+      ),
+    ];
+  }
+}
+
+class _LocaleAwareCategoryRepository implements ActivityCategoryRepository {
+  int fetchCount = 0;
+
+  @override
+  Future<List<ActivityCategoryMetadata>> fetchActivityCategories() async {
+    fetchCount += 1;
+    final isChinese =
+        AppLocaleController.instance.locale ==
+        const Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans');
+    return <ActivityCategoryMetadata>[
+      ActivityCategoryMetadata(
+        code: 'CULTURE_TRADITION',
+        label: isChinese ? '文化·传统' : '문화/전통',
+        displayOrder: 1,
+        active: true,
+        children: <ActivityCategoryDetailMetadata>[
+          ActivityCategoryDetailMetadata(
+            code: 'HERITAGE',
+            label: isChinese ? '遗产' : '국가유산',
             displayOrder: 1,
             active: true,
           ),

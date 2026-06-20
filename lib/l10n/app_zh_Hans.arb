@@ -442,6 +442,10 @@
   "mypageBadgeActivePerson": "活力伙伴",
   "mypageBadgeFestive": "庆典爱好者",
   "mypageBadgeTourist": "本地探索家",
+  "mypageBadgeRequirementTraditional": "请至少参加 1 次传统文化分类体验。",
+  "mypageBadgeRequirementActivePerson": "请至少参加 1 次体育或休闲活动分类体验。",
+  "mypageBadgeRequirementFestive": "请至少参加 1 次活动/演出/庆典分类体验。",
+  "mypageBadgeRequirementTourist": "请至少参加 1 次景点或旅行路线分类体验。",
   "mypageBadgeUnlockedTitle": "获得了新徽章",
   "mypageBadgeUnlockedDescription": "已记录你参与 {category} 活动的经历。",
   "@mypageBadgeUnlockedDescription": {

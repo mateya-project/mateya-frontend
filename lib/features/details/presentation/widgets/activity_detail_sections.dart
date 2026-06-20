@@ -331,6 +331,9 @@ class DetailBody extends StatelessWidget {
             ) ...<Widget>[
               ReviewCard(
                 review: controller.previewReviews[index],
+                isHelpfulActionInFlight: controller.isHelpfulMutationInFlight(
+                  controller.previewReviews[index].id,
+                ),
                 onAuthorTap: () {
                   unawaited(
                     onOpenOtherProfile(
@@ -383,12 +386,14 @@ class DetailBottomBar extends StatelessWidget {
     required this.detail,
     required this.onFavoriteTap,
     required this.onJoinTap,
+    this.isFavoriteActionInFlight = false,
     this.isJoinActionInFlight = false,
   });
 
   final ActivityDetail detail;
   final Future<void> Function() onFavoriteTap;
   final Future<void> Function() onJoinTap;
+  final bool isFavoriteActionInFlight;
   final bool isJoinActionInFlight;
 
   @override
@@ -433,9 +438,8 @@ class DetailBottomBar extends StatelessWidget {
                 ),
               ),
               BottomGlyphButton(
-                icon: detail.isFavorite
-                    ? Icons.favorite_rounded
-                    : Icons.favorite_border_rounded,
+                isSelected: detail.isFavorite,
+                enabled: !isFavoriteActionInFlight,
                 onTap: () {
                   onFavoriteTap();
                 },

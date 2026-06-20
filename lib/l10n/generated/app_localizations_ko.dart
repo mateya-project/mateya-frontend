@@ -1012,6 +1012,20 @@ class AppLocalizationsKo extends AppLocalizations {
   String get mypageBadgeTourist => '로컬 탐험가';
 
   @override
+  String get mypageBadgeRequirementTraditional => '전통문화 카테고리 체험을 한 개 이상 참여하세요.';
+
+  @override
+  String get mypageBadgeRequirementActivePerson =>
+      '스포츠 또는 액티비티/레포츠 카테고리 체험을 한 개 이상 참여하세요.';
+
+  @override
+  String get mypageBadgeRequirementFestive => '행사/공연/축제 카테고리 체험을 한 개 이상 참여하세요.';
+
+  @override
+  String get mypageBadgeRequirementTourist =>
+      '관광지 또는 여행코스 카테고리 체험을 한 개 이상 참여하세요.';
+
+  @override
   String get mypageBadgeUnlockedTitle => '새 뱃지를 획득했어요';
 
   @override

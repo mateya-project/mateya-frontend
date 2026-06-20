@@ -75,44 +75,10 @@ class _IncomingBubbleCluster extends StatefulWidget {
 }
 
 class _IncomingBubbleClusterState extends State<_IncomingBubbleCluster> {
-  final GlobalKey _bubbleColumnKey = GlobalKey();
-  double? _bubbleColumnWidth;
-
-  @override
-  void initState() {
-    super.initState();
-    _scheduleWidthMeasurement();
-  }
-
-  @override
-  void didUpdateWidget(covariant _IncomingBubbleCluster oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.group != widget.group ||
-        oldWidget.onToggleTranslation != widget.onToggleTranslation) {
-      _scheduleWidthMeasurement();
-    }
-  }
-
-  void _scheduleWidthMeasurement() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) {
-        return;
-      }
-      final renderObject =
-          _bubbleColumnKey.currentContext?.findRenderObject() as RenderBox?;
-      final measuredWidth = renderObject?.size.width;
-      if (measuredWidth == null || measuredWidth == _bubbleColumnWidth) {
-        return;
-      }
-      setState(() {
-        _bubbleColumnWidth = measuredWidth;
-      });
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final metadataColor = AppColors.fieldBorder;
 
     return Align(
       alignment: Alignment.centerLeft,
@@ -121,45 +87,37 @@ class _IncomingBubbleClusterState extends State<_IncomingBubbleCluster> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            KeyedSubtree(
-              key: _bubbleColumnKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  for (final bubble in widget.group.bubbles) ...<Widget>[
-                    IncomingBubble(
-                      bubble: bubble,
-                      isTranslatedVisible: widget.group.isTranslatedVisible,
-                    ),
-                    const SizedBox(height: 8),
-                  ],
-                ],
+            for (
+              var index = 0;
+              index < widget.group.bubbles.length;
+              index++
+            ) ...<Widget>[
+              IncomingBubble(
+                bubble: widget.group.bubbles[index],
+                isTranslatedVisible: widget.group.isTranslatedVisible,
               ),
-            ),
-            SizedBox(
-              width: _bubbleColumnWidth,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text(
-                    formatMeridiemTime(widget.group.sentAt),
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: AppColors.fieldBorder,
-                    ),
+              if (index != widget.group.bubbles.length - 1)
+                const SizedBox(height: 8),
+            ],
+            const SizedBox(height: 6),
+            Wrap(
+              spacing: 8,
+              runSpacing: 4,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: <Widget>[
+                Text(
+                  formatMeridiemTime(widget.group.sentAt),
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: metadataColor,
                   ),
-                  if (widget.onToggleTranslation != null)
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: Padding(
-                        padding: const EdgeInsets.only(top: 4),
-                        child: MateyaTranslationToggleButton(
-                          label: widget.group.translationToggleLabel,
-                          onPressed: widget.onToggleTranslation!,
-                        ),
-                      ),
-                    ),
-                ],
-              ),
+                ),
+                if (widget.onToggleTranslation != null)
+                  MateyaTranslationToggleButton(
+                    label: widget.group.translationToggleLabel,
+                    onPressed: widget.onToggleTranslation!,
+                    variant: MateyaTranslationToggleButtonVariant.inline,
+                  ),
+              ],
             ),
           ],
         ),

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mateya_app/features/chat/application/chat_controller.dart';
 import 'package:mateya_app/features/chat/data/chat_repository.dart';
@@ -38,6 +40,18 @@ void main() {
         ),
         isTrue,
       );
+    });
+
+    test('dispose ignores pending room list completion', () async {
+      final repository = _DelayedRoomsChatRepository();
+      final controller = ChatController(repository: repository);
+
+      final initializeFuture = controller.initialize();
+      controller.dispose();
+      repository.completeFirstPage();
+
+      await expectLater(initializeFuture, completes);
+      expect(repository.isDisposed, isTrue);
     });
 
     test(
@@ -640,4 +654,47 @@ class _LazyTranslationChatRepository implements ChatRepository {
 
   @override
   void dispose() {}
+}
+
+class _DelayedRoomsChatRepository extends MockChatRepository {
+  final Completer<ChatRoomPageResult> _firstPageCompleter =
+      Completer<ChatRoomPageResult>();
+  bool isDisposed = false;
+
+  @override
+  Future<ChatRoomPageResult> fetchRoomsPage({required int page}) {
+    if (page == 0) {
+      return _firstPageCompleter.future;
+    }
+    return super.fetchRoomsPage(page: page);
+  }
+
+  @override
+  void dispose() {
+    isDisposed = true;
+  }
+
+  void completeFirstPage() {
+    if (_firstPageCompleter.isCompleted) {
+      return;
+    }
+    _firstPageCompleter.complete(
+      ChatRoomPageResult(
+        rooms: <ChatRoom>[
+          ChatRoom(
+            id: 'delayed-room',
+            type: ChatRoomType.group,
+            title: '지연 채팅방',
+            imageUrl: null,
+            participantCount: 2,
+            lastMessageAt: DateTime(2026, 6, 14, 10, 30),
+            unreadCount: 0,
+            messageGroups: const <ChatMessageGroup>[],
+          ),
+        ],
+        hasNext: false,
+        nextPage: null,
+      ),
+    );
+  }
 }

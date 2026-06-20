@@ -442,6 +442,10 @@
   "mypageBadgeActivePerson": "Active Mate",
   "mypageBadgeFestive": "Festival Lover",
   "mypageBadgeTourist": "Local Explorer",
+  "mypageBadgeRequirementTraditional": "Join at least one experience in the Traditional Culture category.",
+  "mypageBadgeRequirementActivePerson": "Join at least one experience in the Sports or Activities/Leports category.",
+  "mypageBadgeRequirementFestive": "Join at least one experience in the Events/Performances/Festivals category.",
+  "mypageBadgeRequirementTourist": "Join at least one experience in the Tourist Attraction or Travel Course category.",
   "mypageBadgeUnlockedTitle": "You earned a new badge",
   "mypageBadgeUnlockedDescription": "Your participation in {category} activities has been reflected.",
   "@mypageBadgeUnlockedDescription": {

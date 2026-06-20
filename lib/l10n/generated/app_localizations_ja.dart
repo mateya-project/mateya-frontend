@@ -1013,6 +1013,20 @@ class AppLocalizationsJa extends AppLocalizations {
   String get mypageBadgeTourist => 'ローカル探検家';
 
   @override
+  String get mypageBadgeRequirementTraditional => '伝統文化カテゴリの体験に1回以上参加してください。';
+
+  @override
+  String get mypageBadgeRequirementActivePerson =>
+      'スポーツまたはアクティビティ/レジャースポーツカテゴリの体験に1回以上参加してください。';
+
+  @override
+  String get mypageBadgeRequirementFestive => 'イベント/公演/祭りカテゴリの体験に1回以上参加してください。';
+
+  @override
+  String get mypageBadgeRequirementTourist =>
+      '観光地または旅行コースカテゴリの体験に1回以上参加してください。';
+
+  @override
   String get mypageBadgeUnlockedTitle => '新しいバッジを獲得しました';
 
   @override

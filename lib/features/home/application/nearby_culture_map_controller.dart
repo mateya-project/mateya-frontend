@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import '../../../shared/activity_categories/activity_category_repository.dart';
 import '../../../shared/localization/mateya_localizations.dart';
 import '../../../shared/logging/app_logger.dart';
+import '../../../shared/preferences/mateya_language_preferences.dart';
 import '../../onboarding/data/location_repository.dart';
 import '../../onboarding/domain/onboarding_flow.dart';
 import '../data/nearby_culture_map_repository.dart';
@@ -38,6 +39,7 @@ class NearbyCultureMapController extends ChangeNotifier {
   NearbyCultureMapPlace? _selectedPlace;
   String? _errorMessage;
   bool _initialized = false;
+  String? _loadedLanguageCode;
 
   AsyncPhase get phase => _phase;
   List<ActivityCategoryMetadata> get categories => _categories;
@@ -67,11 +69,47 @@ class NearbyCultureMapController extends ChangeNotifier {
 
   Future<void> initialize() async {
     final l10n = MateyaLocalizations.current;
-    if (_initialized) {
+    final currentLanguageCode = MateyaLanguagePreferences.codeFromLocale(
+      MateyaLocalizations.locale,
+    );
+    if (_initialized && _loadedLanguageCode == currentLanguageCode) {
       return;
     }
+
+    if (_initialized) {
+      _logger.info(
+        'Refreshing nearby culture map for locale change',
+        context: <String, Object?>{
+          'previousLanguageCode': _loadedLanguageCode,
+          'nextLanguageCode': currentLanguageCode,
+        },
+      );
+      _categories = (await categoryRepository.fetchActivityCategories())
+          .where((category) => category.active)
+          .toList(growable: false);
+      _selectedCategoryCode =
+          _categories.any((category) => category.code == _selectedCategoryCode)
+          ? _selectedCategoryCode
+          : (_categories.firstOrNull?.code ?? defaultCategoryCode);
+      final validDetailCodes = availableCategoryDetails
+          .map((detail) => detail.code)
+          .toSet();
+      if (_selectedCategoryDetailCode != null &&
+          !validDetailCodes.contains(_selectedCategoryDetailCode)) {
+        _selectedCategoryDetailCode = null;
+      }
+      _loadedLanguageCode = currentLanguageCode;
+      if (_currentLocation != null) {
+        await _loadPlaces();
+      } else {
+        notifyListeners();
+      }
+      return;
+    }
+
     _logger.info('Initializing nearby culture map');
     _initialized = true;
+    _loadedLanguageCode = currentLanguageCode;
     _phase = AsyncPhase.loading;
     notifyListeners();
 

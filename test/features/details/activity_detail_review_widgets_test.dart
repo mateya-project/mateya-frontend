@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mateya_app/features/details/domain/activity_detail_models.dart';
+import 'package:mateya_app/features/details/presentation/widgets/activity_detail_primitives.dart';
 import 'package:mateya_app/features/details/presentation/widgets/activity_detail_review_widgets.dart';
 import 'package:mateya_app/shared/localization/mateya_localizations.dart';
 import 'package:mateya_app/shared/theme/app_theme.dart';
@@ -124,6 +125,34 @@ void main() {
 
     expect(find.byIcon(Icons.favorite_rounded), findsOneWidget);
     expect(find.byIcon(Icons.favorite_border_rounded), findsNothing);
+  });
+
+  testWidgets('ReviewCard renders animated helpful button', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: buildMateyaTheme(),
+        locale: const Locale('ko'),
+        supportedLocales: MateyaLocalizations.supportedLocales,
+        localizationsDelegates: MateyaLocalizations.delegates,
+        home: Scaffold(
+          body: ReviewCard(
+            review: ActivityReview(
+              id: 'review-6',
+              authorName: '김민우',
+              submittedAt: DateTime(2026, 6, 20),
+              rating: 5,
+              originalText: '좋았어요.',
+            ),
+            onAuthorTap: () {},
+            onHelpfulTap: () {},
+            onTranslationTap: null,
+          ),
+        ),
+      ),
+    );
+
+    expect(find.byType(HelpfulCircleButton), findsOneWidget);
+    expect(find.byType(AnimatedToggleActionButton), findsOneWidget);
   });
 
   testWidgets('ReviewCard exposes owner menu actions when provided', (

@@ -4,12 +4,21 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mateya_app/features/home/data/home_repository.dart';
 import 'package:mateya_app/features/home/domain/home_models.dart';
 import 'package:mateya_app/shared/auth/auth_session.dart';
+import 'package:mateya_app/shared/localization/app_locale_controller.dart';
 import 'package:mateya_app/shared/network/http_transport.dart';
 import 'package:mateya_app/shared/network/mateya_api_client.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  tearDown(() async {
+    final sessionStore = AuthSessionStore.instance;
+    sessionStore.clear();
+    await sessionStore.flush();
+    SharedPreferences.setMockInitialValues(<String, Object>{});
+    await AppLocaleController.instance.setLanguageCode('ko');
+  });
 
   test('explore api forwards radius filter with session coordinates', () async {
     SharedPreferences.setMockInitialValues(<String, Object>{});
@@ -65,6 +74,60 @@ void main() {
       '127.0416',
     ]);
     expect(page.items.single.distanceKm, 5);
+  });
+
+  test('home category label follows the current app locale', () async {
+    SharedPreferences.setMockInitialValues(<String, Object>{});
+    await AppLocaleController.instance.setLanguageCode('zh-Hans');
+
+    final sessionStore = AuthSessionStore.instance;
+    sessionStore.clear();
+    await sessionStore.flush();
+    sessionStore.save(
+      AuthSession(
+        accessToken: 'access-token',
+        refreshToken: 'refresh-token',
+        tokenType: 'Bearer',
+        expiresIn: 1800,
+        refreshExpiresIn: 1209600,
+        refreshExpiresAt: DateTime(2026, 7, 1),
+        user: AuthUserProfile(
+          id: 1,
+          phoneNumber: '01012345678',
+          displayName: '사용자',
+          role: 'USER',
+          primaryLanguage: 'zh',
+          primaryCountry: 'CN',
+          createdAt: DateTime(2026, 6, 14),
+        ),
+      ),
+    );
+
+    final transport = _FakeExploreHttpTransport();
+    final repository = ApiHomeRepository(
+      apiClient: MateyaApiClient(
+        baseUrl: 'https://api.mateya.cloud',
+        sessionStore: sessionStore,
+        transport: transport,
+      ),
+      sessionStore: sessionStore,
+    );
+
+    final chinese = await repository.fetchExploreActivities(
+      page: 0,
+      keyword: '',
+      filter: const ExploreFilter(),
+    );
+    expect(chinese.items.single.categoryLabel, '旅游景点');
+
+    await AppLocaleController.instance.setLanguageCode('ko');
+
+    final korean = await repository.fetchExploreActivities(
+      page: 0,
+      keyword: '',
+      filter: const ExploreFilter(),
+    );
+    expect(korean.items.single.categoryLabel, '관광지');
   });
 }
 

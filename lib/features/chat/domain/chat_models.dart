@@ -47,21 +47,31 @@ class ChatBubble {
   const ChatBubble({
     this.originalText,
     this.translatedText,
+    this.translationResolved = false,
     this.attachments = const <ChatAttachment>[],
   });
 
   final String? originalText;
   final String? translatedText;
+  final bool translationResolved;
   final List<ChatAttachment> attachments;
 
   bool get hasText => originalText != null && originalText!.trim().isNotEmpty;
   bool get hasAttachments => attachments.isNotEmpty;
+  bool get hasMeaningfulTranslatedText {
+    final translated = translatedText?.trim();
+    if (translated == null || translated.isEmpty) {
+      return false;
+    }
+    final original = originalText?.trim();
+    return original == null || original.isEmpty || translated != original;
+  }
 
   String? resolvedText(bool isTranslatedVisible) {
     if (!hasText) {
       return null;
     }
-    if (isTranslatedVisible && translatedText != null) {
+    if (isTranslatedVisible && hasMeaningfulTranslatedText) {
       return translatedText;
     }
     return originalText;
@@ -81,6 +91,7 @@ class ChatBubble {
   ChatBubble copyWith({
     Object? originalText = _sentinel,
     Object? translatedText = _sentinel,
+    bool? translationResolved,
     List<ChatAttachment>? attachments,
   }) {
     return ChatBubble(
@@ -90,6 +101,7 @@ class ChatBubble {
       translatedText: translatedText == _sentinel
           ? this.translatedText
           : translatedText as String?,
+      translationResolved: translationResolved ?? this.translationResolved,
       attachments: attachments ?? this.attachments,
     );
   }
@@ -148,8 +160,9 @@ class ChatMessageGroup {
 
   bool get supportsTranslation =>
       !isMine &&
-      (canToggleTranslation ||
-          bubbles.any((bubble) => bubble.translatedText != null));
+      (bubbles.any((bubble) => bubble.hasMeaningfulTranslatedText) ||
+          (canToggleTranslation &&
+              bubbles.any((bubble) => !bubble.translationResolved)));
 
   String get translationToggleLabel {
     final l10n = MateyaLocalizations.current;

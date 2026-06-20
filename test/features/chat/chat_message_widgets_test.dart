@@ -15,7 +15,7 @@ Widget buildSubject(ChatMessageGroup group, {VoidCallback? onAvatarTap}) {
     home: Scaffold(
       body: IncomingGroup(
         group: group,
-        onToggleTranslation: () {},
+        onToggleTranslation: group.supportsTranslation ? () {} : null,
         onAvatarTap: onAvatarTap,
       ),
     ),
@@ -87,32 +87,60 @@ void main() {
     expect(tapCount, 1);
   });
 
+  testWidgets('IncomingGroup places translation toggle in the metadata row', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      buildSubject(
+        ChatMessageGroup(
+          id: 'aligned',
+          sender: const ChatParticipant(id: 'user-1', name: 'Ji-Won'),
+          sentAt: DateTime(2026, 6, 20, 13, 40),
+          bubbles: const <ChatBubble>[
+            ChatBubble(
+              originalText: '안녕하세요 반갑습니다.',
+              translatedText: 'Hello, nice to meet you.',
+            ),
+          ],
+        ),
+      ),
+    );
+    await tester.pump();
+
+    final bubbleRect = tester.getRect(find.byType(IncomingBubble));
+    final timeRect = tester.getRect(find.text('오후 1:40'));
+    final toggleRect = tester.getRect(
+      find.byType(MateyaTranslationToggleButton),
+    );
+
+    expect(toggleRect.top, greaterThan(bubbleRect.bottom));
+    expect(
+      toggleRect.center.dy,
+      moreOrLessEquals(timeRect.center.dy, epsilon: 1),
+    );
+    expect(toggleRect.left, greaterThan(timeRect.right));
+  });
+
   testWidgets(
-    'IncomingGroup aligns translation toggle with the incoming bubble edge',
+    'IncomingGroup hides translation toggle when translated text matches original',
     (tester) async {
       await tester.pumpWidget(
         buildSubject(
           ChatMessageGroup(
-            id: 'aligned',
+            id: 'same-translation',
             sender: const ChatParticipant(id: 'user-1', name: 'Ji-Won'),
-            sentAt: DateTime(2026, 6, 20, 13, 40),
+            sentAt: DateTime(2026, 6, 20, 17, 33),
+            canToggleTranslation: true,
             bubbles: const <ChatBubble>[
-              ChatBubble(
-                originalText: '안녕하세요 반갑습니다.',
-                translatedText: 'Hello, nice to meet you.',
-              ),
+              ChatBubble(originalText: 'hello', translationResolved: true),
             ],
           ),
         ),
       );
-      await tester.pump();
 
-      final bubbleRect = tester.getRect(find.byType(IncomingBubble));
-      final toggleRect = tester.getRect(
-        find.byType(MateyaTranslationToggleButton),
-      );
-
-      expect(toggleRect.right, moreOrLessEquals(bubbleRect.right, epsilon: 1));
+      expect(find.byType(MateyaTranslationToggleButton), findsNothing);
+      expect(find.text('번역 보기'), findsNothing);
+      expect(find.text('원문 보기'), findsNothing);
     },
   );
 }

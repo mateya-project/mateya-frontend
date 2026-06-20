@@ -1963,6 +1963,30 @@ abstract class AppLocalizations {
   /// **'로컬 탐험가'**
   String get mypageBadgeTourist;
 
+  /// No description provided for @mypageBadgeRequirementTraditional.
+  ///
+  /// In ko, this message translates to:
+  /// **'전통문화 카테고리 체험을 한 개 이상 참여하세요.'**
+  String get mypageBadgeRequirementTraditional;
+
+  /// No description provided for @mypageBadgeRequirementActivePerson.
+  ///
+  /// In ko, this message translates to:
+  /// **'스포츠 또는 액티비티/레포츠 카테고리 체험을 한 개 이상 참여하세요.'**
+  String get mypageBadgeRequirementActivePerson;
+
+  /// No description provided for @mypageBadgeRequirementFestive.
+  ///
+  /// In ko, this message translates to:
+  /// **'행사/공연/축제 카테고리 체험을 한 개 이상 참여하세요.'**
+  String get mypageBadgeRequirementFestive;
+
+  /// No description provided for @mypageBadgeRequirementTourist.
+  ///
+  /// In ko, this message translates to:
+  /// **'관광지 또는 여행코스 카테고리 체험을 한 개 이상 참여하세요.'**
+  String get mypageBadgeRequirementTourist;
+
   /// No description provided for @mypageBadgeUnlockedTitle.
   ///
   /// In ko, this message translates to:
