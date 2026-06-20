@@ -56,9 +56,12 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
       DeviceNeighborhoodLocationRepository();
   final TextEditingController _businessIntroductionController =
       TextEditingController();
+  final TextEditingController _englishNameController = TextEditingController();
   final TextEditingController _withdrawalSignatureController =
       TextEditingController();
 
+  String? _selectedPrimaryLanguageCode;
+  String? _selectedPrimaryCountryCode;
   int _lastToastVersion = 0;
   int _lastBadgeCelebrationVersion = 0;
   bool _withdrawalAgreement = false;
@@ -87,6 +90,7 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
     widget.controller.removeListener(_handleControllerChanged);
     _businessIntroductionController.removeListener(_handleLocalFieldChanged);
     _businessIntroductionController.dispose();
+    _englishNameController.dispose();
     _withdrawalSignatureController.dispose();
     super.dispose();
   }
@@ -210,6 +214,7 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
         profile: controller.personalPage!.profile,
         onBack: controller.openPersonalHome,
         onReport: _openGeneralReportSheet,
+        onEditPrimaryPreferences: _openPrimaryPreferences,
         onEditActivityRegion: _openActivityRegionDialog,
         onOpenConsentHistory: controller.openConsentHistory,
         onOpenPrivacyPolicy: _openPrivacyPolicy,
@@ -217,6 +222,36 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
         onOpenBlockedUsers: controller.openBlockedUsers,
         onLogout: _logout,
         onWithdrawal: _openWithdrawalDialog,
+      ),
+      MyPageRoute.primaryPreferences => PrimaryPreferencesView(
+        key: const ValueKey<String>('primary-preferences'),
+        currentLanguageCode: _selectedPrimaryLanguageCode,
+        currentCountryCode: _selectedPrimaryCountryCode,
+        languageOptions: controller.languageOptions,
+        countryOptions: controller.countryOptions,
+        englishNameController: _englishNameController,
+        isSaving: controller.isSavingPreferences,
+        errorText: controller.phase == MyPageAsyncPhase.validationError
+            ? controller.errorMessage
+            : null,
+        onBack: controller.openSettings,
+        onLanguageChanged: (value) {
+          setState(() {
+            _selectedPrimaryLanguageCode = value;
+          });
+        },
+        onCountryChanged: (value) {
+          setState(() {
+            _selectedPrimaryCountryCode = value;
+          });
+        },
+        onSave: () {
+          controller.updatePrimaryPreferences(
+            englishName: _englishNameController.text,
+            languageCode: _selectedPrimaryLanguageCode ?? '',
+            countryCode: _selectedPrimaryCountryCode ?? '',
+          );
+        },
       ),
       MyPageRoute.consentHistory => ConsentHistoryView(
         key: const ValueKey<String>('consent-history'),
@@ -258,6 +293,21 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
 
   Future<void> _openGeneralReportSheet() {
     return showMateyaReportSheet(context, subjectLabel: 'MateYa');
+  }
+
+  void _openPrimaryPreferences() {
+    final profile = widget.controller.personalPage?.profile;
+    setState(() {
+      _selectedPrimaryLanguageCode = profile?.primaryLanguageCode;
+      _selectedPrimaryCountryCode = profile?.primaryCountryCode;
+      _englishNameController.value = TextEditingValue(
+        text: profile?.englishName ?? '',
+        selection: TextSelection.collapsed(
+          offset: (profile?.englishName ?? '').length,
+        ),
+      );
+    });
+    widget.controller.openPrimaryPreferences();
   }
 
   void _syncFormValues() {

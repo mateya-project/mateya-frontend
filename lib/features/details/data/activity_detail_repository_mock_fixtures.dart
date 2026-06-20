@@ -109,16 +109,16 @@ final Map<String, ActivityHostProfile>
 _hostById = <String, ActivityHostProfile>{
   'featured-hike': const ActivityHostProfile(
     userId: 'host-featured-hike',
-    name: 'Lee MinJi',
-    localizedName: '이민지',
+    name: '이민지',
+    localizedName: 'Lee MinJi',
     locationLabel: 'Living in Seoul · Shindang dong',
     avatarUrl:
         'https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?auto=format&fit=crop&w=300&q=80',
   ),
   'river-bus': const ActivityHostProfile(
     userId: 'host-river-bus',
-    name: 'Park Jun',
-    localizedName: '박준',
+    name: '박준',
+    localizedName: 'Park Jun',
     locationLabel: 'Living in Seoul · Yeouido dong',
     avatarUrl:
         'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=300&q=80',

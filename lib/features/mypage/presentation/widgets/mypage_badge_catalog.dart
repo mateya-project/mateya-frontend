@@ -26,7 +26,6 @@ class MyPageBadgeDisplaySlot {
   final ActivityBadge? badge;
 
   bool get isEarned => badge?.isEarned ?? false;
-  String? get remoteImageUrl => badge?.imageUrl;
 }
 
 const List<MyPageBadgeVisual> kMyPageBadgeCatalog = <MyPageBadgeVisual>[
@@ -39,8 +38,8 @@ const List<MyPageBadgeVisual> kMyPageBadgeCatalog = <MyPageBadgeVisual>[
   MyPageBadgeVisual(
     key: 'active_person',
     label: 'active person',
-    activeAssetPath: 'assets/images/badges/badge - activity.png',
-    disabledAssetPath: 'assets/images/badges/badge - activity disabled.png',
+    activeAssetPath: 'assets/images/badges/badge - activeperson.png',
+    disabledAssetPath: 'assets/images/badges/badge - activeperson disabled.png',
   ),
   MyPageBadgeVisual(
     key: 'festive',

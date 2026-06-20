@@ -37,6 +37,18 @@ class ActivityHostProfile {
   final String? avatarUrl;
   final bool isFriend;
 
+  String get displayName {
+    final primary = name.trim();
+    final localized = localizedName.trim();
+    if (primary.isEmpty) {
+      return localized;
+    }
+    if (localized.isEmpty || localized == primary) {
+      return primary;
+    }
+    return '$primary · $localized';
+  }
+
   ActivityHostProfile copyWith({
     String? userId,
     String? name,
@@ -157,7 +169,8 @@ class ActivityDetail {
   bool get isJoined => participationState == ActivityParticipationState.joined;
   bool get isParticipationRequested =>
       participationState == ActivityParticipationState.requested;
-  bool get isHostedByMe => participationState == ActivityParticipationState.host;
+  bool get isHostedByMe =>
+      participationState == ActivityParticipationState.host;
 
   ActivityDetail copyWith({
     ActivityItem? activity,

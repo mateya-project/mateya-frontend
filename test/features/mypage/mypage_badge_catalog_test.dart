@@ -46,4 +46,19 @@ void main() {
     expect(resolveMyPageBadgeVisualKey(badge), 'tourist');
     expect(findMyPageBadgeVisual(badge)?.label, 'tourist');
   });
+
+  test('active person slot uses local assets for earned state', () {
+    final visual = kMyPageBadgeCatalog.firstWhere(
+      (badge) => badge.key == 'active_person',
+    );
+
+    expect(
+      visual.assetPathFor(true),
+      'assets/images/badges/badge - activeperson.png',
+    );
+    expect(
+      visual.assetPathFor(false),
+      'assets/images/badges/badge - activeperson disabled.png',
+    );
+  });
 }

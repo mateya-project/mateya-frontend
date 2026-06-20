@@ -23,6 +23,7 @@ abstract interface class MyPageRepository {
 
   Future<PersonalMyPageData> updatePrimaryPreferences({
     required String displayName,
+    String? englishName,
     required String languageCode,
     required String countryCode,
   });

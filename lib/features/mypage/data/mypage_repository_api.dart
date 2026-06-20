@@ -149,6 +149,7 @@ class ApiMyPageRepository implements MyPageRepository {
   @override
   Future<PersonalMyPageData> updatePrimaryPreferences({
     required String displayName,
+    String? englishName,
     required String languageCode,
     required String countryCode,
   }) async {
@@ -158,6 +159,9 @@ class ApiMyPageRepository implements MyPageRepository {
         requiresAuth: true,
         body: <String, Object?>{
           'displayName': displayName,
+          'englishName': englishName?.trim().isEmpty ?? true
+              ? null
+              : englishName!.trim(),
           'primaryLanguage': languageCode,
           'primaryCountry': countryCode.toUpperCase(),
         },
@@ -332,6 +336,7 @@ class ApiMyPageRepository implements MyPageRepository {
     final updatedUser = current.user.copyWith(
       displayName:
           profileJson['displayName'] as String? ?? current.user.displayName,
+      englishName: profileJson['englishName'] as String?,
       primaryLanguage:
           profileJson['primaryLanguage'] as String? ??
           current.user.primaryLanguage,
@@ -339,6 +344,9 @@ class ApiMyPageRepository implements MyPageRepository {
           profileJson['primaryCountry'] as String? ??
           current.user.primaryCountry,
       profileImageUrl: profileJson['profileImageUrl'] as String?,
+      activityCountry:
+          profileJson['activityCountry'] as String? ??
+          current.user.activityCountry,
       activityRegionName:
           profileJson['activityRegionName'] as String? ??
           current.user.activityRegionName,

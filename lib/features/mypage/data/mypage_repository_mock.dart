@@ -33,6 +33,7 @@ class MockMyPageRepository implements MyPageRepository {
   @override
   Future<PersonalMyPageData> updatePrimaryPreferences({
     required String displayName,
+    String? englishName,
     required String languageCode,
     required String countryCode,
   }) async {
@@ -45,6 +46,7 @@ class MockMyPageRepository implements MyPageRepository {
         .firstOrNull;
     return _personalPage.copyWith(
       profile: _personalPage.profile.copyWith(
+        englishName: englishName,
         primaryLanguageCode: languageCode,
         primaryLanguageLabel: language?.label ?? languageCode,
         primaryCountryCode: countryCode,

@@ -38,7 +38,7 @@ class MyPageProfileHeroCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Text(
-                  profile.name,
+                  profile.displayName,
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontSize: 22,
                     fontWeight: FontWeight.w700,
@@ -79,7 +79,7 @@ class MyPageProfileHeroCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  profile.residence,
+                  profile.residenceDisplay,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: AppColors.textSecondary,
                   ),

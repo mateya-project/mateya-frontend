@@ -261,7 +261,7 @@ class ApiActivityDetailRepository implements ActivityDetailRepository {
       host: ActivityHostProfile(
         userId: '${hostJson['userId']}',
         name: hostJson['displayName'] as String? ?? 'Host',
-        localizedName: hostJson['displayName'] as String? ?? 'Host',
+        localizedName: hostJson['englishName'] as String? ?? '',
         locationLabel: _hostLocationLabel(
           countryCode: hostJson['primaryCountry'] as String?,
           languageCode: hostJson['primaryLanguage'] as String?,
@@ -335,7 +335,7 @@ class ApiActivityDetailRepository implements ActivityDetailRepository {
         userId: '${hostJson['userId']}',
         name: hostJson['displayName'] as String? ?? current.host.name,
         localizedName:
-            hostJson['displayName'] as String? ?? current.host.localizedName,
+            hostJson['englishName'] as String? ?? current.host.localizedName,
         locationLabel: _hostLocationLabel(
           countryCode: hostJson['primaryCountry'] as String?,
           languageCode: hostJson['primaryLanguage'] as String?,

@@ -5,6 +5,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 
 import '../../../shared/auth/auth_session.dart';
+import '../../../shared/preferences/mateya_language_preferences.dart';
 import '../../../shared/logging/app_logger.dart';
 import '../../../shared/network/mateya_api_client.dart';
 import '../data/auth_repository.dart';
@@ -265,7 +266,9 @@ class OnboardingController extends ChangeNotifier {
     notifyListeners();
   }
 
-  String get _resolvedPrimaryLanguage => 'ko';
+  String get _resolvedPrimaryLanguage =>
+      MateyaLanguagePreferences.instance.primaryLanguageCode;
 
-  String get _resolvedPrimaryCountry => 'KR';
+  String get _resolvedPrimaryCountry =>
+      MateyaLanguagePreferences.instance.primaryCountryCode;
 }

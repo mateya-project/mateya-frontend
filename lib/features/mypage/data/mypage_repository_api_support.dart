@@ -8,16 +8,20 @@ ProfileSummary _buildPersonalProfile(
       .toLowerCase();
   final countryCode = (meProfileJson['primaryCountry'] as String? ?? 'KR')
       .toLowerCase();
+  final activityCountryCode = _activityCountryCode(meProfileJson);
   final lastLoginAt = meProfileJson['lastLoginAt'] as String?;
 
   return ProfileSummary(
     id: '${meProfileJson['id']}',
     name: meProfileJson['displayName'] as String? ?? '',
+    englishName: meProfileJson['englishName'] as String?,
     residence: (meProfileJson['activityRegionName'] as String?) ?? '활동 지역 미설정',
     primaryLanguageCode: languageCode,
     primaryLanguageLabel: _languageLabel(languageCode),
     primaryCountryCode: countryCode,
     primaryCountryLabel: _countryLabel(countryCode),
+    activityCountryCode: activityCountryCode,
+    activityCountryLabel: _activityCountryLabel(activityCountryCode),
     profileImageUrl: meProfileJson['profileImageUrl'] as String?,
     isActiveWithin30Days: _isActiveWithin30Days(
       lastLoginAt ?? mePageJson['createdAt'] as String?,
@@ -30,14 +34,18 @@ ProfileSummary _buildOtherProfile(Map<String, dynamic> pageJson) {
       .toLowerCase();
   final countryCode = (pageJson['primaryCountry'] as String? ?? 'KR')
       .toLowerCase();
+  final activityCountryCode = _activityCountryCode(pageJson);
   return ProfileSummary(
     id: '${pageJson['id']}',
     name: pageJson['displayName'] as String? ?? '',
+    englishName: pageJson['englishName'] as String?,
     residence: (pageJson['activityRegionName'] as String?) ?? '활동 지역 미설정',
     primaryLanguageCode: languageCode,
     primaryLanguageLabel: _languageLabel(languageCode),
     primaryCountryCode: countryCode,
     primaryCountryLabel: _countryLabel(countryCode),
+    activityCountryCode: activityCountryCode,
+    activityCountryLabel: _activityCountryLabel(activityCountryCode),
     profileImageUrl: pageJson['profileImageUrl'] as String?,
     isActiveWithin30Days: pageJson['activeWithin30Days'] as bool? ?? false,
   );
@@ -53,6 +61,7 @@ BusinessMyPageData _buildBusinessPage({
       .toLowerCase();
   final countryCode = (userProfileJson['primaryCountry'] as String? ?? 'KR')
       .toLowerCase();
+  final activityCountryCode = _activityCountryCode(userProfileJson);
 
   return BusinessMyPageData(
     profile: ProfileSummary(
@@ -61,6 +70,7 @@ BusinessMyPageData _buildBusinessPage({
           (hostPageJson['businessName'] as String?) ??
           (businessApplicationJson['businessName'] as String?) ??
           (userProfileJson['displayName'] as String? ?? ''),
+      englishName: userProfileJson['englishName'] as String?,
       residence:
           (hostPageJson['placeAddress'] as String?) ??
           (userProfileJson['activityRegionName'] as String?) ??
@@ -69,6 +79,8 @@ BusinessMyPageData _buildBusinessPage({
       primaryLanguageLabel: _languageLabel(languageCode),
       primaryCountryCode: countryCode,
       primaryCountryLabel: _countryLabel(countryCode),
+      activityCountryCode: activityCountryCode,
+      activityCountryLabel: _activityCountryLabel(activityCountryCode),
       profileImageUrl:
           (hostPageJson['profileImageUrl'] as String?) ??
           (userProfileJson['profileImageUrl'] as String?),
@@ -106,16 +118,20 @@ BusinessMyPageData _fallbackBusinessPage(Map<String, dynamic> userProfileJson) {
       .toLowerCase();
   final countryCode = (userProfileJson['primaryCountry'] as String? ?? 'KR')
       .toLowerCase();
+  final activityCountryCode = _activityCountryCode(userProfileJson);
   return BusinessMyPageData(
     profile: ProfileSummary(
       id: '${userProfileJson['id']}',
       name: userProfileJson['displayName'] as String? ?? '',
+      englishName: userProfileJson['englishName'] as String?,
       residence:
           (userProfileJson['activityRegionName'] as String?) ?? '활동 지역 미설정',
       primaryLanguageCode: languageCode,
       primaryLanguageLabel: _languageLabel(languageCode),
       primaryCountryCode: countryCode,
       primaryCountryLabel: _countryLabel(countryCode),
+      activityCountryCode: activityCountryCode,
+      activityCountryLabel: _activityCountryLabel(activityCountryCode),
       profileImageUrl: userProfileJson['profileImageUrl'] as String?,
     ),
     metrics: const <ProfileMetric>[
@@ -271,6 +287,29 @@ String _languageLabel(String code) {
           .firstOrNull
           ?.label ??
       normalized.toUpperCase();
+}
+
+String? _activityCountryCode(Map<String, dynamic> json) {
+  final code = (json['activityCountry'] as String?)?.trim();
+  if (code == null || code.isEmpty) {
+    return null;
+  }
+  return code.toLowerCase();
+}
+
+String? _activityCountryLabel(String? code) {
+  if (code == null || code.isEmpty) {
+    return null;
+  }
+  return switch (code.toUpperCase()) {
+    'KR' => 'Korea',
+    'JP' => 'Japan',
+    'CN' => 'China',
+    'VN' => 'Vietnam',
+    'US' => 'United States',
+    'TH' => 'Thailand',
+    _ => code.toUpperCase(),
+  };
 }
 
 String _countryLabel(String code) {

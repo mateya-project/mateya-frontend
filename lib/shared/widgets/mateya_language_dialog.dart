@@ -26,11 +26,11 @@ const List<MateyaLanguageOption> kMateyaLanguageOptions =
       MateyaLanguageOption(code: 'ja', label: 'Japanese', nativeLabel: '일본어'),
     ];
 
-Future<void> showMateyaLanguageDialog(
+Future<String?> showMateyaLanguageDialog(
   BuildContext context, {
   String initialLanguageCode = 'ko',
 }) {
-  return showGeneralDialog<void>(
+  return showGeneralDialog<String?>(
     context: context,
     barrierDismissible: true,
     barrierLabel: 'Language dialog',
@@ -184,7 +184,8 @@ class _MateyaLanguageDialogState extends State<_MateyaLanguageDialog> {
                     width: double.infinity,
                     height: 56,
                     child: ElevatedButton(
-                      onPressed: () => Navigator.of(context).pop(),
+                      onPressed: () =>
+                          Navigator.of(context).pop(_selectedLanguageCode),
                       style: ElevatedButton.styleFrom(
                         elevation: 0,
                         backgroundColor: Colors.black,

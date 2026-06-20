@@ -15,7 +15,9 @@ class AuthUserProfile {
     required this.primaryLanguage,
     required this.primaryCountry,
     required this.createdAt,
+    this.englishName,
     this.profileImageUrl,
+    this.activityCountry,
     this.activityRegionName,
     this.activityLatitude,
     this.activityLongitude,
@@ -25,10 +27,12 @@ class AuthUserProfile {
   final int id;
   final String phoneNumber;
   final String displayName;
+  final String? englishName;
   final String role;
   final String primaryLanguage;
   final String primaryCountry;
   final String? profileImageUrl;
+  final String? activityCountry;
   final String? activityRegionName;
   final double? activityLatitude;
   final double? activityLongitude;
@@ -39,10 +43,12 @@ class AuthUserProfile {
     int? id,
     String? phoneNumber,
     String? displayName,
+    Object? englishName = _authSessionSentinel,
     String? role,
     String? primaryLanguage,
     String? primaryCountry,
     Object? profileImageUrl = _authSessionSentinel,
+    Object? activityCountry = _authSessionSentinel,
     Object? activityRegionName = _authSessionSentinel,
     Object? activityLatitude = _authSessionSentinel,
     Object? activityLongitude = _authSessionSentinel,
@@ -53,12 +59,18 @@ class AuthUserProfile {
       id: id ?? this.id,
       phoneNumber: phoneNumber ?? this.phoneNumber,
       displayName: displayName ?? this.displayName,
+      englishName: englishName == _authSessionSentinel
+          ? this.englishName
+          : englishName as String?,
       role: role ?? this.role,
       primaryLanguage: primaryLanguage ?? this.primaryLanguage,
       primaryCountry: primaryCountry ?? this.primaryCountry,
       profileImageUrl: profileImageUrl == _authSessionSentinel
           ? this.profileImageUrl
           : profileImageUrl as String?,
+      activityCountry: activityCountry == _authSessionSentinel
+          ? this.activityCountry
+          : activityCountry as String?,
       activityRegionName: activityRegionName == _authSessionSentinel
           ? this.activityRegionName
           : activityRegionName as String?,
@@ -80,10 +92,12 @@ class AuthUserProfile {
       'id': id,
       'phoneNumber': phoneNumber,
       'displayName': displayName,
+      'englishName': englishName,
       'role': role,
       'primaryLanguage': primaryLanguage,
       'primaryCountry': primaryCountry,
       'profileImageUrl': profileImageUrl,
+      'activityCountry': activityCountry,
       'activityRegionName': activityRegionName,
       'activityLatitude': activityLatitude,
       'activityLongitude': activityLongitude,
@@ -97,10 +111,12 @@ class AuthUserProfile {
       id: json['id'] as int,
       phoneNumber: json['phoneNumber'] as String? ?? '',
       displayName: json['displayName'] as String? ?? '',
+      englishName: json['englishName'] as String?,
       role: json['role'] as String? ?? 'USER',
       primaryLanguage: json['primaryLanguage'] as String? ?? 'ko',
       primaryCountry: json['primaryCountry'] as String? ?? 'KR',
       profileImageUrl: json['profileImageUrl'] as String?,
+      activityCountry: json['activityCountry'] as String?,
       activityRegionName: json['activityRegionName'] as String?,
       activityLatitude: (json['activityLatitude'] as num?)?.toDouble(),
       activityLongitude: (json['activityLongitude'] as num?)?.toDouble(),
