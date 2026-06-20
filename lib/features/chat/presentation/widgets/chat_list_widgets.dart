@@ -147,10 +147,10 @@ class ChatRoomTile extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 12),
-          SizedBox(
-            width: 54,
-            height: 56,
+          ConstrainedBox(
+            constraints: const BoxConstraints(minWidth: 54, minHeight: 56),
             child: Column(
+              mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: <Widget>[
                 if (room.lastMessageAt != null)
@@ -161,7 +161,8 @@ class ChatRoomTile extends StatelessWidget {
                       color: AppColors.fieldBorder,
                     ),
                   ),
-                const Spacer(),
+                if (room.lastMessageAt != null && room.unreadCount > 0)
+                  const SizedBox(height: 8),
                 if (room.unreadCount > 0) UnreadBadge(count: room.unreadCount),
               ],
             ),
