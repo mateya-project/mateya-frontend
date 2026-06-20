@@ -22,18 +22,231 @@ class MyPageLoadingView extends StatelessWidget {
             child: ListView(
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
               children: const <Widget>[
-                MateyaSkeletonBlock(height: 140, radius: 18),
+                _MyPageProfileHeroSkeleton(),
                 SizedBox(height: 16),
-                MateyaSkeletonBlock(height: 124, radius: 18),
+                _MyPageMetricStripSkeleton(),
                 SizedBox(height: 16),
-                MateyaSkeletonBlock(height: 210, radius: 18),
-                SizedBox(height: 16),
-                MateyaSkeletonBlock(height: 300, radius: 18),
+                _MyPageBadgeSectionSkeleton(),
+                SizedBox(height: 32),
+                _MyPageRecentActivitiesSkeleton(),
               ],
             ),
           ),
         ),
       ],
+    );
+  }
+}
+
+class _MyPageProfileHeroSkeleton extends StatelessWidget {
+  const _MyPageProfileHeroSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: AppColors.divider),
+      ),
+      child: const Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          MateyaSkeletonBlock(width: 72, height: 72, radius: 36),
+          SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                MateyaSkeletonBlock(height: 24, width: 118, radius: 12),
+                SizedBox(height: 10),
+                MateyaSkeletonBlock(height: 28, width: 92, radius: 14),
+                SizedBox(height: 12),
+                MateyaSkeletonBlock(height: 18, width: 142, radius: 9),
+                SizedBox(height: 8),
+                MateyaSkeletonBlock(height: 16, width: 126, radius: 8),
+              ],
+            ),
+          ),
+          SizedBox(width: 12),
+          MateyaSkeletonBlock(width: 40, height: 40, radius: 20),
+        ],
+      ),
+    );
+  }
+}
+
+class _MyPageMetricStripSkeleton extends StatelessWidget {
+  const _MyPageMetricStripSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: AppColors.divider),
+      ),
+      child: const Wrap(
+        spacing: 12,
+        runSpacing: 12,
+        children: <Widget>[
+          _MyPageMetricChipSkeleton(),
+          _MyPageMetricChipSkeleton(),
+          _MyPageMetricChipSkeleton(),
+          _MyPageMetricChipSkeleton(),
+        ],
+      ),
+    );
+  }
+}
+
+class _MyPageMetricChipSkeleton extends StatelessWidget {
+  const _MyPageMetricChipSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return const SizedBox(
+      width: 142,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          MateyaSkeletonBlock(height: 14, width: 58, radius: 7),
+          SizedBox(height: 10),
+          MateyaSkeletonBlock(height: 22, width: 78, radius: 11),
+        ],
+      ),
+    );
+  }
+}
+
+class _MyPageBadgeSectionSkeleton extends StatelessWidget {
+  const _MyPageBadgeSectionSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: AppColors.divider),
+      ),
+      child: const Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          MateyaSkeletonBlock(height: 22, width: 44, radius: 11),
+          SizedBox(height: 16),
+          Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            children: <Widget>[
+              _MyPageBadgeChipSkeleton(width: 104),
+              _MyPageBadgeChipSkeleton(width: 128),
+              _MyPageBadgeChipSkeleton(width: 118),
+              _MyPageBadgeChipSkeleton(width: 138),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MyPageBadgeChipSkeleton extends StatelessWidget {
+  const _MyPageBadgeChipSkeleton({required this.width});
+
+  final double width;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: width,
+      child: const Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          MateyaSkeletonBlock(height: 18, width: double.infinity, radius: 9),
+          SizedBox(height: 8),
+          MateyaSkeletonBlock(height: 14, width: 72, radius: 7),
+        ],
+      ),
+    );
+  }
+}
+
+class _MyPageRecentActivitiesSkeleton extends StatelessWidget {
+  const _MyPageRecentActivitiesSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: AppColors.divider),
+      ),
+      child: const Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Row(
+            children: <Widget>[
+              Expanded(
+                child: MateyaSkeletonBlock(height: 22, width: 82, radius: 11),
+              ),
+              SizedBox(width: 16),
+              MateyaSkeletonBlock(height: 18, width: 56, radius: 9),
+            ],
+          ),
+          SizedBox(height: 12),
+          _MyPageActivityCardSkeleton(),
+          SizedBox(height: 14),
+          _MyPageActivityCardSkeleton(),
+        ],
+      ),
+    );
+  }
+}
+
+class _MyPageActivityCardSkeleton extends StatelessWidget {
+  const _MyPageActivityCardSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.divider),
+      ),
+      child: const Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          MateyaSkeletonBlock(height: 176, radius: 16),
+          Padding(
+            padding: EdgeInsets.fromLTRB(14, 14, 14, 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                MateyaSkeletonBlock(height: 22, width: 214, radius: 11),
+                SizedBox(height: 12),
+                Wrap(
+                  spacing: 10,
+                  runSpacing: 8,
+                  children: <Widget>[
+                    MateyaSkeletonBlock(height: 24, width: 88, radius: 12),
+                    MateyaSkeletonBlock(height: 24, width: 88, radius: 12),
+                    MateyaSkeletonBlock(height: 24, width: 96, radius: 12),
+                    MateyaSkeletonBlock(height: 24, width: 82, radius: 12),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

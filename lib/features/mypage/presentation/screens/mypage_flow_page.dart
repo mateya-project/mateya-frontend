@@ -12,6 +12,7 @@ import '../../../../shared/navigation/mateya_auth_flow.dart';
 import '../../../../shared/permissions/mateya_permission_dialogs.dart';
 import '../../../../shared/platform/external_url_launcher.dart';
 import '../../../../shared/theme/app_tokens.dart';
+import '../../../../shared/widgets/mateya_motion.dart';
 import '../../../../shared/widgets/mateya_text_field.dart';
 import '../../../../shared/widgets/mateya_report_sheet.dart';
 import '../../../create/application/create_controller.dart';
@@ -147,8 +148,8 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
         _syncFormValues();
         return Material(
           color: AppColors.background,
-          child: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 260),
+          child: MateyaFadeSlideSwitcher(
+            duration: const Duration(milliseconds: 240),
             child: switch (widget.controller.phase) {
               MyPageAsyncPhase.idle ||
               MyPageAsyncPhase.loading => const MyPageLoadingView(),

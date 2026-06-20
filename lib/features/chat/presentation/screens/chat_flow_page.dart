@@ -9,6 +9,7 @@ import '../../../../shared/report/report_repository.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../../shared/widgets/mateya_bottom_navigation.dart';
 import '../../../../shared/widgets/mateya_header.dart';
+import '../../../../shared/widgets/mateya_motion.dart';
 import '../../../../shared/widgets/mateya_report_sheet.dart';
 import '../../../onboarding/domain/onboarding_flow.dart';
 import '../../application/chat_controller.dart';
@@ -485,9 +486,17 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
           color: widget.controller.isDetailOpen
               ? AppColors.appSurface
               : AppColors.background,
-          child: widget.controller.isDetailOpen
-              ? _buildDetailScreen(context)
-              : _buildListScreen(context),
+          child: MateyaFadeSlideSwitcher(
+            duration: const Duration(milliseconds: 220),
+            child: KeyedSubtree(
+              key: ValueKey<String>(
+                widget.controller.isDetailOpen ? 'chat-detail' : 'chat-list',
+              ),
+              child: widget.controller.isDetailOpen
+                  ? _buildDetailScreen(context)
+                  : _buildListScreen(context),
+            ),
+          ),
         );
       },
     );

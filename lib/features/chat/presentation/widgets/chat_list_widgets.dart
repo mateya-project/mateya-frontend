@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../shared/theme/app_tokens.dart';
+import '../../../../shared/widgets/mateya_interaction.dart';
 import '../../domain/chat_models.dart';
 import 'chat_formatters.dart';
 
@@ -66,9 +67,12 @@ class ChatFilterBar extends StatelessWidget {
                       .map((filter) {
                         final selected = filter == currentFilter;
                         return Expanded(
-                          child: GestureDetector(
-                            behavior: HitTestBehavior.opaque,
+                          child: MateyaPressable(
                             onTap: () => onChanged(filter),
+                            borderRadius: BorderRadius.circular(12),
+                            pressedScale: 0.98,
+                            splashColor: Colors.transparent,
+                            highlightColor: Colors.transparent,
                             child: Center(
                               child: Text(
                                 filter.label,

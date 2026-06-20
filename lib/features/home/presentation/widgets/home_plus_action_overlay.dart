@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../shared/theme/app_tokens.dart';
+import '../../../../shared/widgets/mateya_interaction.dart';
 
 class HomePlusActionOverlay extends StatelessWidget {
   const HomePlusActionOverlay({
@@ -33,24 +34,38 @@ class HomePlusActionOverlay extends StatelessWidget {
             top: false,
             child: Padding(
               padding: const EdgeInsets.fromLTRB(20, 0, 20, 108),
-              child: Material(
-                color: Colors.transparent,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: <Widget>[
-                    _OverlayActionButton(
-                      icon: Icons.add_circle_outline_rounded,
-                      label: createLabel,
-                      onTap: onCreateTap,
+              child: TweenAnimationBuilder<double>(
+                tween: Tween<double>(begin: 0, end: 1),
+                duration: const Duration(milliseconds: 220),
+                curve: Curves.easeOutCubic,
+                builder: (context, value, child) {
+                  return Opacity(
+                    opacity: value,
+                    child: Transform.translate(
+                      offset: Offset(0, 18 * (1 - value)),
+                      child: child,
                     ),
-                    const SizedBox(height: 12),
-                    _OverlayActionButton(
-                      icon: Icons.map_outlined,
-                      label: '내 주변 전통문화',
-                      onTap: onNearbyCultureTap,
-                    ),
-                  ],
+                  );
+                },
+                child: Material(
+                  color: Colors.transparent,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: <Widget>[
+                      _OverlayActionButton(
+                        icon: Icons.add_circle_outline_rounded,
+                        label: createLabel,
+                        onTap: onCreateTap,
+                      ),
+                      const SizedBox(height: 12),
+                      _OverlayActionButton(
+                        icon: Icons.map_outlined,
+                        label: '내 주변 전통문화',
+                        onTap: onNearbyCultureTap,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -74,39 +89,42 @@ class _OverlayActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Colors.white,
+    return MateyaTapScale(
       borderRadius: BorderRadius.circular(22),
-      child: InkWell(
+      child: Material(
+        color: Colors.white,
         borderRadius: BorderRadius.circular(22),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
-          child: Row(
-            children: <Widget>[
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: AppColors.softGreenBorder,
-                  borderRadius: BorderRadius.circular(14),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(22),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
+            child: Row(
+              children: <Widget>[
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: AppColors.softGreenBorder,
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Icon(icon, color: AppColors.brandGreen, size: 22),
                 ),
-                child: Icon(icon, color: AppColors.brandGreen, size: 22),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Text(
-                  label,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Text(
+                    label,
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
                 ),
-              ),
-              const Icon(
-                Icons.chevron_right_rounded,
-                color: AppColors.textSecondary,
-              ),
-            ],
+                const Icon(
+                  Icons.chevron_right_rounded,
+                  color: AppColors.textSecondary,
+                ),
+              ],
+            ),
           ),
         ),
       ),

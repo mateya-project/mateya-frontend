@@ -8,6 +8,8 @@ import '../../../../shared/navigation/mateya_auth_flow.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../../shared/widgets/mateya_bottom_navigation.dart';
 import '../../../../shared/widgets/mateya_header.dart';
+import '../../../../shared/widgets/mateya_interaction.dart';
+import '../../../../shared/widgets/mateya_motion.dart';
 import '../../../chat/application/chat_controller.dart';
 import '../../../chat/data/chat_repository.dart';
 import '../../../chat/presentation/screens/chat_flow_page.dart';
@@ -297,8 +299,8 @@ class _HomeFlowPageState extends State<HomeFlowPage> {
         Expanded(
           child: Stack(
             children: <Widget>[
-              AnimatedSwitcher(
-                duration: const Duration(milliseconds: 260),
+              MateyaFadeSlideSwitcher(
+                duration: const Duration(milliseconds: 240),
                 child: switch (_controller.section) {
                   HomeSection.home => HomeScreen(
                     key: const ValueKey<String>('home-screen'),
@@ -331,8 +333,9 @@ class _HomeFlowPageState extends State<HomeFlowPage> {
                 Positioned(
                   right: 20,
                   bottom: 18,
-                  child: GestureDetector(
+                  child: MateyaPressable(
                     onTap: _controller.openFavorites,
+                    customBorder: const CircleBorder(),
                     child: Container(
                       width: 48,
                       height: 48,

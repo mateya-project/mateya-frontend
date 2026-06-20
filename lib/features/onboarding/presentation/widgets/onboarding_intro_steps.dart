@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../../shared/widgets/mateya_button.dart';
+import '../../../../shared/widgets/mateya_interaction.dart';
 import '../../../../shared/widgets/mateya_header.dart';
 import '../../../../shared/widgets/mateya_text_field.dart';
 import '../../application/onboarding_controller.dart';
@@ -53,8 +54,11 @@ class WelcomeStepView extends StatelessWidget {
                 const Spacer(flex: 3),
                 MateyaButton(label: '시작하기', onPressed: onGuestTap),
                 const SizedBox(height: 15),
-                GestureDetector(
+                MateyaPressable(
                   onTap: onHostTap,
+                  borderRadius: BorderRadius.circular(10),
+                  splashColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
                   child: Padding(
                     padding: const EdgeInsets.only(bottom: 24),
                     child: Text.rich(

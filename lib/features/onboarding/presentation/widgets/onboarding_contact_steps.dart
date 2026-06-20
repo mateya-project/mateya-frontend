@@ -6,6 +6,7 @@ import '../../../../shared/permissions/mateya_permission_dialogs.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../../shared/widgets/mateya_button.dart';
 import '../../../../shared/widgets/mateya_header.dart';
+import '../../../../shared/widgets/mateya_interaction.dart';
 import '../../../../shared/widgets/mateya_text_field.dart';
 import '../../application/onboarding_controller.dart';
 import '../../domain/onboarding_flow.dart';
@@ -127,10 +128,13 @@ class _PhoneStepViewState extends State<PhoneStepView> {
                         style: theme.textTheme.bodySmall,
                       ),
                       const Spacer(),
-                      GestureDetector(
+                      MateyaPressable(
                         onTap: controller.isAuthLoading
                             ? null
                             : () => controller.resendVerificationCode(),
+                        splashColor: Colors.transparent,
+                        highlightColor: Colors.transparent,
+                        borderRadius: BorderRadius.circular(8),
                         child: Text(
                           '인증번호 다시받기',
                           style: theme.textTheme.bodySmall?.copyWith(
@@ -377,8 +381,11 @@ class _NeighborhoodAutoStepViewState extends State<NeighborhoodAutoStepView> {
                 ],
                 const SizedBox(height: 17),
                 Center(
-                  child: GestureDetector(
+                  child: MateyaPressable(
                     onTap: controller.openManualNeighborhood,
+                    splashColor: Colors.transparent,
+                    highlightColor: Colors.transparent,
+                    borderRadius: BorderRadius.circular(10),
                     child: Text.rich(
                       TextSpan(
                         style: theme.textTheme.bodyMedium,
