@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../shared/localization/mateya_localizations.dart';
+import '../../../../shared/theme/app_responsive.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../domain/home_models.dart';
 import 'explore_filter_fields.dart';
@@ -55,343 +56,371 @@ class _ExploreFilterSheetState extends State<ExploreFilterSheet> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final viewInsets = MediaQuery.of(context).viewInsets;
+    final sheetHeightFactor = AppResponsive.isCompactHeight(context)
+        ? 0.92
+        : 0.85;
 
     return Container(
       color: const Color(0x80000000),
       child: Align(
         alignment: Alignment.bottomCenter,
-        child: Container(
-          height: MediaQuery.of(context).size.height * 0.85,
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
-          ),
-          child: SafeArea(
-            top: false,
-            child: Column(
-              children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
-                  child: Row(
-                    children: <Widget>[
-                      Expanded(
-                        child: Text(
-                          l10n.homeFilterTitle,
-                          textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.headlineMedium,
-                        ),
+        child: FractionallySizedBox(
+          heightFactor: sheetHeightFactor,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: AppResponsive.contentMaxWidth(context, phone: 560),
+            ),
+            child: Container(
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+              ),
+              child: SafeArea(
+                top: false,
+                child: Column(
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
+                      child: Row(
+                        children: <Widget>[
+                          Expanded(
+                            child: Text(
+                              l10n.homeFilterTitle,
+                              textAlign: TextAlign.center,
+                              style: Theme.of(context).textTheme.headlineMedium,
+                            ),
+                          ),
+                          IconButton(
+                            onPressed: () => Navigator.of(context).pop(),
+                            icon: const Icon(Icons.close_rounded),
+                          ),
+                        ],
                       ),
-                      IconButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        icon: const Icon(Icons.close_rounded),
-                      ),
-                    ],
-                  ),
-                ),
-                Divider(height: 1, color: AppColors.divider),
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: EdgeInsets.fromLTRB(
-                      20,
-                      16,
-                      20,
-                      20 + viewInsets.bottom,
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        FilterSection(
-                          title: l10n.homeFilterSort,
-                          child: Wrap(
-                            spacing: 8,
-                            runSpacing: 8,
-                            children: ActivitySortOption.values.map((option) {
-                              return FilterChipButton(
-                                label: option.label,
-                                selected: _draft.sort == option,
-                                onTap: () {
-                                  setState(() {
-                                    _draft = _draft.copyWith(sort: option);
-                                  });
-                                },
-                              );
-                            }).toList(),
-                          ),
+                    Divider(height: 1, color: AppColors.divider),
+                    Expanded(
+                      child: SingleChildScrollView(
+                        padding: EdgeInsets.fromLTRB(
+                          20,
+                          16,
+                          20,
+                          20 + viewInsets.bottom,
                         ),
-                        FilterSection(
-                          title: l10n.homeFilterCategory,
-                          child: Wrap(
-                            spacing: 8,
-                            runSpacing: 8,
-                            children: widget.categories.map((category) {
-                              final selected = category.isAll
-                                  ? _draft.categoryIds.contains('all')
-                                  : _draft.categoryIds.contains(category.id);
-                              return FilterChipButton(
-                                label: category.label,
-                                selected: selected,
-                                onTap: () => _toggleCategory(category),
-                              );
-                            }).toList(),
-                          ),
-                        ),
-                        FilterSection(
-                          title: l10n.homeFilterAudience,
-                          child: Wrap(
-                            spacing: 8,
-                            runSpacing: 8,
-                            children: ActivityAudienceOption.values.map((
-                              option,
-                            ) {
-                              return FilterChipButton(
-                                label: option.label,
-                                selected: _draft.audiences.contains(option),
-                                inverted: true,
-                                onTap: () => _toggleAudience(option),
-                              );
-                            }).toList(),
-                          ),
-                        ),
-                        FilterSection(
-                          title: l10n.homeFilterLanguage,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Wrap(
-                                spacing: 12,
+                        keyboardDismissBehavior:
+                            ScrollViewKeyboardDismissBehavior.onDrag,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            FilterSection(
+                              title: l10n.homeFilterSort,
+                              child: Wrap(
+                                spacing: 8,
                                 runSpacing: 8,
-                                children: kPrimaryLanguages.map((language) {
-                                  final supported =
-                                      kSupportedExploreLanguageCodes.contains(
-                                        language.code,
-                                      );
-                                  return CheckboxTag(
-                                    label: language.label,
-                                    selected: _draft.languages.contains(
-                                      language.code,
-                                    ),
-                                    enabled: supported,
-                                    onTap: () => _toggleLanguage(language.code),
+                                children: ActivitySortOption.values.map((
+                                  option,
+                                ) {
+                                  return FilterChipButton(
+                                    label: option.label,
+                                    selected: _draft.sort == option,
+                                    onTap: () {
+                                      setState(() {
+                                        _draft = _draft.copyWith(sort: option);
+                                      });
+                                    },
                                   );
                                 }).toList(),
                               ),
-                              const SizedBox(height: 8),
-                              const ExploreLanguageSupportNotice(),
-                            ],
-                          ),
-                        ),
-                        FilterSection(
-                          title: l10n.homeFilterRegion,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Text(
-                                _buildDistanceSummary(),
-                                style: Theme.of(context).textTheme.bodyMedium
-                                    ?.copyWith(
-                                      decoration: TextDecoration.underline,
-                                    ),
+                            ),
+                            FilterSection(
+                              title: l10n.homeFilterCategory,
+                              child: Wrap(
+                                spacing: 8,
+                                runSpacing: 8,
+                                children: widget.categories.map((category) {
+                                  final selected = category.isAll
+                                      ? _draft.categoryIds.contains('all')
+                                      : _draft.categoryIds.contains(
+                                          category.id,
+                                        );
+                                  return FilterChipButton(
+                                    label: category.label,
+                                    selected: selected,
+                                    onTap: () => _toggleCategory(category),
+                                  );
+                                }).toList(),
                               ),
-                              const SizedBox(height: 12),
-                              SliderTheme(
-                                data: SliderTheme.of(context).copyWith(
-                                  activeTrackColor: AppColors.brandGreen,
-                                  inactiveTrackColor:
-                                      AppColors.subtleBackground,
-                                  thumbColor: Colors.white,
-                                  overlayColor: AppColors.brandGreen.withValues(
-                                    alpha: 0.12,
-                                  ),
-                                ),
-                                child: Slider(
-                                  value: _draft.distance.index.toDouble(),
-                                  divisions:
-                                      DistanceRangeOption.values.length - 1,
-                                  max: (DistanceRangeOption.values.length - 1)
-                                      .toDouble(),
-                                  min: 0,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      _draft = _draft.copyWith(
-                                        distance: DistanceRangeOption
-                                            .values[value.round()],
+                            ),
+                            FilterSection(
+                              title: l10n.homeFilterAudience,
+                              child: Wrap(
+                                spacing: 8,
+                                runSpacing: 8,
+                                children: ActivityAudienceOption.values.map((
+                                  option,
+                                ) {
+                                  return FilterChipButton(
+                                    label: option.label,
+                                    selected: _draft.audiences.contains(option),
+                                    inverted: true,
+                                    onTap: () => _toggleAudience(option),
+                                  );
+                                }).toList(),
+                              ),
+                            ),
+                            FilterSection(
+                              title: l10n.homeFilterLanguage,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  Wrap(
+                                    spacing: 12,
+                                    runSpacing: 8,
+                                    children: kPrimaryLanguages.map((language) {
+                                      final supported =
+                                          kSupportedExploreLanguageCodes
+                                              .contains(language.code);
+                                      return CheckboxTag(
+                                        label: language.label,
+                                        selected: _draft.languages.contains(
+                                          language.code,
+                                        ),
+                                        enabled: supported,
+                                        onTap: () =>
+                                            _toggleLanguage(language.code),
                                       );
-                                    });
-                                  },
-                                ),
+                                    }).toList(),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  const ExploreLanguageSupportNotice(),
+                                ],
                               ),
-                              Row(
+                            ),
+                            FilterSection(
+                              title: l10n.homeFilterRegion,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: <Widget>[
                                   Text(
-                                    l10n.homeFilterNear,
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.bodySmall,
+                                    _buildDistanceSummary(),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(
+                                          decoration: TextDecoration.underline,
+                                        ),
                                   ),
-                                  const Spacer(),
-                                  Text(
-                                    l10n.homeFilterFar,
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.bodySmall,
+                                  const SizedBox(height: 12),
+                                  SliderTheme(
+                                    data: SliderTheme.of(context).copyWith(
+                                      activeTrackColor: AppColors.brandGreen,
+                                      inactiveTrackColor:
+                                          AppColors.subtleBackground,
+                                      thumbColor: Colors.white,
+                                      overlayColor: AppColors.brandGreen
+                                          .withValues(alpha: 0.12),
+                                    ),
+                                    child: Slider(
+                                      value: _draft.distance.index.toDouble(),
+                                      divisions:
+                                          DistanceRangeOption.values.length - 1,
+                                      max:
+                                          (DistanceRangeOption.values.length -
+                                                  1)
+                                              .toDouble(),
+                                      min: 0,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          _draft = _draft.copyWith(
+                                            distance: DistanceRangeOption
+                                                .values[value.round()],
+                                          );
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                  Row(
+                                    children: <Widget>[
+                                      Text(
+                                        l10n.homeFilterNear,
+                                        style: Theme.of(
+                                          context,
+                                        ).textTheme.bodySmall,
+                                      ),
+                                      const Spacer(),
+                                      Text(
+                                        l10n.homeFilterFar,
+                                        style: Theme.of(
+                                          context,
+                                        ).textTheme.bodySmall,
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
-                            ],
-                          ),
-                        ),
-                        FilterSection(
-                          title: l10n.homeFilterSchedule,
-                          child: Row(
-                            children: <Widget>[
-                              Expanded(
-                                child: DateField(
-                                  label: _draft.startDate == null
-                                      ? l10n.homeFilterStartDate
-                                      : formatIsoDate(_draft.startDate!),
-                                  isPlaceholder: _draft.startDate == null,
-                                  onTap: () async {
-                                    final selected = await _pickDate(
-                                      _draft.startDate,
-                                    );
-                                    if (selected != null) {
-                                      setState(() {
-                                        _draft = _draft.copyWith(
-                                          startDate: selected,
+                            ),
+                            FilterSection(
+                              title: l10n.homeFilterSchedule,
+                              child: Row(
+                                children: <Widget>[
+                                  Expanded(
+                                    child: DateField(
+                                      label: _draft.startDate == null
+                                          ? l10n.homeFilterStartDate
+                                          : formatIsoDate(_draft.startDate!),
+                                      isPlaceholder: _draft.startDate == null,
+                                      onTap: () async {
+                                        final selected = await _pickDate(
+                                          _draft.startDate,
                                         );
-                                      });
-                                    }
-                                  },
-                                ),
-                              ),
-                              const Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 12),
-                                child: Text('-'),
-                              ),
-                              Expanded(
-                                child: DateField(
-                                  label: _draft.endDate == null
-                                      ? l10n.homeFilterEndDate
-                                      : formatIsoDate(_draft.endDate!),
-                                  isPlaceholder: _draft.endDate == null,
-                                  onTap: () async {
-                                    final selected = await _pickDate(
-                                      _draft.endDate,
-                                    );
-                                    if (selected != null) {
-                                      setState(() {
-                                        _draft = _draft.copyWith(
-                                          endDate: selected,
+                                        if (selected != null) {
+                                          setState(() {
+                                            _draft = _draft.copyWith(
+                                              startDate: selected,
+                                            );
+                                          });
+                                        }
+                                      },
+                                    ),
+                                  ),
+                                  const Padding(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                    ),
+                                    child: Text('-'),
+                                  ),
+                                  Expanded(
+                                    child: DateField(
+                                      label: _draft.endDate == null
+                                          ? l10n.homeFilterEndDate
+                                          : formatIsoDate(_draft.endDate!),
+                                      isPlaceholder: _draft.endDate == null,
+                                      onTap: () async {
+                                        final selected = await _pickDate(
+                                          _draft.endDate,
                                         );
-                                      });
-                                    }
-                                  },
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        FilterSection(
-                          title: l10n.homeFilterCost,
-                          child: Row(
-                            children: <Widget>[
-                              Expanded(
-                                child: CompactNumberField(
-                                  controller: _minPriceController,
-                                  hintText: l10n.homeFilterMinPrice,
-                                  onChanged: (_) => _syncPriceDraft(),
-                                ),
-                              ),
-                              const Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 12),
-                                child: Text('-'),
-                              ),
-                              Expanded(
-                                child: CompactNumberField(
-                                  controller: _maxPriceController,
-                                  hintText: l10n.homeFilterMaxPrice,
-                                  onChanged: (_) => _syncPriceDraft(),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        FilterSection(
-                          title: l10n.homeFilterStatus,
-                          child: Wrap(
-                            spacing: 8,
-                            runSpacing: 8,
-                            children: ActivityStatusOption.values.map((status) {
-                              return FilterChipButton(
-                                label: status.label,
-                                selected: _draft.statuses.contains(status),
-                                inverted: true,
-                                onTap: () {
-                                  final next = Set<ActivityStatusOption>.from(
-                                    _draft.statuses,
-                                  );
-                                  if (!next.add(status)) {
-                                    next.remove(status);
-                                  }
-                                  setState(() {
-                                    _draft = _draft.copyWith(statuses: next);
-                                  });
-                                },
-                              );
-                            }).toList(),
-                          ),
-                        ),
-                        if (_validationMessage != null) ...<Widget>[
-                          Text(
-                            _validationMessage!,
-                            style: Theme.of(context).textTheme.bodySmall
-                                ?.copyWith(color: AppColors.error),
-                          ),
-                          const SizedBox(height: 12),
-                        ],
-                        Row(
-                          children: <Widget>[
-                            TextButton(
-                              onPressed: _resetDraft,
-                              style: TextButton.styleFrom(
-                                foregroundColor: AppColors.textPrimary,
-                                minimumSize: const Size(0, 44),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
-                              child: Text(
-                                l10n.commonReset,
-                                style: TextStyle(
-                                  decoration: TextDecoration.underline,
-                                ),
+                                        if (selected != null) {
+                                          setState(() {
+                                            _draft = _draft.copyWith(
+                                              endDate: selected,
+                                            );
+                                          });
+                                        }
+                                      },
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                            const Spacer(),
-                            SizedBox(
-                              width: 148,
-                              height: 44,
-                              child: FilledButton(
-                                onPressed: _applyAndClose,
-                                style: FilledButton.styleFrom(
-                                  backgroundColor: AppColors.brandGreen,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
+                            FilterSection(
+                              title: l10n.homeFilterCost,
+                              child: Row(
+                                children: <Widget>[
+                                  Expanded(
+                                    child: CompactNumberField(
+                                      controller: _minPriceController,
+                                      hintText: l10n.homeFilterMinPrice,
+                                      onChanged: (_) => _syncPriceDraft(),
+                                    ),
+                                  ),
+                                  const Padding(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                    ),
+                                    child: Text('-'),
+                                  ),
+                                  Expanded(
+                                    child: CompactNumberField(
+                                      controller: _maxPriceController,
+                                      hintText: l10n.homeFilterMaxPrice,
+                                      onChanged: (_) => _syncPriceDraft(),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            FilterSection(
+                              title: l10n.homeFilterStatus,
+                              child: Wrap(
+                                spacing: 8,
+                                runSpacing: 8,
+                                children: ActivityStatusOption.values.map((
+                                  status,
+                                ) {
+                                  return FilterChipButton(
+                                    label: status.label,
+                                    selected: _draft.statuses.contains(status),
+                                    inverted: true,
+                                    onTap: () {
+                                      final next =
+                                          Set<ActivityStatusOption>.from(
+                                            _draft.statuses,
+                                          );
+                                      if (!next.add(status)) {
+                                        next.remove(status);
+                                      }
+                                      setState(() {
+                                        _draft = _draft.copyWith(
+                                          statuses: next,
+                                        );
+                                      });
+                                    },
+                                  );
+                                }).toList(),
+                              ),
+                            ),
+                            if (_validationMessage != null) ...<Widget>[
+                              Text(
+                                _validationMessage!,
+                                style: Theme.of(context).textTheme.bodySmall
+                                    ?.copyWith(color: AppColors.error),
+                              ),
+                              const SizedBox(height: 12),
+                            ],
+                            Row(
+                              children: <Widget>[
+                                TextButton(
+                                  onPressed: _resetDraft,
+                                  style: TextButton.styleFrom(
+                                    foregroundColor: AppColors.textPrimary,
+                                    minimumSize: const Size(0, 44),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    l10n.commonReset,
+                                    style: TextStyle(
+                                      decoration: TextDecoration.underline,
+                                    ),
                                   ),
                                 ),
-                                child: Text(l10n.commonApply),
-                              ),
+                                const Spacer(),
+                                SizedBox(
+                                  width: 148,
+                                  height: 44,
+                                  child: FilledButton(
+                                    onPressed: _applyAndClose,
+                                    style: FilledButton.styleFrom(
+                                      backgroundColor: AppColors.brandGreen,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                    ),
+                                    child: Text(l10n.commonApply),
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
-                      ],
+                      ),
                     ),
-                  ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
         ),

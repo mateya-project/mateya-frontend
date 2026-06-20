@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../shared/localization/mateya_localizations.dart';
+import '../../../../shared/theme/app_responsive.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../../shared/widgets/mateya_button.dart';
 import '../../../../shared/widgets/mateya_header.dart';
@@ -332,6 +333,7 @@ class MyPageWithdrawalDialog extends StatelessWidget {
     final errorText = controller.phase == MyPageAsyncPhase.validationError
         ? controller.errorMessage
         : null;
+    final compactActions = AppResponsive.isCompactWidth(context);
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 24, 20, 20),
@@ -405,41 +407,84 @@ class MyPageWithdrawalDialog extends StatelessWidget {
             ),
           ],
           const SizedBox(height: 20),
-          Row(
-            children: <Widget>[
-              Expanded(
-                child: OutlinedButton(
-                  onPressed: controller.isSubmittingWithdrawal ? null : onClose,
-                  style: OutlinedButton.styleFrom(
-                    minimumSize: const Size.fromHeight(54),
-                    side: const BorderSide(color: AppColors.divider),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(
-                        AppSpacing.primaryRadius,
+          if (compactActions)
+            Column(
+              children: <Widget>[
+                SizedBox(
+                  width: double.infinity,
+                  child: MateyaButton(
+                    label: controller.isSubmittingWithdrawal
+                        ? l10n.commonProcessing
+                        : l10n.mypageWithdrawalRequest,
+                    enabled: !controller.isSubmittingWithdrawal,
+                    tone: MateyaButtonTone.dark,
+                    onPressed: () {
+                      controller.submitWithdrawal(
+                        hasAgreed: withdrawalAgreement,
+                        signature: signatureController.text,
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton(
+                    onPressed: controller.isSubmittingWithdrawal
+                        ? null
+                        : onClose,
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size.fromHeight(54),
+                      side: const BorderSide(color: AppColors.divider),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                          AppSpacing.primaryRadius,
+                        ),
                       ),
                     ),
+                    child: Text(l10n.commonClose),
                   ),
-                  child: Text(l10n.commonClose),
                 ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: MateyaButton(
-                  label: controller.isSubmittingWithdrawal
-                      ? l10n.commonProcessing
-                      : l10n.mypageWithdrawalRequest,
-                  enabled: !controller.isSubmittingWithdrawal,
-                  tone: MateyaButtonTone.dark,
-                  onPressed: () {
-                    controller.submitWithdrawal(
-                      hasAgreed: withdrawalAgreement,
-                      signature: signatureController.text,
-                    );
-                  },
+              ],
+            )
+          else
+            Row(
+              children: <Widget>[
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: controller.isSubmittingWithdrawal
+                        ? null
+                        : onClose,
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size.fromHeight(54),
+                      side: const BorderSide(color: AppColors.divider),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                          AppSpacing.primaryRadius,
+                        ),
+                      ),
+                    ),
+                    child: Text(l10n.commonClose),
+                  ),
                 ),
-              ),
-            ],
-          ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: MateyaButton(
+                    label: controller.isSubmittingWithdrawal
+                        ? l10n.commonProcessing
+                        : l10n.mypageWithdrawalRequest,
+                    enabled: !controller.isSubmittingWithdrawal,
+                    tone: MateyaButtonTone.dark,
+                    onPressed: () {
+                      controller.submitWithdrawal(
+                        hasAgreed: withdrawalAgreement,
+                        signature: signatureController.text,
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
         ],
       ),
     );

@@ -5,6 +5,7 @@ import 'package:flutter_naver_map/flutter_naver_map.dart';
 
 import '../../../../shared/localization/mateya_localizations.dart';
 import '../../../../shared/logging/naver_map_diagnostics.dart';
+import '../../../../shared/theme/app_responsive.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../../shared/widgets/mateya_skeleton.dart';
 import '../../domain/onboarding_flow.dart';
@@ -70,12 +71,19 @@ class _NeighborhoodMapCardState extends State<NeighborhoodMapCard> {
         ? NLatLng(widget.selection!.latitude, widget.selection!.longitude)
         : const NLatLng(37.5666, 126.9790);
     final mapKey = ValueKey<String>(_selectionKey(widget.selection));
+    final mapHeight = AppResponsive.clampedHeight(
+      context,
+      ideal: 280,
+      min: 192,
+      max: 280,
+      regularScale: 1,
+    );
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(12),
       child: SizedBox(
         width: double.infinity,
-        height: 280,
+        height: mapHeight,
         child: Stack(
           fit: StackFit.expand,
           children: <Widget>[

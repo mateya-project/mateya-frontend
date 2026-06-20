@@ -52,6 +52,11 @@ void main() {
   testWidgets('location permission dialog content renders updated actions', (
     tester,
   ) async {
+    tester.view.physicalSize = const Size(320, 568);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
     var manualTapped = false;
     var currentLocationTapped = false;
 
@@ -82,8 +87,9 @@ void main() {
     );
     expect(
       tester.getSize(find.widgetWithText(ElevatedButton, '현재 위치로 인증하기')).height,
-      62,
+      greaterThanOrEqualTo(56),
     );
+    expect(tester.takeException(), isNull);
 
     await tester.tap(find.text('직접 입력하기'));
     await tester.pump();

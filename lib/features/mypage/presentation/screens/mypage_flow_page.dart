@@ -12,6 +12,7 @@ import '../../../../shared/media/mateya_gallery_picker.dart';
 import '../../../../shared/navigation/mateya_auth_flow.dart';
 import '../../../../shared/permissions/mateya_permission_dialogs.dart';
 import '../../../../shared/platform/external_url_launcher.dart';
+import '../../../../shared/theme/app_responsive.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../../shared/widgets/mateya_motion.dart';
 import '../../../../shared/widgets/mateya_text_field.dart';
@@ -387,21 +388,30 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppSpacing.primaryRadius),
           ),
-          child: AnimatedBuilder(
-            animation: widget.controller,
-            builder: (context, _) {
-              return MyPageWithdrawalDialog(
-                controller: widget.controller,
-                signatureController: _withdrawalSignatureController,
-                withdrawalAgreement: _withdrawalAgreement,
-                onAgreementChanged: (value) {
-                  setState(() {
-                    _withdrawalAgreement = value;
-                  });
+          child: ConstrainedBox(
+            constraints: AppResponsive.dialogConstraints(
+              context,
+              maxWidth: 440,
+              maxHeightFactor: 0.9,
+            ),
+            child: SingleChildScrollView(
+              child: AnimatedBuilder(
+                animation: widget.controller,
+                builder: (context, _) {
+                  return MyPageWithdrawalDialog(
+                    controller: widget.controller,
+                    signatureController: _withdrawalSignatureController,
+                    withdrawalAgreement: _withdrawalAgreement,
+                    onAgreementChanged: (value) {
+                      setState(() {
+                        _withdrawalAgreement = value;
+                      });
+                    },
+                    onClose: () => Navigator.of(dialogContext).pop(),
+                  );
                 },
-                onClose: () => Navigator.of(dialogContext).pop(),
-              );
-            },
+              ),
+            ),
           ),
         );
       },
@@ -604,101 +614,107 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(AppSpacing.primaryRadius),
                 ),
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[
-                      Row(
-                        children: <Widget>[
-                          Expanded(
+                child: ConstrainedBox(
+                  constraints: AppResponsive.dialogConstraints(
+                    context,
+                    maxWidth: 520,
+                    maxHeightFactor: 0.9,
+                  ),
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        Row(
+                          children: <Widget>[
+                            Expanded(
+                              child: Text(
+                                l10n.mypageEditActivityRegion,
+                                style: Theme.of(context).textTheme.titleLarge,
+                              ),
+                            ),
+                            IconButton(
+                              onPressed: isBusy
+                                  ? null
+                                  : () => Navigator.of(dialogContext).pop(),
+                              icon: const Icon(Icons.close_rounded),
+                            ),
+                          ],
+                        ),
+                        Text(
+                          l10n.mypageActivityRegionDialogDescription,
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(color: AppColors.textSecondary),
+                        ),
+                        const SizedBox(height: 16),
+                        NeighborhoodMapCard(
+                          selection: selectedNeighborhood,
+                          isLoading: isResolvingCurrent || isResolvingManual,
+                        ),
+                        const SizedBox(height: 16),
+                        OutlinedButton.icon(
+                          onPressed: isBusy ? null : resolveCurrent,
+                          icon: const Icon(Icons.my_location_rounded),
+                          label: Text(
+                            isResolvingCurrent
+                                ? l10n.mypageResolvingCurrentLocation
+                                : l10n.onboardingUseCurrentLocation,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        MateyaTextField(
+                          controller: manualController,
+                          hintText: l10n.onboardingNeighborhoodHint,
+                          onSubmitted: (_) => resolveManual(),
+                        ),
+                        const SizedBox(height: 8),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: TextButton(
+                            onPressed: isBusy ? null : resolveManual,
                             child: Text(
-                              l10n.mypageEditActivityRegion,
-                              style: Theme.of(context).textTheme.titleLarge,
+                              isResolvingManual
+                                  ? l10n.mypageResolvingNeighborhood
+                                  : l10n.mypageConfirmManualNeighborhood,
                             ),
                           ),
-                          IconButton(
-                            onPressed: isBusy
-                                ? null
-                                : () => Navigator.of(dialogContext).pop(),
-                            icon: const Icon(Icons.close_rounded),
+                        ),
+                        if (selectedNeighborhood != null) ...<Widget>[
+                          const SizedBox(height: 8),
+                          Text(
+                            l10n.mypageSelectedActivityRegion(
+                              selectedNeighborhood!.displayName,
+                            ),
+                            style: Theme.of(context).textTheme.bodyMedium
+                                ?.copyWith(
+                                  color: AppColors.brandGreen,
+                                  fontWeight: FontWeight.w600,
+                                ),
                           ),
                         ],
-                      ),
-                      Text(
-                        l10n.mypageActivityRegionDialogDescription,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      NeighborhoodMapCard(
-                        selection: selectedNeighborhood,
-                        isLoading: isResolvingCurrent || isResolvingManual,
-                      ),
-                      const SizedBox(height: 16),
-                      OutlinedButton.icon(
-                        onPressed: isBusy ? null : resolveCurrent,
-                        icon: const Icon(Icons.my_location_rounded),
-                        label: Text(
-                          isResolvingCurrent
-                              ? l10n.mypageResolvingCurrentLocation
-                              : l10n.onboardingUseCurrentLocation,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      MateyaTextField(
-                        controller: manualController,
-                        hintText: l10n.onboardingNeighborhoodHint,
-                        onSubmitted: (_) => resolveManual(),
-                      ),
-                      const SizedBox(height: 8),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: TextButton(
-                          onPressed: isBusy ? null : resolveManual,
-                          child: Text(
-                            isResolvingManual
-                                ? l10n.mypageResolvingNeighborhood
-                                : l10n.mypageConfirmManualNeighborhood,
+                        if (errorText.isNotEmpty) ...<Widget>[
+                          const SizedBox(height: 12),
+                          Text(
+                            errorText,
+                            style: Theme.of(context).textTheme.bodyMedium
+                                ?.copyWith(color: AppColors.error),
                           ),
-                        ),
-                      ),
-                      if (selectedNeighborhood != null) ...<Widget>[
-                        const SizedBox(height: 8),
-                        Text(
-                          l10n.mypageSelectedActivityRegion(
-                            selectedNeighborhood!.displayName,
+                        ],
+                        const SizedBox(height: 20),
+                        SizedBox(
+                          width: double.infinity,
+                          child: FilledButton(
+                            onPressed: isBusy ? null : submit,
+                            child: Text(
+                              widget.controller.isUpdatingActivityRegion
+                                  ? l10n.mypageSaving
+                                  : l10n.mypageSaveActivityRegion,
+                            ),
                           ),
-                          style: Theme.of(context).textTheme.bodyMedium
-                              ?.copyWith(
-                                color: AppColors.brandGreen,
-                                fontWeight: FontWeight.w600,
-                              ),
                         ),
                       ],
-                      if (errorText.isNotEmpty) ...<Widget>[
-                        const SizedBox(height: 12),
-                        Text(
-                          errorText,
-                          style: Theme.of(context).textTheme.bodyMedium
-                              ?.copyWith(color: AppColors.error),
-                        ),
-                      ],
-                      const SizedBox(height: 20),
-                      SizedBox(
-                        width: double.infinity,
-                        child: FilledButton(
-                          onPressed: isBusy ? null : submit,
-                          child: Text(
-                            widget.controller.isUpdatingActivityRegion
-                                ? l10n.mypageSaving
-                                : l10n.mypageSaveActivityRegion,
-                          ),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
               );

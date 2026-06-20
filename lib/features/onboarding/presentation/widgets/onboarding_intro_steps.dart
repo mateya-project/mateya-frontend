@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../shared/localization/mateya_localizations.dart';
+import '../../../../shared/theme/app_responsive.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../../shared/widgets/mateya_button.dart';
 import '../../../../shared/widgets/mateya_interaction.dart';
@@ -26,64 +27,82 @@ class WelcomeStepView extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final theme = Theme.of(context);
+    final horizontalPadding = AppResponsive.horizontalPadding(context);
 
     return Column(
       children: <Widget>[
         const MateyaHeader.noBackArrow(),
         Expanded(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.screenHorizontal,
-            ),
-            child: Column(
-              children: <Widget>[
-                const Spacer(flex: 2),
-                TweenAnimationBuilder<double>(
-                  tween: Tween<double>(begin: 0, end: 1),
-                  duration: const Duration(milliseconds: 700),
-                  curve: Curves.easeOut,
-                  builder: (context, value, child) {
-                    return Opacity(
-                      opacity: value,
-                      child: Transform.translate(
-                        offset: Offset(0, 16 * (1 - value)),
-                        child: child,
-                      ),
-                    );
-                  },
-                  child: const MateyaBrandLockup(),
-                ),
-                const Spacer(flex: 3),
-                MateyaButton(
-                  label: l10n.onboardingStart,
-                  onPressed: onGuestTap,
-                ),
-                const SizedBox(height: 15),
-                MateyaPressable(
-                  onTap: onHostTap,
-                  borderRadius: BorderRadius.circular(10),
-                  splashColor: Colors.transparent,
-                  highlightColor: Colors.transparent,
-                  child: Padding(
-                    padding: const EdgeInsets.only(bottom: 24),
-                    child: Text.rich(
-                      TextSpan(
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          fontSize: 12,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return SingleChildScrollView(
+                padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                  child: IntrinsicHeight(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        const SizedBox(height: 24),
+                        TweenAnimationBuilder<double>(
+                          tween: Tween<double>(begin: 0, end: 1),
+                          duration: const Duration(milliseconds: 700),
+                          curve: Curves.easeOut,
+                          builder: (context, value, child) {
+                            return Opacity(
+                              opacity: value,
+                              child: Transform.translate(
+                                offset: Offset(0, 16 * (1 - value)),
+                                child: child,
+                              ),
+                            );
+                          },
+                          child: const MateyaBrandLockup(),
                         ),
-                        children: <InlineSpan>[
-                          TextSpan(text: l10n.onboardingBusinessPrompt),
-                          TextSpan(
-                            text: l10n.onboardingStartAsHost,
-                            style: TextStyle(color: AppColors.brandGreen),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 32, bottom: 24),
+                          child: Column(
+                            children: <Widget>[
+                              MateyaButton(
+                                label: l10n.onboardingStart,
+                                onPressed: onGuestTap,
+                              ),
+                              const SizedBox(height: 15),
+                              MateyaPressable(
+                                onTap: onHostTap,
+                                borderRadius: BorderRadius.circular(10),
+                                splashColor: Colors.transparent,
+                                highlightColor: Colors.transparent,
+                                child: Text.rich(
+                                  TextSpan(
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      fontSize: 12,
+                                    ),
+                                    children: <InlineSpan>[
+                                      TextSpan(
+                                        text: l10n.onboardingBusinessPrompt,
+                                      ),
+                                      const TextSpan(text: ' '),
+                                      TextSpan(
+                                        text: l10n.onboardingStartAsHost,
+                                        style: const TextStyle(
+                                          color: AppColors.brandGreen,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
-              ],
-            ),
+              );
+            },
           ),
         ),
       ],
@@ -124,6 +143,11 @@ class ConsentOverlayStepView extends StatelessWidget {
     final l10n = context.l10n;
     final theme = Theme.of(context);
     final requiredDocuments = kRequiredOnboardingTermsDocuments;
+    final sheetConstraints = AppResponsive.dialogConstraints(
+      context,
+      maxWidth: 560,
+      maxHeightFactor: 0.84,
+    );
 
     return Stack(
       children: <Widget>[
@@ -132,8 +156,8 @@ class ConsentOverlayStepView extends StatelessWidget {
             MateyaHeader.backArrow(onBack: onBack),
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.screenHorizontal,
+                padding: EdgeInsets.symmetric(
+                  horizontal: AppResponsive.horizontalPadding(context),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -151,81 +175,88 @@ class ConsentOverlayStepView extends StatelessWidget {
         Positioned.fill(child: Container(color: AppColors.overlay)),
         Align(
           alignment: Alignment.bottomCenter,
-          child: Container(
-            width: double.infinity,
-            padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
-            ),
-            child: SafeArea(
-              top: false,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text(
-                    l10n.onboardingConsentTitle,
-                    style: theme.textTheme.headlineMedium,
+          child: ConstrainedBox(
+            constraints: sheetConstraints,
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
+              ),
+              child: SafeArea(
+                top: false,
+                child: SingleChildScrollView(
+                  keyboardDismissBehavior:
+                      ScrollViewKeyboardDismissBehavior.onDrag,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        l10n.onboardingConsentTitle,
+                        style: theme.textTheme.headlineMedium,
+                      ),
+                      const SizedBox(height: 34),
+                      AgreementRow(
+                        label: l10n.onboardingAgreeAll,
+                        selected: agreementState.isAllChecked,
+                        emphasized: true,
+                        helperText: l10n.onboardingAgreeAllHelper,
+                        onChanged: onToggleAll,
+                      ),
+                      const SizedBox(height: 28),
+                      for (
+                        int index = 0;
+                        index < requiredDocuments.length;
+                        index++
+                      ) ...<Widget>[
+                        Builder(
+                          builder: (context) {
+                            final document = requiredDocuments[index];
+                            return Padding(
+                              padding: const EdgeInsets.only(left: 16),
+                              child: AgreementRow(
+                                label: l10n.onboardingRequiredAgreementLabel(
+                                  document.title,
+                                ),
+                                selected: _isAgreementSelected(
+                                  agreementState,
+                                  document.type,
+                                ),
+                                onChanged: (value) => _toggleAgreementByType(
+                                  document.type,
+                                  value,
+                                  onToggleService: onToggleService,
+                                  onTogglePrivacy: onTogglePrivacy,
+                                  onToggleLocation: onToggleLocation,
+                                  onToggleAge: onToggleAge,
+                                ),
+                                onDetailTap: () =>
+                                    _openTermsDetail(context, document),
+                                checkboxKey: ValueKey<String>(
+                                  'agreement-checkbox-${document.type.apiType}',
+                                ),
+                                detailKey: ValueKey<String>(
+                                  'agreement-detail-${document.type.apiType}',
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                        if (index != requiredDocuments.length - 1)
+                          const SizedBox(height: 32),
+                      ],
+                      const SizedBox(height: 40),
+                      MateyaButton(
+                        label: l10n.commonNext,
+                        tone: MateyaButtonTone.dark,
+                        enabled: canProceed,
+                        onPressed: onNext,
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 34),
-                  AgreementRow(
-                    label: l10n.onboardingAgreeAll,
-                    selected: agreementState.isAllChecked,
-                    emphasized: true,
-                    helperText: l10n.onboardingAgreeAllHelper,
-                    onChanged: onToggleAll,
-                  ),
-                  const SizedBox(height: 28),
-                  for (
-                    int index = 0;
-                    index < requiredDocuments.length;
-                    index++
-                  ) ...<Widget>[
-                    Builder(
-                      builder: (context) {
-                        final document = requiredDocuments[index];
-                        return Padding(
-                          padding: const EdgeInsets.only(left: 16),
-                          child: AgreementRow(
-                            label: l10n.onboardingRequiredAgreementLabel(
-                              document.title,
-                            ),
-                            selected: _isAgreementSelected(
-                              agreementState,
-                              document.type,
-                            ),
-                            onChanged: (value) => _toggleAgreementByType(
-                              document.type,
-                              value,
-                              onToggleService: onToggleService,
-                              onTogglePrivacy: onTogglePrivacy,
-                              onToggleLocation: onToggleLocation,
-                              onToggleAge: onToggleAge,
-                            ),
-                            onDetailTap: () =>
-                                _openTermsDetail(context, document),
-                            checkboxKey: ValueKey<String>(
-                              'agreement-checkbox-${document.type.apiType}',
-                            ),
-                            detailKey: ValueKey<String>(
-                              'agreement-detail-${document.type.apiType}',
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                    if (index != requiredDocuments.length - 1)
-                      const SizedBox(height: 32),
-                  ],
-                  const SizedBox(height: 40),
-                  MateyaButton(
-                    label: l10n.commonNext,
-                    tone: MateyaButtonTone.dark,
-                    enabled: canProceed,
-                    onPressed: onNext,
-                  ),
-                ],
+                ),
               ),
             ),
           ),
@@ -283,7 +314,11 @@ Future<void> _openTermsDetail(
         backgroundColor: Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxHeight: 640),
+          constraints: AppResponsive.dialogConstraints(
+            context,
+            maxWidth: 520,
+            maxHeightFactor: 0.92,
+          ),
           child: Column(
             children: <Widget>[
               Align(
@@ -341,6 +376,8 @@ class _NameStepViewState extends State<NameStepView> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final theme = Theme.of(context);
+    final horizontalPadding = AppResponsive.horizontalPadding(context);
+    final bottomPadding = AppResponsive.keyboardAwareBottomPadding(context);
 
     _textController.value = _textController.value.copyWith(
       text: widget.controller.name,
@@ -351,10 +388,9 @@ class _NameStepViewState extends State<NameStepView> {
       children: <Widget>[
         MateyaHeader.backArrow(onBack: widget.controller.goBack),
         Expanded(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.screenHorizontal,
-            ),
+          child: SingleChildScrollView(
+            padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
@@ -372,15 +408,12 @@ class _NameStepViewState extends State<NameStepView> {
                   onSubmitted: (_) => widget.controller.submitName(),
                   errorText: widget.controller.errorFor('name'),
                 ),
-                const Spacer(),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 20),
-                  child: MateyaButton(
-                    label: l10n.commonNext,
-                    tone: MateyaButtonTone.dark,
-                    enabled: widget.controller.canContinueName,
-                    onPressed: widget.controller.submitName,
-                  ),
+                SizedBox(height: bottomPadding),
+                MateyaButton(
+                  label: l10n.commonNext,
+                  tone: MateyaButtonTone.dark,
+                  enabled: widget.controller.canContinueName,
+                  onPressed: widget.controller.submitName,
                 ),
               ],
             ),

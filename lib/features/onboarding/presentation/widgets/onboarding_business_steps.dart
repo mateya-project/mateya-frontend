@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../../../shared/localization/mateya_localizations.dart';
+import '../../../../shared/theme/app_responsive.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../../shared/widgets/mateya_button.dart';
 import '../../../../shared/widgets/mateya_header.dart';
@@ -81,6 +82,8 @@ class _HostBusinessStepViewState extends State<HostBusinessStepView> {
     final controller = widget.controller;
     final l10n = context.l10n;
     final theme = Theme.of(context);
+    final horizontalPadding = AppResponsive.horizontalPadding(context);
+    final bottomPadding = AppResponsive.keyboardAwareBottomPadding(context);
 
     _businessNameController.text = controller.businessName;
     _businessNameController.selection = TextSelection.collapsed(
@@ -112,7 +115,8 @@ class _HostBusinessStepViewState extends State<HostBusinessStepView> {
         MateyaHeader.backArrow(onBack: controller.goBack),
         Expanded(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 22),
+            padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
@@ -258,17 +262,15 @@ class _HostBusinessStepViewState extends State<HostBusinessStepView> {
                   ],
                   onChanged: controller.updateBusinessOpeningDate,
                 ),
-                const SizedBox(height: 140),
+                SizedBox(height: bottomPadding),
+                MateyaButton(
+                  label: l10n.onboardingCompleteBusinessVerification,
+                  enabled: controller.canCompleteBusiness,
+                  onPressed: controller.submitBusinessVerification,
+                ),
+                const SizedBox(height: 12),
               ],
             ),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(19, 0, 19, 28),
-          child: MateyaButton(
-            label: l10n.onboardingCompleteBusinessVerification,
-            enabled: controller.canCompleteBusiness,
-            onPressed: controller.submitBusinessVerification,
           ),
         ),
       ],
@@ -286,61 +288,77 @@ class CompletedStepView extends StatelessWidget {
     final l10n = context.l10n;
     final theme = Theme.of(context);
     final isReturning = controller.completionMode == AuthCompletionMode.login;
+    final horizontalPadding = AppResponsive.horizontalPadding(context);
 
     return Column(
       children: <Widget>[
         MateyaHeader.backArrow(onBack: controller.goBack),
         Expanded(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: Column(
-              children: <Widget>[
-                const Spacer(flex: 3),
-                if (isReturning) ...<Widget>[
-                  Text(
-                    l10n.onboardingWelcomeBack,
-                    textAlign: TextAlign.center,
-                    style: theme.textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w600,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return SingleChildScrollView(
+                padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                  child: IntrinsicHeight(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        const SizedBox(height: 24),
+                        Column(
+                          children: <Widget>[
+                            if (isReturning) ...<Widget>[
+                              Text(
+                                l10n.onboardingWelcomeBack,
+                                textAlign: TextAlign.center,
+                                style: theme.textTheme.titleLarge?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                            ],
+                            Container(
+                              width: 70,
+                              height: 70,
+                              decoration: const BoxDecoration(
+                                color: AppColors.brandGreen,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.check_rounded,
+                                color: Colors.white,
+                                size: 42,
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+                            Text(
+                              isReturning
+                                  ? l10n.onboardingReturnCompleted(
+                                      controller.completedName,
+                                    )
+                                  : controller.completionHeadline,
+                              textAlign: TextAlign.center,
+                              style: theme.textTheme.titleLarge?.copyWith(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w500,
+                                height: 1.38,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 32, bottom: 28),
+                          child: MateyaButton(
+                            label: l10n.onboardingLaunchApp,
+                            onPressed: controller.openHomePlaceholder,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 20),
-                ],
-                Container(
-                  width: 70,
-                  height: 70,
-                  decoration: const BoxDecoration(
-                    color: AppColors.brandGreen,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.check_rounded,
-                    color: Colors.white,
-                    size: 42,
-                  ),
                 ),
-                const SizedBox(height: 24),
-                Text(
-                  isReturning
-                      ? l10n.onboardingReturnCompleted(controller.completedName)
-                      : controller.completionHeadline,
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.titleLarge?.copyWith(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w500,
-                    height: 1.38,
-                  ),
-                ),
-                const Spacer(flex: 4),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 28),
-                  child: MateyaButton(
-                    label: l10n.onboardingLaunchApp,
-                    onPressed: controller.openHomePlaceholder,
-                  ),
-                ),
-              ],
-            ),
+              );
+            },
           ),
         ),
       ],

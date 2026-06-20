@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 
 import '../localization/mateya_localizations.dart';
 import '../media/mateya_gallery_picker.dart';
+import '../theme/app_responsive.dart';
 import '../theme/app_tokens.dart';
 import 'mateya_button.dart';
 
@@ -85,7 +86,11 @@ class _MateyaReportSheetState extends State<MateyaReportSheet> {
   void initState() {
     super.initState();
     _focusNode.addListener(_handleFocusChanged);
-    _restoreLostImages();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _restoreLostImages();
+      }
+    });
   }
 
   @override
@@ -203,124 +208,148 @@ class _MateyaReportSheetState extends State<MateyaReportSheet> {
     final l10n = context.l10n;
     final viewInsets = MediaQuery.of(context).viewInsets;
     final textLength = _bodyController.text.length;
+    final sheetConstraints = AppResponsive.dialogConstraints(
+      context,
+      maxWidth: 560,
+      maxHeightFactor: 0.92,
+    );
 
     return Container(
       color: AppColors.overlay,
       child: Align(
         alignment: Alignment.bottomCenter,
-        child: Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-          ),
-          child: SafeArea(
-            top: false,
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(20, 16, 20, 20 + viewInsets.bottom),
+        child: ConstrainedBox(
+          constraints: sheetConstraints,
+          child: Container(
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+            ),
+            child: SafeArea(
+              top: false,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  Row(
-                    children: <Widget>[
-                      IconButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        icon: const Icon(Icons.close_rounded),
-                      ),
-                      Expanded(
-                        child: Text(
-                          l10n.reportTitle,
-                          textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.titleLarge,
-                        ),
-                      ),
-                      const SizedBox(width: 48),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: AppColors.subtleBackground,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: _focusNode.hasFocus
-                            ? AppColors.textPrimary
-                            : AppColors.fieldBorderLight,
-                      ),
-                    ),
-                    padding: const EdgeInsets.fromLTRB(14, 12, 14, 10),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+                    child: Row(
                       children: <Widget>[
-                        TextField(
-                          controller: _bodyController,
-                          focusNode: _focusNode,
-                          maxLines: 5,
-                          maxLength: 500,
-                          decoration: InputDecoration(
-                            counterText: '',
-                            border: InputBorder.none,
-                            hintText: l10n.reportBodyHint,
+                        IconButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          icon: const Icon(Icons.close_rounded),
+                        ),
+                        Expanded(
+                          child: Text(
+                            l10n.reportTitle,
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context).textTheme.titleLarge,
                           ),
-                          style: Theme.of(context).textTheme.bodyLarge,
-                          onChanged: (_) => setState(() {}),
                         ),
-                        Text(
-                          l10n.reportBodyCount(textLength, 500),
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
+                        const SizedBox(width: 48),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 18),
-                  Text(
-                    l10n.reportImageSectionTitle(_maxImageCount),
-                    style: Theme.of(
-                      context,
-                    ).textTheme.titleLarge?.copyWith(fontSize: 17),
-                  ),
-                  const SizedBox(height: 12),
-                  SizedBox(
-                    height: 92,
-                    child: ListView.separated(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: _maxImageCount,
-                      separatorBuilder: (_, _) => const SizedBox(width: 10),
-                      itemBuilder: (context, index) {
-                        if (index < _images.length) {
-                          return _ReportImageTile(
-                            image: _images[index],
-                            onRemove: () =>
-                                setState(() => _images.removeAt(index)),
-                          );
-                        }
-                        if (index == _images.length &&
-                            _images.length < _maxImageCount) {
-                          return _ReportPickerTile(
-                            countLabel: '${_images.length}/$_maxImageCount',
-                            onTap: _pickImages,
-                          );
-                        }
-                        return const _ReportEmptyTile();
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  MateyaButton(
-                    label: _isSubmitting
-                        ? l10n.reportSubmitting
-                        : l10n.reportTitle,
-                    enabled: _canSubmit && !_isSubmitting,
-                    onPressed: _submit,
-                  ),
-                  const SizedBox(height: 14),
-                  Center(
-                    child: Text(
-                      l10n.reportReviewNotice,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppColors.textSecondary,
+                  Flexible(
+                    child: SingleChildScrollView(
+                      padding: EdgeInsets.fromLTRB(
+                        20,
+                        12,
+                        20,
+                        20 + viewInsets.bottom,
                       ),
-                      textAlign: TextAlign.center,
+                      keyboardDismissBehavior:
+                          ScrollViewKeyboardDismissBehavior.onDrag,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Container(
+                            decoration: BoxDecoration(
+                              color: AppColors.subtleBackground,
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: _focusNode.hasFocus
+                                    ? AppColors.textPrimary
+                                    : AppColors.fieldBorderLight,
+                              ),
+                            ),
+                            padding: const EdgeInsets.fromLTRB(14, 12, 14, 10),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: <Widget>[
+                                TextField(
+                                  controller: _bodyController,
+                                  focusNode: _focusNode,
+                                  maxLines: 5,
+                                  maxLength: 500,
+                                  decoration: InputDecoration(
+                                    counterText: '',
+                                    border: InputBorder.none,
+                                    hintText: l10n.reportBodyHint,
+                                  ),
+                                  style: Theme.of(context).textTheme.bodyLarge,
+                                  onChanged: (_) => setState(() {}),
+                                ),
+                                Text(
+                                  l10n.reportBodyCount(textLength, 500),
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 18),
+                          Text(
+                            l10n.reportImageSectionTitle(_maxImageCount),
+                            style: Theme.of(
+                              context,
+                            ).textTheme.titleLarge?.copyWith(fontSize: 17),
+                          ),
+                          const SizedBox(height: 12),
+                          SizedBox(
+                            height: 92,
+                            child: ListView.separated(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: _maxImageCount,
+                              separatorBuilder: (_, _) =>
+                                  const SizedBox(width: 10),
+                              itemBuilder: (context, index) {
+                                if (index < _images.length) {
+                                  return _ReportImageTile(
+                                    image: _images[index],
+                                    onRemove: () =>
+                                        setState(() => _images.removeAt(index)),
+                                  );
+                                }
+                                if (index == _images.length &&
+                                    _images.length < _maxImageCount) {
+                                  return _ReportPickerTile(
+                                    countLabel:
+                                        '${_images.length}/$_maxImageCount',
+                                    onTap: _pickImages,
+                                  );
+                                }
+                                return const _ReportEmptyTile();
+                              },
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          MateyaButton(
+                            label: _isSubmitting
+                                ? l10n.reportSubmitting
+                                : l10n.reportTitle,
+                            enabled: _canSubmit && !_isSubmitting,
+                            onPressed: _submit,
+                          ),
+                          const SizedBox(height: 14),
+                          Center(
+                            child: Text(
+                              l10n.reportReviewNotice,
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(color: AppColors.textSecondary),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ],
