@@ -78,6 +78,49 @@ void main() {
       },
     );
 
+    test('updateReview replaces existing review and updates summary', () async {
+      final controller = ActivityDetailController(
+        repository: _FakeActivityDetailRepository.success(),
+        activity: _seedActivity(),
+      );
+
+      await controller.initialize();
+
+      final message = await controller.updateReview(
+        reviewId: 'review-1',
+        rating: 2,
+        body: '수정한 후기입니다.',
+        imageUrls: const <String>['/tmp/updated-review.jpg'],
+      );
+
+      expect(message, isNull);
+      final updated = controller.visibleReviews.firstWhere(
+        (review) => review.id == 'review-1',
+      );
+      expect(updated.rating, 2);
+      expect(updated.originalText, '수정한 후기입니다.');
+      expect(updated.imageUrls, contains('/tmp/updated-review.jpg'));
+      expect(controller.reviewSummary.totalCount, 9);
+    });
+
+    test('deleteReview removes existing review and updates summary', () async {
+      final controller = ActivityDetailController(
+        repository: _FakeActivityDetailRepository.success(),
+        activity: _seedActivity(),
+      );
+
+      await controller.initialize();
+
+      final message = await controller.deleteReview('review-1');
+
+      expect(message, isNull);
+      expect(
+        controller.visibleReviews.where((review) => review.id == 'review-1'),
+        isEmpty,
+      );
+      expect(controller.reviewSummary.totalCount, 8);
+    });
+
     test('maps repository failure to network error phase', () async {
       final controller = ActivityDetailController(
         repository: _FakeActivityDetailRepository.failure(
@@ -265,6 +308,26 @@ class _FakeActivityDetailRepository implements ActivityDetailRepository {
       imageUrls: imageUrls,
     );
   }
+
+  @override
+  Future<ActivityReview> updateReview({
+    required String reviewId,
+    required int rating,
+    required String body,
+    List<String> imageUrls = const <String>[],
+  }) async {
+    return ActivityReview(
+      id: reviewId,
+      authorName: '작성자1',
+      submittedAt: DateTime(2026, 6, 14),
+      rating: rating,
+      originalText: body,
+      imageUrls: imageUrls,
+    );
+  }
+
+  @override
+  Future<void> deleteReview({required String reviewId}) async {}
 }
 
 ActivityItem _seedActivity() {

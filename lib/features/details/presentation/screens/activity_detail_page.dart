@@ -155,6 +155,80 @@ class _ActivityDetailPageState extends State<ActivityDetailPage>
     await _refreshDetail();
   }
 
+  Future<void> _openReviewComposer([ActivityReview? review]) async {
+    final isEditing = review != null;
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => ReviewComposerSheet(
+        initialRating: review?.rating ?? 0,
+        initialBody: review?.originalText ?? '',
+        initialImageUrls: review?.imageUrls ?? const <String>[],
+        title: isEditing
+            ? context.l10n.detailsReviewEditTitle
+            : context.l10n.detailsReviewComposerTitle,
+        submitLabel: isEditing
+            ? context.l10n.detailsReviewEditSubmit
+            : context.l10n.detailsReviewSubmit,
+        submittingLabel: isEditing
+            ? context.l10n.detailsReviewUpdating
+            : context.l10n.detailsReviewSubmitting,
+        successMessage: isEditing
+            ? context.l10n.detailsReviewUpdated
+            : context.l10n.detailsReviewSubmitted,
+        onSubmit: (rating, body, imageUrls) => isEditing
+            ? widget.controller.updateReview(
+                reviewId: review.id,
+                rating: rating,
+                body: body,
+                imageUrls: imageUrls,
+              )
+            : widget.controller.submitReview(
+                rating: rating,
+                body: body,
+                imageUrls: imageUrls,
+              ),
+      ),
+    );
+  }
+
+  Future<void> _handleEditReview(ActivityReview review) {
+    return _openReviewComposer(review);
+  }
+
+  Future<void> _handleDeleteReview(ActivityReview review) async {
+    final l10n = context.l10n;
+    final shouldDelete = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.detailsReviewDeleteDialogTitle),
+        content: Text(l10n.detailsReviewDeleteDialogBody),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(l10n.commonCancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: TextButton.styleFrom(foregroundColor: AppColors.error),
+            child: Text(l10n.commonDelete),
+          ),
+        ],
+      ),
+    );
+    if (shouldDelete != true || !mounted) {
+      return;
+    }
+    final message = await widget.controller.deleteReview(review.id);
+    if (!mounted) {
+      return;
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message ?? l10n.detailsReviewDeleted)),
+    );
+  }
+
   Future<void> _refreshDetail() async {
     await widget.controller.retry();
   }
@@ -222,6 +296,8 @@ class _ActivityDetailPageState extends State<ActivityDetailPage>
                                             _openParticipantRequests,
                                         onHelpfulTap: _handleHelpfulTap,
                                         onOpenOtherProfile: _openProfile,
+                                        onEditReview: _handleEditReview,
+                                        onDeleteReview: _handleDeleteReview,
                                       ),
                                     ),
                                   ],
@@ -702,16 +778,43 @@ class _ActivityReviewListPageState extends State<ActivityReviewListPage> {
   }
 
   Future<void> _openReviewComposer() async {
+    await _openReviewComposerFor(null);
+  }
+
+  Future<void> _openReviewComposerFor(ActivityReview? review) async {
+    final isEditing = review != null;
     await showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => ReviewComposerSheet(
-        onSubmit: (rating, body, imageUrls) => widget.controller.submitReview(
-          rating: rating,
-          body: body,
-          imageUrls: imageUrls,
-        ),
+        initialRating: review?.rating ?? 0,
+        initialBody: review?.originalText ?? '',
+        initialImageUrls: review?.imageUrls ?? const <String>[],
+        title: isEditing
+            ? context.l10n.detailsReviewEditTitle
+            : context.l10n.detailsReviewComposerTitle,
+        submitLabel: isEditing
+            ? context.l10n.detailsReviewEditSubmit
+            : context.l10n.detailsReviewSubmit,
+        submittingLabel: isEditing
+            ? context.l10n.detailsReviewUpdating
+            : context.l10n.detailsReviewSubmitting,
+        successMessage: isEditing
+            ? context.l10n.detailsReviewUpdated
+            : context.l10n.detailsReviewSubmitted,
+        onSubmit: (rating, body, imageUrls) => isEditing
+            ? widget.controller.updateReview(
+                reviewId: review.id,
+                rating: rating,
+                body: body,
+                imageUrls: imageUrls,
+              )
+            : widget.controller.submitReview(
+                rating: rating,
+                body: body,
+                imageUrls: imageUrls,
+              ),
       ),
     );
   }
@@ -736,6 +839,38 @@ class _ActivityReviewListPageState extends State<ActivityReviewListPage> {
       return;
     }
     await widget.controller.retry();
+  }
+
+  Future<void> _handleDeleteReview(ActivityReview review) async {
+    final l10n = context.l10n;
+    final shouldDelete = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.detailsReviewDeleteDialogTitle),
+        content: Text(l10n.detailsReviewDeleteDialogBody),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(l10n.commonCancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: TextButton.styleFrom(foregroundColor: AppColors.error),
+            child: Text(l10n.commonDelete),
+          ),
+        ],
+      ),
+    );
+    if (shouldDelete != true || !mounted) {
+      return;
+    }
+    final message = await widget.controller.deleteReview(review.id);
+    if (!mounted) {
+      return;
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message ?? l10n.detailsReviewDeleted)),
+    );
   }
 
   @override
@@ -845,6 +980,22 @@ class _ActivityReviewListPageState extends State<ActivityReviewListPage> {
                                     widget.controller.toggleTranslation(
                                       reviews[index].id,
                                     ),
+                                  );
+                                }
+                              : null,
+                          onEditTap:
+                              widget.controller.canManageReview(reviews[index])
+                              ? () {
+                                  unawaited(
+                                    _openReviewComposerFor(reviews[index]),
+                                  );
+                                }
+                              : null,
+                          onDeleteTap:
+                              widget.controller.canManageReview(reviews[index])
+                              ? () {
+                                  unawaited(
+                                    _handleDeleteReview(reviews[index]),
                                   );
                                 }
                               : null,

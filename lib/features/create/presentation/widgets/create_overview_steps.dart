@@ -116,25 +116,32 @@ class CategoryStepView extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 24),
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            crossAxisSpacing: 16,
-            mainAxisSpacing: 16,
-            childAspectRatio: 0.96,
-          ),
-          itemCount: controller.availableCategories.length,
-          itemBuilder: (context, index) {
-            final category = controller.availableCategories[index];
-            final cardContent = _categoryCardContentFor(category);
-            return _CategorySelectionCard(
-              title: cardContent.title,
-              description: cardContent.description,
-              icon: cardContent.icon,
-              selected: controller.selectedCategoryIds.contains(category.id),
-              onTap: () => controller.toggleCategory(category.id),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final compactWidth = constraints.maxWidth < 420;
+            return GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
+                mainAxisExtent: compactWidth ? 232 : 216,
+              ),
+              itemCount: controller.availableCategories.length,
+              itemBuilder: (context, index) {
+                final category = controller.availableCategories[index];
+                final cardContent = _categoryCardContentFor(category);
+                return _CategorySelectionCard(
+                  title: cardContent.title,
+                  description: cardContent.description,
+                  icon: cardContent.icon,
+                  selected: controller.selectedCategoryIds.contains(
+                    category.id,
+                  ),
+                  onTap: () => controller.toggleCategory(category.id),
+                );
+              },
             );
           },
         ),
@@ -473,6 +480,8 @@ class _CategorySelectionCard extends StatelessWidget {
               const Spacer(),
               Text(
                 title,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
                 style: theme.textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.w700,
                 ),
@@ -480,6 +489,8 @@ class _CategorySelectionCard extends StatelessWidget {
               const SizedBox(height: 6),
               Text(
                 description,
+                maxLines: 4,
+                overflow: TextOverflow.ellipsis,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: AppColors.textMuted,
                 ),

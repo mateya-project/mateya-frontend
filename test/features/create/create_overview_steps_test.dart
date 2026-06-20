@@ -6,6 +6,7 @@ import 'package:mateya_app/features/create/data/create_repository.dart';
 import 'package:mateya_app/features/create/domain/create_models.dart';
 import 'package:mateya_app/features/create/presentation/widgets/create_overview_steps.dart';
 import 'package:mateya_app/shared/activity_categories/activity_category_repository.dart';
+import 'package:mateya_app/shared/localization/mateya_localizations.dart';
 
 void main() {
   testWidgets(
@@ -103,6 +104,40 @@ void main() {
 
     expect(controller.selectedCategoryId, 'CULTURE_TRADITION');
   });
+
+  testWidgets(
+    'group category step does not overflow in English on phone width',
+    (tester) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final controller = CreateController(
+        repository: MockCreateRepository(),
+        categoryRepository: MockActivityCategoryRepository(),
+        flowType: CreateFlowType.group,
+      );
+
+      addTearDown(controller.dispose);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          locale: const Locale('en'),
+          supportedLocales: MateyaLocalizations.supportedLocales,
+          localizationsDelegates: MateyaLocalizations.delegates,
+          home: Scaffold(body: CategoryStepView(controller: controller)),
+        ),
+      );
+      await tester.pump();
+
+      expect(tester.takeException(), isNull);
+      expect(
+        find.text('What kind of experience are you creating?'),
+        findsOneWidget,
+      );
+    },
+  );
 }
 
 void _noop() {}

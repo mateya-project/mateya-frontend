@@ -979,6 +979,12 @@ abstract class AppLocalizations {
   /// **'편집'**
   String get commonEdit;
 
+  /// No description provided for @commonDelete.
+  ///
+  /// In ko, this message translates to:
+  /// **'삭제'**
+  String get commonDelete;
+
   /// No description provided for @commonSeeAll.
   ///
   /// In ko, this message translates to:
@@ -4003,6 +4009,18 @@ abstract class AppLocalizations {
   /// **'후기를 등록하지 못했어요. 잠시 후 다시 시도해 주세요.'**
   String get detailsReviewSubmitError;
 
+  /// No description provided for @detailsReviewUpdateError.
+  ///
+  /// In ko, this message translates to:
+  /// **'후기를 수정하지 못했어요. 잠시 후 다시 시도해 주세요.'**
+  String get detailsReviewUpdateError;
+
+  /// No description provided for @detailsReviewDeleteError.
+  ///
+  /// In ko, this message translates to:
+  /// **'후기를 삭제하지 못했어요. 잠시 후 다시 시도해 주세요.'**
+  String get detailsReviewDeleteError;
+
   /// No description provided for @detailsLoadError.
   ///
   /// In ko, this message translates to:
@@ -4189,11 +4207,29 @@ abstract class AppLocalizations {
   /// **'후기를 등록했어요.'**
   String get detailsReviewSubmitted;
 
+  /// No description provided for @detailsReviewUpdated.
+  ///
+  /// In ko, this message translates to:
+  /// **'후기를 수정했어요.'**
+  String get detailsReviewUpdated;
+
+  /// No description provided for @detailsReviewDeleted.
+  ///
+  /// In ko, this message translates to:
+  /// **'후기를 삭제했어요.'**
+  String get detailsReviewDeleted;
+
   /// No description provided for @detailsReviewComposerTitle.
   ///
   /// In ko, this message translates to:
   /// **'후기 작성하기'**
   String get detailsReviewComposerTitle;
+
+  /// No description provided for @detailsReviewEditTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'후기 수정하기'**
+  String get detailsReviewEditTitle;
 
   /// No description provided for @detailsReviewComposerHint.
   ///
@@ -4225,11 +4261,35 @@ abstract class AppLocalizations {
   /// **'작성하기'**
   String get detailsReviewSubmit;
 
+  /// No description provided for @detailsReviewUpdating.
+  ///
+  /// In ko, this message translates to:
+  /// **'저장 중...'**
+  String get detailsReviewUpdating;
+
+  /// No description provided for @detailsReviewEditSubmit.
+  ///
+  /// In ko, this message translates to:
+  /// **'수정하기'**
+  String get detailsReviewEditSubmit;
+
   /// No description provided for @detailsReviewImageGuide.
   ///
   /// In ko, this message translates to:
   /// **'첫 번째 사진이 대표 이미지가 되며,\n길게 눌러 순서를 바꿀 수 있어요.'**
   String get detailsReviewImageGuide;
+
+  /// No description provided for @detailsReviewDeleteDialogTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 후기를 삭제할까요?'**
+  String get detailsReviewDeleteDialogTitle;
+
+  /// No description provided for @detailsReviewDeleteDialogBody.
+  ///
+  /// In ko, this message translates to:
+  /// **'삭제한 후기는 다시 복구할 수 없어요.'**
+  String get detailsReviewDeleteDialogBody;
 
   /// No description provided for @detailsShareCopied.
   ///

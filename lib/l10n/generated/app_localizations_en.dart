@@ -501,6 +501,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get commonEdit => 'Edit';
 
   @override
+  String get commonDelete => 'Delete';
+
+  @override
   String get commonSeeAll => 'See all';
 
   @override
@@ -2306,6 +2309,14 @@ class AppLocalizationsEn extends AppLocalizations {
       'Could not submit the review. Please try again later.';
 
   @override
+  String get detailsReviewUpdateError =>
+      'Could not update the review. Please try again later.';
+
+  @override
+  String get detailsReviewDeleteError =>
+      'Could not delete the review. Please try again later.';
+
+  @override
   String get detailsLoadError =>
       'Could not load the activity details. Please try again later.';
 
@@ -2423,7 +2434,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get detailsReviewSubmitted => 'Your review has been posted.';
 
   @override
+  String get detailsReviewUpdated => 'Your review has been updated.';
+
+  @override
+  String get detailsReviewDeleted => 'Your review has been deleted.';
+
+  @override
   String get detailsReviewComposerTitle => 'Write a review';
+
+  @override
+  String get detailsReviewEditTitle => 'Edit review';
 
   @override
   String get detailsReviewComposerHint =>
@@ -2446,8 +2466,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get detailsReviewSubmit => 'Post review';
 
   @override
+  String get detailsReviewUpdating => 'Saving...';
+
+  @override
+  String get detailsReviewEditSubmit => 'Save review';
+
+  @override
   String get detailsReviewImageGuide =>
       'The first image becomes the cover image,\nand you can long-press to reorder them.';
+
+  @override
+  String get detailsReviewDeleteDialogTitle => 'Delete this review?';
+
+  @override
+  String get detailsReviewDeleteDialogBody =>
+      'Deleted reviews cannot be restored.';
 
   @override
   String get detailsShareCopied =>

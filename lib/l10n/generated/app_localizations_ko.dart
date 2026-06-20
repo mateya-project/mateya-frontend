@@ -481,6 +481,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get commonEdit => '편집';
 
   @override
+  String get commonDelete => '삭제';
+
+  @override
   String get commonSeeAll => '전체보기';
 
   @override
@@ -2171,6 +2174,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get detailsReviewSubmitError => '후기를 등록하지 못했어요. 잠시 후 다시 시도해 주세요.';
 
   @override
+  String get detailsReviewUpdateError => '후기를 수정하지 못했어요. 잠시 후 다시 시도해 주세요.';
+
+  @override
+  String get detailsReviewDeleteError => '후기를 삭제하지 못했어요. 잠시 후 다시 시도해 주세요.';
+
+  @override
   String get detailsLoadError => '활동 정보를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.';
 
   @override
@@ -2286,7 +2295,16 @@ class AppLocalizationsKo extends AppLocalizations {
   String get detailsReviewSubmitted => '후기를 등록했어요.';
 
   @override
+  String get detailsReviewUpdated => '후기를 수정했어요.';
+
+  @override
+  String get detailsReviewDeleted => '후기를 삭제했어요.';
+
+  @override
   String get detailsReviewComposerTitle => '후기 작성하기';
+
+  @override
+  String get detailsReviewEditTitle => '후기 수정하기';
 
   @override
   String get detailsReviewComposerHint =>
@@ -2309,8 +2327,20 @@ class AppLocalizationsKo extends AppLocalizations {
   String get detailsReviewSubmit => '작성하기';
 
   @override
+  String get detailsReviewUpdating => '저장 중...';
+
+  @override
+  String get detailsReviewEditSubmit => '수정하기';
+
+  @override
   String get detailsReviewImageGuide =>
       '첫 번째 사진이 대표 이미지가 되며,\n길게 눌러 순서를 바꿀 수 있어요.';
+
+  @override
+  String get detailsReviewDeleteDialogTitle => '이 후기를 삭제할까요?';
+
+  @override
+  String get detailsReviewDeleteDialogBody => '삭제한 후기는 다시 복구할 수 없어요.';
 
   @override
   String get detailsShareCopied => '공유 링크를 복사했어요. 원하는 메신저에 바로 붙여넣을 수 있습니다.';

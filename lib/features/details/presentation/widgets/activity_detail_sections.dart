@@ -119,6 +119,8 @@ class DetailBody extends StatelessWidget {
     required this.onOpenParticipantRequests,
     required this.onHelpfulTap,
     required this.onOpenOtherProfile,
+    required this.onEditReview,
+    required this.onDeleteReview,
   });
 
   final ActivityDetail detail;
@@ -127,6 +129,8 @@ class DetailBody extends StatelessWidget {
   final VoidCallback onOpenParticipantRequests;
   final Future<void> Function(String reviewId)? onHelpfulTap;
   final Future<void> Function(String userId) onOpenOtherProfile;
+  final Future<void> Function(ActivityReview review) onEditReview;
+  final Future<void> Function(ActivityReview review) onDeleteReview;
 
   @override
   Widget build(BuildContext context) {
@@ -344,6 +348,22 @@ class DetailBody extends StatelessWidget {
                           controller.toggleTranslation(
                             controller.previewReviews[index].id,
                           ),
+                        );
+                      }
+                    : null,
+                onEditTap:
+                    controller.canManageReview(controller.previewReviews[index])
+                    ? () {
+                        unawaited(
+                          onEditReview(controller.previewReviews[index]),
+                        );
+                      }
+                    : null,
+                onDeleteTap:
+                    controller.canManageReview(controller.previewReviews[index])
+                    ? () {
+                        unawaited(
+                          onDeleteReview(controller.previewReviews[index]),
                         );
                       }
                     : null,

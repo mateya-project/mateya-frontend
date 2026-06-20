@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 
 import '../../home/domain/home_models.dart';
 import '../../onboarding/domain/onboarding_flow.dart';
+import '../../../shared/auth/auth_session.dart';
 import '../../../shared/localization/mateya_localizations.dart';
 import '../data/activity_detail_repository.dart';
 import '../domain/activity_detail_models.dart';
@@ -38,6 +39,14 @@ class ActivityDetailController extends ChangeNotifier {
   String? get armedParticipantRemovalId => _armedParticipantRemovalId;
   bool isHelpfulMutationInFlight(String reviewId) =>
       _helpfulReviewIdsInFlight.contains(reviewId);
+  String? get currentUserId =>
+      AuthSessionStore.instance.session?.user.id.toString();
+  bool canManageReview(ActivityReview review) {
+    final viewerId = currentUserId;
+    return viewerId != null &&
+        viewerId.isNotEmpty &&
+        review.authorUserId == viewerId;
+  }
 
   Future<void> initialize() async {
     if (_phase != AsyncPhase.idle) {
@@ -475,6 +484,108 @@ class ActivityDetailController extends ChangeNotifier {
     }
   }
 
+  Future<String?> updateReview({
+    required String reviewId,
+    required int rating,
+    required String body,
+    List<String> imageUrls = const <String>[],
+  }) async {
+    final current = _detail;
+    final l10n = MateyaLocalizations.current;
+    if (current == null) {
+      return l10n.detailsReviewRequired;
+    }
+    final trimmed = body.trim();
+    if (rating < 1 || rating > 5 || trimmed.isEmpty) {
+      return l10n.detailsReviewValidationRequired;
+    }
+    if (_isSubmittingReview) {
+      return null;
+    }
+
+    final existingReview = current.reviews
+        .where((review) => review.id == reviewId)
+        .firstOrNull;
+    if (existingReview == null) {
+      return l10n.detailsReviewRequired;
+    }
+
+    _isSubmittingReview = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final updatedReview = await repository.updateReview(
+        reviewId: reviewId,
+        rating: rating,
+        body: trimmed,
+        imageUrls: imageUrls,
+      );
+      final nextReviews = current.reviews
+          .map((review) => review.id == reviewId ? updatedReview : review)
+          .toList(growable: false);
+      _detail = current.copyWith(
+        reviews: nextReviews,
+        serverReviewSummary: _updateSummaryForReviewChange(
+          summary: current.serverReviewSummary,
+          previousRating: existingReview.rating,
+          nextRating: updatedReview.rating,
+        ),
+      );
+      return null;
+    } on ActivityDetailRepositoryException catch (error) {
+      _errorMessage = error.message ?? l10n.detailsReviewUpdateError;
+      return _errorMessage;
+    } finally {
+      _isSubmittingReview = false;
+      notifyListeners();
+    }
+  }
+
+  Future<String?> deleteReview(String reviewId) async {
+    final current = _detail;
+    final l10n = MateyaLocalizations.current;
+    if (current == null) {
+      return l10n.detailsReviewRequired;
+    }
+    if (_isSubmittingReview) {
+      return null;
+    }
+
+    final existingReview = current.reviews
+        .where((review) => review.id == reviewId)
+        .firstOrNull;
+    if (existingReview == null) {
+      return l10n.detailsReviewRequired;
+    }
+
+    _isSubmittingReview = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      await repository.deleteReview(reviewId: reviewId);
+      final nextReviews = current.reviews
+          .where((review) => review.id != reviewId)
+          .toList(growable: false);
+      _detail = current.copyWith(
+        reviews: nextReviews,
+        serverReviewSummary: _updateSummaryForReviewDeletion(
+          summary: current.serverReviewSummary,
+          deletedRating: existingReview.rating,
+        ),
+      );
+      _visibleReviewCount = math.min(_visibleReviewCount, nextReviews.length);
+      return null;
+    } on ActivityDetailRepositoryException catch (error) {
+      _errorMessage = error.message ?? l10n.detailsReviewDeleteError;
+      return _errorMessage;
+    } finally {
+      _isSubmittingReview = false;
+      notifyListeners();
+    }
+  }
+
   Future<void> _loadDetail() async {
     final l10n = MateyaLocalizations.current;
     _phase = AsyncPhase.loading;
@@ -502,5 +613,56 @@ class ActivityDetailController extends ChangeNotifier {
     }
 
     notifyListeners();
+  }
+
+  ReviewSummary? _updateSummaryForReviewChange({
+    required ReviewSummary? summary,
+    required int previousRating,
+    required int nextRating,
+  }) {
+    if (summary == null) {
+      return null;
+    }
+    final nextCounts = <int, int>{...summary.ratingCounts};
+    nextCounts[previousRating] = math.max(
+      0,
+      (nextCounts[previousRating] ?? 0) - 1,
+    );
+    nextCounts[nextRating] = (nextCounts[nextRating] ?? 0) + 1;
+    final nextAverage = summary.totalCount == 0
+        ? 0
+        : ((summary.averageRating * summary.totalCount) -
+                  previousRating +
+                  nextRating) /
+              summary.totalCount;
+    return ReviewSummary(
+      averageRating: nextAverage.toDouble(),
+      totalCount: summary.totalCount,
+      ratingCounts: nextCounts,
+    );
+  }
+
+  ReviewSummary? _updateSummaryForReviewDeletion({
+    required ReviewSummary? summary,
+    required int deletedRating,
+  }) {
+    if (summary == null) {
+      return null;
+    }
+    final nextTotal = math.max(0, summary.totalCount - 1);
+    final nextCounts = <int, int>{...summary.ratingCounts};
+    nextCounts[deletedRating] = math.max(
+      0,
+      (nextCounts[deletedRating] ?? 0) - 1,
+    );
+    final nextAverage = nextTotal == 0
+        ? 0
+        : ((summary.averageRating * summary.totalCount) - deletedRating) /
+              nextTotal;
+    return ReviewSummary(
+      averageRating: nextAverage.toDouble(),
+      totalCount: nextTotal,
+      ratingCounts: nextCounts,
+    );
   }
 }

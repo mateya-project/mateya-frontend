@@ -481,6 +481,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get commonEdit => '編集';
 
   @override
+  String get commonDelete => '削除';
+
+  @override
   String get commonSeeAll => 'すべて見る';
 
   @override
@@ -2171,6 +2174,12 @@ class AppLocalizationsJa extends AppLocalizations {
   String get detailsReviewSubmitError => 'レビューを投稿できませんでした。しばらくしてからもう一度お試しください。';
 
   @override
+  String get detailsReviewUpdateError => 'レビューを更新できませんでした。しばらくしてからもう一度お試しください。';
+
+  @override
+  String get detailsReviewDeleteError => 'レビューを削除できませんでした。しばらくしてからもう一度お試しください。';
+
+  @override
   String get detailsLoadError => 'アクティビティ情報を読み込めませんでした。しばらくしてからもう一度お試しください。';
 
   @override
@@ -2286,7 +2295,16 @@ class AppLocalizationsJa extends AppLocalizations {
   String get detailsReviewSubmitted => 'レビューを投稿しました。';
 
   @override
+  String get detailsReviewUpdated => 'レビューを更新しました。';
+
+  @override
+  String get detailsReviewDeleted => 'レビューを削除しました。';
+
+  @override
   String get detailsReviewComposerTitle => 'レビューを書く';
+
+  @override
+  String get detailsReviewEditTitle => 'レビューを編集';
 
   @override
   String get detailsReviewComposerHint =>
@@ -2309,7 +2327,19 @@ class AppLocalizationsJa extends AppLocalizations {
   String get detailsReviewSubmit => '投稿する';
 
   @override
+  String get detailsReviewUpdating => '保存中...';
+
+  @override
+  String get detailsReviewEditSubmit => '保存する';
+
+  @override
   String get detailsReviewImageGuide => '1枚目の写真が代表画像になります。\n長押しで順番を変更できます。';
+
+  @override
+  String get detailsReviewDeleteDialogTitle => 'このレビューを削除しますか？';
+
+  @override
+  String get detailsReviewDeleteDialogBody => '削除したレビューは元に戻せません。';
 
   @override
   String get detailsShareCopied => '共有リンクをコピーしました。お好きなメッセンジャーにそのまま貼り付けられます。';
