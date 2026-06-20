@@ -52,31 +52,31 @@ void main() {
 
       expect(tester.takeException(), isNull);
 
-      expect(find.text('개인정보처리방침 보기'), findsOneWidget);
-      expect(find.text('내 언어 · 국가 변경하기'), findsOneWidget);
+      expect(find.text('개인정보 처리방침'), findsOneWidget);
+      expect(find.text('기본 정보 수정'), findsOneWidget);
       expect(find.byIcon(Icons.arrow_back_rounded), findsOneWidget);
 
       await tester.tap(find.byIcon(Icons.arrow_back_rounded));
       await tester.pump();
       expect(backed, isTrue);
 
-      await tester.tap(find.text('내 언어 · 국가 변경하기'));
+      await tester.tap(find.text('기본 정보 수정'));
       await tester.pump();
       expect(openedPrimaryPreferences, isTrue);
 
-      await tester.tap(find.text('개인정보처리방침 보기'));
+      await tester.tap(find.text('개인정보 처리방침'));
       await tester.pump();
 
       expect(openedPrivacyPolicy, isTrue);
 
       await tester.scrollUntilVisible(
-        find.text('회원 탈퇴하기'),
+        find.text('회원 탈퇴'),
         200,
         scrollable: find.byType(Scrollable).first,
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('회원 탈퇴하기'), findsOneWidget);
+      expect(find.text('회원 탈퇴'), findsOneWidget);
     },
   );
 }

@@ -9,9 +9,9 @@ Future<String> _uploadProfileImage({
   final fileName = imagePath.split('/').last;
   final contentType = _profileImageContentTypeFor(fileName);
   if (contentType == null) {
-    throw const MyPageRepositoryException(
+    throw MyPageRepositoryException(
       MyPageLoadFailureType.server,
-      message: 'JPG, PNG, WEBP, GIF 형식의 이미지만 업로드할 수 있어요.',
+      message: MateyaLocalizations.current.mypageProfileImageInvalidFormat,
     );
   }
 
@@ -46,9 +46,9 @@ Future<String> _uploadProfileImage({
     bodyBytes: fileBytes,
   );
   if (uploadResponse.statusCode < 200 || uploadResponse.statusCode >= 300) {
-    throw const MyPageRepositoryException(
+    throw MyPageRepositoryException(
       MyPageLoadFailureType.server,
-      message: '프로필 이미지를 업로드하지 못했어요. 잠시 후 다시 시도해 주세요.',
+      message: MateyaLocalizations.current.mypageProfileImageUploadError,
     );
   }
 
@@ -60,9 +60,9 @@ Future<String> _uploadProfileImage({
   final confirmedJson = _asMap(confirmedData);
   final publicUrl = confirmedJson['publicUrl'] as String?;
   if (publicUrl == null || publicUrl.isEmpty) {
-    throw const MyPageRepositoryException(
+    throw MyPageRepositoryException(
       MyPageLoadFailureType.server,
-      message: '프로필 이미지 업로드 확인에 실패했어요. 잠시 후 다시 시도해 주세요.',
+      message: MateyaLocalizations.current.mypageProfileImageConfirmError,
     );
   }
   return publicUrl;

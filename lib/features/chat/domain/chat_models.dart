@@ -1,3 +1,5 @@
+import '../../../shared/localization/mateya_localizations.dart';
+
 enum ChatRoomType { group, direct }
 
 enum ChatListFilter { all, group, direct }
@@ -66,11 +68,12 @@ class ChatBubble {
   }
 
   String get previewSummary {
+    final l10n = MateyaLocalizations.current;
     if (hasText) {
       return originalText!.replaceAll('\n', ' ');
     }
     if (hasAttachments) {
-      return '사진 ${attachments.length}장';
+      return l10n.chatPhotoCount(attachments.length);
     }
     return '';
   }
@@ -144,7 +147,12 @@ class ChatMessageGroup {
   bool get supportsTranslation =>
       !isMine && bubbles.any((bubble) => bubble.translatedText != null);
 
-  String get translationToggleLabel => isTranslatedVisible ? '원문 보기' : '번역 보기';
+  String get translationToggleLabel {
+    final l10n = MateyaLocalizations.current;
+    return isTranslatedVisible
+        ? l10n.chatViewOriginal
+        : l10n.chatViewTranslation;
+  }
 
   List<String> get visibleTexts {
     return bubbles
@@ -195,7 +203,9 @@ class ChatRoom {
   final int unreadCount;
   final List<ChatMessageGroup> messageGroups;
 
-  String get subtitle => '$participantCount명 참여';
+  String get subtitle => MateyaLocalizations.current.chatParticipantCount(
+    participantCount,
+  );
 
   String get lastMessagePreview =>
       messageGroups.isEmpty ? '' : messageGroups.last.previewText;
@@ -233,11 +243,14 @@ class ChatRepositoryException implements Exception {
 }
 
 extension ChatListFilterX on ChatListFilter {
-  String get label => switch (this) {
-    ChatListFilter.all => '전체',
-    ChatListFilter.group => '단체',
-    ChatListFilter.direct => '개인',
-  };
+  String get label {
+    final l10n = MateyaLocalizations.current;
+    return switch (this) {
+      ChatListFilter.all => l10n.commonAll,
+      ChatListFilter.group => l10n.chatFilterGroup,
+      ChatListFilter.direct => l10n.chatFilterDirect,
+    };
+  }
 }
 
 const Object _sentinel = Object();

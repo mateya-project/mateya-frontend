@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../../../shared/localization/mateya_localizations.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../../shared/widgets/mateya_button.dart';
 import '../../../../shared/widgets/mateya_header.dart';
@@ -78,6 +79,7 @@ class _HostBusinessStepViewState extends State<HostBusinessStepView> {
   @override
   Widget build(BuildContext context) {
     final controller = widget.controller;
+    final l10n = context.l10n;
     final theme = Theme.of(context);
 
     _businessNameController.text = controller.businessName;
@@ -115,17 +117,23 @@ class _HostBusinessStepViewState extends State<HostBusinessStepView> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 const SizedBox(height: 46),
-                Text('상호명을 입력해 주세요', style: theme.textTheme.headlineLarge),
+                Text(
+                  l10n.onboardingEnterBusinessName,
+                  style: theme.textTheme.headlineLarge,
+                ),
                 const SizedBox(height: 32),
                 MateyaTextField(
                   controller: _businessNameController,
-                  hintText: 'NICE 평가 정보',
+                  hintText: l10n.onboardingBusinessNameHint,
                   errorText: controller.errorFor('businessName'),
                   onChanged: controller.updateBusinessName,
                   textInputAction: TextInputAction.next,
                 ),
                 const SizedBox(height: 58),
-                Text('사업자 번호', style: theme.textTheme.titleLarge),
+                Text(
+                  l10n.onboardingBusinessNumberLabel,
+                  style: theme.textTheme.titleLarge,
+                ),
                 const SizedBox(height: 21),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -219,23 +227,29 @@ class _HostBusinessStepViewState extends State<HostBusinessStepView> {
                   ),
                 ],
                 const SizedBox(height: 58),
-                Text('대표자명', style: theme.textTheme.titleLarge),
+                Text(
+                  l10n.onboardingBusinessOwnerLabel,
+                  style: theme.textTheme.titleLarge,
+                ),
                 const SizedBox(height: 21),
                 MateyaTextField(
                   controller: _ownerNameController,
                   focusNode: _ownerFocusNode,
-                  hintText: '홍길동',
+                  hintText: l10n.onboardingBusinessOwnerHint,
                   errorText: controller.errorFor('businessOwner'),
                   onChanged: controller.updateBusinessOwner,
                   textInputAction: TextInputAction.next,
                 ),
                 const SizedBox(height: 58),
-                Text('개업일자', style: theme.textTheme.titleLarge),
+                Text(
+                  l10n.onboardingBusinessOpeningDateLabel,
+                  style: theme.textTheme.titleLarge,
+                ),
                 const SizedBox(height: 21),
                 MateyaTextField(
                   controller: _openingDateController,
                   focusNode: _openingDateFocusNode,
-                  hintText: '20240131',
+                  hintText: l10n.onboardingBusinessOpeningDateHint,
                   errorText: controller.errorFor('businessOpeningDate'),
                   keyboardType: TextInputType.number,
                   inputFormatters: <TextInputFormatter>[
@@ -252,7 +266,7 @@ class _HostBusinessStepViewState extends State<HostBusinessStepView> {
         Padding(
           padding: const EdgeInsets.fromLTRB(19, 0, 19, 28),
           child: MateyaButton(
-            label: '사업자인증 완료하기',
+            label: l10n.onboardingCompleteBusinessVerification,
             enabled: controller.canCompleteBusiness,
             onPressed: controller.submitBusinessVerification,
           ),
@@ -269,6 +283,7 @@ class CompletedStepView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final theme = Theme.of(context);
     final isReturning = controller.completionMode == AuthCompletionMode.login;
 
@@ -283,7 +298,7 @@ class CompletedStepView extends StatelessWidget {
                 const Spacer(flex: 3),
                 if (isReturning) ...<Widget>[
                   Text(
-                    '돌아오신걸 환영해요',
+                    l10n.onboardingWelcomeBack,
                     textAlign: TextAlign.center,
                     style: theme.textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.w600,
@@ -307,7 +322,7 @@ class CompletedStepView extends StatelessWidget {
                 const SizedBox(height: 24),
                 Text(
                   isReturning
-                      ? '${controller.completedName}님\n메이트야 복귀를 완료했어요'
+                      ? l10n.onboardingReturnCompleted(controller.completedName)
                       : controller.completionHeadline,
                   textAlign: TextAlign.center,
                   style: theme.textTheme.titleLarge?.copyWith(
@@ -320,7 +335,7 @@ class CompletedStepView extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(bottom: 28),
                   child: MateyaButton(
-                    label: '메이트야 시작하기',
+                    label: l10n.onboardingLaunchApp,
                     onPressed: controller.openHomePlaceholder,
                   ),
                 ),

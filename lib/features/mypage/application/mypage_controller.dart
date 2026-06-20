@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import '../../../features/onboarding/domain/onboarding_flow.dart';
+import '../../../shared/localization/mateya_localizations.dart';
 import 'mypage_badge_celebration_store.dart';
 import '../data/mypage_repository.dart';
 import '../domain/mypage_models.dart';
@@ -122,9 +123,10 @@ class MyPageController extends ChangeNotifier {
   }
 
   Future<void> openOtherProfile({String? targetUserId}) async {
+    final l10n = MateyaLocalizations.current;
     final nextTargetUserId = targetUserId ?? _currentOtherProfileUserId;
     if (nextTargetUserId == null || nextTargetUserId.isEmpty) {
-      _pushToast('다른 사용자 프로필은 활동 상세의 호스트나 참여자에서 열 수 있어요.');
+      _pushToast(l10n.mypageOtherProfileOpenHint);
       notifyListeners();
       return;
     }
@@ -149,8 +151,8 @@ class MyPageController extends ChangeNotifier {
       _errorMessage =
           error.message ??
           (error.type == MyPageLoadFailureType.network
-              ? '네트워크 연결을 확인한 뒤 다시 시도해 주세요.'
-              : '다른 사용자 프로필을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.');
+              ? l10n.commonNetworkRetry
+              : l10n.mypageOtherProfileLoadError);
     }
     notifyListeners();
   }
@@ -202,12 +204,13 @@ class MyPageController extends ChangeNotifier {
     required String languageCode,
     required String countryCode,
   }) async {
+    final l10n = MateyaLocalizations.current;
     if (_personalPage == null) {
       return;
     }
     if (languageCode.isEmpty || countryCode.isEmpty) {
       _phase = MyPageAsyncPhase.validationError;
-      _errorMessage = '대표 언어와 대표 나라를 모두 선택해 주세요.';
+      _errorMessage = l10n.mypageSelectLanguageAndCountry;
       notifyListeners();
       return;
     }
@@ -221,7 +224,7 @@ class MyPageController extends ChangeNotifier {
 
     if (language == null || country == null) {
       _phase = MyPageAsyncPhase.validationError;
-      _errorMessage = '선택 가능한 언어/나라를 다시 확인해 주세요.';
+      _errorMessage = l10n.mypageInvalidLanguageOrCountry;
       notifyListeners();
       return;
     }
@@ -240,20 +243,21 @@ class MyPageController extends ChangeNotifier {
       _phase = MyPageAsyncPhase.success;
       _isSavingPreferences = false;
       _route = MyPageRoute.personalHome;
-      _pushToast('대표 언어와 대표 나라를 반영했어요.');
+      _pushToast(l10n.mypagePrimaryPreferencesSaved);
     } on MyPageRepositoryException catch (error) {
       _phase = MyPageAsyncPhase.validationError;
       _isSavingPreferences = false;
       _errorMessage =
           error.message ??
           (error.type == MyPageLoadFailureType.network
-              ? '네트워크 연결을 확인한 뒤 다시 시도해 주세요.'
-              : '대표 언어와 대표 나라를 저장하지 못했어요. 잠시 후 다시 시도해 주세요.');
+              ? l10n.commonNetworkRetry
+              : l10n.mypagePrimaryPreferencesSaveError);
     }
     notifyListeners();
   }
 
   Future<void> toggleFriendship() async {
+    final l10n = MateyaLocalizations.current;
     if (_otherProfile == null ||
         _isUpdatingFriendship ||
         _otherProfile!.isBlocked ||
@@ -273,20 +277,21 @@ class MyPageController extends ChangeNotifier {
       );
       _phase = MyPageAsyncPhase.success;
       _isUpdatingFriendship = false;
-      _pushToast(wasFriend ? '친구 상태를 해제했어요.' : '친구를 추가했어요.');
+      _pushToast(wasFriend ? l10n.mypageFriendRemoved : l10n.mypageFriendAdded);
     } on MyPageRepositoryException catch (error) {
       _phase = MyPageAsyncPhase.validationError;
       _isUpdatingFriendship = false;
       _errorMessage =
           error.message ??
           (error.type == MyPageLoadFailureType.network
-              ? '네트워크 연결을 확인한 뒤 다시 시도해 주세요.'
-              : '친구 상태를 변경하지 못했어요. 잠시 후 다시 시도해 주세요.');
+              ? l10n.commonNetworkRetry
+              : l10n.mypageFriendUpdateError);
     }
     notifyListeners();
   }
 
   Future<void> blockCurrentOtherProfile() async {
+    final l10n = MateyaLocalizations.current;
     if (_otherProfile == null ||
         _otherProfile!.isBlocked ||
         _currentOtherProfileUserId == null ||
@@ -304,20 +309,21 @@ class MyPageController extends ChangeNotifier {
       _otherProfile = _otherProfile?.copyWith(isBlocked: true, isFriend: false);
       _phase = MyPageAsyncPhase.success;
       _isUpdatingBlockedUsers = false;
-      _pushToast('차단 유저 목록에 추가했어요.');
+      _pushToast(l10n.mypageBlockedUserAdded);
     } on MyPageRepositoryException catch (error) {
       _phase = MyPageAsyncPhase.validationError;
       _isUpdatingBlockedUsers = false;
       _errorMessage =
           error.message ??
           (error.type == MyPageLoadFailureType.network
-              ? '네트워크 연결을 확인한 뒤 다시 시도해 주세요.'
-              : '유저를 차단하지 못했어요. 잠시 후 다시 시도해 주세요.');
+              ? l10n.commonNetworkRetry
+              : l10n.mypageBlockUserError);
     }
     notifyListeners();
   }
 
   Future<void> unblockUser(String userId) async {
+    final l10n = MateyaLocalizations.current;
     if (_isUpdatingBlockedUsers) {
       return;
     }
@@ -334,33 +340,34 @@ class MyPageController extends ChangeNotifier {
       }
       _phase = MyPageAsyncPhase.success;
       _isUpdatingBlockedUsers = false;
-      _pushToast('차단을 해제하였습니다.');
+      _pushToast(l10n.mypageUnblockedUser);
     } on MyPageRepositoryException catch (error) {
       _phase = MyPageAsyncPhase.validationError;
       _isUpdatingBlockedUsers = false;
       _errorMessage =
           error.message ??
           (error.type == MyPageLoadFailureType.network
-              ? '네트워크 연결을 확인한 뒤 다시 시도해 주세요.'
-              : '차단을 해제하지 못했어요. 잠시 후 다시 시도해 주세요.');
+              ? l10n.commonNetworkRetry
+              : l10n.mypageUnblockUserError);
     }
     notifyListeners();
   }
 
   Future<void> updateBusinessIntroduction(String nextIntroduction) async {
+    final l10n = MateyaLocalizations.current;
     if (_businessPage == null) {
       return;
     }
     final trimmed = nextIntroduction.trim();
     if (trimmed.isEmpty) {
       _phase = MyPageAsyncPhase.validationError;
-      _errorMessage = '한줄소개를 입력해 주세요.';
+      _errorMessage = l10n.mypageBusinessIntroRequired;
       notifyListeners();
       return;
     }
     if (trimmed.length > 500) {
       _phase = MyPageAsyncPhase.validationError;
-      _errorMessage = '한줄소개는 500자 이하로 입력해 주세요.';
+      _errorMessage = l10n.mypageBusinessIntroTooLong;
       notifyListeners();
       return;
     }
@@ -377,20 +384,21 @@ class MyPageController extends ChangeNotifier {
       );
       _phase = MyPageAsyncPhase.success;
       _isSavingBusinessIntroduction = false;
-      _pushToast('한줄소개를 저장했어요.');
+      _pushToast(l10n.mypageBusinessIntroSaved);
     } on MyPageRepositoryException catch (error) {
       _phase = MyPageAsyncPhase.validationError;
       _isSavingBusinessIntroduction = false;
       _errorMessage =
           error.message ??
           (error.type == MyPageLoadFailureType.network
-              ? '네트워크 연결을 확인한 뒤 다시 시도해 주세요.'
-              : '한줄소개를 저장하지 못했어요. 잠시 후 다시 시도해 주세요.');
+              ? l10n.commonNetworkRetry
+              : l10n.mypageBusinessIntroSaveError);
     }
     notifyListeners();
   }
 
   Future<void> updateProfileImage(String imagePath) async {
+    final l10n = MateyaLocalizations.current;
     if (_personalPage == null || _isUpdatingProfileImage) {
       return;
     }
@@ -411,14 +419,14 @@ class MyPageController extends ChangeNotifier {
         profile: _businessPage!.profile.copyWith(profileImageUrl: imageUrl),
       );
       _phase = MyPageAsyncPhase.success;
-      _pushToast('프로필 사진을 저장했어요.');
+      _pushToast(l10n.mypageProfileImageSaved);
     } on MyPageRepositoryException catch (error) {
       _phase = MyPageAsyncPhase.validationError;
       _errorMessage =
           error.message ??
           (error.type == MyPageLoadFailureType.network
-              ? '네트워크 연결을 확인한 뒤 다시 시도해 주세요.'
-              : '프로필 사진을 저장하지 못했어요. 잠시 후 다시 시도해 주세요.');
+              ? l10n.commonNetworkRetry
+              : l10n.mypageProfileImageSaveError);
       _pushToast(_errorMessage!);
     } finally {
       _isUpdatingProfileImage = false;
@@ -427,6 +435,7 @@ class MyPageController extends ChangeNotifier {
   }
 
   Future<bool> updateActivityRegion(NeighborhoodSelection neighborhood) async {
+    final l10n = MateyaLocalizations.current;
     if (_personalPage == null || _isUpdatingActivityRegion) {
       return false;
     }
@@ -454,15 +463,15 @@ class MyPageController extends ChangeNotifier {
         );
       }
       _phase = MyPageAsyncPhase.success;
-      _pushToast('활동 지역을 저장했어요.');
+      _pushToast(l10n.mypageActivityRegionSaved);
       return true;
     } on MyPageRepositoryException catch (error) {
       _phase = MyPageAsyncPhase.validationError;
       _errorMessage =
           error.message ??
           (error.type == MyPageLoadFailureType.network
-              ? '네트워크 연결을 확인한 뒤 다시 시도해 주세요.'
-              : '활동 지역을 저장하지 못했어요. 잠시 후 다시 시도해 주세요.');
+              ? l10n.commonNetworkRetry
+              : l10n.mypageActivityRegionSaveError);
       _pushToast(_errorMessage!);
       return false;
     } finally {
@@ -475,24 +484,25 @@ class MyPageController extends ChangeNotifier {
     required bool hasAgreed,
     required String signature,
   }) async {
+    final l10n = MateyaLocalizations.current;
     final name = _personalPage?.profile.name ?? '';
     final trimmed = signature.trim();
 
     if (!hasAgreed) {
       _phase = MyPageAsyncPhase.validationError;
-      _errorMessage = '개인정보 처리 방침에 동의해 주세요.';
+      _errorMessage = l10n.mypageWithdrawalAgreementRequired;
       notifyListeners();
       return;
     }
     if (trimmed.isEmpty) {
       _phase = MyPageAsyncPhase.validationError;
-      _errorMessage = '서명 입력이 필요합니다.';
+      _errorMessage = l10n.mypageWithdrawalSignatureRequired;
       notifyListeners();
       return;
     }
     if (trimmed != name) {
       _phase = MyPageAsyncPhase.validationError;
-      _errorMessage = '서명은 현재 프로필 이름과 동일하게 입력해 주세요.';
+      _errorMessage = l10n.mypageWithdrawalSignatureMismatch;
       notifyListeners();
       return;
     }
@@ -504,12 +514,12 @@ class MyPageController extends ChangeNotifier {
 
     try {
       await repository.submitWithdrawal(
-        agreementText: '개인정보 관리 및 30일 후 최종 삭제 정책에 동의합니다.',
+        agreementText: l10n.mypageWithdrawalAgreementText,
       );
       _phase = MyPageAsyncPhase.success;
       _isSubmittingWithdrawal = false;
       _withdrawalCompleted = true;
-      _pushToast('탈퇴 요청을 접수했어요. 계정은 비활성화되며 30일 뒤 최종 삭제됩니다.');
+      _pushToast(l10n.mypageWithdrawalSubmitted);
     } on MyPageRepositoryException catch (error) {
       _phase = MyPageAsyncPhase.validationError;
       _isSubmittingWithdrawal = false;
@@ -517,13 +527,14 @@ class MyPageController extends ChangeNotifier {
       _errorMessage =
           error.message ??
           (error.type == MyPageLoadFailureType.network
-              ? '네트워크 연결을 확인한 뒤 다시 시도해 주세요.'
-              : '탈퇴 요청을 처리하지 못했어요. 잠시 후 다시 시도해 주세요.');
+              ? l10n.commonNetworkRetry
+              : l10n.mypageWithdrawalSubmitError);
     }
     notifyListeners();
   }
 
   Future<bool> logout() async {
+    final l10n = MateyaLocalizations.current;
     if (_isLoggingOut) {
       return false;
     }
@@ -541,8 +552,8 @@ class MyPageController extends ChangeNotifier {
       _errorMessage =
           error.message ??
           (error.type == MyPageLoadFailureType.network
-              ? '네트워크 연결을 확인한 뒤 다시 시도해 주세요.'
-              : '로그아웃하지 못했어요. 잠시 후 다시 시도해 주세요.');
+              ? l10n.commonNetworkRetry
+              : l10n.mypageLogoutError);
       _pushToast(_errorMessage!);
       return false;
     } finally {
@@ -552,6 +563,7 @@ class MyPageController extends ChangeNotifier {
   }
 
   Future<void> _loadBundle() async {
+    final l10n = MateyaLocalizations.current;
     _phase = MyPageAsyncPhase.loading;
     _errorMessage = null;
     _route = isBusinessMode
@@ -585,11 +597,11 @@ class MyPageController extends ChangeNotifier {
       _errorMessage =
           error.message ??
           (error.type == MyPageLoadFailureType.network
-              ? '네트워크 연결을 확인한 뒤 다시 시도해 주세요.'
-              : '마이페이지 데이터를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.');
+              ? l10n.commonNetworkRetry
+              : l10n.mypageLoadError);
     } catch (_) {
       _phase = MyPageAsyncPhase.serverError;
-      _errorMessage = '마이페이지 데이터를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.';
+      _errorMessage = l10n.mypageLoadError;
     }
 
     notifyListeners();

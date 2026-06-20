@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
+import '../../../shared/localization/mateya_localizations.dart';
 import '../../onboarding/domain/onboarding_flow.dart';
 import '../data/chat_repository.dart';
 import '../domain/chat_models.dart';

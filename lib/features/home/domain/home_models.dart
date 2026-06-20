@@ -1,3 +1,5 @@
+import '../../../shared/localization/mateya_localizations.dart';
+
 enum HomeSection { home, explore, favorites, nearbyCultureMap, chat, profile }
 
 enum HomeLoadFailureType { network, server }
@@ -217,48 +219,66 @@ const Set<String> kSupportedExploreLanguageCodes = <String>{
   'ja',
 };
 
-const List<ActivityLanguageOption> kPrimaryLanguages = <ActivityLanguageOption>[
-  ActivityLanguageOption(code: 'ko', label: '한국어'),
-  ActivityLanguageOption(code: 'en', label: '영어'),
-  ActivityLanguageOption(code: 'ja', label: '일본어'),
-  ActivityLanguageOption(code: 'zh', label: '중국어'),
-];
+List<ActivityLanguageOption> get kPrimaryLanguages {
+  final l10n = MateyaLocalizations.current;
+  return <ActivityLanguageOption>[
+    ActivityLanguageOption(code: 'ko', label: l10n.languageKorean),
+    ActivityLanguageOption(code: 'en', label: l10n.languageEnglish),
+    ActivityLanguageOption(code: 'ja', label: l10n.languageJapanese),
+    ActivityLanguageOption(code: 'zh', label: l10n.languageChineseSimplified),
+  ];
+}
 
 extension ActivitySortOptionX on ActivitySortOption {
-  String get label => switch (this) {
-    ActivitySortOption.recommended => '추천순',
-    ActivitySortOption.popular => '인기순',
-    ActivitySortOption.latest => '최신순',
-    ActivitySortOption.closingSoon => '마감임박순',
-    ActivitySortOption.nearby => '가까운 거리순',
-  };
+  String get label {
+    final l10n = MateyaLocalizations.current;
+    return switch (this) {
+      ActivitySortOption.recommended => l10n.homeSortRecommended,
+      ActivitySortOption.popular => l10n.homeSortPopular,
+      ActivitySortOption.latest => l10n.homeSortLatest,
+      ActivitySortOption.closingSoon => l10n.homeSortClosingSoon,
+      ActivitySortOption.nearby => l10n.homeSortNearby,
+    };
+  }
 }
 
 extension ActivityAudienceOptionX on ActivityAudienceOption {
-  String get label => switch (this) {
-    ActivityAudienceOption.everyone => '누구나',
-    ActivityAudienceOption.foreignerFriendly => '외국인 환영',
-    ActivityAudienceOption.koreanFriendly => '한국인 환영',
-    ActivityAudienceOption.touristFriendly => '관광객 추천',
-    ActivityAudienceOption.beginnerFriendly => '초보자 환영',
-  };
+  String get label {
+    final l10n = MateyaLocalizations.current;
+    return switch (this) {
+      ActivityAudienceOption.everyone => l10n.homeAudienceEveryone,
+      ActivityAudienceOption.foreignerFriendly =>
+        l10n.homeAudienceForeignerFriendly,
+      ActivityAudienceOption.koreanFriendly => l10n.homeAudienceKoreanFriendly,
+      ActivityAudienceOption.touristFriendly =>
+        l10n.homeAudienceTouristFriendly,
+      ActivityAudienceOption.beginnerFriendly =>
+        l10n.homeAudienceBeginnerFriendly,
+    };
+  }
 }
 
 extension ActivityStatusOptionX on ActivityStatusOption {
-  String get label => switch (this) {
-    ActivityStatusOption.recruiting => '모집 중',
-    ActivityStatusOption.closingSoon => '곧 마감 (24시간 내)',
-    ActivityStatusOption.newlyListed => '신규 등록 (24시간 내)',
-  };
+  String get label {
+    final l10n = MateyaLocalizations.current;
+    return switch (this) {
+      ActivityStatusOption.recruiting => l10n.homeStatusRecruiting,
+      ActivityStatusOption.closingSoon => l10n.homeStatusClosingSoon,
+      ActivityStatusOption.newlyListed => l10n.homeStatusNewlyListed,
+    };
+  }
 }
 
 extension DistanceRangeOptionX on DistanceRangeOption {
-  String get label => switch (this) {
-    DistanceRangeOption.local => '내 지역',
-    DistanceRangeOption.within1km => '1km 이내',
-    DistanceRangeOption.within5km => '5km 이내',
-    DistanceRangeOption.within10km => '10km 이내',
-  };
+  String get label {
+    final l10n = MateyaLocalizations.current;
+    return switch (this) {
+      DistanceRangeOption.local => l10n.homeDistanceLocal,
+      DistanceRangeOption.within1km => l10n.homeDistanceWithin1km,
+      DistanceRangeOption.within5km => l10n.homeDistanceWithin5km,
+      DistanceRangeOption.within10km => l10n.homeDistanceWithin10km,
+    };
+  }
 
   int get maxDistanceKm => switch (this) {
     DistanceRangeOption.local => 0,

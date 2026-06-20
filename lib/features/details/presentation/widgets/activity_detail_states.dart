@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../shared/localization/mateya_localizations.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../../shared/widgets/mateya_skeleton.dart';
 
@@ -333,7 +334,7 @@ class DetailErrorState extends StatelessWidget {
               style: FilledButton.styleFrom(
                 backgroundColor: AppColors.brandGreen,
               ),
-              child: const Text('다시 시도'),
+              child: Text(context.l10n.commonRetry),
             ),
           ],
         ),

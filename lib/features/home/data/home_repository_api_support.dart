@@ -20,7 +20,7 @@ String _fallbackCategoryLabel(String code) {
       return category.label;
     }
   }
-  return '공공시설';
+  return MateyaLocalizations.current.activityCategoryPublicFacility;
 }
 
 String _sortToServerValue(ActivitySortOption value) => switch (value) {

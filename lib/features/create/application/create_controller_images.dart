@@ -4,6 +4,7 @@ Future<void> _addImagesFor(
   CreateController controller,
   List<XFile> files,
 ) async {
+  final l10n = MateyaLocalizations.current;
   if (files.isEmpty) {
     return;
   }
@@ -12,7 +13,7 @@ Future<void> _addImagesFor(
       CreateController.maxImageCount - controller._images.length;
   if (availableSlots <= 0) {
     controller._emitToast(
-      '이미지는 최대 ${CreateController.maxImageCount}장까지 등록할 수 있어요.',
+      l10n.createImageLimitExceeded(CreateController.maxImageCount),
     );
     controller._notifyChanged();
     return;
@@ -22,13 +23,13 @@ Future<void> _addImagesFor(
   for (final file in files.take(availableSlots)) {
     final extension = file.name.split('.').last.toLowerCase();
     if (!CreateController.allowedExtensions.contains(extension)) {
-      controller._emitToast('JPG, PNG, WEBP, GIF 형식의 이미지만 등록할 수 있어요.');
+      controller._emitToast(l10n.createImageInvalidFormat);
       continue;
     }
 
     final sizeBytes = await File(file.path).length();
     if (sizeBytes > CreateController.maxImageBytes) {
-      controller._emitToast('이미지 한 장당 최대 10MB까지 등록할 수 있어요.');
+      controller._emitToast(l10n.createImageMaxSize);
       continue;
     }
 

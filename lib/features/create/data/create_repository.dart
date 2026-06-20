@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../../app/app_config.dart';
 import '../../../shared/auth/auth_session.dart';
+import '../../../shared/localization/mateya_localizations.dart';
 import '../../../shared/logging/app_logger.dart';
 import '../../../shared/network/http_transport.dart';
 import '../../../shared/network/mateya_api_client.dart';

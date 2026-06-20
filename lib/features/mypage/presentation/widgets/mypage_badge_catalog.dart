@@ -1,3 +1,4 @@
+import '../../../../shared/localization/mateya_localizations.dart';
 import '../../domain/mypage_models.dart';
 
 const int kMyPageBadgeCatalogCount = 4;
@@ -5,18 +6,27 @@ const int kMyPageBadgeCatalogCount = 4;
 class MyPageBadgeVisual {
   const MyPageBadgeVisual({
     required this.key,
-    required this.label,
     required this.activeAssetPath,
     required this.disabledAssetPath,
   });
 
   final String key;
-  final String label;
   final String activeAssetPath;
   final String disabledAssetPath;
 
   String assetPathFor(bool isEarned) =>
       isEarned ? activeAssetPath : disabledAssetPath;
+
+  String get localizedLabel {
+    final l10n = MateyaLocalizations.current;
+    return switch (key) {
+      'traditional' => l10n.mypageBadgeTraditional,
+      'active_person' => l10n.mypageBadgeActivePerson,
+      'festive' => l10n.mypageBadgeFestive,
+      'tourist' => l10n.mypageBadgeTourist,
+      _ => key,
+    };
+  }
 }
 
 class MyPageBadgeDisplaySlot {
@@ -31,25 +41,21 @@ class MyPageBadgeDisplaySlot {
 const List<MyPageBadgeVisual> kMyPageBadgeCatalog = <MyPageBadgeVisual>[
   MyPageBadgeVisual(
     key: 'traditional',
-    label: 'traditional!',
     activeAssetPath: 'assets/images/badges/badge - traditional.png',
     disabledAssetPath: 'assets/images/badges/badge - traditional  disabled.png',
   ),
   MyPageBadgeVisual(
     key: 'active_person',
-    label: 'active person',
     activeAssetPath: 'assets/images/badges/badge - activeperson.png',
     disabledAssetPath: 'assets/images/badges/badge - activeperson disabled.png',
   ),
   MyPageBadgeVisual(
     key: 'festive',
-    label: 'festive!',
     activeAssetPath: 'assets/images/badges/badge - festival.png',
     disabledAssetPath: 'assets/images/badges/badge - festival disabled.png',
   ),
   MyPageBadgeVisual(
     key: 'tourist',
-    label: 'tourist',
     activeAssetPath: 'assets/images/badges/badge - tourist.png',
     disabledAssetPath: 'assets/images/badges/badge - tourist disabled.png',
   ),
@@ -118,25 +124,24 @@ String? resolveMyPageBadgeVisualKey(ActivityBadge badge) {
 
   final label = badge.label.trim().toLowerCase();
   final categoryLabel = badge.categoryLabel.trim();
+  final l10n = MateyaLocalizations.current;
 
-  if (label.contains('traditional') || categoryLabel.contains('전통')) {
+  if (label.contains('traditional') ||
+      categoryLabel.contains(l10n.activityCategoryCultureTradition)) {
     return 'traditional';
   }
   if (label.contains('active') ||
-      categoryLabel.contains('스포츠') ||
-      categoryLabel.contains('액티비티') ||
-      categoryLabel.contains('레포츠')) {
+      categoryLabel.contains(l10n.activityCategorySports) ||
+      categoryLabel.contains(l10n.activityCategoryActivityLeports)) {
     return 'active_person';
   }
   if (label.contains('festive') ||
-      categoryLabel.contains('행사') ||
-      categoryLabel.contains('공연') ||
-      categoryLabel.contains('축제')) {
+      categoryLabel.contains(l10n.activityCategoryEventPerformanceFestival)) {
     return 'festive';
   }
   if (label.contains('tourist') ||
-      categoryLabel.contains('관광') ||
-      categoryLabel.contains('여행코스')) {
+      categoryLabel.contains(l10n.activityCategoryTouristAttraction) ||
+      categoryLabel.contains(l10n.activityCategoryTravelCourse)) {
     return 'tourist';
   }
   return null;

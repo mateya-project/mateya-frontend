@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../../../shared/localization/mateya_localizations.dart';
 import '../../../../shared/theme/app_tokens.dart';
 
 class ExploreLanguageSupportNotice extends StatelessWidget {
@@ -9,7 +10,7 @@ class ExploreLanguageSupportNotice extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Text(
-      '현재 서버 검색 언어 필터는 한국어, 영어, 중국어, 일본어만 지원합니다.',
+      context.l10n.homeUnsupportedExploreLanguageFilter,
       style: Theme.of(
         context,
       ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
@@ -141,10 +142,16 @@ class CheckboxTag extends StatelessWidget {
 }
 
 class DateField extends StatelessWidget {
-  const DateField({super.key, required this.label, required this.onTap});
+  const DateField({
+    super.key,
+    required this.label,
+    required this.onTap,
+    this.isPlaceholder = false,
+  });
 
   final String label;
   final VoidCallback onTap;
+  final bool isPlaceholder;
 
   @override
   Widget build(BuildContext context) {
@@ -164,7 +171,7 @@ class DateField extends StatelessWidget {
               child: Text(
                 label,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: label.contains('-')
+                  color: isPlaceholder
                       ? AppColors.textMuted
                       : AppColors.textSecondary,
                 ),
@@ -224,7 +231,7 @@ class CompactNumberField extends StatelessWidget {
             ),
           ),
           Text(
-            '원',
+            '₩',
             style: Theme.of(
               context,
             ).textTheme.bodyMedium?.copyWith(color: AppColors.textMuted),

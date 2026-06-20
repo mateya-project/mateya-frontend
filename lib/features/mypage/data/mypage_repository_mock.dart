@@ -4,7 +4,7 @@ class MockMyPageRepository implements MyPageRepository {
   @override
   Future<MyPageBundle> fetchBundle({required bool isBusinessMode}) async {
     await Future<void>.delayed(const Duration(milliseconds: 420));
-    return const MyPageBundle(
+    return MyPageBundle(
       personalPage: _personalPage,
       otherProfile: _otherProfile,
       recentActivity: _recentActivity,

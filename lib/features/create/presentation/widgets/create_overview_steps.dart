@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../shared/localization/mateya_localizations.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../../shared/widgets/mateya_button.dart';
 import '../../../../shared/widgets/mateya_header.dart';
@@ -97,15 +98,19 @@ class CategoryStepView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final theme = Theme.of(context);
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(24, 8, 24, 0),
       children: <Widget>[
-        Text('무엇을 경험하고 싶나요?', style: theme.textTheme.headlineMedium),
+        Text(
+          l10n.createCategoryPromptTitle,
+          style: theme.textTheme.headlineMedium,
+        ),
         const SizedBox(height: 10),
         Text(
-          '모임 목적에 맞는 카테고리를 선택해주세요.',
+          l10n.createCategoryPromptDescription,
           style: theme.textTheme.bodyMedium?.copyWith(
             color: AppColors.textPrimary,
           ),
@@ -154,6 +159,7 @@ class CompletedStepView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final theme = Theme.of(context);
     final result = controller.submitResult;
 
@@ -184,8 +190,8 @@ class CompletedStepView extends StatelessWidget {
           const SizedBox(height: 12),
           Text(
             controller.isEditMode
-                ? '수정한 내용을 저장했고, 확인 후 이전 화면으로 돌아갈 수 있습니다.'
-                : '등록한 내용을 저장했고, 확인 후 홈으로 돌아갈 수 있습니다.',
+                ? l10n.createCompletedEditDescription
+                : l10n.createCompletedCreateDescription,
             style: theme.textTheme.bodyMedium?.copyWith(
               color: AppColors.textSecondary,
             ),
@@ -200,7 +206,9 @@ class CompletedStepView extends StatelessWidget {
             ),
           const Spacer(),
           MateyaButton(
-            label: controller.isEditMode ? '이전 화면으로 돌아가기' : '홈으로 돌아가기',
+            label: controller.isEditMode
+                ? l10n.createBackToPrevious
+                : l10n.createBackToHome,
             onPressed: onDone,
           ),
         ],
@@ -294,12 +302,18 @@ class _CreateStepTracker extends StatelessWidget {
   }
 
   String _stepLabel(CreateStep step) {
+    final l10n = MateyaLocalizations.current;
     return switch (step) {
-      CreateStep.category => '모임 유형',
-      CreateStep.place => flowType == CreateFlowType.group ? '모임 장소' : '클래스 장소',
+      CreateStep.category => l10n.createStepCategory,
+      CreateStep.place =>
+        flowType == CreateFlowType.group
+            ? l10n.createStepPlaceGroup
+            : l10n.createStepPlaceClass,
       CreateStep.details =>
-        flowType == CreateFlowType.group ? '모임 상세' : '클래스 상세',
-      CreateStep.completed => '완료',
+        flowType == CreateFlowType.group
+            ? l10n.createStepDetailsGroup
+            : l10n.createStepDetailsClass,
+      CreateStep.completed => l10n.createCompletedProgress,
     };
   }
 
@@ -341,7 +355,7 @@ class _CreateStepTrackerItem extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          'step$stepNumber',
+          '$stepNumber',
           style: theme.textTheme.bodySmall?.copyWith(
             color: AppColors.textSecondary,
             fontSize: 11,
@@ -479,61 +493,63 @@ class _CategorySelectionCard extends StatelessWidget {
 }
 
 _CategoryCardContent _categoryCardContentFor(CreateCategoryOption category) {
-  final predefined = _categoryCardContents[category.id];
+  final predefined = _categoryCardContents()[category.id];
   if (predefined != null) {
     return predefined;
   }
 
   return _CategoryCardContent(
     title: category.label,
-    description: '모임 목적에 맞는 카테고리를 선택해주세요.',
+    description: MateyaLocalizations.current.createCategoryPromptDescription,
     icon: Icons.category_outlined,
   );
 }
 
-const Map<String, _CategoryCardContent> _categoryCardContents =
-    <String, _CategoryCardContent>{
-      'TOURIST_ATTRACTION': _CategoryCardContent(
-        title: '관광지',
-        description: '손끝으로 잇는 전통',
-        icon: Icons.temple_buddhist_outlined,
-      ),
-      'TRAVEL_COURSE': _CategoryCardContent(
-        title: '여행코스',
-        description: '걸으며 발견하는 매력',
-        icon: Icons.location_on_outlined,
-      ),
-      'CULTURE_TRADITION': _CategoryCardContent(
-        title: '문화 · 전통',
-        description: '한국의 고즈넉함',
-        icon: Icons.account_balance_outlined,
-      ),
-      'EVENT_PERFORMANCE_FESTIVAL': _CategoryCardContent(
-        title: '행사 · 공연 · 축제',
-        description: '지역과 활기의 낭만',
-        icon: Icons.celebration_outlined,
-      ),
-      'SPORTS': _CategoryCardContent(
-        title: '스포츠',
-        description: '몸으로 즐기는 한국',
-        icon: Icons.sports_soccer_outlined,
-      ),
-      'ACTIVITY_LEPORTS': _CategoryCardContent(
-        title: '액티비티 · 레포츠',
-        description: '움직일수록 커지는 설렘',
-        icon: Icons.downhill_skiing_outlined,
-      ),
-      'PUBLIC_FACILITY': _CategoryCardContent(
-        title: '공공시설',
-        description: '예상 못 한 특별함',
-        icon: Icons.auto_awesome_outlined,
-      ),
-      'SHOPPING': _CategoryCardContent(
-        title: '쇼핑',
-        description: '취향으로 담아가는 순간',
-        icon: Icons.shopping_bag_outlined,
-      ),
-    };
+Map<String, _CategoryCardContent> _categoryCardContents() {
+  final l10n = MateyaLocalizations.current;
+  return <String, _CategoryCardContent>{
+    'TOURIST_ATTRACTION': _CategoryCardContent(
+      title: l10n.activityCategoryTouristAttraction,
+      description: l10n.createCategoryDescriptionTourist,
+      icon: Icons.temple_buddhist_outlined,
+    ),
+    'TRAVEL_COURSE': _CategoryCardContent(
+      title: l10n.activityCategoryTravelCourse,
+      description: l10n.createCategoryDescriptionTravelCourse,
+      icon: Icons.location_on_outlined,
+    ),
+    'CULTURE_TRADITION': _CategoryCardContent(
+      title: l10n.createCategoryTitleCultureTradition,
+      description: l10n.createCategoryDescriptionCultureTradition,
+      icon: Icons.account_balance_outlined,
+    ),
+    'EVENT_PERFORMANCE_FESTIVAL': _CategoryCardContent(
+      title: l10n.createCategoryTitleEventPerformanceFestival,
+      description: l10n.createCategoryDescriptionFestival,
+      icon: Icons.celebration_outlined,
+    ),
+    'SPORTS': _CategoryCardContent(
+      title: l10n.activityCategorySports,
+      description: l10n.createCategoryDescriptionSports,
+      icon: Icons.sports_soccer_outlined,
+    ),
+    'ACTIVITY_LEPORTS': _CategoryCardContent(
+      title: l10n.createCategoryTitleActivityLeports,
+      description: l10n.createCategoryDescriptionActivityLeports,
+      icon: Icons.downhill_skiing_outlined,
+    ),
+    'PUBLIC_FACILITY': _CategoryCardContent(
+      title: l10n.activityCategoryPublicFacility,
+      description: l10n.createCategoryDescriptionPublicFacility,
+      icon: Icons.auto_awesome_outlined,
+    ),
+    'SHOPPING': _CategoryCardContent(
+      title: l10n.activityCategoryShopping,
+      description: l10n.createCategoryDescriptionShopping,
+      icon: Icons.shopping_bag_outlined,
+    ),
+  };
+}
 
 class _CategoryCardContent {
   const _CategoryCardContent({

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 
+import '../../../../shared/localization/mateya_localizations.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../domain/chat_models.dart';
 import 'chat_formatters.dart';
@@ -218,7 +219,12 @@ class BubblePayload extends StatelessWidget {
     ];
 
     if (children.isEmpty) {
-      children.add(Text('사진', style: textStyle?.copyWith(color: textColor)));
+      children.add(
+        Text(
+          context.l10n.chatAttachmentPhotoOnly,
+          style: textStyle?.copyWith(color: textColor),
+        ),
+      );
     }
 
     return Column(

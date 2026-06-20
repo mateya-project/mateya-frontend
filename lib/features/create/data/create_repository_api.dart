@@ -65,7 +65,8 @@ class ApiCreateRepository implements CreateRepository {
               (json['placeAddress'] as String?) ??
               '',
           address: json['placeAddress'] as String? ?? '',
-          description: '기존 활동 장소',
+          description:
+              MateyaLocalizations.current.createExistingPlaceDescription,
           distanceKm: 0,
           latitude: (json['latitude'] as num?)?.toDouble(),
           longitude: (json['longitude'] as num?)?.toDouble(),
@@ -272,9 +273,9 @@ class ApiCreateRepository implements CreateRepository {
       fallbackPlaceCategoryCode: draft.place.serverCategoryCode,
     );
     if (categoryCode == null) {
-      throw const CreateRepositoryException(
+      throw CreateRepositoryException(
         CreateRepositoryFailureType.server,
-        message: '선택한 장소에서 서버 카테고리를 확정할 수 없어요. 다른 장소를 선택해 주세요.',
+        message: MateyaLocalizations.current.createResolveServerCategoryFailed,
       );
     }
 
@@ -359,9 +360,9 @@ class ApiCreateRepository implements CreateRepository {
 
   Future<List<String>> _uploadImages(List<CreateImageAsset> images) async {
     if (images.isEmpty) {
-      throw const CreateRepositoryException(
+      throw CreateRepositoryException(
         CreateRepositoryFailureType.server,
-        message: '대표 이미지를 1장 이상 등록해 주세요.',
+        message: MateyaLocalizations.current.createUploadImageRequired,
       );
     }
 
@@ -374,9 +375,9 @@ class ApiCreateRepository implements CreateRepository {
 
       final contentType = _contentTypeFor(image.name);
       if (contentType == null) {
-        throw const CreateRepositoryException(
+        throw CreateRepositoryException(
           CreateRepositoryFailureType.server,
-          message: 'JPG, PNG, WEBP, GIF 형식의 이미지만 업로드할 수 있어요.',
+          message: MateyaLocalizations.current.createUploadImageInvalidFormat,
         );
       }
 
@@ -412,9 +413,9 @@ class ApiCreateRepository implements CreateRepository {
         bodyBytes: fileBytes,
       );
       if (uploadResponse.statusCode < 200 || uploadResponse.statusCode >= 300) {
-        throw const CreateRepositoryException(
+        throw CreateRepositoryException(
           CreateRepositoryFailureType.server,
-          message: '이미지 업로드에 실패했어요. 잠시 후 다시 시도해 주세요.',
+          message: MateyaLocalizations.current.createUploadImageFailed,
         );
       }
 
@@ -426,9 +427,9 @@ class ApiCreateRepository implements CreateRepository {
       final confirmedJson = _asMap(confirmedData);
       final publicUrl = confirmedJson['publicUrl'] as String?;
       if (publicUrl == null || publicUrl.isEmpty) {
-        throw const CreateRepositoryException(
+        throw CreateRepositoryException(
           CreateRepositoryFailureType.server,
-          message: '이미지 업로드 확인에 실패했어요. 잠시 후 다시 시도해 주세요.',
+          message: MateyaLocalizations.current.createUploadImageConfirmFailed,
         );
       }
       uploadedUrls.add(publicUrl);

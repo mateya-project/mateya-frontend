@@ -56,13 +56,16 @@ String? _resolveRoomImageUrl(
 }
 
 String _resolveRoomTitle(String? rawTitle, {required ChatRoomType type}) {
+  final l10n = MateyaLocalizations.current;
   final trimmed = rawTitle?.trim() ?? '';
   if (trimmed.isEmpty) {
-    return type == ChatRoomType.direct ? '1:1 채팅' : '채팅방';
+    return type == ChatRoomType.direct
+        ? l10n.chatDefaultDirectRoomTitle
+        : l10n.chatDefaultGroupRoomTitle;
   }
   if (type == ChatRoomType.direct &&
       RegExp(r'^direct:\d+:\d+$').hasMatch(trimmed)) {
-    return '1:1 채팅';
+    return l10n.chatDefaultDirectRoomTitle;
   }
   return trimmed;
 }

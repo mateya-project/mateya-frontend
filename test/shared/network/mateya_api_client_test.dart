@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mateya_app/shared/auth/auth_session.dart';
 import 'package:mateya_app/shared/network/http_transport.dart';
 import 'package:mateya_app/shared/network/mateya_api_client.dart';
+import 'package:mateya_app/shared/preferences/mateya_language_preferences.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -11,7 +12,7 @@ void main() {
 
   test('MateyaApiClient refreshes token after 401 and retries once', () async {
     SharedPreferences.setMockInitialValues(<String, Object>{});
-    final store = AuthSessionStore.instance;
+    final store = AuthSessionStore();
     store.clear();
     await store.flush();
     store.save(
@@ -49,11 +50,34 @@ void main() {
     expect(transport.meRequestCount, 2);
     expect(transport.refreshRequestCount, 1);
   });
+
+  test(
+    'MateyaApiClient sends Accept-Language using backend language code',
+    () async {
+      SharedPreferences.setMockInitialValues(<String, Object>{
+        'mateya.language.selected_code': 'zh-Hans',
+      });
+      await MateyaLanguagePreferences.instance.currentCode();
+      final store = AuthSessionStore();
+
+      final transport = _FakeHttpTransport();
+      final client = MateyaApiClient(
+        baseUrl: 'https://api.mateya.cloud',
+        sessionStore: store,
+        transport: transport,
+      );
+
+      await client.getJson('/api/v1/public/ping');
+
+      expect(transport.lastAcceptLanguage, 'zh');
+    },
+  );
 }
 
 class _FakeHttpTransport implements HttpTransport {
   int meRequestCount = 0;
   int refreshRequestCount = 0;
+  String? lastAcceptLanguage;
 
   @override
   Future<HttpTransportResponse> send({
@@ -63,6 +87,7 @@ class _FakeHttpTransport implements HttpTransport {
     String? body,
     List<int>? bodyBytes,
   }) async {
+    lastAcceptLanguage = headers['Accept-Language'];
     if (uri.path == '/api/v1/auth/refresh') {
       refreshRequestCount += 1;
       return HttpTransportResponse(
@@ -110,6 +135,16 @@ class _FakeHttpTransport implements HttpTransport {
             'code': 'authentication-required',
             'message': '만료된 토큰입니다.',
           },
+        }),
+      );
+    }
+
+    if (uri.path == '/api/v1/public/ping') {
+      return HttpTransportResponse(
+        statusCode: 200,
+        body: jsonEncode(<String, Object?>{
+          'success': true,
+          'data': <String, Object?>{'ok': true},
         }),
       );
     }

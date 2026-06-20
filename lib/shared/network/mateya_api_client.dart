@@ -2,7 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 
 import '../auth/auth_session.dart';
+import '../localization/mateya_localizations.dart';
 import '../logging/app_logger.dart';
+import '../preferences/mateya_language_preferences.dart';
 import 'http_transport.dart';
 
 enum ApiFailureType { network, validation, unauthorized, server }
@@ -128,6 +130,7 @@ class MateyaApiClient {
     final uri = _buildUri(path, query.isEmpty ? null : query);
     final headers = <String, String>{
       'Accept': 'application/json',
+      'Accept-Language': MateyaLanguagePreferences.instance.primaryLanguageCode,
       if (body != null) 'Content-Type': 'application/json',
     };
 
@@ -147,7 +150,7 @@ class MateyaApiClient {
       if (accessToken == null || accessToken.isEmpty) {
         throw MateyaApiException(
           type: ApiFailureType.unauthorized,
-          message: '로그인이 필요합니다.',
+          message: MateyaLocalizations.current.authLoginRequired,
           path: path,
         );
       }
@@ -231,7 +234,7 @@ class MateyaApiClient {
       );
       throw MateyaApiException(
         type: ApiFailureType.network,
-        message: '네트워크 연결을 확인한 뒤 다시 시도해 주세요.',
+        message: MateyaLocalizations.current.commonNetworkRetry,
         path: path,
       );
     } catch (error, stackTrace) {
@@ -248,7 +251,7 @@ class MateyaApiClient {
       );
       throw MateyaApiException(
         type: ApiFailureType.network,
-        message: '네트워크 연결을 확인한 뒤 다시 시도해 주세요.',
+        message: MateyaLocalizations.current.commonNetworkRetry,
         path: path,
       );
     }
@@ -327,7 +330,7 @@ class MateyaApiClient {
     required String fallbackPath,
     String? fallbackCorrelationId,
   }) {
-    String message = '요청 처리 중 오류가 발생했습니다.';
+    String message = MateyaLocalizations.current.commonRequestError;
     String? code;
     String? title;
     String? path = fallbackPath;

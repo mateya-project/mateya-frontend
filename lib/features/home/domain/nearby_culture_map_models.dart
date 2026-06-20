@@ -1,4 +1,5 @@
 import '../../../shared/activity_categories/activity_category_repository.dart';
+import '../../../shared/localization/mateya_localizations.dart';
 
 enum NearbyCultureMapLoadFailureType { network, server }
 
@@ -46,7 +47,9 @@ class NearbyCultureMapPlace {
       if (regionSigungu != null && regionSigungu!.trim().isNotEmpty)
         regionSigungu!.trim(),
     ];
-    return parts.isEmpty ? '주변 장소' : parts.join(' · ');
+    return parts.isEmpty
+        ? MateyaLocalizations.current.homeNearbyMapBadgeFallback
+        : parts.join(' · ');
   }
 }
 

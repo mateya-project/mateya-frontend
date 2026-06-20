@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../shared/localization/mateya_localizations.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../create/presentation/widgets/create_place_widgets.dart'
     show EmptyStateCard;
@@ -66,10 +67,10 @@ class _NearbyCultureMapPlaceCarouselState
   @override
   Widget build(BuildContext context) {
     if (widget.places.isEmpty) {
-      return const EmptyStateCard(
+      return EmptyStateCard(
         icon: Icons.map_outlined,
-        title: '주변 장소를 찾지 못했어요',
-        body: '검색어를 바꾸거나 현재 위치를 다시 불러와 보세요.',
+        title: context.l10n.homeNearbyMapEmptyTitle,
+        body: context.l10n.homeNearbyMapEmptyBody,
       );
     }
 
@@ -310,10 +311,13 @@ class NearbyCultureMapPlaceListSheet extends StatelessWidget {
             const SizedBox(height: 16),
             Row(
               children: <Widget>[
-                Text('주변 장소 목록', style: Theme.of(context).textTheme.titleLarge),
+                Text(
+                  context.l10n.homeNearbyMapListTitle,
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
                 const Spacer(),
                 Text(
-                  '${places.length}곳',
+                  context.l10n.homeNearbyMapPlaceCount(places.length),
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: AppColors.textSecondary,
                   ),
@@ -422,7 +426,7 @@ class _NearbyCultureMapListButton extends StatelessWidget {
               ),
               const SizedBox(width: 6),
               Text(
-                '목록보기',
+                context.l10n.homeNearbyMapListButton,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: AppColors.textPrimary,
                   fontWeight: FontWeight.w700,

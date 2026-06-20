@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../localization/mateya_localizations.dart';
 import '../permissions/mateya_permission_dialogs.dart';
 import 'image_picker_lost_data.dart';
 
@@ -76,12 +77,13 @@ Future<List<XFile>> pickMateyaGalleryImages(
     return const <XFile>[];
   }
 
+  final l10n = context.l10n;
   final shouldContinue = await showMateyaPermissionNoticeDialog(
     context,
-    title: '사진 권한 안내',
+    title: l10n.galleryPermissionNoticeTitle,
     message: messages.noticeMessage,
-    confirmLabel: '사진 선택하기',
-    cancelLabel: '나중에',
+    confirmLabel: l10n.galleryPermissionSelectPhoto,
+    cancelLabel: l10n.commonLater,
     rememberKey: 'permission.notice.photo_library',
   );
   if (!context.mounted || !shouldContinue) {
@@ -104,9 +106,9 @@ Future<List<XFile>> pickMateyaGalleryImages(
     if (error.code == 'photo_access_denied') {
       final action = await showMateyaPermissionRecoveryDialog(
         context,
-        title: '사진 권한이 필요해요',
+        title: l10n.galleryPermissionRecoveryTitle,
         message: messages.recoveryMessage,
-        retryLabel: '다시 시도',
+        retryLabel: l10n.commonRetry,
       );
       if (!context.mounted) {
         return const <XFile>[];

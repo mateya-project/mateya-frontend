@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../../../../shared/localization/mateya_localizations.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../application/home_controller.dart';
 import '../../domain/home_models.dart';
@@ -247,6 +248,7 @@ class ExploreResultsFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     if (controller.isLoadingMoreExplore) {
       return const Padding(
         padding: EdgeInsets.only(top: 8, bottom: 24),
@@ -262,7 +264,7 @@ class ExploreResultsFooter extends StatelessWidget {
             const SizedBox(height: 8),
             OutlinedButton(
               onPressed: () => unawaited(controller.loadMoreExplore()),
-              child: const Text('더 불러오기'),
+              child: Text(l10n.homeLoadMore),
             ),
           ],
         ),
@@ -272,7 +274,7 @@ class ExploreResultsFooter extends StatelessWidget {
       return Padding(
         padding: const EdgeInsets.only(top: 8, bottom: 24),
         child: Text(
-          '${controller.exploreActivities.length}개 활동을 모두 불러왔어요.',
+          l10n.homeLoadedAllActivities(controller.exploreActivities.length),
           style: Theme.of(context).textTheme.bodySmall,
           textAlign: TextAlign.center,
         ),

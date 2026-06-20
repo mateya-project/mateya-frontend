@@ -1,6 +1,7 @@
 import '../../../app/app_config.dart';
 import '../../../shared/auth/auth_session.dart';
 import '../../../shared/activity_categories/activity_category_repository.dart';
+import '../../../shared/localization/mateya_localizations.dart';
 import '../../../shared/network/mateya_api_client.dart';
 import '../../../shared/time/korean_time.dart';
 import '../domain/home_models.dart';

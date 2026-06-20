@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../shared/localization/mateya_localizations.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../../shared/widgets/mateya_button.dart';
 import '../../../../shared/widgets/mateya_header.dart';
@@ -263,6 +264,7 @@ class MyPageRetryView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Column(
       key: const ValueKey<String>('mypage-retry'),
       children: <Widget>[
@@ -288,7 +290,10 @@ class MyPageRetryView extends StatelessWidget {
                   const SizedBox(height: 18),
                   SizedBox(
                     width: 180,
-                    child: MateyaButton(label: '다시 시도', onPressed: onRetry),
+                    child: MateyaButton(
+                      label: l10n.commonRetry,
+                      onPressed: onRetry,
+                    ),
                   ),
                 ],
               ),
@@ -318,6 +323,7 @@ class MyPageWithdrawalDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final name = controller.personalPage?.profile.name ?? '';
     final errorText = controller.phase == MyPageAsyncPhase.validationError
         ? controller.errorMessage
@@ -329,16 +335,13 @@ class MyPageWithdrawalDialog extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text('회원 탈퇴', style: Theme.of(context).textTheme.titleLarge),
+          Text(
+            l10n.mypageWithdrawalTitle,
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
           const SizedBox(height: 8),
           Text(
-            '회원 탈퇴를 진행하시겠습니까?\n'
-            '탈퇴 후 계정은 즉시 비활성화되며,\n'
-            '30일 동안 재가입 또는 로그인 시\n'
-            '탈퇴가 취소됩니다.\n\n'
-            '30일이 지나면 회원 정보 및 서비스 이용 기록은 '
-            '관련 법령에 따라 보관이 필요한 정보를 제외하고 '
-            '영구 삭제되며 복구할 수 없습니다.',
+            l10n.mypageWithdrawalDescription,
             style: Theme.of(
               context,
             ).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
@@ -360,7 +363,7 @@ class MyPageWithdrawalDialog extends StatelessWidget {
                 ),
                 Expanded(
                   child: Text(
-                    '개인정보 관리 및 30일 후 최종 삭제 정책에 동의합니다.',
+                    l10n.mypageWithdrawalAgreementCheckbox,
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                 ),
@@ -369,7 +372,7 @@ class MyPageWithdrawalDialog extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            '서명 입력',
+            l10n.mypageWithdrawalSignatureLabel,
             style: Theme.of(
               context,
             ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w700),
@@ -377,7 +380,7 @@ class MyPageWithdrawalDialog extends StatelessWidget {
           const SizedBox(height: 8),
           MateyaTextField(
             controller: signatureController,
-            hintText: '$name 입력',
+            hintText: l10n.mypageWithdrawalSignatureHint(name),
             errorText: errorText,
           ),
           if (controller.withdrawalCompleted) ...<Widget>[
@@ -390,7 +393,7 @@ class MyPageWithdrawalDialog extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
-                '탈퇴 요청이 접수되었습니다. 앱 재로그인 전까지 계정은 비활성 상태로 간주됩니다.',
+                l10n.mypageWithdrawalSubmittedNotice,
                 style: Theme.of(
                   context,
                 ).textTheme.bodySmall?.copyWith(color: AppColors.brandGreen),
@@ -412,15 +415,15 @@ class MyPageWithdrawalDialog extends StatelessWidget {
                       ),
                     ),
                   ),
-                  child: const Text('닫기'),
+                  child: Text(l10n.commonClose),
                 ),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: MateyaButton(
                   label: controller.isSubmittingWithdrawal
-                      ? '처리 중...'
-                      : '탈퇴 요청',
+                      ? l10n.commonProcessing
+                      : l10n.mypageWithdrawalRequest,
                   enabled: !controller.isSubmittingWithdrawal,
                   tone: MateyaButtonTone.dark,
                   onPressed: () {

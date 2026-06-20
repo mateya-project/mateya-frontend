@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 
 import '../../home/domain/home_models.dart';
 import '../../onboarding/domain/onboarding_flow.dart';
+import '../../../shared/localization/mateya_localizations.dart';
 import '../data/activity_detail_repository.dart';
 import '../domain/activity_detail_models.dart';
 
@@ -131,8 +132,9 @@ class ActivityDetailController extends ChangeNotifier {
 
   Future<String?> toggleFavorite() async {
     final current = _detail;
+    final l10n = MateyaLocalizations.current;
     if (current == null) {
-      return '활동 정보를 먼저 불러와야 합니다.';
+      return l10n.detailsActivityRequired;
     }
     if (_isMutatingFavorite) {
       return null;
@@ -150,7 +152,7 @@ class ActivityDetailController extends ChangeNotifier {
       _detail = current.copyWith(isFavorite: nextFavorite);
       return null;
     } on ActivityDetailRepositoryException catch (error) {
-      _errorMessage = error.message ?? '즐겨찾기 상태를 변경하지 못했어요. 잠시 후 다시 시도해 주세요.';
+      _errorMessage = error.message ?? l10n.detailsFavoriteToggleError;
       return _errorMessage;
     } finally {
       _isMutatingFavorite = false;
@@ -160,8 +162,9 @@ class ActivityDetailController extends ChangeNotifier {
 
   Future<String?> requestJoin() async {
     final current = _detail;
+    final l10n = MateyaLocalizations.current;
     if (current == null) {
-      return '활동 정보를 먼저 불러와야 합니다.';
+      return l10n.detailsActivityRequired;
     }
     if (_isRequestingJoin) {
       return null;
@@ -170,11 +173,11 @@ class ActivityDetailController extends ChangeNotifier {
       case ActivityParticipationState.available:
         break;
       case ActivityParticipationState.requested:
-        return '이미 참여 신청한 활동입니다.';
+        return l10n.detailsJoinAlreadyRequested;
       case ActivityParticipationState.joined:
-        return '이미 참여 중인 활동입니다.';
+        return l10n.detailsJoinAlreadyJoined;
       case ActivityParticipationState.host:
-        return '내가 만든 활동입니다.';
+        return l10n.detailsJoinHostedByMe;
     }
 
     _isRequestingJoin = true;
@@ -185,7 +188,7 @@ class ActivityDetailController extends ChangeNotifier {
       _detail = await repository.requestJoin(detail: current);
       return null;
     } on ActivityDetailRepositoryException catch (error) {
-      _errorMessage = error.message ?? '참여 신청을 완료하지 못했어요. 잠시 후 다시 시도해 주세요.';
+      _errorMessage = error.message ?? l10n.detailsJoinRequestError;
       return _errorMessage;
     } finally {
       _isRequestingJoin = false;
@@ -202,8 +205,9 @@ class ActivityDetailController extends ChangeNotifier {
 
   Future<String?> removeApprovedParticipant(String participantId) async {
     final current = _detail;
+    final l10n = MateyaLocalizations.current;
     if (current == null) {
-      return '활동 정보를 먼저 불러와야 합니다.';
+      return l10n.detailsActivityRequired;
     }
     _errorMessage = null;
     notifyListeners();
@@ -216,7 +220,7 @@ class ActivityDetailController extends ChangeNotifier {
       _armedParticipantRemovalId = null;
       return null;
     } on ActivityDetailRepositoryException catch (error) {
-      _errorMessage = error.message ?? '참여자를 삭제하지 못했어요. 잠시 후 다시 시도해 주세요.';
+      _errorMessage = error.message ?? l10n.detailsParticipantRemoveError;
       return _errorMessage;
     } finally {
       notifyListeners();
@@ -225,8 +229,9 @@ class ActivityDetailController extends ChangeNotifier {
 
   Future<String?> removePendingParticipant(String participantId) async {
     final current = _detail;
+    final l10n = MateyaLocalizations.current;
     if (current == null) {
-      return '활동 정보를 먼저 불러와야 합니다.';
+      return l10n.detailsActivityRequired;
     }
     _errorMessage = null;
     notifyListeners();
@@ -238,7 +243,7 @@ class ActivityDetailController extends ChangeNotifier {
       );
       return null;
     } on ActivityDetailRepositoryException catch (error) {
-      _errorMessage = error.message ?? '신청을 취소하지 못했어요. 잠시 후 다시 시도해 주세요.';
+      _errorMessage = error.message ?? l10n.detailsPendingCancelError;
       return _errorMessage;
     } finally {
       notifyListeners();
@@ -247,8 +252,9 @@ class ActivityDetailController extends ChangeNotifier {
 
   Future<String?> approvePendingParticipant(String participantId) async {
     final current = _detail;
+    final l10n = MateyaLocalizations.current;
     if (current == null) {
-      return '활동 정보를 먼저 불러와야 합니다.';
+      return l10n.detailsActivityRequired;
     }
     _errorMessage = null;
     notifyListeners();
@@ -260,7 +266,7 @@ class ActivityDetailController extends ChangeNotifier {
       );
       return null;
     } on ActivityDetailRepositoryException catch (error) {
-      _errorMessage = error.message ?? '참여 신청을 승인하지 못했어요. 잠시 후 다시 시도해 주세요.';
+      _errorMessage = error.message ?? l10n.detailsPendingApproveError;
       return _errorMessage;
     } finally {
       notifyListeners();
@@ -308,8 +314,9 @@ class ActivityDetailController extends ChangeNotifier {
 
   Future<String?> toggleHelpful(String reviewId) async {
     final current = _detail;
+    final l10n = MateyaLocalizations.current;
     if (current == null) {
-      return '후기 정보를 먼저 불러와야 합니다.';
+      return l10n.detailsReviewRequired;
     }
     if (_helpfulReviewIdsInFlight.contains(reviewId)) {
       return null;
@@ -335,7 +342,7 @@ class ActivityDetailController extends ChangeNotifier {
       _detail = current.copyWith(reviews: nextReviews);
       return null;
     } on ActivityDetailRepositoryException catch (error) {
-      _errorMessage = error.message ?? '도움이 돼요 상태를 변경하지 못했어요. 잠시 후 다시 시도해 주세요.';
+      _errorMessage = error.message ?? l10n.detailsHelpfulToggleError;
       return _errorMessage;
     } finally {
       _helpfulReviewIdsInFlight.remove(reviewId);
@@ -368,12 +375,13 @@ class ActivityDetailController extends ChangeNotifier {
     List<String> imageUrls = const <String>[],
   }) async {
     final current = _detail;
+    final l10n = MateyaLocalizations.current;
     if (current == null) {
-      return '활동 정보를 먼저 불러와야 합니다.';
+      return l10n.detailsActivityRequired;
     }
     final trimmed = body.trim();
     if (rating < 1 || rating > 5 || trimmed.isEmpty) {
-      return '별점과 후기를 입력해 주세요.';
+      return l10n.detailsReviewValidationRequired;
     }
     if (_isSubmittingReview) {
       return null;
@@ -419,7 +427,7 @@ class ActivityDetailController extends ChangeNotifier {
       );
       return null;
     } on ActivityDetailRepositoryException catch (error) {
-      _errorMessage = error.message ?? '후기를 등록하지 못했어요. 잠시 후 다시 시도해 주세요.';
+      _errorMessage = error.message ?? l10n.detailsReviewSubmitError;
       return _errorMessage;
     } finally {
       _isSubmittingReview = false;
@@ -428,6 +436,7 @@ class ActivityDetailController extends ChangeNotifier {
   }
 
   Future<void> _loadDetail() async {
+    final l10n = MateyaLocalizations.current;
     _phase = AsyncPhase.loading;
     _errorMessage = null;
     notifyListeners();
@@ -445,11 +454,11 @@ class ActivityDetailController extends ChangeNotifier {
       _errorMessage =
           error.message ??
           (error.type == ActivityDetailLoadFailureType.network
-              ? '네트워크 연결을 확인한 뒤 다시 시도해 주세요.'
-              : '활동 정보를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.');
+              ? l10n.commonNetworkRetry
+              : l10n.detailsLoadError);
     } catch (_) {
       _phase = AsyncPhase.serverError;
-      _errorMessage = '활동 정보를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.';
+      _errorMessage = l10n.detailsLoadError;
     }
 
     notifyListeners();

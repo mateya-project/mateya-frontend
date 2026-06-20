@@ -1,5 +1,6 @@
 import '../../../app/app_config.dart';
 import '../../../shared/auth/auth_session.dart';
+import '../../../shared/localization/mateya_localizations.dart';
 import '../../../shared/logging/app_logger.dart';
 import '../../../shared/network/mateya_api_client.dart';
 import '../domain/nearby_culture_map_models.dart';
@@ -164,9 +165,9 @@ Map<String, dynamic> _asMap(Object? value) {
   if (value is Map<String, dynamic>) {
     return value;
   }
-  throw const NearbyCultureMapRepositoryException(
+  throw NearbyCultureMapRepositoryException(
     NearbyCultureMapLoadFailureType.server,
-    '장소 데이터를 해석하지 못했어요.',
+    MateyaLocalizations.current.homeNearbyMapParseError,
   );
 }
 

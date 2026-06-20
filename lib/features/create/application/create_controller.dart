@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../shared/activity_categories/activity_category_repository.dart';
+import '../../../shared/localization/mateya_localizations.dart';
 import '../../onboarding/domain/onboarding_flow.dart';
 import '../data/create_repository.dart';
 import '../domain/create_models.dart';
@@ -144,9 +145,12 @@ class CreateController extends ChangeNotifier {
   String get screenTitle => isEditMode ? flowType.editLabel : flowType.label;
   String get submitActionLabel =>
       isEditMode ? flowType.updateSubmitLabel : flowType.submitLabel;
-  String get completedMessage => isEditMode
-      ? '${flowType.entityLabel} 수정이 완료됐어요'
-      : '${flowType.entityLabel} 등록이 완료됐어요';
+  String get completedMessage {
+    final l10n = MateyaLocalizations.current;
+    return isEditMode
+        ? l10n.createEditCompleted(flowType.entityLabel)
+        : l10n.createSubmitCompleted(flowType.entityLabel);
+  }
 
   List<CreateStep> get steps => flowType == CreateFlowType.group
       ? const <CreateStep>[
@@ -282,12 +286,13 @@ class CreateController extends ChangeNotifier {
   Future<void> searchPlaces() => _searchPlacesFor(this);
 
   void selectPlace(CreatePlaceSuggestion place) {
+    final l10n = MateyaLocalizations.current;
     if (!place.hasCoordinates) {
       _fieldErrors = <String, String?>{
         ..._fieldErrors,
-        'place': '위치 정보가 없는 장소라 선택할 수 없어요.',
+        'place': l10n.createPlaceCoordinateRequired,
       };
-      _emitToast('위치 정보가 없는 장소라 지도에 표시할 수 없어요.');
+      _emitToast(l10n.createPlaceMapCoordinateRequired);
       notifyListeners();
       return;
     }
@@ -440,22 +445,29 @@ class CreateController extends ChangeNotifier {
       _step = CreateStep.completed;
       if (_submitResult?.chatStatus == ChatProvisionStatus.failed) {
         _emitToast(
-          '${flowType.entityLabel}은 생성됐지만 채팅방 생성은 실패했어요. 다시 시도할 수 있게 연결할 예정입니다.',
+          MateyaLocalizations.current.createChatProvisionFailed(
+            flowType.entityLabel,
+          ),
         );
       }
     } on CreateRepositoryException catch (error) {
       _submitPhase = error.type == CreateRepositoryFailureType.network
           ? AsyncPhase.networkError
           : AsyncPhase.serverError;
+      final l10n = MateyaLocalizations.current;
       _emitToast(
         error.message ??
             (error.type == CreateRepositoryFailureType.network
-                ? '${flowType.entityLabel} 등록에 실패했어요. 네트워크를 확인해 주세요.'
-                : '${flowType.entityLabel} 등록에 실패했어요. 잠시 후 다시 시도해 주세요.'),
+                ? l10n.createSubmitFailedNetwork(flowType.entityLabel)
+                : l10n.createSubmitFailedServer(flowType.entityLabel)),
       );
     } catch (_) {
       _submitPhase = AsyncPhase.serverError;
-      _emitToast('${flowType.entityLabel} 등록에 실패했어요. 잠시 후 다시 시도해 주세요.');
+      _emitToast(
+        MateyaLocalizations.current.createSubmitFailedServer(
+          flowType.entityLabel,
+        ),
+      );
     }
 
     notifyListeners();
@@ -477,15 +489,16 @@ class CreateController extends ChangeNotifier {
       _deletePhase = error.type == CreateRepositoryFailureType.network
           ? AsyncPhase.networkError
           : AsyncPhase.serverError;
+      final l10n = MateyaLocalizations.current;
       _emitToast(
         error.message ??
             (error.type == CreateRepositoryFailureType.network
-                ? '삭제에 실패했어요. 네트워크를 확인해 주세요.'
-                : '삭제에 실패했어요. 잠시 후 다시 시도해 주세요.'),
+                ? l10n.createDeleteFailedNetwork
+                : l10n.createDeleteFailedServer),
       );
     } catch (_) {
       _deletePhase = AsyncPhase.serverError;
-      _emitToast('삭제에 실패했어요. 잠시 후 다시 시도해 주세요.');
+      _emitToast(MateyaLocalizations.current.createDeleteFailedServer);
     }
 
     notifyListeners();
@@ -590,15 +603,20 @@ class CreateController extends ChangeNotifier {
       _editDraftPhase = error.type == CreateRepositoryFailureType.network
           ? AsyncPhase.networkError
           : AsyncPhase.serverError;
+      final l10n = MateyaLocalizations.current;
       _emitToast(
         error.message ??
             (error.type == CreateRepositoryFailureType.network
-                ? '${flowType.entityLabel} 정보를 불러오지 못했어요. 네트워크를 확인해 주세요.'
-                : '${flowType.entityLabel} 정보를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.'),
+                ? l10n.createLoadEditFailedNetwork(flowType.entityLabel)
+                : l10n.createLoadEditFailedServer(flowType.entityLabel)),
       );
     } catch (_) {
       _editDraftPhase = AsyncPhase.serverError;
-      _emitToast('${flowType.entityLabel} 정보를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.');
+      _emitToast(
+        MateyaLocalizations.current.createLoadEditFailedServer(
+          flowType.entityLabel,
+        ),
+      );
     }
 
     notifyListeners();

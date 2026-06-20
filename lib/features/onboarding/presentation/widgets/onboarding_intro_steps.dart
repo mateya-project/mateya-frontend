@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../shared/localization/mateya_localizations.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../../shared/widgets/mateya_button.dart';
 import '../../../../shared/widgets/mateya_interaction.dart';
@@ -23,6 +24,7 @@ class WelcomeStepView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final theme = Theme.of(context);
 
     return Column(
@@ -52,7 +54,10 @@ class WelcomeStepView extends StatelessWidget {
                   child: const MateyaBrandLockup(),
                 ),
                 const Spacer(flex: 3),
-                MateyaButton(label: '시작하기', onPressed: onGuestTap),
+                MateyaButton(
+                  label: l10n.onboardingStart,
+                  onPressed: onGuestTap,
+                ),
                 const SizedBox(height: 15),
                 MateyaPressable(
                   onTap: onHostTap,
@@ -66,10 +71,10 @@ class WelcomeStepView extends StatelessWidget {
                         style: theme.textTheme.bodySmall?.copyWith(
                           fontSize: 12,
                         ),
-                        children: const <InlineSpan>[
-                          TextSpan(text: '사업자 이신가요? '),
+                        children: <InlineSpan>[
+                          TextSpan(text: l10n.onboardingBusinessPrompt),
                           TextSpan(
-                            text: '호스트로 시작하기',
+                            text: l10n.onboardingStartAsHost,
                             style: TextStyle(color: AppColors.brandGreen),
                           ),
                         ],
@@ -116,6 +121,7 @@ class ConsentOverlayStepView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final theme = Theme.of(context);
     final requiredDocuments = kRequiredOnboardingTermsDocuments;
 
@@ -159,15 +165,15 @@ class ConsentOverlayStepView extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Text(
-                    '메이트야 이용시 동의가 필요합니다.',
+                    l10n.onboardingConsentTitle,
                     style: theme.textTheme.headlineMedium,
                   ),
                   const SizedBox(height: 34),
                   AgreementRow(
-                    label: '모두 동의',
+                    label: l10n.onboardingAgreeAll,
                     selected: agreementState.isAllChecked,
                     emphasized: true,
-                    helperText: '아래 필수 및 선택항목에 모두 동의합니다.',
+                    helperText: l10n.onboardingAgreeAllHelper,
                     onChanged: onToggleAll,
                   ),
                   const SizedBox(height: 28),
@@ -182,7 +188,9 @@ class ConsentOverlayStepView extends StatelessWidget {
                         return Padding(
                           padding: const EdgeInsets.only(left: 16),
                           child: AgreementRow(
-                            label: '(필수) ${document.title}',
+                            label: l10n.onboardingRequiredAgreementLabel(
+                              document.title,
+                            ),
                             selected: _isAgreementSelected(
                               agreementState,
                               document.type,
@@ -212,7 +220,7 @@ class ConsentOverlayStepView extends StatelessWidget {
                   ],
                   const SizedBox(height: 40),
                   MateyaButton(
-                    label: '다음',
+                    label: l10n.commonNext,
                     tone: MateyaButtonTone.dark,
                     enabled: canProceed,
                     onPressed: onNext,
@@ -331,6 +339,7 @@ class _NameStepViewState extends State<NameStepView> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final theme = Theme.of(context);
 
     _textController.value = _textController.value.copyWith(
@@ -350,7 +359,10 @@ class _NameStepViewState extends State<NameStepView> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 const SizedBox(height: 46),
-                Text('이름을 입력해 주세요', style: theme.textTheme.headlineLarge),
+                Text(
+                  l10n.onboardingEnterName,
+                  style: theme.textTheme.headlineLarge,
+                ),
                 const SizedBox(height: 32),
                 MateyaTextField(
                   controller: _textController,
@@ -364,7 +376,7 @@ class _NameStepViewState extends State<NameStepView> {
                 Padding(
                   padding: const EdgeInsets.only(bottom: 20),
                   child: MateyaButton(
-                    label: '다음',
+                    label: l10n.commonNext,
                     tone: MateyaButtonTone.dark,
                     enabled: widget.controller.canContinueName,
                     onPressed: widget.controller.submitName,

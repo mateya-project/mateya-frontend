@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 
+import '../../../../shared/localization/mateya_localizations.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../domain/create_models.dart';
 
@@ -52,6 +53,8 @@ class CapacityStepper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
@@ -68,10 +71,13 @@ class CapacityStepper extends StatelessWidget {
           Expanded(
             child: Column(
               children: <Widget>[
-                Text('$value명', style: Theme.of(context).textTheme.titleLarge),
+                Text(
+                  l10n.createCapacityValue(value),
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
                 const SizedBox(height: 4),
                 Text(
-                  '최소 2명, 최대 20명',
+                  l10n.createCapacityHelper,
                   style: Theme.of(
                     context,
                   ).textTheme.bodySmall?.copyWith(color: AppColors.textMuted),
@@ -135,6 +141,7 @@ class CreateImageSlotTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final theme = Theme.of(context);
 
     final tile = Stack(
@@ -184,7 +191,7 @@ class CreateImageSlotTile extends StatelessWidget {
               borderRadius: BorderRadius.circular(999),
             ),
             child: Text(
-              image.isPrimary ? '대표' : '${index + 1}',
+              image.isPrimary ? l10n.createPrimaryImageBadge : '${index + 1}',
               style: theme.textTheme.bodySmall?.copyWith(
                 color: Colors.white,
                 fontWeight: FontWeight.w600,

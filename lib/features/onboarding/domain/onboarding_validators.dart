@@ -1,3 +1,5 @@
+import '../../../shared/localization/mateya_localizations.dart';
+
 class OnboardingValidators {
   static final RegExp _digitsOnly = RegExp(r'^\d+$');
   static final RegExp _asciiPunctuation = RegExp(
@@ -5,32 +7,34 @@ class OnboardingValidators {
   );
 
   static String? validateName(String value) {
+    final l10n = MateyaLocalizations.current;
     final trimmed = value.trim();
     if (trimmed.isEmpty) {
-      return '이름을 입력해 주세요.';
+      return l10n.onboardingValidationNameRequired;
     }
     if (trimmed.runes.length > 30) {
-      return '이름은 30자 이내로 입력해 주세요.';
+      return l10n.onboardingValidationNameMaxLength;
     }
     if (_containsDisallowedNameCharacter(trimmed)) {
-      return '숫자와 특수문자 없이 이름만 입력해 주세요.';
+      return l10n.onboardingValidationNameCharacters;
     }
     return null;
   }
 
   static String? validatePhoneNumber(String value) {
+    final l10n = MateyaLocalizations.current;
     final digits = value.replaceAll(RegExp(r'\D'), '');
     if (digits.isEmpty) {
-      return '전화번호를 입력해 주세요.';
+      return l10n.onboardingValidationPhoneRequired;
     }
     if (!_digitsOnly.hasMatch(digits)) {
-      return '전화번호는 숫자만 입력해 주세요.';
+      return l10n.onboardingValidationPhoneDigitsOnly;
     }
     if (digits.length > 15) {
-      return '전화번호는 최대 15자리까지 입력할 수 있어요.';
+      return l10n.onboardingValidationPhoneMaxLength;
     }
     if (digits.length < 9) {
-      return '전화번호를 정확히 입력해 주세요.';
+      return l10n.onboardingValidationPhoneInvalid;
     }
     return null;
   }
@@ -40,21 +44,24 @@ class OnboardingValidators {
     String? expectedCode,
     bool isExpired,
   ) {
+    final l10n = MateyaLocalizations.current;
     if (input.length != 6) {
-      return '인증번호 6자리를 입력해 주세요.';
+      return l10n.onboardingValidationVerificationCodeRequired;
     }
     if (isExpired) {
-      return '인증 시간이 만료됐어요. 인증번호를 다시 받아 주세요.';
+      return l10n.onboardingValidationVerificationExpired;
     }
     if (expectedCode != null && input != expectedCode) {
-      return '인증번호가 일치하지 않아요.';
+      return l10n.onboardingValidationVerificationMismatch;
     }
     return null;
   }
 
   static String? validateBusinessName(String value) {
     if (value.trim().isEmpty) {
-      return '상호명을 입력해 주세요.';
+      return MateyaLocalizations
+          .current
+          .onboardingValidationBusinessNameRequired;
     }
     return null;
   }
@@ -64,23 +71,24 @@ class OnboardingValidators {
   }
 
   static String? validateBusinessOpeningDate(String value) {
+    final l10n = MateyaLocalizations.current;
     final digits = value.replaceAll(RegExp(r'\D'), '');
     if (digits.length != 8) {
-      return '개업일자 8자리를 입력해 주세요.';
+      return l10n.onboardingValidationOpeningDateRequired;
     }
     final year = int.tryParse(digits.substring(0, 4));
     final month = int.tryParse(digits.substring(4, 6));
     final day = int.tryParse(digits.substring(6, 8));
     if (year == null || month == null || day == null) {
-      return '개업일자는 숫자만 입력해 주세요.';
+      return l10n.onboardingValidationOpeningDateDigitsOnly;
     }
     try {
       final parsed = DateTime(year, month, day);
       if (parsed.year != year || parsed.month != month || parsed.day != day) {
-        return '개업일자를 정확히 입력해 주세요.';
+        return l10n.onboardingValidationOpeningDateInvalid;
       }
     } catch (_) {
-      return '개업일자를 정확히 입력해 주세요.';
+      return l10n.onboardingValidationOpeningDateInvalid;
     }
     return null;
   }
@@ -90,13 +98,14 @@ class OnboardingValidators {
     String second,
     String third,
   ) {
+    final l10n = MateyaLocalizations.current;
     if (first.length != 3 || second.length != 2 || third.length != 5) {
-      return '사업자 번호 10자리를 정확히 입력해 주세요.';
+      return l10n.onboardingValidationBusinessNumberRequired;
     }
     if (!(_digitsOnly.hasMatch(first) &&
         _digitsOnly.hasMatch(second) &&
         _digitsOnly.hasMatch(third))) {
-      return '사업자 번호는 숫자만 입력해 주세요.';
+      return l10n.onboardingValidationBusinessNumberDigitsOnly;
     }
     return null;
   }

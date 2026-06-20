@@ -1,6 +1,7 @@
 import 'package:geocoding/geocoding.dart' as geocoding;
 import 'package:geolocator/geolocator.dart';
 
+import '../../../shared/localization/mateya_localizations.dart';
 import '../../../shared/logging/app_logger.dart';
 import '../domain/onboarding_flow.dart';
 
@@ -19,6 +20,7 @@ class DeviceNeighborhoodLocationRepository
 
   @override
   Future<LocationLookupResult> resolveCurrentNeighborhood() async {
+    final l10n = MateyaLocalizations.current;
     _logger.info('Resolving current neighborhood from device location');
     try {
       final isServiceEnabled = await Geolocator.isLocationServiceEnabled();
@@ -26,10 +28,10 @@ class DeviceNeighborhoodLocationRepository
         _logger.warning(
           'Current neighborhood lookup aborted because location service is disabled',
         );
-        return const LocationLookupResult.failure(
+        return LocationLookupResult.failure(
           LocationFailure(
             LocationFailureType.serviceDisabled,
-            '위치 서비스가 꺼져 있어요. 직접 입력으로 진행해 주세요.',
+            l10n.onboardingLocationErrorServiceDisabled,
           ),
         );
       }
@@ -53,10 +55,10 @@ class DeviceNeighborhoodLocationRepository
         _logger.warning(
           'Current neighborhood lookup denied by user permission',
         );
-        return const LocationLookupResult.failure(
+        return LocationLookupResult.failure(
           LocationFailure(
             LocationFailureType.permissionDenied,
-            '위치 권한이 없으면 현재 위치 자동 인증을 사용할 수 없어요. 직접 입력은 계속 진행할 수 있고, 권한을 허용하면 다시 시도할 수 있어요.',
+            l10n.onboardingLocationErrorPermissionDenied,
           ),
         );
       }
@@ -65,10 +67,10 @@ class DeviceNeighborhoodLocationRepository
         _logger.warning(
           'Current neighborhood lookup blocked by permanently denied permission',
         );
-        return const LocationLookupResult.failure(
+        return LocationLookupResult.failure(
           LocationFailure(
             LocationFailureType.permissionPermanentlyDenied,
-            '위치 권한이 꺼져 있어 현재 위치 자동 인증을 사용할 수 없어요. 앱 설정에서 권한을 허용하거나 직접 입력으로 계속 진행해 주세요.',
+            l10n.onboardingLocationErrorPermissionPermanentlyDenied,
           ),
         );
       }
@@ -86,10 +88,10 @@ class DeviceNeighborhoodLocationRepository
             'accuracyMeters': position.accuracy.round(),
           },
         );
-        return const LocationLookupResult.failure(
+        return LocationLookupResult.failure(
           LocationFailure(
             LocationFailureType.accuracyTooLow,
-            '위치 정확도가 낮아 자동 인증이 어려워요.',
+            l10n.onboardingLocationErrorAccuracyLow,
           ),
         );
       }
@@ -106,10 +108,10 @@ class DeviceNeighborhoodLocationRepository
             'accuracyMeters': position.accuracy.round(),
           },
         );
-        return const LocationLookupResult.failure(
+        return LocationLookupResult.failure(
           LocationFailure(
             LocationFailureType.geocodingFailed,
-            '주소를 찾지 못했어요. 직접 입력으로 진행해 주세요.',
+            l10n.onboardingLocationErrorAddressNotFound,
           ),
         );
       }
@@ -136,10 +138,10 @@ class DeviceNeighborhoodLocationRepository
         error: error,
         stackTrace: stackTrace,
       );
-      return const LocationLookupResult.failure(
+      return LocationLookupResult.failure(
         LocationFailure(
           LocationFailureType.unknown,
-          '위치를 불러오지 못했어요. 직접 입력으로 진행해 주세요.',
+          l10n.onboardingLocationErrorUnknown,
         ),
       );
     }
@@ -147,15 +149,16 @@ class DeviceNeighborhoodLocationRepository
 
   @override
   Future<LocationLookupResult> resolveNeighborhoodQuery(String query) async {
+    final l10n = MateyaLocalizations.current;
     final trimmed = query.trim();
     if (trimmed.isEmpty) {
       _logger.warning(
         'Manual neighborhood lookup skipped because query is empty',
       );
-      return const LocationLookupResult.failure(
+      return LocationLookupResult.failure(
         LocationFailure(
           LocationFailureType.locationUnavailable,
-          '동네명을 입력해 주세요.',
+          l10n.onboardingLocationQueryRequired,
         ),
       );
     }
@@ -171,10 +174,10 @@ class DeviceNeighborhoodLocationRepository
           'Manual neighborhood lookup returned no coordinates',
           context: <String, Object?>{'query': trimmed},
         );
-        return const LocationLookupResult.failure(
+        return LocationLookupResult.failure(
           LocationFailure(
             LocationFailureType.locationUnavailable,
-            '입력한 동네를 찾지 못했어요.',
+            l10n.onboardingLocationQueryNotFound,
           ),
         );
       }
@@ -211,10 +214,10 @@ class DeviceNeighborhoodLocationRepository
         stackTrace: stackTrace,
         context: <String, Object?>{'query': trimmed},
       );
-      return const LocationLookupResult.failure(
+      return LocationLookupResult.failure(
         LocationFailure(
           LocationFailureType.geocodingFailed,
-          '입력한 동네를 찾지 못했어요.',
+          l10n.onboardingLocationQueryNotFound,
         ),
       );
     }
@@ -236,7 +239,7 @@ class DeviceNeighborhoodLocationRepository
       }
     }
 
-    return '현재 위치';
+    return MateyaLocalizations.current.onboardingLocationCurrentFallback;
   }
 
   String _permissionLabel(LocationPermission permission) {

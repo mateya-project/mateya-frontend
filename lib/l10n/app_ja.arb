@@ -1,0 +1,1116 @@
+{
+  "@@locale": "ja",
+  "appTitle": "MateYa",
+  "brandLockupSubtitle": "韓国の情と文化を分かち合う\n特別な旅の始まり",
+  "languageKorean": "韓国語",
+  "languageEnglish": "英語",
+  "languageJapanese": "日本語",
+  "languageChineseSimplified": "中国語",
+  "bottomNavigationHome": "ホーム",
+  "bottomNavigationExplore": "探す",
+  "bottomNavigationChat": "チャット",
+  "bottomNavigationProfile": "プロフィール",
+  "commonConfirm": "確認",
+  "commonCancel": "キャンセル",
+  "commonRetry": "再試行",
+  "commonContinue": "続ける",
+  "commonLater": "後で",
+  "commonAll": "すべて",
+  "commonNext": "次へ",
+  "commonReset": "リセット",
+  "commonApply": "適用する",
+  "commonProcessing": "処理中...",
+  "commonFree": "無料",
+  "commonToday": "今日",
+  "commonTomorrow": "明日",
+  "permissionOpenAppSettings": "アプリ設定を開く",
+  "permissionOpenLocationSettings": "位置情報設定を開く",
+  "locationServiceDisabledTitle": "位置情報サービスがオフです",
+  "locationPermissionDisabledTitle": "位置情報の権限がオフです",
+  "languageDialogBarrierLabel": "言語選択",
+  "languageDialogTitle": "言語を変更",
+  "languageDialogSupportedLanguages": "対応言語",
+  "onboardingStart": "始める",
+  "onboardingBusinessPrompt": "事業者の方ですか？ ",
+  "onboardingStartAsHost": "ホストとして始める",
+  "onboardingConsentTitle": "MateYa を利用するには同意が必要です。",
+  "onboardingAgreeAll": "すべて同意",
+  "onboardingAgreeAllHelper": "以下の必須項目と任意項目のすべてに同意します。",
+  "onboardingRequiredAgreementLabel": "（必須）{title}",
+  "@onboardingRequiredAgreementLabel": {
+    "placeholders": {
+      "title": {}
+    }
+  },
+  "onboardingEnterName": "お名前を入力してください",
+  "onboardingEnterPhoneNumber": "携帯電話番号を入力してください",
+  "onboardingEnterVerificationCode": "認証コードを入力してください",
+  "onboardingPhoneNumberLabel": "電話番号",
+  "onboardingPhoneNumberHint": "例)01012341234",
+  "onboardingPhoneNumberHelper": "携帯電話番号を入力すると認証コードを受け取れます。",
+  "onboardingVerificationCodeLabel": "認証コード",
+  "onboardingVerificationCodeHint": "認証コードを受け取るを押すと入力できます。",
+  "onboardingResendVerificationCode": "認証コードを再送",
+  "onboardingDebugVerificationCode": "テスト用認証コード: {code}",
+  "@onboardingDebugVerificationCode": {
+    "placeholders": {
+      "code": {}
+    }
+  },
+  "onboardingVerify": "認証する",
+  "onboardingRequestVerificationCode": "認証コードを受け取る",
+  "onboardingLocationServiceDisabledMessage": "現在地で地域認証を進めるには、端末の位置情報サービスをオンにする必要があります。オンにしなくても地域を直接入力して登録を続けられます。",
+  "onboardingLocationPermissionDisabledMessage": "現在地の自動認証を使うには、アプリ設定で位置情報の権限を許可してください。許可しなくても手入力で登録を続けられます。",
+  "onboardingPreviousNeighborhood": "以前は「{name}」で登録されていました。",
+  "@onboardingPreviousNeighborhood": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "onboardingResolvingCurrentLocation": "現在地を確認しています。",
+  "onboardingCompleteNeighborhood": "地域認証を完了する",
+  "onboardingRetryLocationPermission": "位置情報の権限を再リクエスト",
+  "onboardingRetryAfterSettingsChange": "設定変更後に再確認",
+  "onboardingRetryLocationService": "位置情報サービスを再確認",
+  "onboardingRetryCurrentLocation": "現在地を再確認",
+  "onboardingNeedHelp": "認証が難しいですか？  ",
+  "onboardingManualInputCta": "手動で入力 >",
+  "onboardingLocationPermissionNoticeTitle": "位置情報権限の案内",
+  "onboardingLocationPermissionNoticeMessage": "地域認証と周辺アクティビティのおすすめのために位置情報が必要です。\n権限を許可しなくても地域を手動で入力して登録を続けられます。",
+  "onboardingUseCurrentLocation": "現在地で認証する",
+  "onboardingManualInput": "手動で入力",
+  "onboardingManualNeighborhoodHelper": "市区町村名や町名の形式で入力してください。",
+  "onboardingNeighborhoodHint": "ウマン洞",
+  "onboardingEnterBusinessName": "屋号を入力してください",
+  "onboardingBusinessNameHint": "NICE 評価情報",
+  "onboardingBusinessNumberLabel": "事業者登録番号",
+  "onboardingBusinessOwnerLabel": "代表者名",
+  "onboardingBusinessOwnerHint": "ホン・ギルドン",
+  "onboardingBusinessOpeningDateLabel": "開業日",
+  "onboardingBusinessOpeningDateHint": "20240131",
+  "onboardingCompleteBusinessVerification": "事業者認証を完了する",
+  "onboardingWelcomeBack": "お帰りなさい",
+  "onboardingReturnCompleted": "{name}さん、\nMateYa への復帰が完了しました",
+  "@onboardingReturnCompleted": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "onboardingLaunchApp": "MateYa を始める",
+  "onboardingAgreementSemantics": "{label} に同意",
+  "@onboardingAgreementSemantics": {
+    "placeholders": {
+      "label": {}
+    }
+  },
+  "onboardingTermsEffectiveDate": "施行日: {date}",
+  "@onboardingTermsEffectiveDate": {
+    "placeholders": {
+      "date": {}
+    }
+  },
+  "onboardingTermsContents": "目次",
+  "onboardingTermsSectionTitle": "第{index}条 {title}",
+  "@onboardingTermsSectionTitle": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      },
+      "title": {}
+    }
+  },
+  "onboardingDefaultMemberName": "MateYa 会員",
+  "onboardingLoginCompleted": "{name}さん、\nMateYa へのログインが完了しました",
+  "@onboardingLoginCompleted": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "onboardingSignupCompleted": "{name}さん、\nMateYa への登録が完了しました",
+  "@onboardingSignupCompleted": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "onboardingNeighborhoodHeadlineReturning": "お帰りなさい、\n{name}さん！\n地域情報を認証してください",
+  "@onboardingNeighborhoodHeadlineReturning": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "onboardingNeighborhoodHeadlineSignup": "地域情報を認証してください",
+  "onboardingResolvedNeighborhoodMessage": "現在地は「{name}」にあります。",
+  "@onboardingResolvedNeighborhoodMessage": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "onboardingNeighborhoodLabel": "地域",
+  "onboardingVerificationExpired": "認証の有効期限が切れました。認証コードを再度受け取ってください。",
+  "onboardingBusinessVerificationExpired": "事業者認証の有効期限が切れました。再度認証してください。",
+  "homeSortRecommended": "おすすめ順",
+  "homeSortPopular": "人気順",
+  "homeSortLatest": "新着順",
+  "homeSortClosingSoon": "締切間近順",
+  "homeSortNearby": "近い順",
+  "homeAudienceEveryone": "誰でも",
+  "homeAudienceForeignerFriendly": "外国人歓迎",
+  "homeAudienceKoreanFriendly": "韓国人歓迎",
+  "homeAudienceTouristFriendly": "観光客におすすめ",
+  "homeAudienceBeginnerFriendly": "初心者歓迎",
+  "homeStatusRecruiting": "募集中",
+  "homeStatusClosingSoon": "まもなく締切（24時間以内）",
+  "homeStatusNewlyListed": "新規掲載（24時間以内）",
+  "homeDistanceLocal": "自分の地域",
+  "homeDistanceWithin1km": "1km以内",
+  "homeDistanceWithin5km": "5km以内",
+  "homeDistanceWithin10km": "10km以内",
+  "homeSearchHeroHint": "いつでも、どこでも",
+  "homeSearchHeroHelper": "誰とでもメイトになれる場所、MateYa",
+  "homeLoadError": "データを読み込めませんでした。",
+  "homeSelectAtLeastOneCategory": "カテゴリーを1つ以上選択してください。",
+  "homeSelectAtLeastOneLanguage": "言語を1つ以上選択してください。",
+  "homeUnsupportedExploreLanguageFilter": "探す言語フィルターは現在、韓国語・英語・中国語・日本語のみ対応しています。",
+  "homeEndDateBeforeStartDateError": "終了日は開始日より前にできません。",
+  "homeMaxPriceLessThanMinPriceError": "最大金額は最小金額以上である必要があります。",
+  "homeTrendingTitle": "急上昇中 🔥",
+  "homeSharedExperiencesTitle": "一緒に楽しめる体験",
+  "homeExploreSearchHint": "名前や場所で検索してみてください",
+  "homeExploreError": "結果を読み込めませんでした。",
+  "homeFavoritesLoadError": "お気に入りを読み込めませんでした。",
+  "homeFavoritesTitle": "お気に入り",
+  "homeCreateClass": "クラスを登録",
+  "homeCreateGroup": "グループを作成",
+  "homeEmptyTitle": "条件に合うアクティビティがまだありません。",
+  "homeEmptyDescription": "検索語やフィルターを調整してもう一度お試しください。",
+  "homeLoadMore": "もっと見る",
+  "homeLoadedAllActivities": "{count}件のアクティビティをすべて読み込みました。",
+  "@homeLoadedAllActivities": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "homeFilterTitle": "フィルター",
+  "homeFilterSort": "並び替え",
+  "homeFilterCategory": "カテゴリ",
+  "homeFilterAudience": "参加対象",
+  "homeFilterLanguage": "言語",
+  "homeFilterRegion": "地域",
+  "homeFilterSchedule": "日程",
+  "homeFilterStartDate": "開始日",
+  "homeFilterEndDate": "終了日",
+  "homeFilterCost": "費用",
+  "homeFilterMinPrice": "最低金額",
+  "homeFilterMaxPrice": "最高金額",
+  "homeFilterStatus": "募集状態",
+  "homeFilterNear": "近い地域",
+  "homeFilterFar": "遠い地域",
+  "homeFilterDistanceFromActivityRegion": "活動地域を基準に {target}",
+  "@homeFilterDistanceFromActivityRegion": {
+    "placeholders": {
+      "target": {}
+    }
+  },
+  "homeFilterDistanceFromRegion": "{regionName} を基準に {target}",
+  "@homeFilterDistanceFromRegion": {
+    "placeholders": {
+      "regionName": {},
+      "target": {}
+    }
+  },
+  "commonClose": "閉じる",
+  "commonEdit": "編集",
+  "commonSeeAll": "すべて見る",
+  "commonSeeDetails": "詳細を見る",
+  "commonNetworkRetry": "ネットワーク接続を確認してから再試行してください。",
+  "countryKorea": "韓国",
+  "countryJapan": "日本",
+  "countryChina": "中国",
+  "countryVietnam": "ベトナム",
+  "countryUnitedStates": "アメリカ",
+  "countryThailand": "タイ",
+  "activityCategoryTouristAttraction": "観光地",
+  "activityCategoryTravelCourse": "旅行コース",
+  "activityCategoryCultureTradition": "文化 / 伝統",
+  "activityCategoryEventPerformanceFestival": "イベント / 公演 / 祭り",
+  "activityCategorySports": "スポーツ",
+  "activityCategoryActivityLeports": "アクティビティ / レジャー",
+  "activityCategoryShopping": "ショッピング",
+  "activityCategoryPublicFacility": "公共施設",
+  "activityCategoryOther": "その他",
+  "reportSemanticsLabel": "通報する",
+  "reportTitle": "通報する",
+  "reportNoticeMessage": "通報画像を添付するには写真ライブラリへのアクセス権限が必要です。権限がなくても通報内容の入力は続けられます。",
+  "reportRecoveryMessage": "通報画像を添付するには写真ライブラリへのアクセス権限が必要です。再試行するか、アプリ設定で権限を許可してください。",
+  "reportFailureMessage": "画像を読み込めませんでした。権限とファイルの状態を確認してください。",
+  "reportRestoreFallbackErrorMessage": "以前に選択していた通報画像を復元できませんでした。もう一度選択してください。",
+  "reportSubmittedMessage": "{subject} の通報を受け付けました。",
+  "@reportSubmittedMessage": {
+    "placeholders": {
+      "subject": {}
+    }
+  },
+  "reportBodyHint": "通報理由を具体的に記入してください。\n例: 暴言、詐欺の疑い、不適切な投稿、\nスパム、嫌がらせなど。通報内容は運営ポリシーに\n基づいて確認されます。",
+  "reportBodyCount": "{count}/{max}文字",
+  "@reportBodyCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "reportImageSectionTitle": "画像（最大 {max} 枚）",
+  "@reportImageSectionTitle": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "reportSubmitting": "送信中...",
+  "reportReviewNotice": "受け付けた通報は、最大7営業日以内に確認されます。\n虚偽の通報や理由が不明確な通報は処理されない場合があります。",
+  "reportRestoredCount": "以前に選択した通報画像を {restoredCount} 枚復元しました。",
+  "@reportRestoredCount": {
+    "placeholders": {
+      "restoredCount": {
+        "type": "int"
+      }
+    }
+  },
+  "mypageTitle": "マイページ",
+  "mypageLoadError": "マイページを読み込めませんでした。",
+  "mypageOtherProfileOpenHint": "プロフィールを読み込んでいます。",
+  "mypageOtherProfileLoadError": "相手のプロフィールを読み込めませんでした。",
+  "mypageEditPrimaryPreferences": "基本情報を編集",
+  "mypageEditActivityRegion": "活動地域を編集",
+  "mypageConsentHistoryTitle": "同意履歴",
+  "mypageOpenPrivacyPolicy": "プライバシーポリシー",
+  "mypageOpenCustomerSupport": "カスタマーサポート",
+  "mypageOpenBlockedUsers": "ブロックしたユーザー",
+  "mypageLogout": "ログアウト",
+  "mypageOpenWithdrawal": "退会する",
+  "mypageConsentHistoryDescription": "MateYa の利用に同意した規約とポリシーを確認できます。",
+  "mypageConsentHistoryEmpty": "保存された同意履歴はまだありません。",
+  "mypageConsentVersion": "バージョン",
+  "mypageConsentStatus": "状態",
+  "mypageConsentAgreed": "同意",
+  "mypageConsentDeclined": "未同意",
+  "mypageConsentDate": "同意日時",
+  "mypageBlockedUsersTitle": "ブロックしたユーザー",
+  "mypageBlockedUsersEmpty": "ブロックしたユーザーはいません。",
+  "mypageRecentActivitiesTitle": "最近のアクティビティ",
+  "mypageRecentActivitiesDescription": "最近参加または主催したアクティビティを確認しましょう。",
+  "mypageActivitySummaryTitle": "活動サマリー",
+  "mypageHostedCount": "主催",
+  "mypageJoinedCount": "参加",
+  "mypageReviewCount": "レビュー",
+  "mypageActiveMember": "活動中のメンバー",
+  "mypageInactiveMember": "最近の活動なし",
+  "mypageActiveWithin30Days": "30日以内に利用",
+  "mypageNoRecentActivity": "最近の利用なし",
+  "mypageBadgeLabel": "バッジ",
+  "mypageBadgesTitle": "マイバッジ",
+  "mypageBadgesDescription": "参加したアクティビティのカテゴリに応じてバッジを獲得できます。",
+  "mypageRecentActivitiesSectionTitle": "活動履歴",
+  "mypageActivityHistoryTitle": "活動履歴",
+  "mypagePrimaryPreferencesTitle": "基本情報",
+  "mypagePrimaryPreferencesDescription": "言語と国籍情報を修正できます。",
+  "mypageMyLanguage": "マイ言語",
+  "mypageMyCountry": "国籍",
+  "mypageEnglishNameOptional": "英語名（任意）",
+  "mypageSaving": "保存中...",
+  "mypagePrimaryPreferencesSubmit": "保存する",
+  "mypageUpdating": "更新中...",
+  "mypageBusinessIntroTitle": "紹介文",
+  "mypageBusinessIntroDescription": "ホストページに表示される一言紹介を書いてください。",
+  "mypageBusinessIntroHint": "提供する体験の魅力を自然に紹介してください。",
+  "mypageSaveIntroduction": "紹介文を保存",
+  "mypageActiveExperiencesTitle": "運営中の体験",
+  "mypageRemoveFriend": "友だち削除",
+  "mypageBlocked": "ブロック済み",
+  "mypageBlockUser": "ブロックする",
+  "mypageSelectLanguageAndCountry": "言語と国を両方選択してください。",
+  "mypageInvalidLanguageOrCountry": "サポートされていない言語または国です。",
+  "mypagePrimaryPreferencesSaved": "基本情報を保存しました。",
+  "mypagePrimaryPreferencesSaveError": "基本情報を保存できませんでした。しばらくしてから再試行してください。",
+  "mypageFriendRemoved": "友だちを削除しました。",
+  "mypageFriendAdded": "友だちに追加しました。",
+  "mypageFriendUpdateError": "友だち状態を変更できませんでした。しばらくしてから再試行してください。",
+  "mypageBlockedUserAdded": "ユーザーをブロックしました。",
+  "mypageBlockUserError": "ユーザーをブロックできませんでした。しばらくしてから再試行してください。",
+  "mypageUnblockedUser": "ブロックを解除しました。",
+  "mypageUnblockUserError": "ブロックを解除できませんでした。しばらくしてから再試行してください。",
+  "mypageBusinessIntroRequired": "紹介文を入力してください。",
+  "mypageBusinessIntroTooLong": "紹介文は300文字以内で入力してください。",
+  "mypageBusinessIntroSaved": "紹介文を保存しました。",
+  "mypageBusinessIntroSaveError": "紹介文を保存できませんでした。しばらくしてから再試行してください。",
+  "mypageProfileImageSaved": "プロフィール画像を保存しました。",
+  "mypageProfileImageSaveError": "プロフィール画像を保存できませんでした。しばらくしてから再試行してください。",
+  "mypageProfileImageInvalidFormat": "JPG、PNG、WEBP、GIF 形式の画像のみアップロードできます。",
+  "mypageProfileImageUploadError": "プロフィール画像をアップロードできませんでした。しばらくしてから再試行してください。",
+  "mypageProfileImageConfirmError": "プロフィール画像のアップロード確認に失敗しました。しばらくしてから再試行してください。",
+  "mypageActivityRegionSaved": "活動地域を保存しました。",
+  "mypageActivityRegionSaveError": "活動地域を保存できませんでした。しばらくしてから再試行してください。",
+  "mypageWithdrawalAgreementRequired": "退会リクエストの前に同意が必要です。",
+  "mypageWithdrawalSignatureRequired": "署名を入力してください。",
+  "mypageWithdrawalSignatureMismatch": "入力した署名が会員名と一致しません。",
+  "mypageWithdrawalAgreementText": "個人情報管理および30日後の最終削除ポリシーに同意します。",
+  "mypageWithdrawalSubmitted": "退会リクエストを受け付けました。",
+  "mypageWithdrawalSubmitError": "退会リクエストを処理できませんでした。しばらくしてから再試行してください。",
+  "mypageLogoutError": "ログアウトできませんでした。しばらくしてから再試行してください。",
+  "mypageTermsDetailUnavailable": "規約の詳細を読み込めませんでした。",
+  "mypageSupportLinkCopied": "カスタマーサポートのリンクをコピーしました。",
+  "mypagePrivacyLinkCopied": "プライバシーポリシーのリンクをコピーしました。",
+  "mypageCurrentLocationResolveError": "現在地を確認できませんでした。しばらくしてから再試行してください。",
+  "mypageNeighborhoodRequired": "活動地域を入力してください。",
+  "mypageNeighborhoodLookupError": "入力した地域を確認できませんでした。もう一度確認してください。",
+  "mypageNeighborhoodVerificationRequired": "確認済みの活動地域を選択してください。",
+  "mypageActivityRegionDialogDescription": "現在地を使うか、直接入力して活動地域を設定できます。",
+  "mypageResolvingCurrentLocation": "現在地を確認しています。",
+  "mypageResolvingNeighborhood": "入力した地域を確認しています。",
+  "mypageConfirmManualNeighborhood": "この地域を使用する",
+  "mypageSelectedActivityRegion": "選択した活動地域: {name}",
+  "@mypageSelectedActivityRegion": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "mypageSaveActivityRegion": "活動地域を保存",
+  "mypageLocationServiceDisabledMessage": "現在地を使うには、端末の位置情報サービスをオンにしてください。手動入力でも続けられます。",
+  "mypageLocationPermissionDisabledMessage": "現在地を使うには、アプリ設定で位置情報の権限を許可してください。手動入力でも続けられます。",
+  "mypageProfileImageNotice": "プロフィール画像を選択するには写真ライブラリへのアクセス権限が必要です。",
+  "mypageProfileImageRecovery": "プロフィール画像を選択するには写真ライブラリへのアクセスを許可してください。再試行するか、アプリ設定で変更できます。",
+  "mypageProfileImageFailure": "プロフィール画像を読み込めませんでした。ファイルの状態を確認してください。",
+  "mypageProfileImageRestoreFallback": "以前に選択していたプロフィール画像を復元できませんでした。もう一度選択してください。",
+  "mypageProfileImageRestoredCount": "以前に選択していたプロフィール画像を {restoredCount} 枚復元しました。",
+  "@mypageProfileImageRestoredCount": {
+    "placeholders": {
+      "restoredCount": {
+        "type": "int"
+      }
+    }
+  },
+  "mypageWithdrawalTitle": "退会する",
+  "mypageWithdrawalDescription": "退会を進めますか？\n退会後、アカウントはすぐに無効化されます。\n30日以内に再登録または再ログインすると、\n退会は取り消されます。\n\n30日を過ぎると、法令上保管が必要な情報を除き、会員情報と利用履歴は完全に削除され、復元できません。",
+  "mypageWithdrawalAgreementCheckbox": "個人情報管理および30日後の最終削除ポリシーに同意します。",
+  "mypageWithdrawalSignatureLabel": "署名入力",
+  "mypageWithdrawalSignatureHint": "{name} を入力",
+  "@mypageWithdrawalSignatureHint": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "mypageWithdrawalSubmittedNotice": "退会リクエストを受け付けました。再ログインするまでアカウントは無効状態として扱われます。",
+  "mypageWithdrawalRequest": "退会を申請",
+  "mypageMetricActivities": "活動数",
+  "mypageMetricFriends": "友だち数",
+  "mypageMetricReviews": "作成レビュー",
+  "mypageMetricRecruitingExperiences": "募集中の体験",
+  "mypageMetricTotalParticipants": "累計参加者",
+  "mypageMetricAverageRating": "平均評価",
+  "mypageMetricReceivedReviews": "受け取ったレビュー",
+  "mypageActivityRegionUnset": "活動地域未設定",
+  "mypageParticipantCount": "{current} / {capacity}人",
+  "@mypageParticipantCount": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "capacity": {
+        "type": "int"
+      }
+    }
+  },
+  "mypageConsentTypeServiceTerms": "サービス利用規約",
+  "mypageConsentTypePrivacyCollection": "個人情報の収集・利用への同意",
+  "mypageConsentTypeLocationService": "位置情報サービス利用への同意",
+  "mypageConsentTypeAgeOver14": "14歳以上の確認",
+  "mypageHostBadge": "HOST",
+  "mypageEditActivityCta": "編集する",
+  "mypageBadgeTraditional": "伝統マスター",
+  "mypageBadgeActivePerson": "アクティブメイト",
+  "mypageBadgeFestive": "フェス好き",
+  "mypageBadgeTourist": "ローカル探検家",
+  "mypageBadgeUnlockedTitle": "新しいバッジを獲得しました",
+  "mypageBadgeUnlockedDescription": "{category} 活動への参加が反映されました。",
+  "@mypageBadgeUnlockedDescription": {
+    "placeholders": {
+      "category": {}
+    }
+  },
+  "galleryPermissionNoticeTitle": "写真権限の案内",
+  "galleryPermissionSelectPhoto": "写真を選択",
+  "galleryPermissionRecoveryTitle": "写真へのアクセス権限が必要です",
+  "authLoginRequired": "ログインが必要です。",
+  "commonRequestError": "リクエスト処理中にエラーが発生しました。",
+  "chatJustNow": "たった今",
+  "chatMinutesAgo": "{count}分前",
+  "@chatMinutesAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chatHoursAgo": "{count}時間前",
+  "@chatHoursAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chatYesterday": "昨日",
+  "chatLastYear": "昨年",
+  "chatPhotoCount": "写真 {count}枚",
+  "@chatPhotoCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chatViewOriginal": "原文を見る",
+  "chatViewTranslation": "翻訳を見る",
+  "chatParticipantCount": "{count}人参加",
+  "@chatParticipantCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chatFilterGroup": "グループ",
+  "chatFilterDirect": "個人",
+  "chatListGuidance": "アクティビティに参加すると、自動的にグループチャットに追加されます。\n個人チャットは友だちのユーザーと自動的に作成されます。\n友だちではないユーザーとはチャットできません。",
+  "chatComposerHint": "メッセージを入力してください",
+  "reportReasonRequired": "通報理由を入力してください。",
+  "reportImageInvalidFormat": "通報画像は JPG、PNG、WEBP、GIF 形式のみアップロードできます。",
+  "reportImageUploadError": "通報画像をアップロードできませんでした。しばらくしてから再試行してください。",
+  "reportImageConfirmError": "通報画像のアップロード確認に失敗しました。しばらくしてから再試行してください.",
+  "createGroupFlowTitle": "グループを作成",
+  "createClassFlowTitle": "クラスを作成",
+  "createEntityGroup": "グループ",
+  "createEntityClass": "クラス",
+  "createGroupSubmit": "グループを作成",
+  "createClassSubmit": "クラスを作成",
+  "createGroupEditTitle": "グループを編集",
+  "createClassEditTitle": "クラスを編集",
+  "createGroupUpdateSubmit": "グループの変更を保存",
+  "createClassUpdateSubmit": "クラスの変更を保存",
+  "createPaidLabel": "有料",
+  "createEditCompleted": "{entity}の更新が完了しました。",
+  "@createEditCompleted": {
+    "placeholders": {
+      "entity": {}
+    }
+  },
+  "createSubmitCompleted": "{entity}の作成が完了しました。",
+  "@createSubmitCompleted": {
+    "placeholders": {
+      "entity": {}
+    }
+  },
+  "createChatProvisionFailed": "{entity}の作成は完了しましたが、チャットルームを準備できませんでした。しばらくしてからもう一度お試しください。",
+  "@createChatProvisionFailed": {
+    "placeholders": {
+      "entity": {}
+    }
+  },
+  "createSubmitFailedNetwork": "{entity}を作成できませんでした。ネットワークを確認してからもう一度お試しください。",
+  "@createSubmitFailedNetwork": {
+    "placeholders": {
+      "entity": {}
+    }
+  },
+  "createSubmitFailedServer": "{entity}を作成できませんでした。しばらくしてからもう一度お試しください。",
+  "@createSubmitFailedServer": {
+    "placeholders": {
+      "entity": {}
+    }
+  },
+  "createDeleteFailedNetwork": "削除できませんでした。ネットワークを確認してからもう一度お試しください。",
+  "createDeleteFailedServer": "削除できませんでした。しばらくしてからもう一度お試しください。",
+  "createLoadEditFailedNetwork": "編集する{entity}情報を読み込めませんでした。ネットワークを確認してからもう一度お試しください。",
+  "@createLoadEditFailedNetwork": {
+    "placeholders": {
+      "entity": {}
+    }
+  },
+  "createLoadEditFailedServer": "編集する{entity}情報を読み込めませんでした。しばらくしてからもう一度お試しください。",
+  "@createLoadEditFailedServer": {
+    "placeholders": {
+      "entity": {}
+    }
+  },
+  "createValidationSelectCategory": "カテゴリを1つ以上選択してください。",
+  "createValidationSelectClassCategoryFirst": "まずクラスに合うカテゴリを選択してください。",
+  "createValidationSelectPlaceOrManual": "場所を選択するか、手動で入力してください。",
+  "createValidationSelectPlace": "場所を選択してください。",
+  "createValidationEnterEntityName": "{entity}名を入力してください。",
+  "@createValidationEnterEntityName": {
+    "placeholders": {
+      "entity": {}
+    }
+  },
+  "createValidationTitleMaxLength": "名前は40文字以内で入力してください。",
+  "createValidationDescriptionMaxLength": "説明は1000文字以内で入力してください。",
+  "createValidationSelectDate": "日付を選択してください。",
+  "createValidationNoPastDate": "過去の日付は選択できません。",
+  "createValidationSelectStartEndTime": "開始時刻と終了時刻を両方選択してください。",
+  "createValidationEndAfterStart": "終了時刻は開始時刻より後である必要があります。",
+  "createValidationCapacityRange": "参加人数は2人以上20人以下で設定してください。",
+  "createValidationSelectDeadline": "募集締切の日付と時刻を両方選択してください。",
+  "createValidationSelectDeadlineTogether": "募集締切の日付と時刻を一緒に選択してください。",
+  "createValidationDeadlineFuture": "募集締切は現在時刻より後である必要があります。",
+  "createValidationDeadlineBeforeStart": "募集締切は開始時刻より前である必要があります。",
+  "createValidationSelectLanguage": "言語を1つ以上選択してください。",
+  "createValidationSelectPriceType": "料金タイプを選択してください。",
+  "createValidationEnterPaidPrice": "有料の場合は金額を入力してください。",
+  "createValidationPriceRange": "金額は1ウォン以上1,000,000ウォン以下で入力してください。",
+  "createValidationRegisterImage": "代表画像を1枚以上登録してください。",
+  "createGroupInfoTitle": "グループ情報を入力してください",
+  "createClassInfoTitle": "クラス情報を入力してください",
+  "createValidationIntro": "必須情報を入力するとすぐに公開できます。",
+  "createSelectedCategoryTitle": "選択したカテゴリ",
+  "createSelectedPlaceTitle": "選択した場所",
+  "createGroupNameLabel": "グループ名",
+  "createClassNameLabel": "クラス名",
+  "createGroupNameHint": "例) 北村韓屋散歩に一緒に行きましょう",
+  "createClassNameHint": "例) 伝統茶ワンデークラス",
+  "createDescriptionTitle": "詳細説明",
+  "createDescriptionHint": "進行方法、持ち物、参加者に伝えたい内容を入力してください。",
+  "createDateTimeTitle": "日程",
+  "createDateLabel": "開催日",
+  "createDatePlaceholder": "日付を選択してください",
+  "createStartTimeLabel": "開始時刻",
+  "createStartTimePlaceholder": "開始時刻を選択してください",
+  "createEndTimeLabel": "終了時刻",
+  "createEndTimePlaceholder": "終了時刻を選択してください",
+  "createCapacityTitle": "参加人数",
+  "createCapacityValue": "{count}人",
+  "@createCapacityValue": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "createCapacityHelper": "最小2人、最大20人",
+  "createDeadlineTitle": "募集締切",
+  "createDeadlineDateLabel": "締切日",
+  "createDeadlineTimeLabel": "締切時刻",
+  "createNotSelected": "未選択",
+  "createLanguagesTitle": "使用言語",
+  "createPriceTitle": "参加費",
+  "createPaidPriceHint": "参加費を入力してください",
+  "createAudienceTitle": "おすすめ対象",
+  "createPrimaryImageTitle": "代表画像",
+  "createPrimaryImageRequiredHint": "代表画像を1枚以上登録してください。",
+  "createPrimaryImageSelectionHint": "最初の画像が代表画像になります。別の画像をタップすると代表画像を変更できます。",
+  "createPrimaryImageBadge": "代表",
+  "createDeleting": "削除中...",
+  "createDeleteAction": "{entity}を削除",
+  "@createDeleteAction": {
+    "placeholders": {
+      "entity": {}
+    }
+  },
+  "createPlaceGroupTitle": "グループの場所を選択してください",
+  "createPlaceClassTitle": "クラスの場所を選択してください",
+  "createPlaceGroupDescription": "おすすめの場所を選ぶか、手動で入力してグループの場所を決められます。",
+  "createPlaceClassDescription": "カテゴリに合う場所を検索するか、手動で入力してクラスの場所を決められます。",
+  "createClassCategoryTitle": "クラスカテゴリ",
+  "createCategoryDetailTitle": "詳細カテゴリ",
+  "createManualPlaceTitle": "手動で入力",
+  "createManualPlaceNameHint": "場所名を入力してください",
+  "createManualPlaceAddressHint": "住所を入力してください",
+  "createOrSearchTitle": "または場所を検索",
+  "createPlaceSearchHint": "場所名で検索",
+  "createManualPlacePreviewDescription": "手動で入力した場所情報で公開されます。",
+  "createSearchResultsTitle": "検索結果",
+  "createSearchEmptyTitle": "検索結果がありません",
+  "createSearchEmptyBody": "別のキーワードで検索してください。",
+  "createSearchInitialTitle": "場所を検索してください",
+  "createSearchInitialBody": "場所名や住所を入力すると、選択できる候補が表示されます。",
+  "createRecommendedTitle": "おすすめの場所",
+  "createRefresh": "再読み込み",
+  "createRecommendedEmptyTitle": "おすすめの場所がまだありません",
+  "createRecommendedEmptyBody": "カテゴリを変更するか、手動で検索してください。",
+  "createMapPlaceholder": "場所を選択すると、このエリアに位置が表示されます。",
+  "createCategoryPromptTitle": "どんな体験を作りますか？",
+  "createCategoryPromptDescription": "公開したいグループまたはクラスに最も合うカテゴリを選択してください。",
+  "createCompletedEditDescription": "変更内容を保存しました。参加者にもすぐ反映されます。",
+  "createCompletedCreateDescription": "これでMateYaで参加者を募集できます。",
+  "createBackToPrevious": "戻る",
+  "createBackToHome": "ホームに戻る",
+  "createStepCategory": "カテゴリ",
+  "createStepPlaceGroup": "場所",
+  "createStepPlaceClass": "場所",
+  "createStepDetailsGroup": "情報入力",
+  "createStepDetailsClass": "情報入力",
+  "createCompletedProgress": "完了",
+  "createCategoryTitleCultureTradition": "文化 / 伝統",
+  "createCategoryTitleEventPerformanceFestival": "イベント / 公演 / 祭り",
+  "createCategoryTitleActivityLeports": "アクティビティ / レジャースポーツ",
+  "createCategoryDescriptionTourist": "有名な観光地を一緒に巡る集まりに向いています。",
+  "createCategoryDescriptionTravelCourse": "移動を含む旅行コース型の体験に向いています。",
+  "createCategoryDescriptionCultureTradition": "伝統文化、工芸、歴史体験におすすめです。",
+  "createCategoryDescriptionFestival": "公演、祭り、季節イベントへの参加型体験に適しています。",
+  "createCategoryDescriptionSports": "運動、観戦、スポーツ中心の集まりに合います。",
+  "createCategoryDescriptionActivityLeports": "屋外体験やアクティブなレジャー活動に適しています。",
+  "createCategoryDescriptionPublicFacility": "展示、公的空間、地域コミュニティ活動におすすめです。",
+  "createCategoryDescriptionShopping": "市場やショッピングストリート、ローカル店舗ツアーにぴったりです。",
+  "createEventDatePickerHelp": "{entity}の日付を選択",
+  "@createEventDatePickerHelp": {
+    "placeholders": {
+      "entity": {}
+    }
+  },
+  "createStartTimePickerHelp": "開始時刻を選択",
+  "createEndTimePickerHelp": "終了時刻を選択",
+  "createDeadlineDatePickerHelp": "募集締切日を選択",
+  "createDeadlineTimePickerHelp": "募集締切時刻を選択",
+  "createDeleteDialogTitle": "この{entity}を削除しますか？",
+  "@createDeleteDialogTitle": {
+    "placeholders": {
+      "entity": {}
+    }
+  },
+  "createDeleteDialogBody": "削除すると元に戻せません。",
+  "@createDeleteDialogBody": {
+    "placeholders": {
+      "entity": {}
+    }
+  },
+  "createDeleteButton": "削除",
+  "createDeleteCompleted": "削除しました。",
+  "createInitializationLoadError": "{entity}情報を読み込めませんでした。",
+  "@createInitializationLoadError": {
+    "placeholders": {
+      "entity": {}
+    }
+  },
+  "createInitializationRetryBody": "しばらくしてからもう一度お試しください。問題が続く場合は前の画面に戻って開き直してください。",
+  "createSavingEntity": "{entity}を保存中...",
+  "@createSavingEntity": {
+    "placeholders": {
+      "entity": {}
+    }
+  },
+  "createSubmittingEntity": "{entity}を作成中...",
+  "@createSubmittingEntity": {
+    "placeholders": {
+      "entity": {}
+    }
+  },
+  "createSelectPlaceAction": "場所を選択",
+  "createImagePickerNotice": "画像を添付するには写真ライブラリへのアクセス権限が必要です。権限がなくても他の情報入力は続けられます。",
+  "createImagePickerRecovery": "画像添付を続けるには写真ライブラリへのアクセス権限が必要です。再試行するか、アプリ設定で権限を許可してください。",
+  "createImagePickerFailure": "画像を読み込めませんでした。ファイルの状態を確認してからもう一度お試しください。",
+  "createImagePickerRestoreFallback": "先ほど選択していた画像を復元できませんでした。もう一度選択してください。",
+  "createImagePickerRestoredCount": "以前に選択した画像を{count}枚復元しました。",
+  "@createImagePickerRestoredCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "createRecommendedLoadFailedNetwork": "おすすめの場所を読み込めませんでした。ネットワークを確認してからもう一度お試しください。",
+  "createRecommendedLoadFailedServer": "おすすめの場所を読み込めませんでした。しばらくしてからもう一度お試しください。",
+  "createPlaceSearchQueryRequired": "場所名を入力してください。",
+  "createPlaceSearchFailedNetwork": "場所検索に失敗しました。接続状態を確認してからもう一度お試しください。",
+  "createPlaceSearchFailedServer": "場所検索に失敗しました。しばらくしてからもう一度お試しください。",
+  "createPlaceCoordinateRequired": "位置情報がないため、この場所は選択できません。",
+  "createPlaceMapCoordinateRequired": "位置情報がないため、この場所を地図に表示できません。",
+  "createImageLimitExceeded": "画像は最大{max}枚まで追加できます。",
+  "@createImageLimitExceeded": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "createImageInvalidFormat": "追加できる画像形式は JPG、PNG、WEBP、GIF のみです。",
+  "createImageMaxSize": "画像1枚あたり最大10MBまで追加できます。",
+  "createPlaceDescriptionFallback": "位置を確認してから選択してください。",
+  "createExistingPlaceDescription": "既存の活動場所",
+  "createResolveServerCategoryFailed": "選択した場所からサーバーカテゴリを確定できませんでした。別の場所を選択してください。",
+  "createUploadImageRequired": "代表画像を1枚以上登録してください。",
+  "createUploadImageInvalidFormat": "アップロードできる画像形式は JPG、PNG、WEBP、GIF のみです。",
+  "createUploadImageFailed": "画像のアップロードに失敗しました。しばらくしてからもう一度お試しください。",
+  "createUploadImageConfirmFailed": "アップロードした画像を確認できませんでした。しばらくしてからもう一度お試しください。",
+  "onboardingValidationNameRequired": "名前を入力してください。",
+  "onboardingValidationNameMaxLength": "名前は30文字以内で入力してください。",
+  "onboardingValidationNameCharacters": "数字や記号を除き、名前のみ入力してください。",
+  "onboardingValidationPhoneRequired": "電話番号を入力してください。",
+  "onboardingValidationPhoneDigitsOnly": "電話番号は数字のみ入力してください。",
+  "onboardingValidationPhoneMaxLength": "電話番号は最大15桁まで入力できます。",
+  "onboardingValidationPhoneInvalid": "電話番号を正しく入力してください。",
+  "onboardingValidationVerificationCodeRequired": "6桁の認証コードを入力してください。",
+  "onboardingValidationVerificationExpired": "認証時間が切れました。認証コードを再度受け取ってください。",
+  "onboardingValidationVerificationMismatch": "認証コードが一致しません。",
+  "onboardingValidationBusinessNameRequired": "商号を入力してください。",
+  "onboardingValidationOpeningDateRequired": "開業日8桁を入力してください。",
+  "onboardingValidationOpeningDateDigitsOnly": "開業日は数字のみ入力してください。",
+  "onboardingValidationOpeningDateInvalid": "正しい開業日を入力してください。",
+  "onboardingValidationBusinessNumberRequired": "10桁の事業者番号を正しく入力してください。",
+  "onboardingValidationBusinessNumberDigitsOnly": "事業者番号は数字のみ入力してください。",
+  "onboardingLocationErrorServiceDisabled": "位置情報サービスがオフです。手動入力で進めてください。",
+  "onboardingLocationErrorPermissionDenied": "位置情報の権限がないため、現在地による自動認証は利用できません。手動入力で進めることはでき、権限を許可した後に再試行できます。",
+  "onboardingLocationErrorPermissionPermanentlyDenied": "位置情報の権限がオフのため、現在地による自動認証は利用できません。アプリ設定で権限を許可するか、手動入力で進めてください。",
+  "onboardingLocationErrorAccuracyLow": "位置精度が低いため、自動認証が難しいです。",
+  "onboardingLocationErrorAddressNotFound": "住所が見つかりませんでした。手動入力で進めてください。",
+  "onboardingLocationErrorUnknown": "位置情報を読み込めませんでした。手動入力で進めてください。",
+  "onboardingLocationQueryRequired": "地域名を入力してください。",
+  "onboardingLocationQueryNotFound": "入力した地域が見つかりませんでした。",
+  "onboardingLocationCurrentFallback": "現在地",
+  "homeParticipantCount": "{current}/{capacity} 参加",
+  "@homeParticipantCount": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "capacity": {
+        "type": "int"
+      }
+    }
+  },
+  "homeFavoritesSubtitle": "あなたの関心を世界と共有しましょう。",
+  "homeFavoritesEmptyTitle": "まだ保存したアクティビティがありません。",
+  "homeFavoritesEmptyDescription": "気に入ったアクティビティを保存すると、ここで再び確認できます。",
+  "homeNearbyCultureMap": "近くの伝統文化",
+  "onboardingTermsPendingEffectiveDate": "確認中",
+  "onboardingTermsServiceTitle": "サービス利用規約",
+  "onboardingTermsServiceSummary": "MateYaサービスを利用するための基本条件、利用者の責任、サービス運営基準を案内します。",
+  "onboardingTermsServiceSection1Title": "サービスの目的",
+  "onboardingTermsServiceSection1Body": "MateYaは、国内ユーザーと海外ユーザーがグループ、クラス、地域ベースの活動を安全に探し、参加できるようにつなぐプラットフォームです。",
+  "onboardingTermsServiceSection2Title": "会員登録とアカウント管理",
+  "onboardingTermsServiceSection2Body": "会員は本人名義の情報で登録し、電話認証と規約同意を完了してからサービスを利用できます。アカウント情報が変更された場合は、最新の状態に保つ必要があります。",
+  "onboardingTermsServiceSection3Title": "サービス利用条件",
+  "onboardingTermsServiceSection3Body": "会員は関係法令および本規約を遵守し、他人の権利を侵害したり、サービス運営を妨害したりしてはいけません。一部機能では本人確認や追加認証が必要になる場合があります。",
+  "onboardingTermsServiceSection4Title": "禁止行為",
+  "onboardingTermsServiceSection4Body": "虚偽情報の登録、他人へのなりすまし、違法な宣伝、わいせつまたはヘイト表現の投稿、異常な自動化アクセス、運営ポリシー回避の試みは禁止されます。違反時には投稿削除、利用制限、アカウント停止などの措置が行われることがあります。",
+  "onboardingTermsServiceSection5Title": "サービスの中断および変更",
+  "onboardingTermsServiceSection5Body": "MateYaは、点検、障害対応、ポリシー変更、または外部提携事情により、サービスの一部を変更または一時中断することがあります。重要な変更はアプリ内のお知らせ、または適切な手段で案内します。",
+  "onboardingTermsServiceSection6Title": "責任の制限",
+  "onboardingTermsServiceSection6Body": "MateYaは、天災、通信障害、利用者の責に帰す事由により発生した損害について、法令が許容する範囲で責任を制限できるものとします。ただし、会社に故意または重大な過失がある場合はこの限りではありません。",
+  "onboardingTermsServiceSection7Title": "お問い合わせ先",
+  "onboardingTermsServiceSection7Body": "サービス利用中にお問い合わせが必要な場合は、アプリ内サポートチャネルまたは運営チームのメールで受け付けます。受付内容は運営ポリシーに従って順次処理されます。",
+  "onboardingTermsPrivacyTitle": "個人情報の第三者提供への同意",
+  "onboardingTermsPrivacySummary": "活動運営、予約進行、顧客対応に必要な範囲で個人情報が第三者へ提供される基準を説明します。",
+  "onboardingTermsPrivacySection1Title": "提供先",
+  "onboardingTermsPrivacySection1Body": "MateYa内でグループやクラスを運営するホスト、またはサービス運営に必要な提携事業者",
+  "onboardingTermsPrivacySection2Title": "提供目的",
+  "onboardingTermsPrivacySection2Body": "参加申請の確認、ホストとの円滑な日程調整、現場運営支援、顧客問い合わせ対応、紛争処理",
+  "onboardingTermsPrivacySection3Title": "提供項目",
+  "onboardingTermsPrivacySection3Body": "氏名、電話番号、活動申請情報、代表言語、参加履歴のうち、サービス提供に必要な最小項目",
+  "onboardingTermsPrivacySection4Title": "保有および利用期間",
+  "onboardingTermsPrivacySection4Body": "提供目的の達成時まで、または法令上保存義務のある期間まで保管し、その後は遅滞なく削除または匿名化します。",
+  "onboardingTermsPrivacySection5Title": "同意拒否権および不利益",
+  "onboardingTermsPrivacySection5Body": "会員は個人情報の第三者提供への同意を拒否できます。ただし、活動参加、予約確認、ホストとの連絡が必要な一部サービスの利用が制限されることがあります。",
+  "onboardingTermsLocationTitle": "位置情報サービス利用規約",
+  "onboardingTermsLocationSummary": "現在地や活動地域情報を活用して周辺のグループやおすすめ結果を提供する方法と、その保護基準を案内します。",
+  "onboardingTermsLocationSection1Title": "目的",
+  "onboardingTermsLocationSection1Body": "本規約は、MateYaが提供する位置情報サービスの利用条件と手続き、会社と利用者の権利義務、位置情報保護基準を案内することを目的とします。",
+  "onboardingTermsLocationSection2Title": "位置情報の収集および利用",
+  "onboardingTermsLocationSection2Body": "会社は、利用者が要求した機能の範囲内で現在地または活動地域情報を活用し、次の目的に限って位置情報を利用します。",
+  "onboardingTermsLocationSection2Point1": "地域認証と活動地域の確認",
+  "onboardingTermsLocationSection2Point2": "周辺グループのおすすめと距離順ソート",
+  "onboardingTermsLocationSection2Point3": "地域に合わせたコンテンツと、より安全な参加体験の提供",
+  "onboardingTermsLocationSection3Title": "保有および利用期間",
+  "onboardingTermsLocationSection3Body": "リアルタイム位置情報は即時性のある機能処理後には保管しません。ただし、活動地域認証結果などサービス運営に必要な最小情報は、法令または内部運営基準に従って必要期間保管した後、遅滞なく削除または匿名化します。",
+  "onboardingTermsLocationSection4Title": "利用者の権利",
+  "onboardingTermsLocationSection4Body": "利用者は、端末設定またはアプリ内権限設定を通じて、いつでも位置情報提供への同意を撤回でき、位置情報サービスの利用可否を選択できます。同意を撤回した場合、一部のおすすめ機能や地域認証機能の利用が制限されることがあります。",
+  "onboardingTermsLocationSection5Title": "会社の義務",
+  "onboardingTermsLocationSection5Body": "会社は、位置情報を関係法令および内部セキュリティ基準に従って安全に管理し、利用目的を超えた使用や別途同意のない第三者提供を行いません。また、利用者からの問い合わせや苦情を迅速に確認し、必要な案内を行います。",
+  "onboardingTermsLocationSection6Title": "お問い合わせ先",
+  "onboardingTermsLocationSection6Body": "位置情報サービス利用に関するお問い合わせは、アプリ内サポートチャネルまたは運営チームのお問い合わせ窓口から受け付けます。受付内容は内部ポリシーに従って順次処理されます。",
+  "onboardingTermsAgeTitle": "14歳以上の確認",
+  "onboardingTermsAgeSummary": "MateYaの会員登録は14歳以上のみ可能であり、年齢確認に関する利用制限基準を案内します。",
+  "onboardingTermsAgeSection1Title": "年齢確認",
+  "onboardingTermsAgeSection1Body": "会員は会員登録時に、自身が14歳以上であることを確認し、これに同意する必要があります。",
+  "onboardingTermsAgeSection2Title": "登録制限",
+  "onboardingTermsAgeSection2Body": "14歳未満のユーザーはMateYaへの会員登録およびサービス利用が制限されます。",
+  "onboardingTermsAgeSection3Title": "虚偽確認への措置",
+  "onboardingTermsAgeSection3Body": "年齢を偽って登録したことが確認された場合、サービス利用制限、アカウント解約、または追加確認手続きが行われることがあります。",
+  "chatAttachmentRecoveryFailed": "先ほど選択していた写真を復元できませんでした。もう一度選択してください。",
+  "chatAttachmentSheetTitle": "写真を添付",
+  "chatAttachmentSheetDescription": "アルバムから複数の写真を選ぶか、カメラですぐ撮影して送信できます。",
+  "chatAttachmentGalleryTitle": "アルバムから選択",
+  "chatAttachmentGallerySubtitle": "複数枚をまとめて選択できます。",
+  "chatAttachmentCameraTitle": "カメラで撮影",
+  "chatAttachmentCameraSubtitle": "写真を1枚すぐに撮って添付します。",
+  "chatAttachmentGuideFormats": "対応形式: JPG, PNG, WEBP, GIF, HEIC, HEIF",
+  "chatAttachmentGuideMaxSize": "最大サイズ: 10MB",
+  "chatAttachmentGuideMaxCount": "1メッセージあたり最大 {count} 枚",
+  "@chatAttachmentGuideMaxCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chatAttachmentPhotoPermissionTitle": "写真権限のご案内",
+  "chatAttachmentCameraPermissionTitle": "カメラ権限のご案内",
+  "chatAttachmentPhotoPermissionMessage": "チャットで写真を添付するには写真ライブラリへのアクセス権限が必要です。権限を拒否してもテキストチャットは引き続き利用できます。",
+  "chatAttachmentCameraPermissionMessage": "チャットで写真を撮影して送るにはカメラ権限が必要です。権限を拒否してもテキストチャットは引き続き利用できます。",
+  "chatAttachmentPhotoSelect": "写真を選択",
+  "chatAttachmentOpenCamera": "カメラを開く",
+  "chatAttachmentPhotoRecoveryTitle": "写真へのアクセス権限が必要です",
+  "chatAttachmentCameraRecoveryTitle": "カメラ権限が必要です",
+  "chatAttachmentPhotoRecoveryMessage": "写真を添付するには写真ライブラリへのアクセス権限が必要です。権限がなくてもテキストチャットは続けられ、再試行するかアプリ設定で権限を許可できます。",
+  "chatAttachmentCameraRecoveryMessage": "チャットで撮影した写真を添付するにはカメラ権限が必要です。権限がなくてもテキストチャットは続けられ、再試行するかアプリ設定で権限を許可できます。",
+  "chatAttachmentLoadFailed": "写真を読み込めませんでした。権限とファイル状態を確認してください。",
+  "chatAttachmentAddedCount": "写真を {count} 枚添付しました。",
+  "@chatAttachmentAddedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chatAttachmentRejectedTypeCount": "対応していない形式の写真 {count} 枚を除外しました。",
+  "@chatAttachmentRejectedTypeCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chatAttachmentRejectedSizeCount": "10MB を超える写真 {count} 枚を除外しました。",
+  "@chatAttachmentRejectedSizeCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chatAttachmentOverflowCount": "写真は最大 {count} 枚まで添付できます。",
+  "@chatAttachmentOverflowCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chatAttachmentPhotoOnly": "写真",
+  "chatAttachmentInvalidFormat": "送信できる画像形式は JPG、PNG、WEBP、GIF、HEIC、HEIF のみです。",
+  "chatAttachmentUploadFailed": "チャット画像をアップロードできませんでした。しばらくしてからもう一度お試しください。",
+  "chatListLoadError": "チャット一覧を読み込めませんでした。",
+  "chatListEmptyTitle": "表示できるチャットルームがありません。",
+  "chatListEmptyBody": "フィルターを変更するか、新しい会話を始めてみてください。",
+  "chatListLoadMoreHint": "スクロールするとチャットルームをさらに読み込みます。",
+  "chatListLoadMoreFailedNetwork": "チャットルームをさらに読み込めませんでした。ネットワークを確認してください。",
+  "chatListLoadMoreFailedServer": "チャットルームをさらに読み込めませんでした。しばらくしてからもう一度お試しください。",
+  "chatRoomMissing": "チャットルーム情報が見つかりません。",
+  "chatBackToList": "一覧へ",
+  "chatRoomLoadError": "チャットルームを読み込めませんでした。",
+  "chatOlderMessagesHint": "上にスクロールすると以前のメッセージをさらに読み込みます。",
+  "chatOlderMessagesFailedNetwork": "以前のメッセージを読み込めませんでした。ネットワークを確認してください。",
+  "chatOlderMessagesFailedServer": "以前のメッセージを読み込めませんでした。しばらくしてからもう一度お試しください。",
+  "chatReadSyncFailed": "既読状態をサーバーに反映できませんでした。後でもう一度試します。",
+  "chatSendFailedNetwork": "メッセージを送信できませんでした。ネットワークを確認してください。",
+  "chatSendFailedServer": "メッセージを送信できませんでした。しばらくしてからもう一度お試しください。",
+  "chatMe": "自分",
+  "chatDefaultDirectRoomTitle": "1対1チャット",
+  "chatDefaultGroupRoomTitle": "チャットルーム",
+  "chatRealtimeConnectionError": "リアルタイムチャットに接続できませんでした。",
+  "chatRealtimeMessageError": "リアルタイムチャットメッセージを処理できませんでした。",
+  "homeActivityRegionFallback": "活動地域",
+  "homeNearbyMapLoadError": "地図上の場所を読み込めませんでした。",
+  "homeNearbyMapCurrentLocationLabel": "現在地基準",
+  "homeNearbyMapSearchHint": "何を探しますか？",
+  "homeNearbyMapEmptyTitle": "周辺の場所が見つかりませんでした",
+  "homeNearbyMapEmptyBody": "検索語を変えるか、現在地を再読み込みしてください。",
+  "homeNearbyMapListTitle": "周辺の場所一覧",
+  "homeNearbyMapPlaceCount": "{count}か所",
+  "@homeNearbyMapPlaceCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "homeNearbyMapListButton": "一覧を見る",
+  "homeNearbyMapBadgeFallback": "周辺の場所",
+  "homeNearbyMapParseError": "場所データを解析できませんでした。",
+  "homeNearbyMapLocationLoadError": "現在地を取得できませんでした。",
+  "homeNearbyMapLocationRefreshError": "現在地を再取得できませんでした。",
+  "homeNearbyMapLocationRequired": "地図を見るには先に位置情報を確認してください。",
+  "homeNearbyMapPlacesLoadError": "場所を読み込めませんでした。しばらくしてからもう一度お試しください。",
+  "detailsActivityRequired": "先にアクティビティ情報を読み込んでください。",
+  "detailsFavoriteToggleError": "お気に入り状態を変更できませんでした。しばらくしてからもう一度お試しください。",
+  "detailsJoinAlreadyRequested": "このアクティビティにはすでに参加申請しています。",
+  "detailsJoinAlreadyJoined": "このアクティビティにはすでに参加中です。",
+  "detailsJoinHostedByMe": "自分が作成したアクティビティです。",
+  "detailsJoinRequestError": "参加申請を完了できませんでした。しばらくしてからもう一度お試しください。",
+  "detailsParticipantRemoveError": "参加者を削除できませんでした。しばらくしてからもう一度お試しください。",
+  "detailsPendingCancelError": "申請を取り消せませんでした。しばらくしてからもう一度お試しください。",
+  "detailsPendingApproveError": "参加申請を承認できませんでした。しばらくしてからもう一度お試しください。",
+  "detailsReviewRequired": "先にレビュー情報を読み込んでください。",
+  "detailsHelpfulToggleError": "「参考になった」の状態を変更できませんでした。しばらくしてからもう一度お試しください。",
+  "detailsReviewValidationRequired": "評価とレビューの両方を入力してください。",
+  "detailsReviewSubmitError": "レビューを投稿できませんでした。しばらくしてからもう一度お試しください。",
+  "detailsLoadError": "アクティビティ情報を読み込めませんでした。しばらくしてからもう一度お試しください。",
+  "detailsReviewSortLatest": "新しい順",
+  "detailsReviewSortOldest": "古い順",
+  "detailsReviewSortHighestRating": "評価が高い順",
+  "detailsReviewSortLowestRating": "評価が低い順",
+  "detailsJoinAvailable": "参加する",
+  "detailsJoinRequested": "申請済み",
+  "detailsJoinJoined": "参加中",
+  "detailsJoinHost": "自分の会",
+  "detailsReviewSummary": "{average} (レビュー{count}件)",
+  "@detailsReviewSummary": {
+    "placeholders": {
+      "average": {},
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "detailsParticipantSummary": "{current}/{capacity}人参加",
+  "@detailsParticipantSummary": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "capacity": {
+        "type": "int"
+      }
+    }
+  },
+  "detailsParticipantsJoined": "{count}人参加中",
+  "@detailsParticipantsJoined": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "detailsParticipantsRemaining": "残り{count}人",
+  "@detailsParticipantsRemaining": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "detailsRecruitmentClosed": "募集終了",
+  "detailsIntroduction": "アクティビティ紹介",
+  "detailsReviewsTitle": "レビュー{count}件",
+  "@detailsReviewsTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "detailsReviewsEmpty": "まだレビューがありません。最初のレビューを残してみましょう。",
+  "detailsPriceLabel": "体験料",
+  "detailsJoinRequesting": "申請中...",
+  "detailsReviewRatingSummary": "レビュー全{count}件",
+  "@detailsReviewRatingSummary": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "detailsReviewRating": "{rating}点",
+  "@detailsReviewRating": {
+    "placeholders": {
+      "rating": {
+        "type": "int"
+      }
+    }
+  },
+  "detailsReviewHelpfulCount": "{count}人の参考になりました",
+  "@detailsReviewHelpfulCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "detailsReviewViewOriginal": "原文を見る",
+  "detailsReviewViewTranslation": "翻訳を見る",
+  "detailsRepresentativeImage": "代表",
+  "detailsReviewGalleryNotice": "レビューに写真を添付するには写真ライブラリへのアクセス権が必要です。権限を許可しなくても、テキストレビューの作成と評価の登録は続けられます。",
+  "detailsReviewGalleryRecovery": "レビュー写真を添付するには写真ライブラリへのアクセス権が必要です。権限がなくてもテキストレビューと評価の登録は続けられ、再試行するかアプリ設定で権限を許可できます。",
+  "detailsReviewGalleryFailure": "写真を読み込めませんでした。権限とファイルの状態を確認してください。",
+  "detailsReviewGalleryRestoreError": "選択中だったレビュー画像を復元できませんでした。もう一度選択してください。",
+  "detailsReviewRestoredCount": "選択中だったレビュー画像を{restoredCount}枚復元しました。",
+  "@detailsReviewRestoredCount": {
+    "placeholders": {
+      "restoredCount": {
+        "type": "int"
+      }
+    }
+  },
+  "detailsReviewSubmitted": "レビューを投稿しました。",
+  "detailsReviewComposerTitle": "レビューを書く",
+  "detailsReviewComposerHint": "アクティビティで良かった点や、\n次の参加者の参考になる内容を書いてください。",
+  "detailsBodyCount": "{count}/{max}文字",
+  "@detailsBodyCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "detailsReviewImageSectionTitle": "画像 (最大{max}枚)",
+  "@detailsReviewImageSectionTitle": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "detailsReviewSubmitting": "投稿中...",
+  "detailsReviewSubmit": "投稿する",
+  "detailsReviewImageGuide": "1枚目の写真が代表画像になります。\n長押しで順番を変更できます。",
+  "detailsShareCopied": "共有リンクをコピーしました。お好きなメッセンジャーにそのまま貼り付けられます。",
+  "detailsReportActivityReload": "アクティビティ情報を再読み込みしてから通報してください。",
+  "detailsParticipantsListTitle": "参加ユーザー一覧",
+  "detailsParticipantRemoved": "参加者を削除しました。",
+  "detailsPendingParticipantsListTitle": "申請ユーザー一覧",
+  "detailsPendingCancelled": "申請を取り消しました。",
+  "detailsParticipantSwipeHint": "スワイプして削除または取り消しできます",
+  "detailsReviewListReportSubject": "{title} レビュー一覧",
+  "@detailsReviewListReportSubject": {
+    "placeholders": {
+      "title": {}
+    }
+  },
+  "detailsReviewLoadMoreHint": "スクロールするとレビューをさらに読み込みます。",
+  "detailsReviewImageInvalidFormat": "JPG、PNG、WEBP、GIF形式のレビュー画像のみアップロードできます。",
+  "detailsReviewImageUploadError": "レビュー画像をアップロードできませんでした。しばらくしてからもう一度お試しください。",
+  "detailsMe": "自分",
+  "commonInvalidServerResponse": "サーバー応答の形式が正しくありません。",
+  "onboardingVerificationResendLimitNotice": "認証コードは1日最大5回まで再送できます。現在 {count} 回リクエストしています。",
+  "@onboardingVerificationResendLimitNotice": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "onboardingVerificationResendLimitReached": "認証コードは1日最大5回まで再送できます。",
+  "onboardingVerificationSent": "認証コードを送信しました。",
+  "onboardingVerificationResent": "認証コードを再送しました。",
+  "onboardingBusinessVerificationCompleted": "事業者認証が完了しました。続けて電話認証を進めてください。",
+  "onboardingConsentRequired": "必須の利用規約にすべて同意してください。",
+  "homeExploreLoadMoreFailedNetwork": "追加の結果を読み込めませんでした。ネットワークを確認してください。",
+  "homeExploreLoadMoreFailedServer": "追加の結果を読み込めませんでした。しばらくしてからもう一度お試しください。"
+}

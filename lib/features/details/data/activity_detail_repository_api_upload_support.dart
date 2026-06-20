@@ -37,9 +37,9 @@ Future<String> _uploadReviewImage({
   final fileName = imagePath.split('/').last;
   final contentType = _contentTypeFor(fileName);
   if (contentType == null) {
-    throw const ActivityDetailRepositoryException(
+    throw ActivityDetailRepositoryException(
       ActivityDetailLoadFailureType.validation,
-      message: 'JPG, PNG, WEBP, GIF 형식의 리뷰 이미지만 업로드할 수 있어요.',
+      message: MateyaLocalizations.current.detailsReviewImageInvalidFormat,
     );
   }
 
@@ -76,9 +76,9 @@ Future<String> _uploadReviewImage({
     bodyBytes: fileBytes,
   );
   if (uploadResponse.statusCode < 200 || uploadResponse.statusCode >= 300) {
-    throw const ActivityDetailRepositoryException(
+    throw ActivityDetailRepositoryException(
       ActivityDetailLoadFailureType.server,
-      message: '리뷰 이미지를 업로드하지 못했어요. 잠시 후 다시 시도해 주세요.',
+      message: MateyaLocalizations.current.detailsReviewImageUploadError,
     );
   }
 

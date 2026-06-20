@@ -5,9 +5,10 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 
 import '../../../shared/auth/auth_session.dart';
-import '../../../shared/preferences/mateya_language_preferences.dart';
+import '../../../shared/localization/mateya_localizations.dart';
 import '../../../shared/logging/app_logger.dart';
 import '../../../shared/network/mateya_api_client.dart';
+import '../../../shared/preferences/mateya_language_preferences.dart';
 import '../data/auth_repository.dart';
 import '../data/location_repository.dart';
 import '../domain/onboarding_flow.dart';
@@ -118,6 +119,7 @@ class OnboardingController extends ChangeNotifier {
       _businessNumberThird.length == 5;
 
   String get completedName {
+    final l10n = MateyaLocalizations.current;
     if (_completionMode == AuthCompletionMode.login) {
       final sessionDisplayName = _authSessionStore.session?.user.displayName
           .trim();
@@ -128,32 +130,49 @@ class OnboardingController extends ChangeNotifier {
     if (_flowKind == FlowKind.host && _businessOwner.trim().isNotEmpty) {
       return _businessOwner.trim();
     }
-    return _name.trim().isEmpty ? '메이트야 회원' : _name.trim();
+    return _name.trim().isEmpty
+        ? l10n.onboardingDefaultMemberName
+        : _name.trim();
   }
 
   String get _signupDisplayName {
+    final l10n = MateyaLocalizations.current;
     if (_flowKind == FlowKind.host && _businessOwner.trim().isNotEmpty) {
       return _businessOwner.trim();
     }
-    return _name.trim().isEmpty ? '메이트야 회원' : _name.trim();
+    return _name.trim().isEmpty
+        ? l10n.onboardingDefaultMemberName
+        : _name.trim();
   }
 
-  String get completionHeadline => switch (_completionMode) {
-    AuthCompletionMode.login => '$completedName님\n메이트야 로그인을 완료했어요',
-    AuthCompletionMode.signup => '$completedName님\n메이트야 가입을 완료했어요',
-  };
+  String get completionHeadline {
+    final l10n = MateyaLocalizations.current;
+    return switch (_completionMode) {
+      AuthCompletionMode.login => l10n.onboardingLoginCompleted(completedName),
+      AuthCompletionMode.signup => l10n.onboardingSignupCompleted(
+        completedName,
+      ),
+    };
+  }
 
-  String get neighborhoodHeadline => switch (_completionMode) {
-    AuthCompletionMode.login => '돌아오신걸 환영해요\n$completedName님!\n동네 정보를 인증해주세요',
-    AuthCompletionMode.signup => '동네 정보를 인증해주세요',
-  };
+  String get neighborhoodHeadline {
+    final l10n = MateyaLocalizations.current;
+    return switch (_completionMode) {
+      AuthCompletionMode.login => l10n.onboardingNeighborhoodHeadlineReturning(
+        completedName,
+      ),
+      AuthCompletionMode.signup => l10n.onboardingNeighborhoodHeadlineSignup,
+    };
+  }
 
   String? get previousNeighborhoodLabel =>
       _authSessionStore.session?.user.activityRegionName;
 
   String get resolvedNeighborhoodMessage {
-    final neighborhood = _selectedNeighborhood?.displayName ?? '동네';
-    return '현재 위치가 “$neighborhood”에 있어요.';
+    final l10n = MateyaLocalizations.current;
+    final neighborhood =
+        _selectedNeighborhood?.displayName ?? l10n.onboardingNeighborhoodLabel;
+    return l10n.onboardingResolvedNeighborhoodMessage(neighborhood);
   }
 
   void clearToast() {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 
+import '../../../../shared/localization/mateya_localizations.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../../shared/widgets/mateya_skeleton.dart';
 import '../../domain/create_models.dart';
@@ -231,7 +232,7 @@ class PlaceMapCard extends StatelessWidget {
               Container(
                 color: Colors.white.withValues(alpha: 0.8),
                 alignment: Alignment.center,
-                child: const Text('장소를 선택하면 이 영역에 위치가 표시됩니다.'),
+                child: Text(context.l10n.createMapPlaceholder),
               ),
             if (isLoading) const Positioned.fill(child: MateyaMapSkeleton()),
           ],
