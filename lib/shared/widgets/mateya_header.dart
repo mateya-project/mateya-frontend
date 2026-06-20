@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import '../preferences/mateya_language_preferences.dart';
 import '../theme/app_tokens.dart';
 import 'mateya_language_dialog.dart';
 import 'mateya_report_sheet.dart';
@@ -294,7 +295,23 @@ class _LanguageButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _HeaderGlyphButton(
-      onTap: onTap ?? () => showMateyaLanguageDialog(context),
+      onTap:
+          onTap ??
+          () async {
+            final preferences = MateyaLanguagePreferences.instance;
+            final initialLanguageCode = await preferences.currentCode();
+            if (!context.mounted) {
+              return;
+            }
+            final selectedCode = await showMateyaLanguageDialog(
+              context,
+              initialLanguageCode: initialLanguageCode,
+            );
+            if (selectedCode == null) {
+              return;
+            }
+            await preferences.setCurrentCode(selectedCode);
+          },
       icon: Icons.language_rounded,
       size: 32,
       color: const Color(0xFF9CA3AF),

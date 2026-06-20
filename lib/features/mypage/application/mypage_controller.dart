@@ -180,7 +180,9 @@ class MyPageController extends ChangeNotifier {
   }
 
   void openPrimaryPreferences() {
-    openSettings();
+    _clearErrorWithoutNotify();
+    _route = MyPageRoute.primaryPreferences;
+    notifyListeners();
   }
 
   void openWithdrawal() {
@@ -196,6 +198,7 @@ class MyPageController extends ChangeNotifier {
   }
 
   Future<void> updatePrimaryPreferences({
+    String? englishName,
     required String languageCode,
     required String countryCode,
   }) async {
@@ -230,6 +233,7 @@ class MyPageController extends ChangeNotifier {
     try {
       _personalPage = await repository.updatePrimaryPreferences(
         displayName: _personalPage!.profile.name,
+        englishName: englishName,
         languageCode: language.code,
         countryCode: country.code,
       );

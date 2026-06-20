@@ -150,6 +150,7 @@ class SettingsView extends StatelessWidget {
     required this.profile,
     required this.onBack,
     required this.onReport,
+    required this.onEditPrimaryPreferences,
     required this.onEditActivityRegion,
     required this.onOpenConsentHistory,
     required this.onOpenPrivacyPolicy,
@@ -162,6 +163,7 @@ class SettingsView extends StatelessWidget {
   final ProfileSummary profile;
   final VoidCallback onBack;
   final VoidCallback onReport;
+  final VoidCallback onEditPrimaryPreferences;
   final VoidCallback onEditActivityRegion;
   final VoidCallback onOpenConsentHistory;
   final VoidCallback onOpenPrivacyPolicy;
@@ -204,12 +206,12 @@ class SettingsView extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
                             Text(
-                              profile.name,
+                              profile.displayName,
                               style: Theme.of(context).textTheme.titleLarge,
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              profile.residence,
+                              profile.residenceDisplay,
                               style: Theme.of(context).textTheme.bodyMedium
                                   ?.copyWith(color: AppColors.textSecondary),
                             ),
@@ -221,6 +223,12 @@ class SettingsView extends StatelessWidget {
                 ),
               ),
               const SliverToBoxAdapter(child: SizedBox(height: 18)),
+              SliverToBoxAdapter(
+                child: _SettingsMenuItem(
+                  title: '내 언어 · 국가 변경하기',
+                  onTap: onEditPrimaryPreferences,
+                ),
+              ),
               SliverToBoxAdapter(
                 child: _SettingsMenuItem(
                   title: '활동 지역 변경하기',
@@ -410,14 +418,14 @@ class BlockedUsersView extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
                               Text(
-                                user.name,
+                                user.displayName,
                                 style: Theme.of(
                                   context,
                                 ).textTheme.titleLarge?.copyWith(fontSize: 18),
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                user.residence,
+                                user.residenceDisplay,
                                 style: Theme.of(context).textTheme.bodyMedium
                                     ?.copyWith(color: AppColors.textSecondary),
                               ),
@@ -639,7 +647,7 @@ class _CenteredProfileCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 20),
                 Text(
-                  profile.name,
+                  profile.displayName,
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontSize: 22,
@@ -648,7 +656,7 @@ class _CenteredProfileCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  profile.residence,
+                  profile.residenceDisplay,
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                     color: AppColors.textSecondary,
@@ -762,6 +770,13 @@ class _BadgeGridSection extends StatelessWidget {
             ),
           ],
         ),
+        const SizedBox(height: 6),
+        Text(
+          '다양한 활동에 참여하고 뱃지를 모아보세요',
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
+        ),
         const SizedBox(height: 16),
         LayoutBuilder(
           builder: (BuildContext context, BoxConstraints constraints) {
@@ -795,38 +810,15 @@ class _BadgeGridTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final remoteImageUrl = slot.remoteImageUrl;
-    final badgeChild = remoteImageUrl != null
-        ? Image.network(
-            remoteImageUrl,
-            fit: BoxFit.cover,
-            filterQuality: FilterQuality.medium,
-            excludeFromSemantics: true,
-            errorBuilder:
-                (BuildContext context, Object error, StackTrace? stackTrace) {
-                  return Image.asset(
-                    slot.visual.assetPathFor(slot.isEarned),
-                    fit: BoxFit.cover,
-                    filterQuality: FilterQuality.medium,
-                    excludeFromSemantics: true,
-                    errorBuilder:
-                        (
-                          BuildContext context,
-                          Object error,
-                          StackTrace? stackTrace,
-                        ) => _BadgeGridTileFallback(slot: slot),
-                  );
-                },
-          )
-        : Image.asset(
-            slot.visual.assetPathFor(slot.isEarned),
-            fit: BoxFit.cover,
-            filterQuality: FilterQuality.medium,
-            excludeFromSemantics: true,
-            errorBuilder:
-                (BuildContext context, Object error, StackTrace? stackTrace) =>
-                    _BadgeGridTileFallback(slot: slot),
-          );
+    final badgeChild = Image.asset(
+      slot.visual.assetPathFor(slot.isEarned),
+      fit: BoxFit.cover,
+      filterQuality: FilterQuality.medium,
+      excludeFromSemantics: true,
+      errorBuilder:
+          (BuildContext context, Object error, StackTrace? stackTrace) =>
+              _BadgeGridTileFallback(slot: slot),
+    );
     final badgeImage = AspectRatio(
       aspectRatio: _badgeAspectRatio,
       child: ClipRRect(
@@ -1147,6 +1139,7 @@ class PrimaryPreferencesView extends StatelessWidget {
     required this.currentCountryCode,
     required this.languageOptions,
     required this.countryOptions,
+    required this.englishNameController,
     required this.isSaving,
     required this.errorText,
     required this.onBack,
@@ -1159,6 +1152,7 @@ class PrimaryPreferencesView extends StatelessWidget {
   final String? currentCountryCode;
   final List<SelectionOption> languageOptions;
   final List<SelectionOption> countryOptions;
+  final TextEditingController englishNameController;
   final bool isSaving;
   final String? errorText;
   final VoidCallback onBack;
@@ -1178,7 +1172,7 @@ class PrimaryPreferencesView extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Text(
-                  '대표 언어 / 대표 나라',
+                  '내 언어 · 국가 선택',
                   style: Theme.of(context).textTheme.headlineMedium,
                 ),
                 const SizedBox(height: 8),
@@ -1190,17 +1184,30 @@ class PrimaryPreferencesView extends StatelessWidget {
                 ),
                 const SizedBox(height: 24),
                 MyPageSelectionField(
-                  label: '대표 언어',
+                  label: '내 언어',
                   value: currentLanguageCode,
                   items: languageOptions,
                   onChanged: onLanguageChanged,
                 ),
                 const SizedBox(height: 16),
                 MyPageSelectionField(
-                  label: '대표 나라',
+                  label: '내 국가',
                   value: currentCountryCode,
                   items: countryOptions,
                   onChanged: onCountryChanged,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  '영어 이름 (선택)',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 8),
+                MateyaTextField(
+                  controller: englishNameController,
+                  hintText: 'Bak Minjeong',
+                  textInputAction: TextInputAction.done,
                 ),
                 if (errorText != null) ...<Widget>[
                   const SizedBox(height: 12),
@@ -1274,7 +1281,8 @@ class BusinessMyPageView extends StatelessWidget {
             children: <Widget>[
               MyPageProfileHeroCard(
                 profile: data.profile,
-                subtitle: data.profile.placeLabel ?? data.profile.residence,
+                subtitle:
+                    data.profile.placeLabel ?? data.profile.residenceDisplay,
                 avatarAction: _AvatarActionButton(
                   icon: isUpdatingProfileImage
                       ? Icons.hourglass_top_rounded

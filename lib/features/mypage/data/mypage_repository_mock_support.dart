@@ -4,11 +4,14 @@ const PersonalMyPageData _personalPage = PersonalMyPageData(
   profile: ProfileSummary(
     id: 'guest-me',
     name: '유나',
+    englishName: 'Yuna',
     residence: '서울 성동구 성수동',
     primaryLanguageCode: 'ko',
     primaryLanguageLabel: '한국어',
     primaryCountryCode: 'kr',
     primaryCountryLabel: '대한민국',
+    activityCountryCode: 'kr',
+    activityCountryLabel: 'Korea',
     isActiveWithin30Days: true,
   ),
   metrics: <ProfileMetric>[
@@ -74,11 +77,14 @@ const OtherProfileData _otherProfile = OtherProfileData(
   profile: ProfileSummary(
     id: 'other-jisoo',
     name: '지수',
+    englishName: 'Jisoo',
     residence: '서울 마포구 연남동',
     primaryLanguageCode: 'en',
     primaryLanguageLabel: '영어',
     primaryCountryCode: 'us',
     primaryCountryLabel: '미국',
+    activityCountryCode: 'kr',
+    activityCountryLabel: 'Korea',
     profileImageUrl:
         'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=900&q=80',
     isActiveWithin30Days: true,
@@ -275,6 +281,8 @@ const BusinessMyPageData _businessPage = BusinessMyPageData(
   profile: ProfileSummary(
     id: 'host-studio',
     name: '성수 티 스튜디오',
+    activityCountryCode: 'kr',
+    activityCountryLabel: 'Korea',
     residence: '서울 성동구 성수일로 32',
     primaryLanguageCode: 'ko',
     primaryLanguageLabel: '한국어',

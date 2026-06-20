@@ -12,6 +12,7 @@ enum MyPageRoute {
   otherProfile,
   recentActivities,
   settings,
+  primaryPreferences,
   consentHistory,
   blockedUsers,
   businessHome,
@@ -28,6 +29,9 @@ class ProfileSummary {
     required this.primaryLanguageLabel,
     required this.primaryCountryCode,
     required this.primaryCountryLabel,
+    this.englishName,
+    this.activityCountryCode,
+    this.activityCountryLabel,
     this.profileImageUrl,
     this.isActiveWithin30Days = false,
     this.oneLineIntroduction,
@@ -41,10 +45,31 @@ class ProfileSummary {
   final String primaryLanguageLabel;
   final String primaryCountryCode;
   final String primaryCountryLabel;
+  final String? englishName;
+  final String? activityCountryCode;
+  final String? activityCountryLabel;
   final String? profileImageUrl;
   final bool isActiveWithin30Days;
   final String? oneLineIntroduction;
   final String? placeLabel;
+
+  String get displayName {
+    final primary = name.trim();
+    final english = englishName?.trim() ?? '';
+    if (english.isEmpty || english == primary) {
+      return primary;
+    }
+    return '$primary · $english';
+  }
+
+  String get residenceDisplay {
+    final region = residence.trim();
+    final country = activityCountryLabel?.trim() ?? '';
+    if (placeLabel != null || region.isEmpty || country.isEmpty) {
+      return region;
+    }
+    return '$country $region';
+  }
 
   ProfileSummary copyWith({
     String? id,
@@ -54,6 +79,9 @@ class ProfileSummary {
     String? primaryLanguageLabel,
     String? primaryCountryCode,
     String? primaryCountryLabel,
+    Object? englishName = _sentinel,
+    Object? activityCountryCode = _sentinel,
+    Object? activityCountryLabel = _sentinel,
     Object? profileImageUrl = _sentinel,
     bool? isActiveWithin30Days,
     Object? oneLineIntroduction = _sentinel,
@@ -67,6 +95,15 @@ class ProfileSummary {
       primaryLanguageLabel: primaryLanguageLabel ?? this.primaryLanguageLabel,
       primaryCountryCode: primaryCountryCode ?? this.primaryCountryCode,
       primaryCountryLabel: primaryCountryLabel ?? this.primaryCountryLabel,
+      englishName: englishName == _sentinel
+          ? this.englishName
+          : englishName as String?,
+      activityCountryCode: activityCountryCode == _sentinel
+          ? this.activityCountryCode
+          : activityCountryCode as String?,
+      activityCountryLabel: activityCountryLabel == _sentinel
+          ? this.activityCountryLabel
+          : activityCountryLabel as String?,
       profileImageUrl: profileImageUrl == _sentinel
           ? this.profileImageUrl
           : profileImageUrl as String?,
@@ -224,6 +261,10 @@ class BlockedUserSummary {
   final String name;
   final String residence;
   final String? profileImageUrl;
+
+  String get displayName => name;
+
+  String get residenceDisplay => residence;
 }
 
 class RecentActivityStats {

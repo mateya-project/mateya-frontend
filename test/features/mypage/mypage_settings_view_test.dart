@@ -8,6 +8,7 @@ void main() {
     'settings view exposes privacy policy action and remains scrollable on short screens',
     (tester) async {
       var openedPrivacyPolicy = false;
+      var openedPrimaryPreferences = false;
       var backed = false;
       tester.view.physicalSize = const Size(375, 640);
       tester.view.devicePixelRatio = 1.0;
@@ -31,6 +32,9 @@ void main() {
                 backed = true;
               },
               onReport: () {},
+              onEditPrimaryPreferences: () {
+                openedPrimaryPreferences = true;
+              },
               onEditActivityRegion: () {},
               onOpenConsentHistory: () {},
               onOpenPrivacyPolicy: () {
@@ -49,11 +53,16 @@ void main() {
       expect(tester.takeException(), isNull);
 
       expect(find.text('개인정보처리방침 보기'), findsOneWidget);
+      expect(find.text('내 언어 · 국가 변경하기'), findsOneWidget);
       expect(find.byIcon(Icons.arrow_back_rounded), findsOneWidget);
 
       await tester.tap(find.byIcon(Icons.arrow_back_rounded));
       await tester.pump();
       expect(backed, isTrue);
+
+      await tester.tap(find.text('내 언어 · 국가 변경하기'));
+      await tester.pump();
+      expect(openedPrimaryPreferences, isTrue);
 
       await tester.tap(find.text('개인정보처리방침 보기'));
       await tester.pump();

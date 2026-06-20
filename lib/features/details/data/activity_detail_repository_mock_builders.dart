@@ -18,8 +18,8 @@ ActivityHostProfile _hostFor(ActivityItem activity) =>
     _hostById[activity.id] ??
     const ActivityHostProfile(
       userId: 'host-default',
-      name: 'Lee MinJi',
-      localizedName: '이민지',
+      name: '이민지',
+      localizedName: 'Lee MinJi',
       locationLabel: 'Living in Seoul · Shindang dong',
       avatarUrl:
           'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=300&q=80',

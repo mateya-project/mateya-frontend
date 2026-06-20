@@ -252,7 +252,7 @@ class DetailBody extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         Text(
-                          '${detail.host.name} ${detail.host.localizedName}',
+                          detail.host.displayName,
                           style: Theme.of(
                             context,
                           ).textTheme.titleLarge?.copyWith(fontSize: 18),
