@@ -102,52 +102,41 @@ class CategoryStepView extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.fromLTRB(24, 8, 24, 0),
       children: <Widget>[
-        Text('어떤 모임을 만들까요?', style: theme.textTheme.headlineMedium),
+        Text('무엇을 경험하고 싶나요?', style: theme.textTheme.headlineMedium),
         const SizedBox(height: 10),
         Text(
-          '서비스 카테고리는 백엔드 public data 기준 8종으로 맞췄고, 모임은 1개 카테고리만 선택하도록 구성했습니다.',
+          '모임 목적에 맞는 카테고리를 선택해주세요.',
           style: theme.textTheme.bodyMedium?.copyWith(
-            color: AppColors.textSecondary,
+            color: AppColors.textPrimary,
           ),
         ),
         const SizedBox(height: 24),
-        const PrimaryTypeCard(),
-        const SizedBox(height: 28),
-        Text('카테고리', style: theme.textTheme.titleLarge),
-        const SizedBox(height: 12),
-        Wrap(
-          spacing: 10,
-          runSpacing: 10,
-          children: controller.availableCategories
-              .map(
-                (category) => SelectableChip(
-                  label: category.label,
-                  selected: controller.selectedCategoryIds.contains(
-                    category.id,
-                  ),
-                  onTap: () => controller.toggleCategory(category.id),
-                ),
-              )
-              .toList(growable: false),
+        GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 16,
+            mainAxisSpacing: 16,
+            childAspectRatio: 0.96,
+          ),
+          itemCount: controller.availableCategories.length,
+          itemBuilder: (context, index) {
+            final category = controller.availableCategories[index];
+            final cardContent = _categoryCardContentFor(category);
+            return _CategorySelectionCard(
+              title: cardContent.title,
+              description: cardContent.description,
+              icon: cardContent.icon,
+              selected: controller.selectedCategoryIds.contains(category.id),
+              onTap: () => controller.toggleCategory(category.id),
+            );
+          },
         ),
         if (controller.errorFor('categories') != null) ...<Widget>[
           const SizedBox(height: 12),
           InlineErrorText(text: controller.errorFor('categories')!),
         ],
-        const SizedBox(height: 24),
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: AppColors.subtleBackground,
-            borderRadius: BorderRadius.circular(18),
-          ),
-          child: Text(
-            '선택한 카테고리는 다음 단계 장소 추천과 최종 상세 입력으로 그대로 전달됩니다.',
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: AppColors.textMuted,
-            ),
-          ),
-        ),
       ],
     );
   }
@@ -249,27 +238,38 @@ class _CreateStepTracker extends StatelessWidget {
         );
         final progressFraction = stepCount <= 1
             ? 1.0
-            : currentIndex / (stepCount - 1);
+            : currentIndex == stepCount - 1
+            ? 1.0
+            : (currentIndex + 0.5) / (stepCount - 1);
 
         return SizedBox(
-          height: 80,
+          height: 78,
           child: Stack(
             children: <Widget>[
               if (stepCount > 1)
                 Positioned(
                   left: lineLeft,
                   right: lineLeft,
-                  top: 14,
-                  child: Container(height: 2, color: AppColors.divider),
+                  top: 13,
+                  child: Container(
+                    height: 3,
+                    decoration: BoxDecoration(
+                      color: AppColors.divider,
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                  ),
                 ),
               if (stepCount > 1)
                 Positioned(
                   left: lineLeft,
-                  top: 14,
+                  top: 13,
                   child: Container(
                     width: lineWidth * progressFraction,
-                    height: 2,
-                    color: AppColors.brandGreen,
+                    height: 3,
+                    decoration: BoxDecoration(
+                      color: AppColors.brandGreen,
+                      borderRadius: BorderRadius.circular(999),
+                    ),
                   ),
                 ),
               Row(
@@ -336,10 +336,10 @@ class _CreateStepTrackerItem extends StatelessWidget {
     return Column(
       children: <Widget>[
         SizedBox(
-          height: 28,
+          height: 30,
           child: Center(child: _CreateStepNode(state: state)),
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 8),
         Text(
           'step$stepNumber',
           style: theme.textTheme.bodySmall?.copyWith(
@@ -353,6 +353,7 @@ class _CreateStepTrackerItem extends StatelessWidget {
           style: theme.textTheme.bodyMedium?.copyWith(
             color: isCurrent ? AppColors.textPrimary : AppColors.textSecondary,
             fontWeight: isCurrent ? FontWeight.w700 : FontWeight.w500,
+            fontSize: 14,
           ),
           textAlign: TextAlign.center,
         ),
@@ -368,104 +369,180 @@ class _CreateStepNode extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 28,
-      height: 28,
-      decoration: BoxDecoration(
-        color: state == _CreateStepIndicatorState.completed
-            ? AppColors.brandGreen
-            : Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: state == _CreateStepIndicatorState.upcoming
-              ? AppColors.fieldBorderLight
-              : AppColors.brandGreen,
-          width: 2,
+    if (state == _CreateStepIndicatorState.upcoming) {
+      return Container(
+        width: 30,
+        height: 30,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: AppColors.fieldBorderLight, width: 1.4),
         ),
+      );
+    }
+
+    return Container(
+      width: 30,
+      height: 30,
+      padding: const EdgeInsets.all(2.5),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: AppColors.brandGreen, width: 1.8),
       ),
-      child: Center(
-        child: switch (state) {
-          _CreateStepIndicatorState.completed => const Icon(
-            Icons.check_rounded,
-            size: 18,
-            color: Colors.white,
-          ),
-          _CreateStepIndicatorState.current => Container(
-            width: 10,
-            height: 10,
-            decoration: BoxDecoration(
-              color: AppColors.brandGreen,
-              borderRadius: BorderRadius.circular(3),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: AppColors.brandGreen,
+          borderRadius: BorderRadius.circular(7),
+        ),
+        child: Center(
+          child: switch (state) {
+            _CreateStepIndicatorState.completed => const Icon(
+              Icons.check_rounded,
+              size: 17,
+              color: Colors.white,
             ),
-          ),
-          _CreateStepIndicatorState.upcoming => const SizedBox.shrink(),
-        },
+            _CreateStepIndicatorState.current => Container(
+              width: 10,
+              height: 10,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(3),
+              ),
+            ),
+            _CreateStepIndicatorState.upcoming => const SizedBox.shrink(),
+          },
+        ),
       ),
     );
   }
 }
 
-class PrimaryTypeCard extends StatelessWidget {
-  const PrimaryTypeCard({super.key});
+class _CategorySelectionCard extends StatelessWidget {
+  const _CategorySelectionCard({
+    required this.title,
+    required this.description,
+    required this.icon,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String title;
+  final String description;
+  final IconData icon;
+  final bool selected;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: AppColors.softGreenBorder,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.brandGreenLight),
-      ),
-      child: Row(
-        children: <Widget>[
-          Container(
-            width: 52,
-            height: 52,
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              Icons.temple_buddhist_outlined,
-              color: AppColors.brandGreen,
-              size: 28,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(18),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          padding: const EdgeInsets.fromLTRB(18, 18, 18, 20),
+          decoration: BoxDecoration(
+            color: selected ? AppColors.softGreenBorder : Colors.white,
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(
+              color: selected ? AppColors.brandGreenLight : AppColors.divider,
             ),
           ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text('한국문화 체험', style: theme.textTheme.titleLarge),
-                const SizedBox(height: 6),
-                Text(
-                  '현재 선택 가능한 유일한 모임 유형',
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: AppColors.textMuted,
-                  ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Icon(icon, size: 40, color: AppColors.textPrimary),
+              const Spacer(),
+              Text(
+                title,
+                style: theme.textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w700,
                 ),
-              ],
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: BoxDecoration(
-              color: AppColors.brandGreen,
-              borderRadius: BorderRadius.circular(999),
-            ),
-            child: Text(
-              '선택됨',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: Colors.white,
-                fontWeight: FontWeight.w700,
               ),
-            ),
+              const SizedBox(height: 6),
+              Text(
+                description,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: AppColors.textMuted,
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
+}
+
+_CategoryCardContent _categoryCardContentFor(CreateCategoryOption category) {
+  final predefined = _categoryCardContents[category.id];
+  if (predefined != null) {
+    return predefined;
+  }
+
+  return _CategoryCardContent(
+    title: category.label,
+    description: '모임 목적에 맞는 카테고리를 선택해주세요.',
+    icon: Icons.category_outlined,
+  );
+}
+
+const Map<String, _CategoryCardContent> _categoryCardContents =
+    <String, _CategoryCardContent>{
+      'TOURIST_ATTRACTION': _CategoryCardContent(
+        title: '관광지',
+        description: '손끝으로 잇는 전통',
+        icon: Icons.temple_buddhist_outlined,
+      ),
+      'TRAVEL_COURSE': _CategoryCardContent(
+        title: '여행코스',
+        description: '걸으며 발견하는 매력',
+        icon: Icons.location_on_outlined,
+      ),
+      'CULTURE_TRADITION': _CategoryCardContent(
+        title: '문화 · 전통',
+        description: '한국의 고즈넉함',
+        icon: Icons.account_balance_outlined,
+      ),
+      'EVENT_PERFORMANCE_FESTIVAL': _CategoryCardContent(
+        title: '행사 · 공연 · 축제',
+        description: '지역과 활기의 낭만',
+        icon: Icons.celebration_outlined,
+      ),
+      'SPORTS': _CategoryCardContent(
+        title: '스포츠',
+        description: '몸으로 즐기는 한국',
+        icon: Icons.sports_soccer_outlined,
+      ),
+      'ACTIVITY_LEPORTS': _CategoryCardContent(
+        title: '액티비티 · 레포츠',
+        description: '움직일수록 커지는 설렘',
+        icon: Icons.downhill_skiing_outlined,
+      ),
+      'PUBLIC_FACILITY': _CategoryCardContent(
+        title: '공공시설',
+        description: '예상 못 한 특별함',
+        icon: Icons.auto_awesome_outlined,
+      ),
+      'SHOPPING': _CategoryCardContent(
+        title: '쇼핑',
+        description: '취향으로 담아가는 순간',
+        icon: Icons.shopping_bag_outlined,
+      ),
+    };
+
+class _CategoryCardContent {
+  const _CategoryCardContent({
+    required this.title,
+    required this.description,
+    required this.icon,
+  });
+
+  final String title;
+  final String description;
+  final IconData icon;
 }
