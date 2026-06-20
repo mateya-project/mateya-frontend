@@ -11,12 +11,14 @@ class MateyaButton extends StatelessWidget {
     required this.onPressed,
     this.enabled = true,
     this.tone = MateyaButtonTone.brand,
+    this.trailingIcon,
   });
 
   final String label;
   final VoidCallback? onPressed;
   final bool enabled;
   final MateyaButtonTone tone;
+  final IconData? trailingIcon;
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +55,18 @@ class MateyaButton extends StatelessWidget {
             color: foregroundColor,
           ),
         ),
-        child: Text(label),
+        child: trailingIcon == null
+            ? Text(label)
+            : Stack(
+                fit: StackFit.expand,
+                children: <Widget>[
+                  Align(alignment: Alignment.center, child: Text(label)),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Icon(trailingIcon, size: 28),
+                  ),
+                ],
+              ),
       ),
     );
   }

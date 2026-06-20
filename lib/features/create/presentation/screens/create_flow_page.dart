@@ -437,6 +437,7 @@ class _CreateFlowPageState extends State<CreateFlowPage> {
                     padding: const EdgeInsets.fromLTRB(24, 12, 24, 20),
                     child: MateyaButton(
                       label: _submitButtonLabel(),
+                      trailingIcon: _submitButtonTrailingIcon(),
                       enabled: widget.controller.canContinueCurrentStep,
                       onPressed: _handlePrimaryAction,
                     ),
@@ -458,7 +459,16 @@ class _CreateFlowPageState extends State<CreateFlowPage> {
       }
       return widget.controller.submitActionLabel;
     }
+    if (widget.controller.step == CreateStep.category) {
+      return '장소 선택하기';
+    }
     return '다음';
+  }
+
+  IconData? _submitButtonTrailingIcon() {
+    return widget.controller.step == CreateStep.category
+        ? Icons.arrow_forward_rounded
+        : null;
   }
 
   Widget _buildStep(BuildContext context) {
