@@ -9,7 +9,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.minjeong.mateya</string>
+	<string>com.zless.mateya</string>
 	<key>PROJECT_ID</key>
 	<string>mateya-4821e</string>
 	<key>STORAGE_BUCKET</key>
@@ -25,6 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:277517125092:ios:cc5f31ce29fd1e908773f1</string>
+	<string>1:277517125092:ios:3b8a0dc1735057208773f1</string>
 </dict>
 </plist>

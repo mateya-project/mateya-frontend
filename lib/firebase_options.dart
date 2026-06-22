@@ -51,7 +51,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyDm9Id3wA81weXQ5aGwor728MlLlEw2LGI',
-    appId: '1:277517125092:android:34249034f1725c588773f1',
+    appId: '1:277517125092:android:2e67621bc4cd21738773f1',
     messagingSenderId: '277517125092',
     projectId: 'mateya-4821e',
     storageBucket: 'mateya-4821e.firebasestorage.app',
@@ -59,10 +59,10 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyCWeciS-Q0dEE3uQhP1NN_ZyYd14qTrtEQ',
-    appId: '1:277517125092:ios:cc5f31ce29fd1e908773f1',
+    appId: '1:277517125092:ios:3b8a0dc1735057208773f1',
     messagingSenderId: '277517125092',
     projectId: 'mateya-4821e',
     storageBucket: 'mateya-4821e.firebasestorage.app',
-    iosBundleId: 'com.minjeong.mateya',
+    iosBundleId: 'com.zless.mateya',
   );
 }
