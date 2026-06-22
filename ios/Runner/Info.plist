@@ -24,18 +24,18 @@
 	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
-	<key>LSRequiresIPhoneOS</key>
-	<true/>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
-	<key>NSCameraUsageDescription</key>
-	<string>채팅에서 사진을 바로 찍어 보내기 위해 카메라 권한이 필요합니다. 거부하셔도 텍스트 채팅은 계속 이용할 수 있습니다.</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>회원가입 중 동네 인증과 내 주변 활동 추천을 위해 현재 위치 권한이 필요합니다. 거부하셔도 동네를 직접 입력해 가입을 계속할 수 있습니다.</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>활동 생성, 채팅, 후기 작성 화면에서 사진을 선택해 업로드하기 위해 사진 보관함 접근 권한이 필요합니다. 거부하셔도 텍스트 입력과 기본 기능은 계속 이용할 수 있습니다.</string>
+	<key>LSRequiresIPhoneOS</key>
+	<true/>
 	<key>NMFNcpKeyId</key>
 	<string>$(NAVER_MAP_CLIENT_ID)</string>
+	<key>NSCameraUsageDescription</key>
+	<string>채팅에서 사진을 촬영해 보내기 위해 카메라 접근 권한이 필요합니다. 거부하셔도 텍스트 채팅은 계속 이용할 수 있습니다.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>회원가입 중 동네 인증과 주변 활동 추천을 위해 현재 위치 접근 권한이 필요합니다. 거부하셔도 동네를 직접 입력해 가입을 계속할 수 있습니다.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>활동 생성, 채팅, 후기 작성 화면에서 사진을 선택해 업로드하기 위해 사진 보관함 접근 권한이 필요합니다. 거부하셔도 텍스트 입력과 기본 기능은 계속 이용할 수 있습니다.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

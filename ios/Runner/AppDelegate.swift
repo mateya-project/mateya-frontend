@@ -3,7 +3,7 @@ import UIKit
 
 @main
 @objc class AppDelegate: FlutterAppDelegate, FlutterImplicitEngineDelegate {
-  private let externalUrlChannelName = "com.minjeong.mateya/external_url"
+  private let externalUrlChannelName = "com.zless.mateya/external_url"
 
   override func application(
     _ application: UIApplication,

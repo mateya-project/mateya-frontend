@@ -1,7 +1,7 @@
 import 'package:flutter/services.dart';
 
 const MethodChannel _externalUrlChannel = MethodChannel(
-  'com.minjeong.mateya/external_url',
+  'com.zless.mateya/external_url',
 );
 
 Future<bool> openExternalUrl(String url) async {
