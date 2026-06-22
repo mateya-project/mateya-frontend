@@ -78,18 +78,6 @@ Future<List<XFile>> pickMateyaGalleryImages(
   }
 
   final l10n = context.l10n;
-  final shouldContinue = await showMateyaPermissionNoticeDialog(
-    context,
-    title: l10n.galleryPermissionNoticeTitle,
-    message: messages.noticeMessage,
-    confirmLabel: l10n.galleryPermissionSelectPhoto,
-    cancelLabel: l10n.commonLater,
-    rememberKey: 'permission.notice.photo_library',
-  );
-  if (!context.mounted || !shouldContinue) {
-    return const <XFile>[];
-  }
-
   try {
     final picked = await imagePicker.pickMultiImage(
       imageQuality: imageQuality,

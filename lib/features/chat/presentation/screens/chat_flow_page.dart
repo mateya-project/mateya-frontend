@@ -333,27 +333,6 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
       return;
     }
 
-    final shouldContinue = await showMateyaPermissionNoticeDialog(
-      context,
-      title: action == _AttachmentAction.gallery
-          ? context.l10n.chatAttachmentPhotoPermissionTitle
-          : context.l10n.chatAttachmentCameraPermissionTitle,
-      message: action == _AttachmentAction.gallery
-          ? context.l10n.chatAttachmentPhotoPermissionMessage
-          : context.l10n.chatAttachmentCameraPermissionMessage,
-      confirmLabel: action == _AttachmentAction.gallery
-          ? context.l10n.chatAttachmentPhotoSelect
-          : context.l10n.chatAttachmentOpenCamera,
-      cancelLabel: context.l10n.commonLater,
-      rememberKey: action == _AttachmentAction.gallery
-          ? 'permission.notice.photo_library'
-          : 'permission.notice.camera',
-    );
-
-    if (!mounted || !shouldContinue) {
-      return;
-    }
-
     await _markPendingAttachmentRecovery();
 
     try {

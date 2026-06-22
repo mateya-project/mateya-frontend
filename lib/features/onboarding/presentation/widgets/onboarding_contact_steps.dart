@@ -224,38 +224,19 @@ class NeighborhoodAutoStepView extends StatefulWidget {
 }
 
 class _NeighborhoodAutoStepViewState extends State<NeighborhoodAutoStepView> {
-  bool _didStartPermissionFlow = false;
   LocationFailureType? _lastHandledFailureType;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _startLocationVerificationFlow(showNotice: true);
+      _startLocationVerificationFlow();
     });
   }
 
-  Future<void> _startLocationVerificationFlow({
-    required bool showNotice,
-  }) async {
+  Future<void> _startLocationVerificationFlow() async {
     if (!mounted) {
       return;
-    }
-
-    if (showNotice && !_didStartPermissionFlow) {
-      _didStartPermissionFlow = true;
-      final shouldContinue = await _showOnboardingLocationPermissionDialog(
-        context,
-      );
-
-      if (!mounted) {
-        return;
-      }
-
-      if (!shouldContinue) {
-        widget.controller.openManualNeighborhood();
-        return;
-      }
     }
 
     _lastHandledFailureType = null;
@@ -265,36 +246,6 @@ class _NeighborhoodAutoStepViewState extends State<NeighborhoodAutoStepView> {
     }
 
     await _handleLocationFailure();
-  }
-
-  Future<bool> _showOnboardingLocationPermissionDialog(
-    BuildContext context,
-  ) async {
-    final shouldContinue = await showDialog<bool>(
-      context: context,
-      barrierDismissible: false,
-      builder: (dialogContext) {
-        return Dialog(
-          insetPadding: const EdgeInsets.symmetric(horizontal: 20),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: ConstrainedBox(
-            constraints: AppResponsive.dialogConstraints(
-              context,
-              maxWidth: 360,
-              maxHeightFactor: 0.84,
-            ),
-            child: OnboardingLocationPermissionDialogContent(
-              onManualInput: () => Navigator.of(dialogContext).pop(false),
-              onUseCurrentLocation: () => Navigator.of(dialogContext).pop(true),
-            ),
-          ),
-        );
-      },
-    );
-
-    return shouldContinue ?? false;
   }
 
   Future<void> _handleLocationFailure() async {
@@ -386,8 +337,7 @@ class _NeighborhoodAutoStepViewState extends State<NeighborhoodAutoStepView> {
                   SizedBox(
                     width: double.infinity,
                     child: OutlinedButton(
-                      onPressed: () =>
-                          _startLocationVerificationFlow(showNotice: false),
+                      onPressed: _startLocationVerificationFlow,
                       child: Text(switch (controller.locationFailure?.type) {
                         LocationFailureType.permissionDenied =>
                           l10n.onboardingRetryLocationPermission,
@@ -433,90 +383,6 @@ class _NeighborhoodAutoStepViewState extends State<NeighborhoodAutoStepView> {
           ),
         ),
       ],
-    );
-  }
-}
-
-class OnboardingLocationPermissionDialogContent extends StatelessWidget {
-  const OnboardingLocationPermissionDialogContent({
-    super.key,
-    required this.onManualInput,
-    required this.onUseCurrentLocation,
-  });
-
-  final VoidCallback onManualInput;
-  final VoidCallback onUseCurrentLocation;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    final theme = Theme.of(context);
-
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(22, 22, 22, 18),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Text(
-              l10n.onboardingLocationPermissionNoticeTitle,
-              style: theme.textTheme.headlineLarge?.copyWith(
-                fontSize: 20,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              l10n.onboardingLocationPermissionNoticeMessage,
-              style: theme.textTheme.titleLarge?.copyWith(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: const Color(0xFF6A6A6A),
-                height: 1.5,
-              ),
-            ),
-            const SizedBox(height: 22),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: onUseCurrentLocation,
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size.fromHeight(56),
-                  elevation: 0,
-                  backgroundColor: AppColors.brandGreen,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(18),
-                  ),
-                  textStyle: theme.textTheme.headlineMedium?.copyWith(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                  ),
-                ),
-                child: Text(l10n.onboardingUseCurrentLocation),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Center(
-              child: TextButton(
-                onPressed: onManualInput,
-                style: TextButton.styleFrom(
-                  foregroundColor: const Color(0xFF9B9B9B),
-                  textStyle: theme.textTheme.titleLarge?.copyWith(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    decoration: TextDecoration.underline,
-                    decorationColor: const Color(0xFF9B9B9B),
-                  ),
-                ),
-                child: Text(l10n.onboardingManualInput),
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
