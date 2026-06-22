@@ -1,59 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../localization/mateya_localizations.dart';
 
 enum MateyaPermissionRecoveryAction { retry, openSettings, cancel }
-
-Future<bool> showMateyaPermissionNoticeDialog(
-  BuildContext context, {
-  required String title,
-  required String message,
-  String? confirmLabel,
-  String? cancelLabel,
-  String? rememberKey,
-}) async {
-  if (rememberKey != null) {
-    final preferences = await SharedPreferences.getInstance();
-    final alreadyAccepted = preferences.getBool(rememberKey) ?? false;
-    if (alreadyAccepted) {
-      return true;
-    }
-  }
-  if (!context.mounted) {
-    return false;
-  }
-
-  final shouldContinue = await showDialog<bool>(
-    context: context,
-    builder: (context) {
-      final l10n = context.l10n;
-      return AlertDialog(
-        title: Text(title),
-        content: Text(message),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(cancelLabel ?? l10n.commonLater),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text(confirmLabel ?? l10n.commonContinue),
-          ),
-        ],
-      );
-    },
-  );
-
-  final accepted = shouldContinue ?? false;
-  if (accepted && rememberKey != null) {
-    final preferences = await SharedPreferences.getInstance();
-    await preferences.setBool(rememberKey, true);
-  }
-
-  return accepted;
-}
 
 Future<void> showMateyaAppSettingsDialog(
   BuildContext context, {
