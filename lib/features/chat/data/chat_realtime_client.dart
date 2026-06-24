@@ -171,7 +171,7 @@ class ChatRealtimeClient {
             context: _logContext(
               roomId,
               command: frame.command,
-              headers: frame.headers.isEmpty ? null : frame.headers.toString(),
+              headerKeys: frame.headers.isEmpty ? null : frame.headers.keys,
               body: _trimFrameBody(frame.body),
             ),
           );
@@ -206,7 +206,7 @@ class ChatRealtimeClient {
             context: _logContext(
               roomId,
               command: frame.command,
-              headers: frame.headers.isEmpty ? null : frame.headers.toString(),
+              headerKeys: frame.headers.isEmpty ? null : frame.headers.keys,
               body: _trimFrameBody(frame.body),
             ),
           );
@@ -217,7 +217,7 @@ class ChatRealtimeClient {
             context: _logContext(
               roomId,
               command: frame.command,
-              headers: frame.headers.isEmpty ? null : frame.headers.toString(),
+              headerKeys: frame.headers.isEmpty ? null : frame.headers.keys,
               body: _trimFrameBody(frame.body),
             ),
           );
@@ -228,7 +228,7 @@ class ChatRealtimeClient {
             context: _logContext(
               roomId,
               command: frame.command,
-              headers: frame.headers.isEmpty ? null : frame.headers.toString(),
+              headerKeys: frame.headers.isEmpty ? null : frame.headers.keys,
               body: _trimFrameBody(frame.body),
             ),
           );
@@ -324,7 +324,7 @@ class ChatRealtimeClient {
     String roomId, {
     String? destination,
     String? command,
-    String? headers,
+    Iterable<String>? headerKeys,
     String? body,
     String? message,
     String? url,
@@ -339,14 +339,14 @@ class ChatRealtimeClient {
     if (command != null) {
       context['command'] = command;
     }
-    if (headers != null) {
-      context['headers'] = headers;
+    if (headerKeys != null) {
+      context['headerKeys'] = headerKeys.toSet().toList(growable: false);
     }
     if (body != null) {
-      context['body'] = body;
+      context['bodyLength'] = body.length;
     }
     if (message != null) {
-      context['message'] = message;
+      context['messageLength'] = message.length;
     }
     if (url != null) {
       context['url'] = url;

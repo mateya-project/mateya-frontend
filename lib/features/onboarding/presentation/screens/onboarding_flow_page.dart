@@ -55,35 +55,46 @@ class _OnboardingFlowPageState extends State<OnboardingFlowPage> {
     return AnimatedBuilder(
       animation: widget.controller,
       builder: (context, _) {
-        return Scaffold(
-          backgroundColor: AppColors.background,
-          body: SafeArea(
-            child: Align(
-              alignment: Alignment.topCenter,
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  maxWidth: AppResponsive.contentMaxWidth(
-                    context,
-                    phone: 600,
-                    tablet: 760,
+        final shouldHandleBack =
+            widget.controller.step != OnboardingStep.welcome;
+        return PopScope<void>(
+          canPop: !shouldHandleBack,
+          onPopInvokedWithResult: (didPop, result) {
+            if (didPop || !shouldHandleBack) {
+              return;
+            }
+            widget.controller.goBack();
+          },
+          child: Scaffold(
+            backgroundColor: AppColors.background,
+            body: SafeArea(
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: AppResponsive.contentMaxWidth(
+                      context,
+                      phone: 600,
+                      tablet: 760,
+                    ),
                   ),
-                ),
-                child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 280),
-                  transitionBuilder: (child, animation) {
-                    final offsetAnimation = Tween<Offset>(
-                      begin: const Offset(0.08, 0),
-                      end: Offset.zero,
-                    ).animate(animation);
-                    return FadeTransition(
-                      opacity: animation,
-                      child: SlideTransition(
-                        position: offsetAnimation,
-                        child: child,
-                      ),
-                    );
-                  },
-                  child: _buildStep(context, widget.controller),
+                  child: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 280),
+                    transitionBuilder: (child, animation) {
+                      final offsetAnimation = Tween<Offset>(
+                        begin: const Offset(0.08, 0),
+                        end: Offset.zero,
+                      ).animate(animation);
+                      return FadeTransition(
+                        opacity: animation,
+                        child: SlideTransition(
+                          position: offsetAnimation,
+                          child: child,
+                        ),
+                      );
+                    },
+                    child: _buildStep(context, widget.controller),
+                  ),
                 ),
               ),
             ),

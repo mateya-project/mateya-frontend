@@ -138,29 +138,75 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
       animation: widget.controller,
       builder: (context, _) {
         _syncFormValues();
-        return Scaffold(
-          backgroundColor: AppColors.background,
-          body: SafeArea(
-            child: MateyaFadeSlideSwitcher(
-              duration: const Duration(milliseconds: 240),
-              child: switch (widget.controller.phase) {
-                MyPageAsyncPhase.idle ||
-                MyPageAsyncPhase.loading => const MyPageLoadingView(),
-                MyPageAsyncPhase.networkError ||
-                MyPageAsyncPhase.serverError => MyPageRetryView(
-                  message:
-                      widget.controller.errorMessage ?? l10n.mypageLoadError,
-                  onRetry: _handleRetry,
-                  onBack: _buildRetryBackAction(),
-                ),
-                MyPageAsyncPhase.success ||
-                MyPageAsyncPhase.validationError => _buildRouteView(),
-              },
+        final shouldHandleBack = _shouldHandleSystemBack();
+        return PopScope<void>(
+          canPop: !shouldHandleBack,
+          onPopInvokedWithResult: (didPop, result) {
+            if (didPop || !shouldHandleBack) {
+              return;
+            }
+            _handleSystemBack();
+          },
+          child: Scaffold(
+            backgroundColor: AppColors.background,
+            body: SafeArea(
+              child: MateyaFadeSlideSwitcher(
+                duration: const Duration(milliseconds: 240),
+                child: switch (widget.controller.phase) {
+                  MyPageAsyncPhase.idle ||
+                  MyPageAsyncPhase.loading => const MyPageLoadingView(),
+                  MyPageAsyncPhase.networkError ||
+                  MyPageAsyncPhase.serverError => MyPageRetryView(
+                    message:
+                        widget.controller.errorMessage ?? l10n.mypageLoadError,
+                    onRetry: _handleRetry,
+                    onBack: _buildRetryBackAction(),
+                  ),
+                  MyPageAsyncPhase.success ||
+                  MyPageAsyncPhase.validationError => _buildRouteView(),
+                },
+              ),
             ),
           ),
         );
       },
     );
+  }
+
+  bool _shouldHandleSystemBack() {
+    return switch (widget.controller.route) {
+      MyPageRoute.personalHome || MyPageRoute.businessHome => false,
+      _ => true,
+    };
+  }
+
+  void _handleSystemBack() {
+    final controller = widget.controller;
+    switch (controller.route) {
+      case MyPageRoute.otherProfile:
+        if (widget.onRootBack != null &&
+            controller.initialOtherProfileUserId != null &&
+            controller.initialOtherProfileUserId!.isNotEmpty) {
+          widget.onRootBack!();
+          return;
+        }
+        controller.openPersonalHome();
+        return;
+      case MyPageRoute.recentActivities:
+        controller.openPersonalHome();
+        return;
+      case MyPageRoute.settings:
+        controller.openPersonalHome();
+        return;
+      case MyPageRoute.primaryPreferences:
+      case MyPageRoute.consentHistory:
+      case MyPageRoute.blockedUsers:
+        controller.openSettings();
+        return;
+      case MyPageRoute.personalHome:
+      case MyPageRoute.businessHome:
+        return;
+    }
   }
 
   Widget _buildRouteView() {

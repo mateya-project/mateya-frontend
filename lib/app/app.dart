@@ -7,6 +7,7 @@ import '../shared/localization/mateya_localizations.dart';
 import '../shared/logging/app_logger.dart';
 import '../shared/navigation/mateya_route_observer.dart';
 import '../shared/network/mateya_api_client.dart';
+import '../shared/widgets/mateya_web_viewport_shell.dart';
 import '../features/home/presentation/screens/home_flow_page.dart';
 import '../features/onboarding/application/onboarding_controller.dart';
 import '../features/onboarding/data/auth_repository.dart';
@@ -143,6 +144,8 @@ class _MateyaAppState extends State<MateyaApp> with WidgetsBindingObserver {
           onGenerateTitle: (context) => context.l10n.appTitle,
           debugShowCheckedModeBanner: false,
           theme: buildMateyaTheme(),
+          builder: (context, child) =>
+              MateyaWebViewportShell(child: child ?? const SizedBox.shrink()),
           navigatorObservers: <NavigatorObserver>[mateyaRouteObserver],
           locale: _localeController.locale,
           supportedLocales: MateyaLocalizations.supportedLocales,

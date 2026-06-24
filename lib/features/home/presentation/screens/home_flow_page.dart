@@ -240,32 +240,90 @@ class _HomeFlowPageState extends State<HomeFlowPage> with RouteAware {
       unawaited(_redirectToOnboardingIfNeeded());
       return const Scaffold(body: SizedBox.shrink());
     }
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: SafeArea(
-        bottom: false,
-        child: AnimatedBuilder(
-          animation: _controller,
-          builder: (context, _) {
-            _syncSearchController();
-            return Stack(
-              children: <Widget>[
-                Positioned.fill(child: _buildSectionBody()),
-                if (_isPlusOverlayOpen)
-                  Positioned.fill(
-                    child: HomePlusActionOverlay(
-                      createLabel: _controller.plusActionLabel,
-                      onDismiss: _dismissPlusOverlay,
-                      onCreateTap: _openCreateFlow,
-                      onNearbyCultureTap: _openNearbyCultureMap,
+    return PopScope<void>(
+      canPop: !_shouldHandleSystemBack(),
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop || !_shouldHandleSystemBack()) {
+          return;
+        }
+        _handleSystemBack();
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.background,
+        body: SafeArea(
+          bottom: false,
+          child: AnimatedBuilder(
+            animation: _controller,
+            builder: (context, _) {
+              _syncSearchController();
+              return Stack(
+                children: <Widget>[
+                  Positioned.fill(child: _buildSectionBody()),
+                  if (_isPlusOverlayOpen)
+                    Positioned.fill(
+                      child: HomePlusActionOverlay(
+                        createLabel: _controller.plusActionLabel,
+                        onDismiss: _dismissPlusOverlay,
+                        onCreateTap: _openCreateFlow,
+                        onNearbyCultureTap: _openNearbyCultureMap,
+                      ),
                     ),
-                  ),
-              ],
-            );
-          },
+                ],
+              );
+            },
+          ),
         ),
       ),
     );
+  }
+
+  bool _shouldHandleSystemBack() {
+    if (_isPlusOverlayOpen) {
+      return true;
+    }
+    return switch (_controller.section) {
+      HomeSection.explore ||
+      HomeSection.favorites ||
+      HomeSection.nearbyCultureMap ||
+      HomeSection.chat ||
+      HomeSection.profile => true,
+      HomeSection.home => false,
+    };
+  }
+
+  void _handleSystemBack() {
+    if (_isPlusOverlayOpen) {
+      _dismissPlusOverlay();
+      return;
+    }
+
+    switch (_controller.section) {
+      case HomeSection.explore:
+        _openHomeTab();
+        return;
+      case HomeSection.favorites:
+        if (_controller.favoriteOriginSection == HomeSection.explore) {
+          _openExploreTab();
+          return;
+        }
+        _openHomeTab();
+        return;
+      case HomeSection.nearbyCultureMap:
+        _controller.closeNearbyCultureMap();
+        return;
+      case HomeSection.chat:
+        if (_chatController.isDetailOpen) {
+          _chatController.closeRoom();
+          return;
+        }
+        _openHomeTab();
+        return;
+      case HomeSection.profile:
+        _openHomeTab();
+        return;
+      case HomeSection.home:
+        return;
+    }
   }
 
   Future<void> _redirectToOnboardingIfNeeded() async {
