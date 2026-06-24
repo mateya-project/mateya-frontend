@@ -1,10 +1,12 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 
 import '../../../../shared/localization/mateya_localizations.dart';
 import '../../../../shared/logging/naver_map_diagnostics.dart';
+import '../../../../shared/maps/mateya_platform_map.dart';
 import '../../../../shared/theme/app_responsive.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../../shared/widgets/mateya_skeleton.dart';
@@ -55,7 +57,9 @@ class _NeighborhoodMapCardState extends State<NeighborhoodMapCard> {
           'selectionKey': _selectionKey(widget.selection),
         },
       );
-      _syncSelectionToMap();
+      if (!kIsWeb) {
+        _syncSelectionToMap();
+      }
     }
   }
 
@@ -87,38 +91,77 @@ class _NeighborhoodMapCardState extends State<NeighborhoodMapCard> {
         child: Stack(
           fit: StackFit.expand,
           children: <Widget>[
-            NaverMap(
-              key: mapKey,
-              options: NaverMapViewOptions(
-                initialCameraPosition: NCameraPosition(
-                  target: target,
-                  zoom: 15,
+            if (kIsWeb)
+              MateyaPlatformMap(
+                key: mapKey,
+                centerLatitude: target.latitude,
+                centerLongitude: target.longitude,
+                zoom: 15,
+                markers: widget.selection == null
+                    ? const <MateyaPlatformMapMarker>[]
+                    : <MateyaPlatformMapMarker>[
+                        MateyaPlatformMapMarker(
+                          id: _markerId,
+                          latitude: widget.selection!.latitude,
+                          longitude: widget.selection!.longitude,
+                          isSelected: true,
+                        ),
+                      ],
+                onMapLoaded: () {
+                  _diagnostics.mapLoaded(
+                    context: <String, Object?>{
+                      'selectionKey': _selectionKey(widget.selection),
+                    },
+                  );
+                },
+                onMapReady: () {
+                  _diagnostics.mapReady(
+                    context: <String, Object?>{
+                      'selectionKey': _selectionKey(widget.selection),
+                      'latitude': target.latitude,
+                      'longitude': target.longitude,
+                    },
+                  );
+                  if (mounted && !_isMapReady) {
+                    setState(() {
+                      _isMapReady = true;
+                    });
+                  }
+                },
+              )
+            else
+              NaverMap(
+                key: mapKey,
+                options: NaverMapViewOptions(
+                  initialCameraPosition: NCameraPosition(
+                    target: target,
+                    zoom: 15,
+                  ),
                 ),
+                onMapLoaded: () {
+                  _diagnostics.mapLoaded(
+                    context: <String, Object?>{
+                      'selectionKey': _selectionKey(widget.selection),
+                    },
+                  );
+                },
+                onMapReady: (mapController) async {
+                  _mapController = mapController;
+                  _diagnostics.mapReady(
+                    context: <String, Object?>{
+                      'selectionKey': _selectionKey(widget.selection),
+                      'latitude': target.latitude,
+                      'longitude': target.longitude,
+                    },
+                  );
+                  if (mounted && !_isMapReady) {
+                    setState(() {
+                      _isMapReady = true;
+                    });
+                  }
+                  await _syncSelectionToMap();
+                },
               ),
-              onMapLoaded: () {
-                _diagnostics.mapLoaded(
-                  context: <String, Object?>{
-                    'selectionKey': _selectionKey(widget.selection),
-                  },
-                );
-              },
-              onMapReady: (mapController) async {
-                _mapController = mapController;
-                _diagnostics.mapReady(
-                  context: <String, Object?>{
-                    'selectionKey': _selectionKey(widget.selection),
-                    'latitude': target.latitude,
-                    'longitude': target.longitude,
-                  },
-                );
-                if (mounted && !_isMapReady) {
-                  setState(() {
-                    _isMapReady = true;
-                  });
-                }
-                await _syncSelectionToMap();
-              },
-            ),
             if (widget.isLoading || !_isMapReady)
               const Positioned.fill(child: MateyaMapSkeleton()),
           ],

@@ -39,23 +39,30 @@ Future<void> main() async {
       );
       final naverMapSdkContext = <String, Object?>{
         ...NaverMapDiagnostics.sdkInitializationContext(),
-        if (defaultTargetPlatform == TargetPlatform.iOS)
+        if (!kIsWeb && defaultTargetPlatform == TargetPlatform.iOS)
           'bundleIdentifier':
               DefaultFirebaseOptions.currentPlatform.iosBundleId,
       };
 
-      logger.info('Initializing Naver Map SDK', context: naverMapSdkContext);
-      await FlutterNaverMap().init(
-        clientId: AppConfig.naverMapClientId,
-        onAuthFailed: (error) {
-          NaverMapDiagnostics(
-            scope: 'app-bootstrap',
-            logger: logger,
-            context: naverMapSdkContext,
-          ).authFailed(error);
-        },
-      );
-      logger.info('Naver Map SDK initialized', context: naverMapSdkContext);
+      if (kIsWeb) {
+        logger.info(
+          'Skipping native Naver Map SDK initialization on web',
+          context: naverMapSdkContext,
+        );
+      } else {
+        logger.info('Initializing Naver Map SDK', context: naverMapSdkContext);
+        await FlutterNaverMap().init(
+          clientId: AppConfig.naverMapClientId,
+          onAuthFailed: (error) {
+            NaverMapDiagnostics(
+              scope: 'app-bootstrap',
+              logger: logger,
+              context: naverMapSdkContext,
+            ).authFailed(error);
+          },
+        );
+        logger.info('Naver Map SDK initialized', context: naverMapSdkContext);
+      }
 
       runApp(const MateyaApp());
     },

@@ -1,9 +1,11 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 
 import '../../../../shared/activity_categories/activity_category_repository.dart';
 import '../../../../shared/localization/mateya_localizations.dart';
 import '../../../../shared/logging/naver_map_diagnostics.dart';
+import '../../../../shared/maps/mateya_platform_map.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../../shared/widgets/mateya_skeleton.dart';
 import '../../../../shared/widgets/mateya_text_field.dart';
@@ -414,7 +416,9 @@ class _NearbyCultureMapCanvasState extends State<_NearbyCultureMapCanvas> {
         },
       );
     }
-    _syncMap();
+    if (!kIsWeb) {
+      _syncMap();
+    }
   }
 
   @override
@@ -431,39 +435,93 @@ class _NearbyCultureMapCanvasState extends State<_NearbyCultureMapCanvas> {
       child: Stack(
         fit: StackFit.expand,
         children: <Widget>[
-          NaverMap(
-            key: ValueKey<String>(_currentLocationKey(widget.currentLocation)),
-            options: NaverMapViewOptions(
-              initialCameraPosition: NCameraPosition(target: target, zoom: 13),
-              scaleBarEnable: false,
-              contentPadding: EdgeInsets.only(bottom: widget.mapUiBottomInset),
+          if (kIsWeb)
+            MateyaPlatformMap(
+              key: ValueKey<String>(
+                _currentLocationKey(widget.currentLocation),
+              ),
+              centerLatitude: target.latitude,
+              centerLongitude: target.longitude,
+              zoom: 13,
+              showScaleControl: false,
+              bottomPadding: widget.mapUiBottomInset,
+              markers: _webMarkers(),
+              onMapLoaded: () {
+                _diagnostics.mapLoaded(
+                  context: <String, Object?>{
+                    'placeCount': widget.places.length,
+                    'selectedPlaceId': widget.selectedPlaceId,
+                  },
+                );
+              },
+              onMapReady: () {
+                _diagnostics.mapReady(
+                  context: <String, Object?>{
+                    'latitude': target.latitude,
+                    'longitude': target.longitude,
+                    'placeCount': widget.places.length,
+                    'selectedPlaceId': widget.selectedPlaceId,
+                  },
+                );
+                if (mounted && !_isMapReady) {
+                  setState(() {
+                    _isMapReady = true;
+                  });
+                }
+                _diagnostics.syncSucceeded(
+                  'nearby-places',
+                  context: <String, Object?>{
+                    'markerCount': widget.places
+                        .where((place) => place.hasCoordinates)
+                        .length,
+                    'selectedPlaceId': widget.selectedPlaceId,
+                    'latitude': target.latitude,
+                    'longitude': target.longitude,
+                  },
+                );
+              },
+            )
+          else
+            NaverMap(
+              key: ValueKey<String>(
+                _currentLocationKey(widget.currentLocation),
+              ),
+              options: NaverMapViewOptions(
+                initialCameraPosition: NCameraPosition(
+                  target: target,
+                  zoom: 13,
+                ),
+                scaleBarEnable: false,
+                contentPadding: EdgeInsets.only(
+                  bottom: widget.mapUiBottomInset,
+                ),
+              ),
+              onMapLoaded: () {
+                _diagnostics.mapLoaded(
+                  context: <String, Object?>{
+                    'placeCount': widget.places.length,
+                    'selectedPlaceId': widget.selectedPlaceId,
+                  },
+                );
+              },
+              onMapReady: (mapController) async {
+                _mapController = mapController;
+                _diagnostics.mapReady(
+                  context: <String, Object?>{
+                    'latitude': target.latitude,
+                    'longitude': target.longitude,
+                    'placeCount': widget.places.length,
+                    'selectedPlaceId': widget.selectedPlaceId,
+                  },
+                );
+                if (mounted && !_isMapReady) {
+                  setState(() {
+                    _isMapReady = true;
+                  });
+                }
+                await _syncMap();
+              },
             ),
-            onMapLoaded: () {
-              _diagnostics.mapLoaded(
-                context: <String, Object?>{
-                  'placeCount': widget.places.length,
-                  'selectedPlaceId': widget.selectedPlaceId,
-                },
-              );
-            },
-            onMapReady: (mapController) async {
-              _mapController = mapController;
-              _diagnostics.mapReady(
-                context: <String, Object?>{
-                  'latitude': target.latitude,
-                  'longitude': target.longitude,
-                  'placeCount': widget.places.length,
-                  'selectedPlaceId': widget.selectedPlaceId,
-                },
-              );
-              if (mounted && !_isMapReady) {
-                setState(() {
-                  _isMapReady = true;
-                });
-              }
-              await _syncMap();
-            },
-          ),
           Positioned(
             right: 16,
             bottom: widget.recenterBottomInset,
@@ -509,6 +567,22 @@ class _NearbyCultureMapCanvasState extends State<_NearbyCultureMapCanvas> {
       return NLatLng(currentLocation.latitude, currentLocation.longitude);
     }
     return const NLatLng(37.5665, 126.9780);
+  }
+
+  List<MateyaPlatformMapMarker> _webMarkers() {
+    return widget.places
+        .where((place) => place.hasCoordinates)
+        .map(
+          (place) => MateyaPlatformMapMarker(
+            id: place.id,
+            latitude: place.latitude!,
+            longitude: place.longitude!,
+            label: place.id == widget.selectedPlaceId ? place.name : null,
+            isSelected: place.id == widget.selectedPlaceId,
+            onTap: () => widget.onMarkerTap(place.id),
+          ),
+        )
+        .toList(growable: false);
   }
 
   Future<void> _syncMap() async {

@@ -1,8 +1,10 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 
 import '../../../../shared/localization/mateya_localizations.dart';
 import '../../../../shared/logging/naver_map_diagnostics.dart';
+import '../../../../shared/maps/mateya_platform_map.dart';
 import '../../../../shared/theme/app_responsive.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../../shared/widgets/mateya_skeleton.dart';
@@ -276,40 +278,44 @@ class _PlaceMapCardState extends State<PlaceMapCard> {
         child: Stack(
           fit: StackFit.expand,
           children: <Widget>[
-            NaverMap(
-              key: ValueKey<String>(
-                place == null
-                    ? 'empty-create-map'
-                    : '${place.id}-${place.latitude}-${place.longitude}',
-              ),
-              options: NaverMapViewOptions(
-                initialCameraPosition: NCameraPosition(
-                  target: target,
-                  zoom: 15,
+            if (kIsWeb)
+              MateyaPlatformMap(
+                key: ValueKey<String>(
+                  place == null
+                      ? 'empty-create-map'
+                      : '${place.id}-${place.latitude}-${place.longitude}',
                 ),
-              ),
-              onMapLoaded: () {
-                _diagnostics.mapLoaded(
-                  context: <String, Object?>{
-                    'placeId': place?.id,
-                    'hasCoordinates': place?.hasCoordinates ?? false,
-                  },
-                );
-              },
-              onMapReady: (mapController) async {
-                _diagnostics.mapReady(
-                  context: <String, Object?>{
-                    'placeId': place?.id,
-                    'hasCoordinates': place?.hasCoordinates ?? false,
-                    'latitude': target.latitude,
-                    'longitude': target.longitude,
-                  },
-                );
-                try {
+                centerLatitude: target.latitude,
+                centerLongitude: target.longitude,
+                zoom: 15,
+                markers: place != null && place.hasCoordinates
+                    ? <MateyaPlatformMapMarker>[
+                        MateyaPlatformMapMarker(
+                          id: _markerId,
+                          latitude: target.latitude,
+                          longitude: target.longitude,
+                          isSelected: true,
+                        ),
+                      ]
+                    : const <MateyaPlatformMapMarker>[],
+                onMapLoaded: () {
+                  _diagnostics.mapLoaded(
+                    context: <String, Object?>{
+                      'placeId': place?.id,
+                      'hasCoordinates': place?.hasCoordinates ?? false,
+                    },
+                  );
+                },
+                onMapReady: () {
+                  _diagnostics.mapReady(
+                    context: <String, Object?>{
+                      'placeId': place?.id,
+                      'hasCoordinates': place?.hasCoordinates ?? false,
+                      'latitude': target.latitude,
+                      'longitude': target.longitude,
+                    },
+                  );
                   if (place != null && place.hasCoordinates) {
-                    await mapController.addOverlay(
-                      NMarker(id: _markerId, position: target),
-                    );
                     _diagnostics.syncSucceeded(
                       'selected-place',
                       context: <String, Object?>{
@@ -325,16 +331,68 @@ class _PlaceMapCardState extends State<PlaceMapCard> {
                       'reason': 'place-without-coordinates',
                     },
                   );
-                } catch (error, stackTrace) {
-                  _diagnostics.syncFailed(
-                    'selected-place',
-                    error: error,
-                    stackTrace: stackTrace,
-                    context: <String, Object?>{'placeId': place?.id},
+                },
+              )
+            else
+              NaverMap(
+                key: ValueKey<String>(
+                  place == null
+                      ? 'empty-create-map'
+                      : '${place.id}-${place.latitude}-${place.longitude}',
+                ),
+                options: NaverMapViewOptions(
+                  initialCameraPosition: NCameraPosition(
+                    target: target,
+                    zoom: 15,
+                  ),
+                ),
+                onMapLoaded: () {
+                  _diagnostics.mapLoaded(
+                    context: <String, Object?>{
+                      'placeId': place?.id,
+                      'hasCoordinates': place?.hasCoordinates ?? false,
+                    },
                   );
-                }
-              },
-            ),
+                },
+                onMapReady: (mapController) async {
+                  _diagnostics.mapReady(
+                    context: <String, Object?>{
+                      'placeId': place?.id,
+                      'hasCoordinates': place?.hasCoordinates ?? false,
+                      'latitude': target.latitude,
+                      'longitude': target.longitude,
+                    },
+                  );
+                  try {
+                    if (place != null && place.hasCoordinates) {
+                      await mapController.addOverlay(
+                        NMarker(id: _markerId, position: target),
+                      );
+                      _diagnostics.syncSucceeded(
+                        'selected-place',
+                        context: <String, Object?>{
+                          'markerCount': 1,
+                          'placeId': place.id,
+                        },
+                      );
+                      return;
+                    }
+                    _diagnostics.syncSkipped(
+                      'selected-place',
+                      context: const <String, Object?>{
+                        'reason': 'place-without-coordinates',
+                      },
+                    );
+                  } catch (error, stackTrace) {
+                    _diagnostics.syncFailed(
+                      'selected-place',
+                      error: error,
+                      stackTrace: stackTrace,
+                      context: <String, Object?>{'placeId': place?.id},
+                    );
+                  }
+                },
+              ),
             if (place == null)
               Container(
                 color: Colors.white.withValues(alpha: 0.8),
