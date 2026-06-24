@@ -44,10 +44,7 @@ Future<void> main() async {
               DefaultFirebaseOptions.currentPlatform.iosBundleId,
       };
 
-      logger.info(
-        'Initializing Naver Map SDK',
-        context: naverMapSdkContext,
-      );
+      logger.info('Initializing Naver Map SDK', context: naverMapSdkContext);
       await FlutterNaverMap().init(
         clientId: AppConfig.naverMapClientId,
         onAuthFailed: (error) {
@@ -58,10 +55,7 @@ Future<void> main() async {
           ).authFailed(error);
         },
       );
-      logger.info(
-        'Naver Map SDK initialized',
-        context: naverMapSdkContext,
-      );
+      logger.info('Naver Map SDK initialized', context: naverMapSdkContext);
 
       runApp(const MateyaApp());
     },

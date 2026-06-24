@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 abstract final class AppColors {
   static const Color background = Color(0xFFFFFFFF);
   static const Color appSurface = Color(0xFFF4F5F6);
+  static const Color webViewportBackdrop = Color(0xFF2F2F2F);
   static const Color textPrimary = Color(0xFF111111);
   static const Color textSecondary = Color(0xFF868B94);
   static const Color textMuted = Color(0xFF5E5E5E);
