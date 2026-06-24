@@ -1,9 +1,13 @@
+import 'package:flutter/foundation.dart';
 import 'package:geocoding/geocoding.dart' as geocoding;
 import 'package:geolocator/geolocator.dart';
 
 import '../../../shared/localization/mateya_localizations.dart';
 import '../../../shared/logging/app_logger.dart';
 import '../domain/onboarding_flow.dart';
+import 'location_web_geocoding.dart'
+    if (dart.library.html) 'location_web_geocoding_web.dart'
+    as web_geocoding;
 
 abstract interface class NeighborhoodLocationRepository {
   Future<LocationLookupResult> resolveCurrentNeighborhood();
@@ -96,6 +100,44 @@ class DeviceNeighborhoodLocationRepository
         );
       }
 
+      if (kIsWeb) {
+        final lookup = await web_geocoding.reverseGeocodeNeighborhoodOnWeb(
+          latitude: position.latitude,
+          longitude: position.longitude,
+          logger: _logger,
+        );
+        if (lookup == null) {
+          _logger.warning(
+            'Current neighborhood lookup failed because web reverse geocoding returned no district',
+            context: <String, Object?>{
+              'accuracyMeters': position.accuracy.round(),
+            },
+          );
+          return LocationLookupResult.failure(
+            LocationFailure(
+              LocationFailureType.geocodingFailed,
+              l10n.onboardingLocationErrorAddressNotFound,
+            ),
+          );
+        }
+
+        _logger.info(
+          'Resolved current neighborhood from device location on web',
+          context: <String, Object?>{
+            'district': lookup.displayName,
+            'accuracyMeters': position.accuracy.round(),
+            ...lookup.context,
+          },
+        );
+        return LocationLookupResult.success(
+          NeighborhoodSelection(
+            displayName: lookup.displayName,
+            latitude: lookup.latitude,
+            longitude: lookup.longitude,
+          ),
+        );
+      }
+
       final placemarks = await geocoding.placemarkFromCoordinates(
         position.latitude,
         position.longitude,
@@ -168,6 +210,41 @@ class DeviceNeighborhoodLocationRepository
       context: <String, Object?>{'query': trimmed},
     );
     try {
+      if (kIsWeb) {
+        final lookup = await web_geocoding.geocodeNeighborhoodQueryOnWeb(
+          query: trimmed,
+          logger: _logger,
+        );
+        if (lookup == null) {
+          _logger.warning(
+            'Manual neighborhood lookup returned no coordinates on web',
+            context: <String, Object?>{'query': trimmed},
+          );
+          return LocationLookupResult.failure(
+            LocationFailure(
+              LocationFailureType.locationUnavailable,
+              l10n.onboardingLocationQueryNotFound,
+            ),
+          );
+        }
+
+        _logger.info(
+          'Resolved neighborhood from manual query on web',
+          context: <String, Object?>{
+            'query': trimmed,
+            'district': lookup.displayName,
+            ...lookup.context,
+          },
+        );
+        return LocationLookupResult.success(
+          NeighborhoodSelection(
+            displayName: lookup.displayName,
+            latitude: lookup.latitude,
+            longitude: lookup.longitude,
+          ),
+        );
+      }
+
       final locations = await geocoding.locationFromAddress('$trimmed, 대한민국');
       if (locations.isEmpty) {
         _logger.warning(
