@@ -7,8 +7,8 @@ import 'dart:ui_web' as ui_web;
 
 import 'package:flutter/material.dart';
 
-import '../../app/app_config.dart';
 import '../theme/app_tokens.dart';
+import 'naver_map_web_sdk.dart';
 import 'mateya_platform_map_models.dart';
 
 class MateyaPlatformMap extends StatefulWidget {
@@ -108,7 +108,7 @@ class _MateyaPlatformMapState extends State<MateyaPlatformMap> {
 
   Future<void> _initializeMap() async {
     try {
-      await _NaverMapWebSdkLoader.load();
+      await NaverMapWebSdk.load();
       await _waitUntilAttached();
       if (!mounted || _isDisposed) {
         return;
@@ -304,89 +304,5 @@ class _MateyaPlatformMapState extends State<MateyaPlatformMap> {
     final value = color.toARGB32();
     final rgb = value & 0x00FFFFFF;
     return '#${rgb.toRadixString(16).padLeft(6, '0')}';
-  }
-}
-
-class _NaverMapWebSdkLoader {
-  static const String _scriptId = 'mateya-naver-map-sdk';
-  static Future<void>? _loadFuture;
-
-  static Future<void> load() {
-    final existingFuture = _loadFuture;
-    if (existingFuture != null) {
-      return existingFuture;
-    }
-    final completer = Completer<void>();
-    _loadFuture = completer.future;
-
-    if (_hasMapsNamespace()) {
-      completer.complete();
-      return completer.future;
-    }
-
-    final existingScript = html.document.getElementById(_scriptId);
-    if (existingScript is html.ScriptElement) {
-      _waitForNamespace(completer);
-      return completer.future;
-    }
-
-    final script = html.ScriptElement()
-      ..id = _scriptId
-      ..async = true
-      ..defer = true
-      ..src =
-          'https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=${Uri.encodeQueryComponent(AppConfig.naverMapClientId)}';
-
-    script.onLoad.first.then((_) => _waitForNamespace(completer));
-    script.onError.first.then((_) {
-      if (!completer.isCompleted) {
-        completer.completeError(
-          StateError('Failed to load Naver Maps JavaScript SDK'),
-        );
-      }
-    });
-
-    final head = html.document.head;
-    if (head == null) {
-      completer.completeError(StateError('Document head is unavailable'));
-      return completer.future;
-    }
-    head.append(script);
-    return completer.future;
-  }
-
-  static void _waitForNamespace(Completer<void> completer) {
-    if (_hasMapsNamespace()) {
-      if (!completer.isCompleted) {
-        completer.complete();
-      }
-      return;
-    }
-
-    Timer.periodic(const Duration(milliseconds: 50), (timer) {
-      if (_hasMapsNamespace()) {
-        timer.cancel();
-        if (!completer.isCompleted) {
-          completer.complete();
-        }
-        return;
-      }
-      if (timer.tick >= 100) {
-        timer.cancel();
-        if (!completer.isCompleted) {
-          completer.completeError(
-            StateError('Timed out waiting for Naver Maps JavaScript SDK'),
-          );
-        }
-      }
-    });
-  }
-
-  static bool _hasMapsNamespace() {
-    if (!js.context.hasProperty('naver')) {
-      return false;
-    }
-    final naver = js.context['naver'];
-    return naver is js.JsObject && naver.hasProperty('maps');
   }
 }
