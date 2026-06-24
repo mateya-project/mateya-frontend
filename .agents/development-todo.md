@@ -1,2 +1,3 @@
 - [high] 호스트 온보딩 활동 지역 저장 흐름 정리: `signupHost`는 `activityRegionName/activityLatitude/activityLongitude` 없이 가입되어 거리 기반 기능이 세션 좌표에 의존할 때 비어 있을 수 있음. 제품 흐름 합의 후 초기 활동 지역 입력 또는 프로필 동기화 단계가 필요함.
-- [high] Android release signing 설정 필요: `android/app/build.gradle.kts`의 `release`가 아직 `signingConfigs.getByName("debug")`를 사용 중이라 실제 Play 배포용 서명 구성이 없다. 운영 키스토어/서명 속성 주입 방식을 확정하고 릴리즈 빌드 검증이 필요함.
+- [high] Android CI 서명 비밀값 정리 필요: 로컬에서는 업로드 키 생성과 서명된 APK/AAB 검증을 끝냈지만, CI/CD 또는 팀 공용 배포 환경에서 같은 업로드 키를 안전하게 주입하는 절차가 아직 문서화되지 않았다.
+- [high] 개인정보처리방침 공개 URL 정합성 확인 필요: 앱은 `MATEYA_PRIVACY_POLICY_URL` 없을 때 Notion 문서 링크를 기본 사용한다. Play Console 등록 정보, 앱 내 링크, 실제 공개 접근 권한이 모두 일치하는지 배포 전 확인이 필요하다.

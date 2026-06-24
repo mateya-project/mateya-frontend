@@ -1,4 +1,4 @@
-package com.minjeong.mateya
+package com.zless.mateya
 
 import android.content.Intent
 import android.net.Uri
@@ -12,7 +12,7 @@ class MainActivity : FlutterActivity() {
 
     MethodChannel(
       flutterEngine.dartExecutor.binaryMessenger,
-      "com.minjeong.mateya/external_url",
+      "com.zless.mateya/external_url",
     ).setMethodCallHandler { call, result ->
       if (call.method != "openUrl") {
         result.notImplemented()
@@ -26,6 +26,10 @@ class MainActivity : FlutterActivity() {
       }
 
       val targetUri = Uri.parse(rawUrl)
+      if (targetUri.scheme != "http" && targetUri.scheme != "https") {
+        result.success(false)
+        return@setMethodCallHandler
+      }
       val browserCandidates = packageManager.queryIntentActivities(
         Intent(Intent.ACTION_VIEW, Uri.parse("https://www.google.com")).apply {
           addCategory(Intent.CATEGORY_BROWSABLE)
@@ -46,7 +50,7 @@ class MainActivity : FlutterActivity() {
           browserCandidates.size == 1 -> browserCandidates.first()
           else -> Intent.createChooser(
             browserCandidates.first(),
-            "브라우저 선택",
+            getString(R.string.external_browser_chooser_title),
           ).apply {
             putExtra(
               Intent.EXTRA_INITIAL_INTENTS,
