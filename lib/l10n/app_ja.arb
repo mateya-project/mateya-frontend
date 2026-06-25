@@ -303,6 +303,7 @@
   "mypageConsentDeclined": "未同意",
   "mypageConsentDate": "同意日時",
   "mypageBlockedUsersTitle": "ブロックしたユーザー",
+  "mypageBlockedUsersDescription": "ブロックしたユーザーはすぐに自分の画面から非表示になり、この一覧で再度管理できます。",
   "mypageBlockedUsersEmpty": "ブロックしたユーザーはいません。",
   "mypageRecentActivitiesTitle": "最近のアクティビティ",
   "mypageRecentActivitiesDescription": "最近参加または主催したアクティビティを確認しましょう。",

@@ -1291,6 +1291,12 @@ abstract class AppLocalizations {
   /// **'차단한 사용자'**
   String get mypageBlockedUsersTitle;
 
+  /// No description provided for @mypageBlockedUsersDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'차단한 사용자는 내 화면에서 바로 숨겨지고, 이 목록에서 다시 관리할 수 있어요.'**
+  String get mypageBlockedUsersDescription;
+
   /// No description provided for @mypageBlockedUsersEmpty.
   ///
   /// In ko, this message translates to:

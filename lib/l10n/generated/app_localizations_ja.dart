@@ -651,6 +651,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String get mypageBlockedUsersTitle => 'ブロックしたユーザー';
 
   @override
+  String get mypageBlockedUsersDescription =>
+      'ブロックしたユーザーはすぐに自分の画面から非表示になり、この一覧で再度管理できます。';
+
+  @override
   String get mypageBlockedUsersEmpty => 'ブロックしたユーザーはいません。';
 
   @override

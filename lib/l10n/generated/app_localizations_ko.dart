@@ -651,6 +651,10 @@ class AppLocalizationsKo extends AppLocalizations {
   String get mypageBlockedUsersTitle => '차단한 사용자';
 
   @override
+  String get mypageBlockedUsersDescription =>
+      '차단한 사용자는 내 화면에서 바로 숨겨지고, 이 목록에서 다시 관리할 수 있어요.';
+
+  @override
   String get mypageBlockedUsersEmpty => '차단한 사용자가 없어요.';
 
   @override

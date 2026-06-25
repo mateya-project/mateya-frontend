@@ -303,6 +303,7 @@
   "mypageConsentDeclined": "Declined",
   "mypageConsentDate": "Date",
   "mypageBlockedUsersTitle": "Blocked users",
+  "mypageBlockedUsersDescription": "Blocked users are hidden from your view right away, and you can manage them again from this list.",
   "mypageBlockedUsersEmpty": "You have not blocked anyone yet.",
   "mypageRecentActivitiesTitle": "Recent activities",
   "mypageRecentActivitiesDescription": "Check the activities you recently joined or hosted.",

@@ -644,6 +644,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get mypageBlockedUsersTitle => '已屏蔽用户';
 
   @override
+  String get mypageBlockedUsersDescription =>
+      '已屏蔽的用户会立即从你的页面中隐藏，你也可以在此列表中再次管理他们。';
+
+  @override
   String get mypageBlockedUsersEmpty => '还没有屏蔽任何用户。';
 
   @override
@@ -3001,6 +3005,10 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get mypageBlockedUsersTitle => '已屏蔽用户';
+
+  @override
+  String get mypageBlockedUsersDescription =>
+      '已屏蔽的用户会立即从你的页面中隐藏，你也可以在此列表中再次管理他们。';
 
   @override
   String get mypageBlockedUsersEmpty => '还没有屏蔽任何用户。';

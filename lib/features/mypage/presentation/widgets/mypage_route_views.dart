@@ -422,6 +422,13 @@ class BlockedUsersView extends StatelessWidget {
                 l10n.mypageBlockedUsersTitle,
                 style: Theme.of(context).textTheme.headlineMedium,
               ),
+              const SizedBox(height: 10),
+              Text(
+                l10n.mypageBlockedUsersDescription,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+              ),
               const SizedBox(height: 20),
               if (users.isEmpty)
                 MyPageSectionCard(

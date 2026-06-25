@@ -303,6 +303,7 @@
   "mypageConsentDeclined": "未同意",
   "mypageConsentDate": "同意时间",
   "mypageBlockedUsersTitle": "已屏蔽用户",
+  "mypageBlockedUsersDescription": "已屏蔽的用户会立即从你的页面中隐藏，你也可以在此列表中再次管理他们。",
   "mypageBlockedUsersEmpty": "还没有屏蔽任何用户。",
   "mypageRecentActivitiesTitle": "最近活动",
   "mypageRecentActivitiesDescription": "查看你最近参与或创建的活动。",

@@ -675,6 +675,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mypageBlockedUsersTitle => 'Blocked users';
 
   @override
+  String get mypageBlockedUsersDescription =>
+      'Blocked users are hidden from your view right away, and you can manage them again from this list.';
+
+  @override
   String get mypageBlockedUsersEmpty => 'You have not blocked anyone yet.';
 
   @override
