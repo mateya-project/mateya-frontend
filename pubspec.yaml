@@ -64,6 +64,8 @@ dev_dependencies:
 dependency_overrides:
   flutter_naver_map:
     path: third_party/plugins/flutter_naver_map
+  geolocator_apple:
+    path: third_party/plugins/geolocator_apple
   package_info_plus:
     path: third_party/plugins/package_info_plus
 
