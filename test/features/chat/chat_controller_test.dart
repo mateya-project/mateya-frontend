@@ -383,6 +383,47 @@ void main() {
         );
       },
     );
+
+    test(
+      'retryRooms preserves selected room detail while refreshing summaries',
+      () async {
+        final repository = _RefreshingChatRepository();
+        final controller = ChatController(repository: repository);
+
+        await controller.initialize();
+        await controller.openRoom('refresh-room');
+        await controller.retryRooms();
+
+        expect(controller.isDetailOpen, isTrue);
+        expect(controller.currentRoom?.title, '갱신된 채팅방');
+        expect(controller.currentRoom?.unreadCount, 0);
+        expect(
+          controller.currentRoom?.messageGroups.map((group) => group.id),
+          <String>['detail-1', 'detail-2'],
+        );
+        expect(
+          controller.currentRoom?.messageGroups.last.visibleTexts.single,
+          '상세 메시지 2',
+        );
+      },
+    );
+
+    test(
+      'retryRooms closes selected room when it disappears from refreshed list',
+      () async {
+        final repository = _RoomRemovedOnRefreshChatRepository();
+        final controller = ChatController(repository: repository);
+
+        await controller.initialize();
+        await controller.openRoom('removed-room');
+        await controller.retryRooms();
+
+        expect(controller.isDetailOpen, isFalse);
+        expect(controller.selectedRoomId, isNull);
+        expect(controller.currentRoom, isNull);
+        expect(controller.roomPhase, AsyncPhase.idle);
+      },
+    );
   });
 }
 
@@ -697,4 +738,233 @@ class _DelayedRoomsChatRepository extends MockChatRepository {
       ),
     );
   }
+}
+
+class _RefreshingChatRepository implements ChatRepository {
+  bool _didRefresh = false;
+
+  @override
+  Future<List<ChatRoom>> fetchRooms() async =>
+      (await fetchRoomsPage(page: 0)).rooms;
+
+  @override
+  Future<ChatRoom> fetchRoom(String roomId) async => ChatRoom(
+    id: 'refresh-room',
+    type: ChatRoomType.direct,
+    title: '기존 채팅방',
+    imageUrl: null,
+    participantCount: 2,
+    lastMessageAt: DateTime(2026, 6, 14, 10, 31),
+    unreadCount: 0,
+    messageGroups: <ChatMessageGroup>[
+      ChatMessageGroup(
+        id: 'detail-1',
+        sender: ChatParticipant(id: 'other', name: '상대'),
+        sentAt: DateTime(2026, 6, 14, 10, 30),
+        bubbles: <ChatBubble>[const ChatBubble(originalText: '상세 메시지 1')],
+      ),
+      ChatMessageGroup(
+        id: 'detail-2',
+        sender: ChatParticipant(id: 'other', name: '상대'),
+        sentAt: DateTime(2026, 6, 14, 10, 31),
+        bubbles: <ChatBubble>[const ChatBubble(originalText: '상세 메시지 2')],
+      ),
+    ],
+  );
+
+  @override
+  Future<ChatRoomPageResult> fetchRoomsPage({required int page}) async {
+    final rooms = <ChatRoom>[
+      ChatRoom(
+        id: 'refresh-room',
+        type: ChatRoomType.direct,
+        title: _didRefresh ? '갱신된 채팅방' : '기존 채팅방',
+        imageUrl: null,
+        participantCount: 2,
+        lastMessageAt: DateTime(2026, 6, 14, 10, 32),
+        unreadCount: 3,
+        messageGroups: <ChatMessageGroup>[
+          ChatMessageGroup(
+            id: 'summary-refresh-room',
+            sender: ChatParticipant(id: 'summary', name: 'summary'),
+            sentAt: DateTime(2026, 6, 14, 10, 32),
+            bubbles: <ChatBubble>[
+              const ChatBubble(originalText: 'summary preview'),
+            ],
+          ),
+        ],
+      ),
+    ];
+    _didRefresh = true;
+    return ChatRoomPageResult(rooms: rooms, hasNext: false, nextPage: null);
+  }
+
+  @override
+  Future<ChatMessagePageResult> fetchRoomMessagesPage({
+    required String roomId,
+    required int page,
+  }) async {
+    return ChatMessagePageResult(
+      groups: <ChatMessageGroup>[
+        ChatMessageGroup(
+          id: 'detail-1',
+          sender: ChatParticipant(id: 'other', name: '상대'),
+          sentAt: DateTime(2026, 6, 14, 10, 30),
+          bubbles: <ChatBubble>[const ChatBubble(originalText: '상세 메시지 1')],
+        ),
+        ChatMessageGroup(
+          id: 'detail-2',
+          sender: ChatParticipant(id: 'other', name: '상대'),
+          sentAt: DateTime(2026, 6, 14, 10, 31),
+          bubbles: <ChatBubble>[const ChatBubble(originalText: '상세 메시지 2')],
+        ),
+      ],
+      hasNext: false,
+      nextPage: null,
+    );
+  }
+
+  @override
+  Future<ChatMessageGroup> fetchMessage({
+    required String roomId,
+    required String messageId,
+    required bool original,
+  }) async {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<List<ChatBubble>> sendMessage({
+    required String roomId,
+    required String text,
+    required List<ChatAttachment> attachments,
+  }) async => <ChatBubble>[ChatBubble(originalText: text)];
+
+  @override
+  Future<void> markRoomAsRead(String roomId) async {}
+
+  @override
+  void subscribeToRoomMessages({
+    required String roomId,
+    required void Function(ChatMessageGroup message) onMessage,
+    required void Function(String message) onError,
+  }) {}
+
+  @override
+  void unsubscribeFromRoomMessages() {}
+
+  @override
+  bool isRealtimeConnectedForRoom(String roomId) => false;
+
+  @override
+  void dispose() {}
+}
+
+class _RoomRemovedOnRefreshChatRepository implements ChatRepository {
+  bool _didRefresh = false;
+
+  @override
+  Future<List<ChatRoom>> fetchRooms() async =>
+      (await fetchRoomsPage(page: 0)).rooms;
+
+  @override
+  Future<ChatRoom> fetchRoom(String roomId) async => ChatRoom(
+    id: 'removed-room',
+    type: ChatRoomType.direct,
+    title: '사라질 채팅방',
+    imageUrl: null,
+    participantCount: 2,
+    lastMessageAt: DateTime(2026, 6, 14, 10, 31),
+    unreadCount: 0,
+    messageGroups: <ChatMessageGroup>[
+      ChatMessageGroup(
+        id: 'removed-detail',
+        sender: ChatParticipant(id: 'other', name: '상대'),
+        sentAt: DateTime(2026, 6, 14, 10, 31),
+        bubbles: <ChatBubble>[const ChatBubble(originalText: '곧 사라질 메시지')],
+      ),
+    ],
+  );
+
+  @override
+  Future<ChatRoomPageResult> fetchRoomsPage({required int page}) async {
+    if (!_didRefresh) {
+      _didRefresh = true;
+      return ChatRoomPageResult(
+        rooms: <ChatRoom>[
+          ChatRoom(
+            id: 'removed-room',
+            type: ChatRoomType.direct,
+            title: '사라질 채팅방',
+            imageUrl: null,
+            participantCount: 2,
+            lastMessageAt: DateTime(2026, 6, 14, 10, 31),
+            unreadCount: 0,
+            messageGroups: const <ChatMessageGroup>[],
+          ),
+        ],
+        hasNext: false,
+        nextPage: null,
+      );
+    }
+    return const ChatRoomPageResult(
+      rooms: <ChatRoom>[],
+      hasNext: false,
+      nextPage: null,
+    );
+  }
+
+  @override
+  Future<ChatMessagePageResult> fetchRoomMessagesPage({
+    required String roomId,
+    required int page,
+  }) async {
+    return ChatMessagePageResult(
+      groups: <ChatMessageGroup>[
+        ChatMessageGroup(
+          id: 'removed-detail',
+          sender: ChatParticipant(id: 'other', name: '상대'),
+          sentAt: DateTime(2026, 6, 14, 10, 31),
+          bubbles: <ChatBubble>[const ChatBubble(originalText: '곧 사라질 메시지')],
+        ),
+      ],
+      hasNext: false,
+      nextPage: null,
+    );
+  }
+
+  @override
+  Future<ChatMessageGroup> fetchMessage({
+    required String roomId,
+    required String messageId,
+    required bool original,
+  }) async {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<List<ChatBubble>> sendMessage({
+    required String roomId,
+    required String text,
+    required List<ChatAttachment> attachments,
+  }) async => <ChatBubble>[ChatBubble(originalText: text)];
+
+  @override
+  Future<void> markRoomAsRead(String roomId) async {}
+
+  @override
+  void subscribeToRoomMessages({
+    required String roomId,
+    required void Function(ChatMessageGroup message) onMessage,
+    required void Function(String message) onError,
+  }) {}
+
+  @override
+  void unsubscribeFromRoomMessages() {}
+
+  @override
+  bool isRealtimeConnectedForRoom(String roomId) => false;
+
+  @override
+  void dispose() {}
 }

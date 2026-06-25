@@ -59,7 +59,13 @@ Future<void> _chatLoadRooms(ChatController controller) async {
     if (!controller._canMutateState) {
       return;
     }
-    controller._rooms = pageResult.rooms.toList()..sort(_chatRoomSortByLatest);
+    controller._rooms = _chatMergeRoomsWithSelectedRoom(
+      controller,
+      pageResult.rooms,
+    )..sort(_chatRoomSortByLatest);
+    if (controller._selectedRoomId != null && controller.currentRoom == null) {
+      _chatResetSelectedRoom(controller, notify: false);
+    }
     controller._hasMoreRooms = pageResult.hasNext;
     controller._nextRoomsPage = pageResult.nextPage;
     controller._listPhase = AsyncPhase.success;
@@ -79,6 +85,31 @@ Future<void> _chatLoadRooms(ChatController controller) async {
   }
 
   controller._notifyChanged();
+}
+
+List<ChatRoom> _chatMergeRoomsWithSelectedRoom(
+  ChatController controller,
+  List<ChatRoom> nextRooms,
+) {
+  final selectedRoomId = controller._selectedRoomId;
+  if (selectedRoomId == null) {
+    return nextRooms.toList(growable: false);
+  }
+  final currentRoom = controller.currentRoom;
+  if (currentRoom == null || currentRoom.id != selectedRoomId) {
+    return nextRooms.toList(growable: false);
+  }
+  return nextRooms
+      .map((room) {
+        if (room.id != selectedRoomId) {
+          return room;
+        }
+        return room.copyWith(
+          unreadCount: currentRoom.unreadCount,
+          messageGroups: currentRoom.messageGroups,
+        );
+      })
+      .toList(growable: false);
 }
 
 void _chatMarkRoomAsRead(ChatController controller, String roomId) {
