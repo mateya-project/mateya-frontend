@@ -110,11 +110,20 @@ Future<void> _chatLoadOlderMessages(ChatController controller) async {
 }
 
 void _chatCloseRoom(ChatController controller) {
+  _chatResetSelectedRoom(controller);
+}
+
+void _chatResetSelectedRoom(ChatController controller, {bool notify = true}) {
   _chatStopRealtime(controller);
   controller._selectedRoomId = null;
   controller._roomPhase = AsyncPhase.idle;
   controller._roomErrorMessage = null;
   controller._draft = '';
   controller._draftAttachments = const <ChatAttachment>[];
-  controller._notifyChanged();
+  controller._hasOlderMessages = false;
+  controller._nextRoomMessagesPage = null;
+  controller._isLoadingOlderMessages = false;
+  if (notify) {
+    controller._notifyChanged();
+  }
 }

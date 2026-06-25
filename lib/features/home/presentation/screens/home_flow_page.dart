@@ -497,6 +497,7 @@ class _HomeFlowPageState extends State<HomeFlowPage> with RouteAware {
   void _openChatTab() {
     _dismissPlusOverlay();
     _controller.openChat();
+    unawaited(_chatController.retryRooms());
   }
 
   void _openProfileTab() {
