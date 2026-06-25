@@ -582,7 +582,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get reportReviewNotice =>
-      '접수된 신고는 영업일 기준 최대 7일 이내에 검토되며,\n허위 신고 또는 신고 사유가 불명확한 경우 처리되지 않을 수 있습니다.';
+      '신고가 접수되면 운영팀에 바로 전달되며, 영업일 기준 최대 7일 이내에 검토됩니다.\n허위 신고 또는 신고 사유가 불명확한 경우 처리되지 않을 수 있습니다.';
 
   @override
   String reportRestoredCount(int restoredCount) {
@@ -761,6 +761,9 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get mypageBlockUser => '유저차단하기';
+
+  @override
+  String get mypageBlockUserHint => '이 사용자의 활동과 소통이 바로 숨겨집니다.';
 
   @override
   String get mypageSelectLanguageAndCountry => '언어와 국가를 모두 선택해 주세요.';

@@ -274,7 +274,7 @@
     }
   },
   "reportSubmitting": "提交中...",
-  "reportReviewNotice": "已提交的举报会在最多 7 个工作日内审核。\n如举报内容不实或理由不明确，可能不予处理。",
+  "reportReviewNotice": "举报提交后会立即发送给运营团队，并在最多 7 个工作日内完成审核。\n如举报内容不实或理由不明确，可能不予处理。",
   "reportRestoredCount": "已恢复之前选择的 {restoredCount} 张举报图片。",
   "@reportRestoredCount": {
     "placeholders": {
@@ -340,6 +340,7 @@
   "mypageRemoveFriend": "删除好友",
   "mypageBlocked": "已屏蔽",
   "mypageBlockUser": "屏蔽用户",
+  "mypageBlockUserHint": "该用户的活动和互动会立即从你的页面中隐藏。",
   "mypageSelectLanguageAndCountry": "请选择语言和国家。",
   "mypageInvalidLanguageOrCountry": "不支持该语言或国家。",
   "mypagePrimaryPreferencesSaved": "基本信息已保存。",

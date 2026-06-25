@@ -576,7 +576,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get reportReviewNotice =>
-      '已提交的举报会在最多 7 个工作日内审核。\n如举报内容不实或理由不明确，可能不予处理。';
+      '举报提交后会立即发送给运营团队，并在最多 7 个工作日内完成审核。\n如举报内容不实或理由不明确，可能不予处理。';
 
   @override
   String reportRestoredCount(int restoredCount) {
@@ -754,6 +754,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get mypageBlockUser => '屏蔽用户';
+
+  @override
+  String get mypageBlockUserHint => '该用户的活动和互动会立即从你的页面中隐藏。';
 
   @override
   String get mypageSelectLanguageAndCountry => '请选择语言和国家。';
@@ -2939,7 +2942,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get reportReviewNotice =>
-      '已提交的举报会在最多 7 个工作日内审核。\n如举报内容不实或理由不明确，可能不予处理。';
+      '举报提交后会立即发送给运营团队，并在最多 7 个工作日内完成审核。\n如举报内容不实或理由不明确，可能不予处理。';
 
   @override
   String reportRestoredCount(int restoredCount) {
@@ -3117,6 +3120,9 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get mypageBlockUser => '屏蔽用户';
+
+  @override
+  String get mypageBlockUserHint => '该用户的活动和互动会立即从你的页面中隐藏。';
 
   @override
   String get mypageSelectLanguageAndCountry => '请选择语言和国家。';

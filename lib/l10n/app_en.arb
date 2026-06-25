@@ -274,7 +274,7 @@
     }
   },
   "reportSubmitting": "Submitting...",
-  "reportReviewNotice": "Submitted reports are reviewed within up to 7 business days.\nFalse reports or reports without clear reasons may not be processed.",
+  "reportReviewNotice": "When you submit a report, it is sent to the operations team right away and reviewed within up to 7 business days.\nFalse reports or reports without clear reasons may not be processed.",
   "reportRestoredCount": "Restored {restoredCount} report image(s) you selected earlier.",
   "@reportRestoredCount": {
     "placeholders": {
@@ -340,6 +340,7 @@
   "mypageRemoveFriend": "Remove friend",
   "mypageBlocked": "Blocked",
   "mypageBlockUser": "Block user",
+  "mypageBlockUserHint": "This user's activities and interactions will be hidden right away.",
   "mypageSelectLanguageAndCountry": "Please select both a language and a country.",
   "mypageInvalidLanguageOrCountry": "This language or country is not supported.",
   "mypagePrimaryPreferencesSaved": "Your basic info has been saved.",

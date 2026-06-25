@@ -605,7 +605,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reportReviewNotice =>
-      'Submitted reports are reviewed within up to 7 business days.\nFalse reports or reports without clear reasons may not be processed.';
+      'When you submit a report, it is sent to the operations team right away and reviewed within up to 7 business days.\nFalse reports or reports without clear reasons may not be processed.';
 
   @override
   String reportRestoredCount(int restoredCount) {
@@ -791,6 +791,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get mypageBlockUser => 'Block user';
+
+  @override
+  String get mypageBlockUserHint =>
+      'This user\'s activities and interactions will be hidden right away.';
 
   @override
   String get mypageSelectLanguageAndCountry =>
