@@ -10,10 +10,10 @@ Future<bool> showMateyaPermissionNoticeDialog(
   required String title,
   required String message,
   String? confirmLabel,
-  String? cancelLabel,
 }) async {
-  final shouldContinue = await showDialog<bool>(
+  await showDialog<void>(
     context: context,
+    barrierDismissible: false,
     builder: (context) {
       final l10n = context.l10n;
       return AlertDialog(
@@ -21,11 +21,7 @@ Future<bool> showMateyaPermissionNoticeDialog(
         content: Text(message),
         actions: <Widget>[
           TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(cancelLabel ?? l10n.commonLater),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
+            onPressed: () => Navigator.of(context).pop(),
             child: Text(confirmLabel ?? l10n.commonContinue),
           ),
         ],
@@ -33,7 +29,7 @@ Future<bool> showMateyaPermissionNoticeDialog(
     },
   );
 
-  return shouldContinue ?? false;
+  return true;
 }
 
 Future<void> showMateyaAppSettingsDialog(
