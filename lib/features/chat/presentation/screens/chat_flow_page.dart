@@ -578,15 +578,9 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
         ),
         SizedBox(height: sectionSpacing),
         Expanded(
-          child: Column(
-            children: <Widget>[
-              Expanded(child: _buildListBody(context)),
-              if (!isCompactHeight)
-                const Padding(
-                  padding: EdgeInsets.fromLTRB(34, 16, 34, 12),
-                  child: ChatListGuidance(),
-                ),
-            ],
+          child: _buildListBody(
+            context,
+            showScrollableGuidance: !isCompactHeight,
           ),
         ),
         MateyaBottomNavigation(
@@ -601,7 +595,10 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
     );
   }
 
-  Widget _buildListBody(BuildContext context) {
+  Widget _buildListBody(
+    BuildContext context, {
+    required bool showScrollableGuidance,
+  }) {
     return switch (widget.controller.listPhase) {
       AsyncPhase.idle || AsyncPhase.loading => const ChatListSkeleton(),
       AsyncPhase.networkError || AsyncPhase.serverError => ChatRetryState(
@@ -610,12 +607,17 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
             context.l10n.chatListLoadError,
         onRetry: widget.controller.retryRooms,
       ),
-      AsyncPhase.success ||
-      AsyncPhase.validationError => _buildRoomList(context),
+      AsyncPhase.success || AsyncPhase.validationError => _buildRoomList(
+        context,
+        showScrollableGuidance: showScrollableGuidance,
+      ),
     };
   }
 
-  Widget _buildRoomList(BuildContext context) {
+  Widget _buildRoomList(
+    BuildContext context, {
+    required bool showScrollableGuidance,
+  }) {
     final rooms = widget.controller.visibleRooms;
     if (rooms.isEmpty) {
       return ChatEmptyState(
@@ -627,10 +629,22 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
     return ListView.separated(
       controller: _listScrollController,
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
-      itemCount: rooms.length + (widget.controller.hasMoreRooms ? 1 : 0),
+      itemCount:
+          rooms.length +
+          (widget.controller.hasMoreRooms ? 1 : 0) +
+          (showScrollableGuidance ? 1 : 0),
       separatorBuilder: (context, _) => const SizedBox(height: 18),
       itemBuilder: (context, index) {
-        if (index >= rooms.length) {
+        if (index < rooms.length) {
+          final room = rooms[index];
+          return ChatRoomTile(
+            room: room,
+            onTap: () => widget.controller.openRoom(room.id),
+          );
+        }
+
+        final loadMoreIndex = rooms.length;
+        if (widget.controller.hasMoreRooms && index == loadMoreIndex) {
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 8),
             child: Center(
@@ -647,10 +661,10 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
             ),
           );
         }
-        final room = rooms[index];
-        return ChatRoomTile(
-          room: room,
-          onTap: () => widget.controller.openRoom(room.id),
+
+        return const Padding(
+          padding: EdgeInsets.fromLTRB(14, 4, 14, 8),
+          child: ChatListGuidance(),
         );
       },
     );

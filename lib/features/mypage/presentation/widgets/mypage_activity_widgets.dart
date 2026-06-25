@@ -248,14 +248,19 @@ class MyPageSelectionField extends StatelessWidget {
 }
 
 class MyPageSectionCard extends StatelessWidget {
-  const MyPageSectionCard({super.key, required this.child});
+  const MyPageSectionCard({
+    super.key,
+    required this.child,
+    this.backgroundColor = Colors.white,
+  });
 
   final Widget child;
+  final Color backgroundColor;
 
   @override
   Widget build(BuildContext context) {
     final decoration = BoxDecoration(
-      color: Colors.white,
+      color: backgroundColor,
       borderRadius: BorderRadius.circular(18),
       border: Border.all(color: AppColors.divider),
       boxShadow: const <BoxShadow>[
@@ -371,11 +376,7 @@ class MyPageAvatarImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MateyaProfileAvatar(
-      imageUrl: imageUrl,
-      size: size,
-      iconScale: 0.52,
-    );
+    return MateyaProfileAvatar(imageUrl: imageUrl, size: size, iconScale: 0.52);
   }
 }
 
