@@ -70,6 +70,8 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
   String? _lastRoomId;
   int _lastGroupCount = 0;
   int _lastToastVersion = 0;
+  bool _hasShownPhotoPermissionNotice = false;
+  bool _hasShownCameraPermissionNotice = false;
 
   @override
   void initState() {
@@ -333,6 +335,14 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
       return;
     }
 
+    final didAcknowledgePermission = switch (action) {
+      _AttachmentAction.gallery => _confirmPhotoPermissionRequest(),
+      _AttachmentAction.camera => _confirmCameraPermissionRequest(),
+    };
+    if (!mounted || !await didAcknowledgePermission) {
+      return;
+    }
+
     await _markPendingAttachmentRecovery();
 
     try {
@@ -396,6 +406,39 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
     } finally {
       await _clearPendingAttachmentRecovery();
     }
+  }
+
+  Future<bool> _confirmPhotoPermissionRequest() async {
+    if (_hasShownPhotoPermissionNotice) {
+      return true;
+    }
+
+    final shouldContinue = await showMateyaPermissionNoticeDialog(
+      context,
+      title: context.l10n.chatAttachmentPhotoPermissionTitle,
+      message: context.l10n.chatAttachmentPhotoPermissionMessage,
+    );
+    if (shouldContinue) {
+      _hasShownPhotoPermissionNotice = true;
+    }
+    return shouldContinue;
+  }
+
+  Future<bool> _confirmCameraPermissionRequest() async {
+    if (_hasShownCameraPermissionNotice) {
+      return true;
+    }
+
+    final shouldContinue = await showMateyaPermissionNoticeDialog(
+      context,
+      title: context.l10n.chatAttachmentCameraPermissionTitle,
+      message: context.l10n.chatAttachmentCameraPermissionMessage,
+      confirmLabel: context.l10n.chatAttachmentOpenCamera,
+    );
+    if (shouldContinue) {
+      _hasShownCameraPermissionNotice = true;
+    }
+    return shouldContinue;
   }
 
   Future<void> _markPendingAttachmentRecovery() async {

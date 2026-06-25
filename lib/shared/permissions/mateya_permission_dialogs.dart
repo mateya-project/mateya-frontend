@@ -5,6 +5,37 @@ import '../localization/mateya_localizations.dart';
 
 enum MateyaPermissionRecoveryAction { retry, openSettings, cancel }
 
+Future<bool> showMateyaPermissionNoticeDialog(
+  BuildContext context, {
+  required String title,
+  required String message,
+  String? confirmLabel,
+  String? cancelLabel,
+}) async {
+  final shouldContinue = await showDialog<bool>(
+    context: context,
+    builder: (context) {
+      final l10n = context.l10n;
+      return AlertDialog(
+        title: Text(title),
+        content: Text(message),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(cancelLabel ?? l10n.commonLater),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(confirmLabel ?? l10n.commonContinue),
+          ),
+        ],
+      );
+    },
+  );
+
+  return shouldContinue ?? false;
+}
+
 Future<void> showMateyaAppSettingsDialog(
   BuildContext context, {
   required String title,

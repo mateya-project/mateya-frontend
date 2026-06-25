@@ -224,18 +224,15 @@ class NeighborhoodAutoStepView extends StatefulWidget {
 }
 
 class _NeighborhoodAutoStepViewState extends State<NeighborhoodAutoStepView> {
+  bool _hasShownLocationPermissionNotice = false;
   LocationFailureType? _lastHandledFailureType;
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _startLocationVerificationFlow();
-    });
-  }
 
   Future<void> _startLocationVerificationFlow() async {
     if (!mounted) {
+      return;
+    }
+
+    if (!await _confirmLocationPermissionRequest()) {
       return;
     }
 
@@ -287,6 +284,19 @@ class _NeighborhoodAutoStepViewState extends State<NeighborhoodAutoStepView> {
     final l10n = context.l10n;
     final theme = Theme.of(context);
     final horizontalPadding = AppResponsive.horizontalPadding(context);
+    final currentLocationCtaLabel = switch (controller.locationFailure?.type) {
+      LocationFailureType.permissionDenied =>
+        l10n.onboardingRetryLocationPermission,
+      LocationFailureType.permissionPermanentlyDenied =>
+        l10n.onboardingRetryAfterSettingsChange,
+      LocationFailureType.serviceDisabled =>
+        l10n.onboardingRetryLocationService,
+      LocationFailureType.accuracyTooLow ||
+      LocationFailureType.geocodingFailed ||
+      LocationFailureType.locationUnavailable ||
+      LocationFailureType.unknown => l10n.onboardingRetryCurrentLocation,
+      null => l10n.onboardingUseCurrentLocation,
+    };
 
     return Column(
       children: <Widget>[
@@ -318,38 +328,25 @@ class _NeighborhoodAutoStepViewState extends State<NeighborhoodAutoStepView> {
                       : controller.selectedNeighborhood != null
                       ? controller.resolvedNeighborhoodMessage
                       : controller.locationFailure?.message ??
-                            l10n.onboardingResolvingCurrentLocation,
+                            l10n.onboardingLocationPermissionNoticeMessage,
                   style: theme.textTheme.bodyLarge,
                 ),
                 const SizedBox(height: 24),
                 MateyaButton(
-                  label: controller.isAuthLoading
+                  label:
+                      controller.isAuthLoading ||
+                          controller.locationPhase == AsyncPhase.loading
                       ? l10n.commonProcessing
-                      : l10n.onboardingCompleteNeighborhood,
+                      : controller.selectedNeighborhood != null
+                      ? l10n.onboardingCompleteNeighborhood
+                      : currentLocationCtaLabel,
                   enabled:
-                      controller.canCompleteNeighborhood &&
-                      !controller.isAuthLoading,
-                  onPressed: controller.completeNeighborhood,
+                      !controller.isAuthLoading &&
+                      controller.locationPhase != AsyncPhase.loading,
+                  onPressed: controller.selectedNeighborhood != null
+                      ? controller.completeNeighborhood
+                      : _startLocationVerificationFlow,
                 ),
-                if (controller.selectedNeighborhood == null &&
-                    controller.locationPhase != AsyncPhase.loading) ...<Widget>[
-                  const SizedBox(height: 12),
-                  SizedBox(
-                    width: double.infinity,
-                    child: OutlinedButton(
-                      onPressed: _startLocationVerificationFlow,
-                      child: Text(switch (controller.locationFailure?.type) {
-                        LocationFailureType.permissionDenied =>
-                          l10n.onboardingRetryLocationPermission,
-                        LocationFailureType.permissionPermanentlyDenied =>
-                          l10n.onboardingRetryAfterSettingsChange,
-                        LocationFailureType.serviceDisabled =>
-                          l10n.onboardingRetryLocationService,
-                        _ => l10n.onboardingRetryCurrentLocation,
-                      }),
-                    ),
-                  ),
-                ],
                 const SizedBox(height: 17),
                 Center(
                   child: MateyaPressable(
@@ -384,6 +381,23 @@ class _NeighborhoodAutoStepViewState extends State<NeighborhoodAutoStepView> {
         ),
       ],
     );
+  }
+
+  Future<bool> _confirmLocationPermissionRequest() async {
+    if (_hasShownLocationPermissionNotice) {
+      return true;
+    }
+
+    final shouldContinue = await showMateyaPermissionNoticeDialog(
+      context,
+      title: context.l10n.onboardingLocationPermissionNoticeTitle,
+      message: context.l10n.onboardingLocationPermissionNoticeMessage,
+      confirmLabel: context.l10n.onboardingUseCurrentLocation,
+    );
+    if (shouldContinue) {
+      _hasShownLocationPermissionNotice = true;
+    }
+    return shouldContinue;
   }
 }
 

@@ -3,6 +3,7 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../../../shared/localization/mateya_localizations.dart';
 import '../../../../shared/media/mateya_gallery_picker.dart';
+import '../../../../shared/permissions/mateya_permission_dialogs.dart';
 import '../../../../shared/theme/app_responsive.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../../shared/widgets/mateya_button.dart';
@@ -47,6 +48,7 @@ class _CreateFlowPageState extends State<CreateFlowPage> {
   final TextEditingController _priceController = TextEditingController();
 
   bool _hasSearched = false;
+  bool _hasShownGalleryPermissionNotice = false;
   int _lastToastVersion = 0;
 
   @override
@@ -147,12 +149,29 @@ class _CreateFlowPageState extends State<CreateFlowPage> {
       imagePicker: _imagePicker,
       availableSlots: remaining,
       messages: _galleryPickerMessages(context),
+      confirmPermissionRequest: _confirmGalleryPermissionRequest,
       maxWidth: 2400,
     );
     if (!mounted || picked.isEmpty) {
       return;
     }
     await widget.controller.addImages(picked);
+  }
+
+  Future<bool> _confirmGalleryPermissionRequest() async {
+    if (_hasShownGalleryPermissionNotice) {
+      return true;
+    }
+
+    final shouldContinue = await showMateyaPermissionNoticeDialog(
+      context,
+      title: context.l10n.galleryPermissionNoticeTitle,
+      message: _galleryPickerMessages(context).noticeMessage,
+    );
+    if (shouldContinue) {
+      _hasShownGalleryPermissionNotice = true;
+    }
+    return shouldContinue;
   }
 
   Future<void> _pickEventDate() async {

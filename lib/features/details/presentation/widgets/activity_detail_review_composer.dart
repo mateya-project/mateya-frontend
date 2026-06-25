@@ -3,6 +3,7 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../../../shared/localization/mateya_localizations.dart';
 import '../../../../shared/media/mateya_gallery_picker.dart';
+import '../../../../shared/permissions/mateya_permission_dialogs.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../../shared/widgets/mateya_button.dart';
 import 'activity_detail_review_widgets.dart';
@@ -48,6 +49,7 @@ class _ReviewComposerSheetState extends State<ReviewComposerSheet> {
 
   late int _rating;
   int? _draggingIndex;
+  bool _hasShownGalleryPermissionNotice = false;
   bool _isSubmitting = false;
 
   @override
@@ -121,6 +123,7 @@ class _ReviewComposerSheetState extends State<ReviewComposerSheet> {
       imagePicker: _imagePicker,
       availableSlots: available,
       messages: _galleryPickerMessages(context),
+      confirmPermissionRequest: _confirmGalleryPermissionRequest,
     );
     if (!mounted || picked.isEmpty) {
       return;
@@ -128,6 +131,22 @@ class _ReviewComposerSheetState extends State<ReviewComposerSheet> {
     setState(() {
       _images.addAll(picked.map((file) => file.path));
     });
+  }
+
+  Future<bool> _confirmGalleryPermissionRequest() async {
+    if (_hasShownGalleryPermissionNotice) {
+      return true;
+    }
+
+    final shouldContinue = await showMateyaPermissionNoticeDialog(
+      context,
+      title: context.l10n.galleryPermissionNoticeTitle,
+      message: _galleryPickerMessages(context).noticeMessage,
+    );
+    if (shouldContinue) {
+      _hasShownGalleryPermissionNotice = true;
+    }
+    return shouldContinue;
   }
 
   void _moveImage(int fromIndex, int toIndex) {

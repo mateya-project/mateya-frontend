@@ -56,6 +56,7 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
   String? _selectedPrimaryCountryCode;
   int _lastToastVersion = 0;
   int _lastBadgeCelebrationVersion = 0;
+  bool _hasShownProfileImagePermissionNotice = false;
   bool _withdrawalAgreement = false;
 
   @override
@@ -423,6 +424,7 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
     widget.controller.clearError();
     _withdrawalAgreement = false;
     _withdrawalSignatureController.clear();
+    var shouldRouteToOnboarding = false;
 
     await showDialog<void>(
       context: context,
@@ -444,6 +446,15 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
               child: AnimatedBuilder(
                 animation: widget.controller,
                 builder: (context, _) {
+                  if (widget.controller.withdrawalCompleted &&
+                      !shouldRouteToOnboarding) {
+                    shouldRouteToOnboarding = true;
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (Navigator.of(dialogContext).canPop()) {
+                        Navigator.of(dialogContext).pop();
+                      }
+                    });
+                  }
                   return MyPageWithdrawalDialog(
                     controller: widget.controller,
                     signatureController: _withdrawalSignatureController,
@@ -462,6 +473,16 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
         );
       },
     );
+
+    if (!mounted || !shouldRouteToOnboarding) {
+      return;
+    }
+
+    await AuthSessionStore.instance.flush();
+    if (!mounted) {
+      return;
+    }
+    await replaceWithMateyaOnboardingFlow(context);
   }
 
   Future<void> _openCustomerSupport() async {
@@ -536,12 +557,29 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
       context,
       imagePicker: _imagePicker,
       messages: _buildProfileImagePickerMessages(context),
+      confirmPermissionRequest: _confirmProfileImagePermissionRequest,
       maxWidth: 2400,
     );
     if (!mounted || pickedFile == null) {
       return;
     }
     await widget.controller.updateProfileImage(pickedFile.path);
+  }
+
+  Future<bool> _confirmProfileImagePermissionRequest() async {
+    if (_hasShownProfileImagePermissionNotice) {
+      return true;
+    }
+
+    final shouldContinue = await showMateyaPermissionNoticeDialog(
+      context,
+      title: context.l10n.galleryPermissionNoticeTitle,
+      message: _buildProfileImagePickerMessages(context).noticeMessage,
+    );
+    if (shouldContinue) {
+      _hasShownProfileImagePermissionNotice = true;
+    }
+    return shouldContinue;
   }
 
   Future<void> _openActivityRegionDialog() async {
