@@ -31,6 +31,7 @@ class ApiActivityDetailRepository implements ActivityDetailRepository {
       );
       final statsData = await _apiClient.getJson(
         '/api/v1/activities/${activity.id}/reviews/stats',
+        requiresAuth: true,
       );
 
       final detailJson = _asMap(detailData);
