@@ -70,11 +70,19 @@ Future<List<XFile>> pickMateyaGalleryImages(
   required ImagePicker imagePicker,
   required int availableSlots,
   required MateyaGalleryPickerMessages messages,
+  Future<bool> Function()? confirmPermissionRequest,
   int imageQuality = 88,
   double? maxWidth,
 }) async {
   if (availableSlots <= 0) {
     return const <XFile>[];
+  }
+
+  if (confirmPermissionRequest != null) {
+    final shouldProceed = await confirmPermissionRequest();
+    if (!shouldProceed || !context.mounted) {
+      return const <XFile>[];
+    }
   }
 
   final l10n = context.l10n;
@@ -127,6 +135,7 @@ Future<XFile?> pickMateyaGalleryImage(
   BuildContext context, {
   required ImagePicker imagePicker,
   required MateyaGalleryPickerMessages messages,
+  Future<bool> Function()? confirmPermissionRequest,
   int imageQuality = 88,
   double? maxWidth,
 }) async {
@@ -135,6 +144,7 @@ Future<XFile?> pickMateyaGalleryImage(
     imagePicker: imagePicker,
     availableSlots: 1,
     messages: messages,
+    confirmPermissionRequest: confirmPermissionRequest,
     imageQuality: imageQuality,
     maxWidth: maxWidth,
   );

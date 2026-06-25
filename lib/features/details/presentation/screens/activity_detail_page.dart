@@ -665,43 +665,41 @@ class _ParticipantCard extends StatelessWidget {
       borderRadius: BorderRadius.circular(18),
       onTap: () => onTap(context),
       child: MyPageSectionCard(
-        child: Container(
-          color: backgroundColor,
-          child: Row(
-            children: <Widget>[
-              MateyaProfileAvatar(imageUrl: participant.avatarUrl, size: 48),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text(
-                      participant.name,
-                      style: Theme.of(
-                        context,
-                      ).textTheme.titleLarge?.copyWith(fontSize: 18),
+        backgroundColor: backgroundColor,
+        child: Row(
+          children: <Widget>[
+            MateyaProfileAvatar(imageUrl: participant.avatarUrl, size: 48),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(
+                    participant.name,
+                    style: Theme.of(
+                      context,
+                    ).textTheme.titleLarge?.copyWith(fontSize: 18),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    participant.residenceLabel,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: AppColors.textSecondary,
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      participant.residenceLabel,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              Container(
-                width: 42,
-                height: 42,
-                decoration: BoxDecoration(
-                  color: actionColor,
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(actionIcon, color: Colors.white, size: 24),
+            ),
+            Container(
+              width: 42,
+              height: 42,
+              decoration: BoxDecoration(
+                color: actionColor,
+                shape: BoxShape.circle,
               ),
-            ],
-          ),
+              child: Icon(actionIcon, color: Colors.white, size: 24),
+            ),
+          ],
         ),
       ),
     );

@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 
 import '../localization/mateya_localizations.dart';
 import '../media/mateya_gallery_picker.dart';
+import '../permissions/mateya_permission_dialogs.dart';
 import '../theme/app_responsive.dart';
 import '../theme/app_tokens.dart';
 import 'mateya_button.dart';
@@ -80,6 +81,7 @@ class _MateyaReportSheetState extends State<MateyaReportSheet> {
   final FocusNode _focusNode = FocusNode();
   final List<XFile> _images = <XFile>[];
 
+  bool _hasShownGalleryPermissionNotice = false;
   bool _isSubmitting = false;
 
   @override
@@ -149,6 +151,7 @@ class _MateyaReportSheetState extends State<MateyaReportSheet> {
       imagePicker: _imagePicker,
       availableSlots: available,
       messages: _galleryPickerMessages(context),
+      confirmPermissionRequest: _confirmGalleryPermissionRequest,
     );
     if (!mounted || picked.isEmpty) {
       return;
@@ -156,6 +159,22 @@ class _MateyaReportSheetState extends State<MateyaReportSheet> {
     setState(() {
       _images.addAll(picked);
     });
+  }
+
+  Future<bool> _confirmGalleryPermissionRequest() async {
+    if (_hasShownGalleryPermissionNotice) {
+      return true;
+    }
+
+    final shouldContinue = await showMateyaPermissionNoticeDialog(
+      context,
+      title: context.l10n.galleryPermissionNoticeTitle,
+      message: _galleryPickerMessages(context).noticeMessage,
+    );
+    if (shouldContinue) {
+      _hasShownGalleryPermissionNotice = true;
+    }
+    return shouldContinue;
   }
 
   Future<void> _submit() async {

@@ -582,7 +582,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get reportReviewNotice =>
-      '受け付けた通報は、最大7営業日以内に確認されます。\n虚偽の通報や理由が不明確な通報は処理されない場合があります。';
+      '通報が受け付けられると、すぐに運営チームへ共有され、最大7営業日以内に確認されます。\n虚偽の通報や理由が不明確な通報は処理されない場合があります。';
 
   @override
   String reportRestoredCount(int restoredCount) {
@@ -649,6 +649,10 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get mypageBlockedUsersTitle => 'ブロックしたユーザー';
+
+  @override
+  String get mypageBlockedUsersDescription =>
+      'ブロックしたユーザーはすぐに自分の画面から非表示になり、この一覧で再度管理できます。';
 
   @override
   String get mypageBlockedUsersEmpty => 'ブロックしたユーザーはいません。';
@@ -757,6 +761,9 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get mypageBlockUser => 'ブロックする';
+
+  @override
+  String get mypageBlockUserHint => 'このユーザーの活動とやり取りはすぐに非表示になります。';
 
   @override
   String get mypageSelectLanguageAndCountry => '言語と国を両方選択してください。';

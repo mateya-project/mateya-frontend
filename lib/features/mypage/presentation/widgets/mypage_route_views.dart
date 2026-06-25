@@ -122,14 +122,29 @@ class OtherProfileView extends StatelessWidget {
               ),
               const SizedBox(height: 32),
               if (!data.isBlocked)
-                MateyaButton(
-                  label: isBusy
-                      ? l10n.commonProcessing
-                      : data.isFriend
-                      ? l10n.mypageRemoveFriend
-                      : l10n.mypageBlockUser,
-                  enabled: !isBusy,
-                  onPressed: data.isFriend ? onFriendTap : onBlockTap,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: <Widget>[
+                    MateyaButton(
+                      label: isBusy
+                          ? l10n.commonProcessing
+                          : data.isFriend
+                          ? l10n.mypageRemoveFriend
+                          : l10n.mypageBlockUser,
+                      enabled: !isBusy,
+                      onPressed: data.isFriend ? onFriendTap : onBlockTap,
+                    ),
+                    if (!data.isFriend) ...<Widget>[
+                      const SizedBox(height: 10),
+                      Text(
+                        l10n.mypageBlockUserHint,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ],
                 )
               else
                 Center(
@@ -421,6 +436,13 @@ class BlockedUsersView extends StatelessWidget {
               Text(
                 l10n.mypageBlockedUsersTitle,
                 style: Theme.of(context).textTheme.headlineMedium,
+              ),
+              const SizedBox(height: 10),
+              Text(
+                l10n.mypageBlockedUsersDescription,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: AppColors.textSecondary,
+                ),
               ),
               const SizedBox(height: 20),
               if (users.isEmpty)

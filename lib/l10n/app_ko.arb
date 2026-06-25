@@ -274,7 +274,7 @@
     }
   },
   "reportSubmitting": "접수 중...",
-  "reportReviewNotice": "접수된 신고는 영업일 기준 최대 7일 이내에 검토되며,\n허위 신고 또는 신고 사유가 불명확한 경우 처리되지 않을 수 있습니다.",
+  "reportReviewNotice": "신고가 접수되면 운영팀에 바로 전달되며, 영업일 기준 최대 7일 이내에 검토됩니다.\n허위 신고 또는 신고 사유가 불명확한 경우 처리되지 않을 수 있습니다.",
   "reportRestoredCount": "이전에 선택하던 신고 이미지 {restoredCount}장을 복구했어요.",
   "@reportRestoredCount": {
     "placeholders": {
@@ -303,6 +303,7 @@
   "mypageConsentDeclined": "미동의",
   "mypageConsentDate": "동의 일시",
   "mypageBlockedUsersTitle": "차단한 사용자",
+  "mypageBlockedUsersDescription": "차단한 사용자는 내 화면에서 바로 숨겨지고, 이 목록에서 다시 관리할 수 있어요.",
   "mypageBlockedUsersEmpty": "차단한 사용자가 없어요.",
   "mypageRecentActivitiesTitle": "최근 활동",
   "mypageRecentActivitiesDescription": "최근 참여하거나 개설한 활동을 확인해 보세요.",
@@ -339,6 +340,7 @@
   "mypageRemoveFriend": "친구삭제하기",
   "mypageBlocked": "차단됨",
   "mypageBlockUser": "유저차단하기",
+  "mypageBlockUserHint": "이 사용자의 활동과 소통이 바로 숨겨집니다.",
   "mypageSelectLanguageAndCountry": "언어와 국가를 모두 선택해 주세요.",
   "mypageInvalidLanguageOrCountry": "지원하지 않는 언어 또는 국가예요.",
   "mypagePrimaryPreferencesSaved": "기본 정보가 저장되었어요.",

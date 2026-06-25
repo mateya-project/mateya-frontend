@@ -274,7 +274,7 @@
     }
   },
   "reportSubmitting": "送信中...",
-  "reportReviewNotice": "受け付けた通報は、最大7営業日以内に確認されます。\n虚偽の通報や理由が不明確な通報は処理されない場合があります。",
+  "reportReviewNotice": "通報が受け付けられると、すぐに運営チームへ共有され、最大7営業日以内に確認されます。\n虚偽の通報や理由が不明確な通報は処理されない場合があります。",
   "reportRestoredCount": "以前に選択した通報画像を {restoredCount} 枚復元しました。",
   "@reportRestoredCount": {
     "placeholders": {
@@ -303,6 +303,7 @@
   "mypageConsentDeclined": "未同意",
   "mypageConsentDate": "同意日時",
   "mypageBlockedUsersTitle": "ブロックしたユーザー",
+  "mypageBlockedUsersDescription": "ブロックしたユーザーはすぐに自分の画面から非表示になり、この一覧で再度管理できます。",
   "mypageBlockedUsersEmpty": "ブロックしたユーザーはいません。",
   "mypageRecentActivitiesTitle": "最近のアクティビティ",
   "mypageRecentActivitiesDescription": "最近参加または主催したアクティビティを確認しましょう。",
@@ -339,6 +340,7 @@
   "mypageRemoveFriend": "友だち削除",
   "mypageBlocked": "ブロック済み",
   "mypageBlockUser": "ブロックする",
+  "mypageBlockUserHint": "このユーザーの活動とやり取りはすぐに非表示になります。",
   "mypageSelectLanguageAndCountry": "言語と国を両方選択してください。",
   "mypageInvalidLanguageOrCountry": "サポートされていない言語または国です。",
   "mypagePrimaryPreferencesSaved": "基本情報を保存しました。",

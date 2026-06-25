@@ -1,3 +1,5 @@
 - [high] 호스트 온보딩 활동 지역 저장 흐름 정리: `signupHost`는 `activityRegionName/activityLatitude/activityLongitude` 없이 가입되어 거리 기반 기능이 세션 좌표에 의존할 때 비어 있을 수 있음. 제품 흐름 합의 후 초기 활동 지역 입력 또는 프로필 동기화 단계가 필요함.
 - [high] Android CI 서명 비밀값 정리 필요: 로컬에서는 업로드 키 생성과 서명된 APK/AAB 검증을 끝냈지만, CI/CD 또는 팀 공용 배포 환경에서 같은 업로드 키를 안전하게 주입하는 절차가 아직 문서화되지 않았다.
 - [high] 개인정보처리방침 공개 URL 정합성 확인 필요: 앱은 `MATEYA_PRIVACY_POLICY_URL` 없을 때 Notion 문서 링크를 기본 사용한다. Play Console 등록 정보, 앱 내 링크, 실제 공개 접근 권한이 모두 일치하는지 배포 전 확인이 필요하다.
+- [high] 심사 제출용 계정·증빙 패키지 준비 필요: 로그인 필수 앱이라 App Store/Play 심사용 데모 계정, 신고/차단 시연 영상, 테스트 절차를 제출 메모에 함께 정리해야 재반려 위험을 줄일 수 있다.
+- [high] Google Play 외부 계정삭제 URL 준비 필요: 앱 내 탈퇴 기능은 있으나 Play 정책상 앱 외부에서도 계정 삭제를 요청할 수 있는 공개 웹 링크를 Data safety 폼에 제출해야 한다.
