@@ -4476,6 +4476,300 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'추가 결과를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.'**
   String get homeExploreLoadMoreFailedServer;
+
+  /// No description provided for @aiChatTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'AI 채팅'**
+  String get aiChatTitle;
+
+  /// No description provided for @aiGuideSubtitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'로컬 분산 여행 가이드'**
+  String get aiGuideSubtitle;
+
+  /// No description provided for @aiArchiveConversation.
+  ///
+  /// In ko, this message translates to:
+  /// **'대화 보관'**
+  String get aiArchiveConversation;
+
+  /// No description provided for @aiContinueTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'이어보기'**
+  String get aiContinueTitle;
+
+  /// No description provided for @aiStartHeadline.
+  ///
+  /// In ko, this message translates to:
+  /// **'유명 관광지의 매력은 그대로,\n여행 동선은 로컬로 넓혀봐요.'**
+  String get aiStartHeadline;
+
+  /// No description provided for @aiNewTravelPlan.
+  ///
+  /// In ko, this message translates to:
+  /// **'새 여행 계획'**
+  String get aiNewTravelPlan;
+
+  /// No description provided for @aiContinueConditions.
+  ///
+  /// In ko, this message translates to:
+  /// **'여행 조건을 이어서 알려주세요.'**
+  String get aiContinueConditions;
+
+  /// No description provided for @aiWelcome.
+  ///
+  /// In ko, this message translates to:
+  /// **'어디를 언제 방문하고 싶은지 알려주세요. 덜 붐비는 날짜와 비슷한 로컬 장소, 참여할 모임을 함께 찾아드릴게요.'**
+  String get aiWelcome;
+
+  /// No description provided for @aiGallerySelect.
+  ///
+  /// In ko, this message translates to:
+  /// **'앨범에서 선택'**
+  String get aiGallerySelect;
+
+  /// No description provided for @aiCameraTake.
+  ///
+  /// In ko, this message translates to:
+  /// **'사진 촬영'**
+  String get aiCameraTake;
+
+  /// No description provided for @aiPhotoLoadFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'사진을 불러오지 못했어요. 권한과 파일 상태를 확인해 주세요.'**
+  String get aiPhotoLoadFailed;
+
+  /// No description provided for @aiPhotoSendFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'사진을 전송하지 못했어요. 잠시 후 다시 시도해 주세요.'**
+  String get aiPhotoSendFailed;
+
+  /// No description provided for @aiLocationUnavailable.
+  ///
+  /// In ko, this message translates to:
+  /// **'위치를 확인하지 못해 사진만 전송합니다.'**
+  String get aiLocationUnavailable;
+
+  /// No description provided for @aiUploadingPhoto.
+  ///
+  /// In ko, this message translates to:
+  /// **'사진을 안전하게 업로드하고 있어요'**
+  String get aiUploadingPhoto;
+
+  /// No description provided for @aiCheckingData.
+  ///
+  /// In ko, this message translates to:
+  /// **'공공데이터를 확인하고 있어요'**
+  String get aiCheckingData;
+
+  /// No description provided for @aiPlaceSearchResult.
+  ///
+  /// In ko, this message translates to:
+  /// **'‘{query}’ 검색 결과'**
+  String aiPlaceSearchResult(String query);
+
+  /// No description provided for @aiSelectAnchor.
+  ///
+  /// In ko, this message translates to:
+  /// **'{name} 기준 장소로 선택'**
+  String aiSelectAnchor(String name);
+
+  /// No description provided for @aiScore.
+  ///
+  /// In ko, this message translates to:
+  /// **'{score}점'**
+  String aiScore(int score);
+
+  /// No description provided for @aiViewPlace.
+  ///
+  /// In ko, this message translates to:
+  /// **'장소 보기'**
+  String get aiViewPlace;
+
+  /// No description provided for @aiCreateActivity.
+  ///
+  /// In ko, this message translates to:
+  /// **'모임 만들기'**
+  String get aiCreateActivity;
+
+  /// No description provided for @aiViewActivity.
+  ///
+  /// In ko, this message translates to:
+  /// **'모임 보기'**
+  String get aiViewActivity;
+
+  /// No description provided for @aiAttachmentRemove.
+  ///
+  /// In ko, this message translates to:
+  /// **'첨부 사진 {index} 삭제'**
+  String aiAttachmentRemove(int index);
+
+  /// No description provided for @aiShareCurrentLocation.
+  ///
+  /// In ko, this message translates to:
+  /// **'현재 위치도 함께 보내기'**
+  String get aiShareCurrentLocation;
+
+  /// No description provided for @aiShareLocationNotice.
+  ///
+  /// In ko, this message translates to:
+  /// **'선택한 경우에만 위치가 전송되고 대화 보관기간 동안 저장돼요.'**
+  String get aiShareLocationNotice;
+
+  /// No description provided for @aiAttachPhoto.
+  ///
+  /// In ko, this message translates to:
+  /// **'사진 첨부'**
+  String get aiAttachPhoto;
+
+  /// No description provided for @aiComposerHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'장소명, 날짜 또는 여행 취향을 알려주세요'**
+  String get aiComposerHint;
+
+  /// No description provided for @aiSendMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'AI 메시지 보내기'**
+  String get aiSendMessage;
+
+  /// No description provided for @aiPlaceDetailTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'장소 자세히 보기'**
+  String get aiPlaceDetailTitle;
+
+  /// No description provided for @aiFavoriteAdd.
+  ///
+  /// In ko, this message translates to:
+  /// **'장소 즐겨찾기 추가'**
+  String get aiFavoriteAdd;
+
+  /// No description provided for @aiFavoriteRemove.
+  ///
+  /// In ko, this message translates to:
+  /// **'장소 즐겨찾기 해제'**
+  String get aiFavoriteRemove;
+
+  /// No description provided for @aiFavoriteFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'장소 즐겨찾기를 변경하지 못했어요.'**
+  String get aiFavoriteFailed;
+
+  /// No description provided for @aiRecommendationPoint.
+  ///
+  /// In ko, this message translates to:
+  /// **'MateYa AI 추천 포인트'**
+  String get aiRecommendationPoint;
+
+  /// No description provided for @aiAskAboutPlace.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 장소로 AI에게 물어보기'**
+  String get aiAskAboutPlace;
+
+  /// No description provided for @aiEvidenceNotice.
+  ///
+  /// In ko, this message translates to:
+  /// **'추천 근거: 한국관광공사 관광지별 연관 관광지·방문 집중 추이와 MateYa 장소 데이터. 집중도는 실시간 인원 또는 절대 혼잡도가 아닙니다.'**
+  String get aiEvidenceNotice;
+
+  /// No description provided for @aiPlaceActivities.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 장소의 모임'**
+  String get aiPlaceActivities;
+
+  /// No description provided for @aiNoActivities.
+  ///
+  /// In ko, this message translates to:
+  /// **'아직 모집 중인 모임이 없어요. 첫 모임을 만들어 보세요.'**
+  String get aiNoActivities;
+
+  /// No description provided for @aiCreateAtPlace.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 장소에 모임 만들기'**
+  String get aiCreateAtPlace;
+
+  /// No description provided for @aiCreateNewActivity.
+  ///
+  /// In ko, this message translates to:
+  /// **'새 모임 만들기'**
+  String get aiCreateNewActivity;
+
+  /// No description provided for @aiHomeGuideTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'MateYa AI 여행 가이드'**
+  String get aiHomeGuideTitle;
+
+  /// No description provided for @aiHomeHeadline.
+  ///
+  /// In ko, this message translates to:
+  /// **'유명 관광지 대신\n나에게 맞는 로컬을 찾아봐요'**
+  String get aiHomeHeadline;
+
+  /// No description provided for @aiHomeAsk.
+  ///
+  /// In ko, this message translates to:
+  /// **'AI에게 여행 물어보기'**
+  String get aiHomeAsk;
+
+  /// No description provided for @aiHomeLocalTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'AI 로컬 분산 추천'**
+  String get aiHomeLocalTitle;
+
+  /// No description provided for @aiHomeLocalDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'관광공사 연관 관광지 데이터로 비슷한 매력의 지역을 골랐어요.'**
+  String get aiHomeLocalDescription;
+
+  /// No description provided for @aiHomeEmpty.
+  ///
+  /// In ko, this message translates to:
+  /// **'로컬 분산 추천 데이터를 준비하고 있어요. AI 대화에서는 선택한 장소를 기준으로 바로 찾아볼 수 있습니다.'**
+  String get aiHomeEmpty;
+
+  /// No description provided for @aiConversationListLoadFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'AI 대화 목록을 불러오지 못했어요.'**
+  String get aiConversationListLoadFailed;
+
+  /// No description provided for @aiConversationStartFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'새 여행 계획을 시작하지 못했어요.'**
+  String get aiConversationStartFailed;
+
+  /// No description provided for @aiConversationLoadFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'AI 대화를 불러오지 못했어요.'**
+  String get aiConversationLoadFailed;
+
+  /// No description provided for @aiRecommendationLoadFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'추천을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.'**
+  String get aiRecommendationLoadFailed;
+
+  /// No description provided for @aiPlaceLocalReason.
+  ///
+  /// In ko, this message translates to:
+  /// **'{region}의 로컬 경험을 넓히고 유명 관광지의 방문 집중을 분산할 수 있는 장소예요.'**
+  String aiPlaceLocalReason(String region);
 }
 
 class _AppLocalizationsDelegate

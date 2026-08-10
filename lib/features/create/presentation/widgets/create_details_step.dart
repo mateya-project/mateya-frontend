@@ -9,6 +9,7 @@ import '../../domain/create_models.dart';
 import 'create_form_fields.dart';
 import 'create_form_primitives.dart';
 import 'create_formatters.dart';
+import '../../../ai/presentation/ai_widgets.dart';
 
 class DetailsStepView extends StatelessWidget {
   const DetailsStepView({
@@ -79,6 +80,39 @@ class DetailsStepView extends StatelessWidget {
       controller: scrollController,
       padding: const EdgeInsets.fromLTRB(24, 8, 24, 0),
       children: <Widget>[
+        if (controller.aiPrefilled) ...<Widget>[
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AiColors.purple50,
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(color: AiColors.purple200),
+            ),
+            child: const Row(
+              children: <Widget>[
+                AiRobotAvatar(size: 42),
+                SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        'MateYa AI 추천 장소',
+                        style: TextStyle(
+                          color: AiColors.purple800,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      SizedBox(height: 3),
+                      Text('장소 정보가 미리 입력되었어요.'),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+        ],
         Text(
           controller.flowType == CreateFlowType.group
               ? l10n.createGroupInfoTitle
@@ -145,7 +179,10 @@ class DetailsStepView extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Text(l10n.createDescriptionTitle, style: theme.textTheme.titleLarge),
+              Text(
+                l10n.createDescriptionTitle,
+                style: theme.textTheme.titleLarge,
+              ),
               const SizedBox(height: 10),
               MultilineField(
                 controller: descriptionController,
@@ -292,7 +329,10 @@ class DetailsStepView extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Text(l10n.createLanguagesTitle, style: theme.textTheme.titleLarge),
+              Text(
+                l10n.createLanguagesTitle,
+                style: theme.textTheme.titleLarge,
+              ),
               const SizedBox(height: 12),
               Wrap(
                 spacing: 10,

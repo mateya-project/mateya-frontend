@@ -6,6 +6,8 @@ import '../../../../shared/localization/mateya_localizations.dart';
 import '../../../../shared/theme/app_responsive.dart';
 import '../../../../shared/theme/app_tokens.dart';
 import '../../../onboarding/domain/onboarding_flow.dart';
+import '../../../ai/data/ai_repository.dart';
+import '../../../ai/presentation/ai_home_section.dart';
 import '../../application/home_controller.dart';
 import '../../domain/home_models.dart';
 import 'home_activity_cards.dart';
@@ -18,11 +20,17 @@ class HomeScreen extends StatelessWidget {
     required this.controller,
     required this.onSearchTap,
     required this.onActivityTap,
+    required this.aiRepository,
+    required this.onAiTap,
+    required this.onPlaceTap,
   });
 
   final HomeController controller;
   final VoidCallback onSearchTap;
   final ValueChanged<ActivityItem> onActivityTap;
+  final AiRepository aiRepository;
+  final VoidCallback onAiTap;
+  final ValueChanged<String> onPlaceTap;
 
   @override
   Widget build(BuildContext context) {
@@ -50,6 +58,9 @@ class HomeScreen extends StatelessWidget {
                 child: HomeContent(
                   controller: controller,
                   onActivityTap: onActivityTap,
+                  aiRepository: aiRepository,
+                  onAiTap: onAiTap,
+                  onPlaceTap: onPlaceTap,
                 ),
               ),
             ],
@@ -65,10 +76,16 @@ class HomeContent extends StatelessWidget {
     super.key,
     required this.controller,
     required this.onActivityTap,
+    required this.aiRepository,
+    required this.onAiTap,
+    required this.onPlaceTap,
   });
 
   final HomeController controller;
   final ValueChanged<ActivityItem> onActivityTap;
+  final AiRepository aiRepository;
+  final VoidCallback onAiTap;
+  final ValueChanged<String> onPlaceTap;
 
   @override
   Widget build(BuildContext context) {
@@ -91,6 +108,12 @@ class HomeContent extends StatelessWidget {
           key: const PageStorageKey<String>('home-content-scroll'),
           padding: const EdgeInsets.only(bottom: 24),
           children: <Widget>[
+            AiHomeSection(
+              repository: aiRepository,
+              onStartAi: onAiTap,
+              onPlaceTap: onPlaceTap,
+            ),
+            const SizedBox(height: 28),
             Text(
               l10n.homeTrendingTitle,
               style: Theme.of(context).textTheme.headlineLarge,

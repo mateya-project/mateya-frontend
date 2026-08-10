@@ -13,6 +13,10 @@ import '../../../../shared/widgets/mateya_header.dart';
 import '../../../../shared/widgets/mateya_interaction.dart';
 import '../../../../shared/widgets/mateya_motion.dart';
 import '../../../chat/application/chat_controller.dart';
+import '../../../ai/data/ai_repository.dart';
+import '../../../ai/domain/ai_models.dart';
+import '../../../ai/presentation/ai_conversation_flow_page.dart';
+import '../../../ai/presentation/ai_place_detail_page.dart';
 import '../../../chat/data/chat_repository.dart';
 import '../../../chat/presentation/screens/chat_flow_page.dart';
 import '../../../create/application/create_controller.dart';
@@ -54,6 +58,7 @@ class _HomeFlowPageState extends State<HomeFlowPage> with RouteAware {
   late final NearbyCultureMapController _nearbyCultureMapController;
   late final ActivityDetailRepository _activityDetailRepository;
   late final ActivityCategoryRepository _activityCategoryRepository;
+  late final AiRepository _aiRepository;
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
   bool _isPlusOverlayOpen = false;
@@ -67,6 +72,7 @@ class _HomeFlowPageState extends State<HomeFlowPage> with RouteAware {
     _activityCategoryRepository = hasSession
         ? ApiActivityCategoryRepository()
         : MockActivityCategoryRepository();
+    _aiRepository = hasSession ? ApiAiRepository() : MockAiRepository();
     final defaultLanguage = AuthSessionStore
         .instance
         .session
@@ -182,7 +188,7 @@ class _HomeFlowPageState extends State<HomeFlowPage> with RouteAware {
     });
   }
 
-  Future<void> _openCreateFlow() async {
+  Future<void> _openCreateFlow({CreatePlaceSuggestion? initialPlace}) async {
     _dismissPlusOverlay();
     final flowType = _controller.flowKind == FlowKind.host
         ? CreateFlowType.classRegistration
@@ -199,6 +205,8 @@ class _HomeFlowPageState extends State<HomeFlowPage> with RouteAware {
             repository: ApiCreateRepository(),
             categoryRepository: _activityCategoryRepository,
             flowType: flowType,
+            initialPlace: initialPlace,
+            aiPrefilled: initialPlace != null,
           ),
         ),
       ),
@@ -359,6 +367,7 @@ class _HomeFlowPageState extends State<HomeFlowPage> with RouteAware {
         onExploreTap: _openExploreTab,
         onPlusTap: _togglePlusOverlay,
         onProfileTap: _openProfileTab,
+        onOpenAi: _openAiConversations,
       );
     }
     if (_controller.section == HomeSection.profile) {
@@ -401,6 +410,9 @@ class _HomeFlowPageState extends State<HomeFlowPage> with RouteAware {
                     controller: _controller,
                     onSearchTap: _openExploreAndFocus,
                     onActivityTap: _openActivityDetail,
+                    aiRepository: _aiRepository,
+                    onAiTap: _openAiConversations,
+                    onPlaceTap: _openAiPlaceDetail,
                   ),
                   HomeSection.explore => ExploreScreen(
                     key: const ValueKey<String>('explore-screen'),
@@ -418,6 +430,14 @@ class _HomeFlowPageState extends State<HomeFlowPage> with RouteAware {
                   HomeSection.nearbyCultureMap => NearbyCultureMapPage(
                     key: const ValueKey<String>('nearby-culture-map-screen'),
                     controller: _nearbyCultureMapController,
+                    onPlaceDetailTap: _openAiPlaceDetail,
+                    onAskAiTap: (place) => _openAiConversations(
+                      seed: AiConversationSeed(
+                        entryPoint: 'NEARBY_MAP',
+                        anchorPlaceId: place.id,
+                        anchorPlaceName: place.name,
+                      ),
+                    ),
                   ),
                   _ => const SizedBox.shrink(),
                 },
@@ -510,5 +530,95 @@ class _HomeFlowPageState extends State<HomeFlowPage> with RouteAware {
     _dismissPlusOverlay();
     _controller.openNearbyCultureMap();
     await _nearbyCultureMapController.initialize();
+  }
+
+  Future<void> _openAiConversations({AiConversationSeed? seed}) async {
+    _dismissPlusOverlay();
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute<void>(
+        builder: (_) => AiConversationFlowPage(
+          repository: _aiRepository,
+          seed: seed,
+          onPlaceTap: _openAiPlaceDetail,
+          onCreateActivityTap: _openCreateFromAiPlaceId,
+          onActivityTap: _openAiActivityDetail,
+          onOpenNearbyMap: _openNearbyMapFromAi,
+        ),
+      ),
+    );
+  }
+
+  Future<void> _openAiPlaceDetail(String placeId) async {
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute<void>(
+        builder: (_) => AiPlaceDetailPage(
+          repository: _aiRepository,
+          placeId: placeId,
+          onAskAi: (place) => _openAiConversations(
+            seed: AiConversationSeed(
+              entryPoint: 'PLACE_DETAIL',
+              anchorPlaceId: place.id,
+              anchorPlaceName: place.name,
+            ),
+          ),
+          onCreateActivity: _openCreateFromAiPlace,
+          onActivityTap: _openAiActivityDetail,
+        ),
+      ),
+    );
+  }
+
+  void _openNearbyMapFromAi() {
+    Navigator.of(context).pop();
+    unawaited(_openNearbyCultureMap());
+  }
+
+  Future<void> _openCreateFromAiPlaceId(String placeId) async {
+    final place = await _aiRepository.fetchPlace(placeId);
+    if (!mounted) {
+      return;
+    }
+    await _openCreateFromAiPlace(place);
+  }
+
+  Future<void> _openAiActivityDetail(String activityId) async {
+    final now = DateTime.now();
+    await _openActivityDetail(
+      ActivityItem(
+        id: activityId,
+        categoryId: '',
+        categoryLabel: '',
+        title: '',
+        place: '',
+        startAt: now,
+        endAt: now,
+        price: 0,
+        rating: 0,
+        participantCount: 0,
+        participantCapacity: 0,
+        distanceKm: 0,
+        audiences: const <ActivityAudienceOption>{},
+        languages: const <String>{},
+        statuses: const <ActivityStatusOption>{},
+      ),
+    );
+  }
+
+  Future<void> _openCreateFromAiPlace(AiPlaceDetail place) async {
+    final suggestion = CreatePlaceSuggestion(
+      id: place.id,
+      name: place.name,
+      address: place.address,
+      description: place.description,
+      distanceKm: 0,
+      imageUrl: place.imageUrl,
+      thumbnailUrl: place.thumbnailUrl,
+      latitude: place.latitude,
+      longitude: place.longitude,
+      categoryIds: <String>{if (place.category.isNotEmpty) place.category},
+      serverCategoryCode: place.category,
+      categoryDetailName: place.categoryDetailName,
+    );
+    await _openCreateFlow(initialPlace: suggestion);
   }
 }

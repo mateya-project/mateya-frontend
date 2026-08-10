@@ -20,11 +20,24 @@ class CreateController extends ChangeNotifier {
     required this.flowType,
     this.isEditMode = false,
     this.editingId,
+    this.initialPlace,
+    this.initialEventDate,
+    this.aiPrefilled = false,
     DateTime Function()? now,
   }) : _now = now ?? DateTime.now,
-       _step = flowType == CreateFlowType.group
+       _step = initialPlace != null
+           ? CreateStep.details
+           : flowType == CreateFlowType.group
            ? CreateStep.category
-           : CreateStep.place;
+           : CreateStep.place {
+    final prefilledPlace = initialPlace;
+    if (prefilledPlace != null) {
+      _selectedPlace = prefilledPlace;
+      _selectedCategoryIds.addAll(prefilledPlace.categoryIds);
+      _selectedCategoryDetailCode = prefilledPlace.categoryDetailCode;
+      _eventDate = initialEventDate;
+    }
+  }
 
   static const int maxImageCount = 5;
   static const int maxImageBytes = 10 * 1024 * 1024;
@@ -41,6 +54,9 @@ class CreateController extends ChangeNotifier {
   final CreateFlowType flowType;
   final bool isEditMode;
   final String? editingId;
+  final CreatePlaceSuggestion? initialPlace;
+  final DateTime? initialEventDate;
+  final bool aiPrefilled;
   final DateTime Function() _now;
 
   CreateStep _step;

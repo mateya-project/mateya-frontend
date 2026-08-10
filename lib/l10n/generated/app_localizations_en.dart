@@ -2596,4 +2596,174 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get homeExploreLoadMoreFailedServer =>
       'Could not load more results. Please try again later.';
+
+  @override
+  String get aiChatTitle => 'AI chat';
+
+  @override
+  String get aiGuideSubtitle => 'Local dispersal travel guide';
+
+  @override
+  String get aiArchiveConversation => 'Archive conversation';
+
+  @override
+  String get aiContinueTitle => 'Continue planning';
+
+  @override
+  String get aiStartHeadline =>
+      'Keep the appeal of famous sights,\nand broaden your route into local neighborhoods.';
+
+  @override
+  String get aiNewTravelPlan => 'New travel plan';
+
+  @override
+  String get aiContinueConditions =>
+      'Tell me the rest of your travel preferences.';
+
+  @override
+  String get aiWelcome =>
+      'Tell me where and when you want to visit. I’ll compare less crowded dates, similar local places, and gatherings you can join.';
+
+  @override
+  String get aiGallerySelect => 'Choose from library';
+
+  @override
+  String get aiCameraTake => 'Take a photo';
+
+  @override
+  String get aiPhotoLoadFailed =>
+      'Could not load the photo. Check permission and file status.';
+
+  @override
+  String get aiPhotoSendFailed =>
+      'Could not send the photo. Please try again later.';
+
+  @override
+  String get aiLocationUnavailable =>
+      'Your location was unavailable, so only the photo will be sent.';
+
+  @override
+  String get aiUploadingPhoto => 'Uploading the photo securely';
+
+  @override
+  String get aiCheckingData => 'Checking public tourism data';
+
+  @override
+  String aiPlaceSearchResult(String query) {
+    return 'Results for ‘$query’';
+  }
+
+  @override
+  String aiSelectAnchor(String name) {
+    return 'Use $name as the reference place';
+  }
+
+  @override
+  String aiScore(int score) {
+    return '$score pts';
+  }
+
+  @override
+  String get aiViewPlace => 'View place';
+
+  @override
+  String get aiCreateActivity => 'Create gathering';
+
+  @override
+  String get aiViewActivity => 'View gathering';
+
+  @override
+  String aiAttachmentRemove(int index) {
+    return 'Remove attached photo $index';
+  }
+
+  @override
+  String get aiShareCurrentLocation => 'Include my current location';
+
+  @override
+  String get aiShareLocationNotice =>
+      'Location is sent only when selected and retained for the conversation retention period.';
+
+  @override
+  String get aiAttachPhoto => 'Attach photo';
+
+  @override
+  String get aiComposerHint => 'Enter a place, date, or travel preference';
+
+  @override
+  String get aiSendMessage => 'Send AI message';
+
+  @override
+  String get aiPlaceDetailTitle => 'Place details';
+
+  @override
+  String get aiFavoriteAdd => 'Add place to favorites';
+
+  @override
+  String get aiFavoriteRemove => 'Remove place from favorites';
+
+  @override
+  String get aiFavoriteFailed => 'Could not update the place favorite.';
+
+  @override
+  String get aiRecommendationPoint => 'MateYa AI recommendation';
+
+  @override
+  String get aiAskAboutPlace => 'Ask AI about this place';
+
+  @override
+  String get aiEvidenceNotice =>
+      'Sources: Korea Tourism Organization related-attraction and visit-concentration trend data, plus MateYa place data. Concentration is not a real-time headcount or absolute crowd level.';
+
+  @override
+  String get aiPlaceActivities => 'Gatherings at this place';
+
+  @override
+  String get aiNoActivities =>
+      'There are no open gatherings yet. Create the first one.';
+
+  @override
+  String get aiCreateAtPlace => 'Create a gathering here';
+
+  @override
+  String get aiCreateNewActivity => 'Create another gathering';
+
+  @override
+  String get aiHomeGuideTitle => 'MateYa AI travel guide';
+
+  @override
+  String get aiHomeHeadline =>
+      'Look beyond famous sights\nand find a local place that fits you';
+
+  @override
+  String get aiHomeAsk => 'Ask AI about a trip';
+
+  @override
+  String get aiHomeLocalTitle => 'AI local dispersal picks';
+
+  @override
+  String get aiHomeLocalDescription =>
+      'Similar local experiences selected using Korea Tourism Organization related-attraction data.';
+
+  @override
+  String get aiHomeEmpty =>
+      'Local dispersal recommendations are being prepared. In AI chat, select a reference place to search immediately.';
+
+  @override
+  String get aiConversationListLoadFailed => 'Could not load AI conversations.';
+
+  @override
+  String get aiConversationStartFailed => 'Could not start a new travel plan.';
+
+  @override
+  String get aiConversationLoadFailed => 'Could not load the AI conversation.';
+
+  @override
+  String get aiRecommendationLoadFailed =>
+      'Could not load recommendations. Please try again later.';
+
+  @override
+  String aiPlaceLocalReason(String region) {
+    return 'This place broadens local experiences in $region and can help disperse visits away from famous sights.';
+  }
 }

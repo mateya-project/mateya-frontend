@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="MateYa AI travel guide robot">
+  <defs>
+    <linearGradient id="purple" x1="18" y1="10" x2="108" y2="116" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#9B8CFF"/>
+      <stop offset="1" stop-color="#4C36D8"/>
+    </linearGradient>
+    <linearGradient id="face" x1="42" y1="34" x2="88" y2="82" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#242A59"/>
+      <stop offset="1" stop-color="#080D2F"/>
+    </linearGradient>
+    <linearGradient id="green" x1="52" y1="77" x2="92" y2="117" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#64DC84"/>
+      <stop offset="1" stop-color="#159B50"/>
+    </linearGradient>
+  </defs>
+  <path d="M64 19V10" stroke="url(#purple)" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="64" cy="8" r="6" fill="url(#purple)"/>
+  <path d="M20 37l2.7 6.3L29 46l-6.3 2.7L20 55l-2.7-6.3L11 46l6.3-2.7L20 37z" fill="#846EF5" opacity=".85"/>
+  <path d="M108 23l2.2 5.1 5.1 2.2-5.1 2.2-2.2 5.1-2.2-5.1-5.1-2.2 5.1-2.2 2.2-5.1z" fill="#846EF5"/>
+  <rect x="20" y="19" width="88" height="70" rx="34" fill="#FAFAFF" stroke="#E7E4FE" stroke-width="2"/>
+  <rect x="26" y="25" width="76" height="58" rx="27" fill="url(#purple)"/>
+  <rect x="31" y="30" width="66" height="48" rx="22" fill="url(#face)"/>
+  <rect x="45" y="45" width="8" height="16" rx="4" fill="#54E5F1"/>
+  <rect x="75" y="45" width="8" height="16" rx="4" fill="#54E5F1"/>
+  <path d="M57 64c4.5 6 9.5 6 14 0" fill="none" stroke="#54E5F1" stroke-width="5" stroke-linecap="round"/>
+  <path d="M43 85c4-7 12-10 21-10s17 3 21 10l8 29H35l8-29z" fill="#FAFAFF" stroke="#E7E4FE" stroke-width="2"/>
+  <path d="M43 83c12 8 30 8 42 0" fill="none" stroke="url(#green)" stroke-width="8" stroke-linecap="round"/>
+  <path d="M55 88l28 28" stroke="#24A65B" stroke-width="5" stroke-linecap="round"/>
+  <rect x="71" y="99" width="27" height="22" rx="8" fill="url(#green)"/>
+  <path d="M84.5 105a5.5 5.5 0 00-5.5 5.5c0 4 5.5 8.5 5.5 8.5s5.5-4.5 5.5-8.5a5.5 5.5 0 00-5.5-5.5zm0 3.3a2.2 2.2 0 110 4.4 2.2 2.2 0 010-4.4z" fill="#fff"/>
+  <path d="M38 88L12 78l3 34 28-8-5-16z" fill="#F7F5E9" stroke="#D9D5C7" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M14 82l10 8 8-6 7 16-13 7-10-7" fill="#A7DF76" opacity=".9"/>
+  <path d="M15 96l23-8M25 86l1 22M34 84l-3 22" stroke="#fff" stroke-width="2" opacity=".85"/>
+  <circle cx="17" cy="106" r="5" fill="url(#purple)"/>
+  <path d="M96 89c8-1 14 4 17 11" fill="none" stroke="#FAFAFF" stroke-width="11" stroke-linecap="round"/>
+  <path d="M111 99c5-4 9-3 11 0" fill="none" stroke="url(#purple)" stroke-width="7" stroke-linecap="round"/>
+</svg>
