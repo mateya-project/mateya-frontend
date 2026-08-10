@@ -18,9 +18,16 @@ import '../widgets/home_feedback_states.dart' as home_feedback;
 import '../widgets/nearby_culture_map_widgets.dart';
 
 class NearbyCultureMapPage extends StatefulWidget {
-  const NearbyCultureMapPage({super.key, required this.controller});
+  const NearbyCultureMapPage({
+    super.key,
+    required this.controller,
+    required this.onPlaceDetailTap,
+    required this.onAskAiTap,
+  });
 
   final NearbyCultureMapController controller;
+  final ValueChanged<String> onPlaceDetailTap;
+  final ValueChanged<NearbyCultureMapPlace> onAskAiTap;
 
   @override
   State<NearbyCultureMapPage> createState() => _NearbyCultureMapPageState();
@@ -94,6 +101,16 @@ class _NearbyCultureMapPageState extends State<NearbyCultureMapPage> {
                     controller.phase != AsyncPhase.loading,
               ),
             ),
+            if (controller.selectedPlace case final selectedPlace?)
+              Positioned(
+                left: 16,
+                right: 16,
+                bottom: 178,
+                child: _AiMapActions(
+                  onDetailTap: () => widget.onPlaceDetailTap(selectedPlace.id),
+                  onAskAiTap: () => widget.onAskAiTap(selectedPlace),
+                ),
+              ),
           ],
         );
       },
@@ -133,6 +150,53 @@ class _NearbyCultureMapPageState extends State<NearbyCultureMapPage> {
           },
         );
       },
+    );
+  }
+}
+
+class _AiMapActions extends StatelessWidget {
+  const _AiMapActions({required this.onDetailTap, required this.onAskAiTap});
+
+  final VoidCallback onDetailTap;
+  final VoidCallback onAskAiTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.98),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: const <BoxShadow>[
+          BoxShadow(
+            color: Color(0x26000000),
+            blurRadius: 16,
+            offset: Offset(0, 7),
+          ),
+        ],
+      ),
+      child: Row(
+        children: <Widget>[
+          Expanded(
+            child: OutlinedButton.icon(
+              onPressed: onDetailTap,
+              icon: const Icon(Icons.place_outlined, size: 18),
+              label: const Text('장소 자세히'),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: FilledButton.icon(
+              onPressed: onAskAiTap,
+              style: FilledButton.styleFrom(
+                backgroundColor: const Color(0xFF6759F1),
+              ),
+              icon: const Icon(Icons.auto_awesome_rounded, size: 18),
+              label: const Text('AI에게 묻기'),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

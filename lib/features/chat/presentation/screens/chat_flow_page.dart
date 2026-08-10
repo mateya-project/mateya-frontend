@@ -33,6 +33,7 @@ class ChatFlowPage extends StatefulWidget {
     required this.onExploreTap,
     required this.onPlusTap,
     required this.onProfileTap,
+    this.onOpenAi,
   });
 
   final ChatController controller;
@@ -41,6 +42,7 @@ class ChatFlowPage extends StatefulWidget {
   final VoidCallback onExploreTap;
   final VoidCallback onPlusTap;
   final VoidCallback onProfileTap;
+  final VoidCallback? onOpenAi;
 
   @override
   State<ChatFlowPage> createState() => _ChatFlowPageState();
@@ -577,6 +579,11 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
           ),
         ),
         SizedBox(height: sectionSpacing),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: _AiChatEntryCard(onTap: widget.onOpenAi ?? () {}),
+        ),
+        SizedBox(height: sectionSpacing),
         Expanded(
           child: _buildListBody(
             context,
@@ -764,6 +771,58 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
         ],
       ),
     };
+  }
+}
+
+class _AiChatEntryCard extends StatelessWidget {
+  const _AiChatEntryCard({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(18),
+      child: Container(
+        padding: const EdgeInsets.all(15),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF8F7FF),
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: const Color(0xFFE7E4FE)),
+        ),
+        child: const Row(
+          children: <Widget>[
+            CircleAvatar(
+              radius: 23,
+              backgroundColor: Color(0xFF6759F1),
+              child: Icon(Icons.explore_rounded, color: Colors.white),
+            ),
+            SizedBox(width: 13),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(
+                    'MateYa AI 여행 가이드',
+                    style: TextStyle(fontWeight: FontWeight.w800),
+                  ),
+                  SizedBox(height: 3),
+                  Text(
+                    '새 계획을 만들거나 지난 추천을 이어보세요.',
+                    style: TextStyle(
+                      color: AppColors.textSecondary,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.chevron_right_rounded, color: Color(0xFF6759F1)),
+          ],
+        ),
+      ),
+    );
   }
 }
 

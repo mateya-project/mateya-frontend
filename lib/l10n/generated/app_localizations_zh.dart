@@ -2368,6 +2368,164 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get homeExploreLoadMoreFailedServer => '无法加载更多结果。请稍后再试。';
+
+  @override
+  String get aiChatTitle => 'AI聊天';
+
+  @override
+  String get aiGuideSubtitle => '本地分流旅行向导';
+
+  @override
+  String get aiArchiveConversation => '归档对话';
+
+  @override
+  String get aiContinueTitle => '继续规划';
+
+  @override
+  String get aiStartHeadline => '保留热门景点的魅力，\n把旅行路线延伸到本地街区。';
+
+  @override
+  String get aiNewTravelPlan => '新旅行计划';
+
+  @override
+  String get aiContinueConditions => '请继续告诉我旅行条件。';
+
+  @override
+  String get aiWelcome => '请告诉我想去的地点和日期。我会一起比较较不拥挤的日期、相似的本地地点和可参加的聚会。';
+
+  @override
+  String get aiGallerySelect => '从相册选择';
+
+  @override
+  String get aiCameraTake => '拍照';
+
+  @override
+  String get aiPhotoLoadFailed => '无法加载照片。请检查权限和文件状态。';
+
+  @override
+  String get aiPhotoSendFailed => '无法发送照片。请稍后重试。';
+
+  @override
+  String get aiLocationUnavailable => '无法获取位置，将仅发送照片。';
+
+  @override
+  String get aiUploadingPhoto => '正在安全上传照片';
+
+  @override
+  String get aiCheckingData => '正在核对公共旅游数据';
+
+  @override
+  String aiPlaceSearchResult(String query) {
+    return '“$query”的搜索结果';
+  }
+
+  @override
+  String aiSelectAnchor(String name) {
+    return '将$name设为参考地点';
+  }
+
+  @override
+  String aiScore(int score) {
+    return '$score分';
+  }
+
+  @override
+  String get aiViewPlace => '查看地点';
+
+  @override
+  String get aiCreateActivity => '创建聚会';
+
+  @override
+  String get aiViewActivity => '查看聚会';
+
+  @override
+  String aiAttachmentRemove(int index) {
+    return '删除附件照片$index';
+  }
+
+  @override
+  String get aiShareCurrentLocation => '同时发送当前位置';
+
+  @override
+  String get aiShareLocationNotice => '仅在选择后发送位置，并在对话保存期间内存储。';
+
+  @override
+  String get aiAttachPhoto => '添加照片';
+
+  @override
+  String get aiComposerHint => '输入地点、日期或旅行偏好';
+
+  @override
+  String get aiSendMessage => '发送AI消息';
+
+  @override
+  String get aiPlaceDetailTitle => '地点详情';
+
+  @override
+  String get aiFavoriteAdd => '收藏地点';
+
+  @override
+  String get aiFavoriteRemove => '取消地点收藏';
+
+  @override
+  String get aiFavoriteFailed => '无法更新地点收藏状态。';
+
+  @override
+  String get aiRecommendationPoint => 'MateYa AI推荐亮点';
+
+  @override
+  String get aiAskAboutPlace => '向AI询问此地点';
+
+  @override
+  String get aiEvidenceNotice =>
+      '依据：韩国观光公社关联景点、访问集中趋势数据及MateYa地点数据。集中度并非实时人数或绝对拥挤程度。';
+
+  @override
+  String get aiPlaceActivities => '此地点的聚会';
+
+  @override
+  String get aiNoActivities => '目前没有招募中的聚会。来创建第一个吧。';
+
+  @override
+  String get aiCreateAtPlace => '在此地点创建聚会';
+
+  @override
+  String get aiCreateNewActivity => '创建新聚会';
+
+  @override
+  String get aiHomeGuideTitle => 'MateYa AI旅行向导';
+
+  @override
+  String get aiHomeHeadline => '不只看热门景点，\n找到适合你的本地去处';
+
+  @override
+  String get aiHomeAsk => '向AI咨询旅行';
+
+  @override
+  String get aiHomeLocalTitle => 'AI本地分流推荐';
+
+  @override
+  String get aiHomeLocalDescription => '依据韩国观光公社关联景点数据，挑选了魅力相似的本地区域。';
+
+  @override
+  String get aiHomeEmpty => '正在准备本地分流推荐。在AI聊天中选择参考地点即可立即搜索。';
+
+  @override
+  String get aiConversationListLoadFailed => '无法加载AI对话列表。';
+
+  @override
+  String get aiConversationStartFailed => '无法开始新的旅行计划。';
+
+  @override
+  String get aiConversationLoadFailed => '无法加载AI对话。';
+
+  @override
+  String get aiRecommendationLoadFailed => '无法加载推荐。请稍后重试。';
+
+  @override
+  String aiPlaceLocalReason(String region) {
+    return '这个地点可以拓展$region的本地体验，并帮助分散热门景点的访问集中。';
+  }
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -4734,4 +4892,162 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get homeExploreLoadMoreFailedServer => '无法加载更多结果。请稍后再试。';
+
+  @override
+  String get aiChatTitle => 'AI聊天';
+
+  @override
+  String get aiGuideSubtitle => '本地分流旅行向导';
+
+  @override
+  String get aiArchiveConversation => '归档对话';
+
+  @override
+  String get aiContinueTitle => '继续规划';
+
+  @override
+  String get aiStartHeadline => '保留热门景点的魅力，\n把旅行路线延伸到本地街区。';
+
+  @override
+  String get aiNewTravelPlan => '新旅行计划';
+
+  @override
+  String get aiContinueConditions => '请继续告诉我旅行条件。';
+
+  @override
+  String get aiWelcome => '请告诉我想去的地点和日期。我会一起比较较不拥挤的日期、相似的本地地点和可参加的聚会。';
+
+  @override
+  String get aiGallerySelect => '从相册选择';
+
+  @override
+  String get aiCameraTake => '拍照';
+
+  @override
+  String get aiPhotoLoadFailed => '无法加载照片。请检查权限和文件状态。';
+
+  @override
+  String get aiPhotoSendFailed => '无法发送照片。请稍后重试。';
+
+  @override
+  String get aiLocationUnavailable => '无法获取位置，将仅发送照片。';
+
+  @override
+  String get aiUploadingPhoto => '正在安全上传照片';
+
+  @override
+  String get aiCheckingData => '正在核对公共旅游数据';
+
+  @override
+  String aiPlaceSearchResult(String query) {
+    return '“$query”的搜索结果';
+  }
+
+  @override
+  String aiSelectAnchor(String name) {
+    return '将$name设为参考地点';
+  }
+
+  @override
+  String aiScore(int score) {
+    return '$score分';
+  }
+
+  @override
+  String get aiViewPlace => '查看地点';
+
+  @override
+  String get aiCreateActivity => '创建聚会';
+
+  @override
+  String get aiViewActivity => '查看聚会';
+
+  @override
+  String aiAttachmentRemove(int index) {
+    return '删除附件照片$index';
+  }
+
+  @override
+  String get aiShareCurrentLocation => '同时发送当前位置';
+
+  @override
+  String get aiShareLocationNotice => '仅在选择后发送位置，并在对话保存期间内存储。';
+
+  @override
+  String get aiAttachPhoto => '添加照片';
+
+  @override
+  String get aiComposerHint => '输入地点、日期或旅行偏好';
+
+  @override
+  String get aiSendMessage => '发送AI消息';
+
+  @override
+  String get aiPlaceDetailTitle => '地点详情';
+
+  @override
+  String get aiFavoriteAdd => '收藏地点';
+
+  @override
+  String get aiFavoriteRemove => '取消地点收藏';
+
+  @override
+  String get aiFavoriteFailed => '无法更新地点收藏状态。';
+
+  @override
+  String get aiRecommendationPoint => 'MateYa AI推荐亮点';
+
+  @override
+  String get aiAskAboutPlace => '向AI询问此地点';
+
+  @override
+  String get aiEvidenceNotice =>
+      '依据：韩国观光公社关联景点、访问集中趋势数据及MateYa地点数据。集中度并非实时人数或绝对拥挤程度。';
+
+  @override
+  String get aiPlaceActivities => '此地点的聚会';
+
+  @override
+  String get aiNoActivities => '目前没有招募中的聚会。来创建第一个吧。';
+
+  @override
+  String get aiCreateAtPlace => '在此地点创建聚会';
+
+  @override
+  String get aiCreateNewActivity => '创建新聚会';
+
+  @override
+  String get aiHomeGuideTitle => 'MateYa AI旅行向导';
+
+  @override
+  String get aiHomeHeadline => '不只看热门景点，\n找到适合你的本地去处';
+
+  @override
+  String get aiHomeAsk => '向AI咨询旅行';
+
+  @override
+  String get aiHomeLocalTitle => 'AI本地分流推荐';
+
+  @override
+  String get aiHomeLocalDescription => '依据韩国观光公社关联景点数据，挑选了魅力相似的本地区域。';
+
+  @override
+  String get aiHomeEmpty => '正在准备本地分流推荐。在AI聊天中选择参考地点即可立即搜索。';
+
+  @override
+  String get aiConversationListLoadFailed => '无法加载AI对话列表。';
+
+  @override
+  String get aiConversationStartFailed => '无法开始新的旅行计划。';
+
+  @override
+  String get aiConversationLoadFailed => '无法加载AI对话。';
+
+  @override
+  String get aiRecommendationLoadFailed => '无法加载推荐。请稍后重试。';
+
+  @override
+  String aiPlaceLocalReason(String region) {
+    return '这个地点可以拓展$region的本地体验，并帮助分散热门景点的访问集中。';
+  }
 }

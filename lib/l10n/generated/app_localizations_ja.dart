@@ -2446,4 +2446,163 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String get homeExploreLoadMoreFailedServer =>
       '追加の結果を読み込めませんでした。しばらくしてからもう一度お試しください。';
+
+  @override
+  String get aiChatTitle => 'AIチャット';
+
+  @override
+  String get aiGuideSubtitle => '地域分散型トラベルガイド';
+
+  @override
+  String get aiArchiveConversation => '会話を保管';
+
+  @override
+  String get aiContinueTitle => '続きから';
+
+  @override
+  String get aiStartHeadline => '有名観光地の魅力はそのままに、\n旅の動線を地域へ広げましょう。';
+
+  @override
+  String get aiNewTravelPlan => '新しい旅行プラン';
+
+  @override
+  String get aiContinueConditions => '旅行条件の続きを教えてください。';
+
+  @override
+  String get aiWelcome =>
+      '行きたい場所と日程を教えてください。比較的空いている日、似た地域スポット、参加できる集まりを一緒に探します。';
+
+  @override
+  String get aiGallerySelect => 'アルバムから選択';
+
+  @override
+  String get aiCameraTake => '写真を撮る';
+
+  @override
+  String get aiPhotoLoadFailed => '写真を読み込めませんでした。権限とファイルを確認してください。';
+
+  @override
+  String get aiPhotoSendFailed => '写真を送信できませんでした。しばらくしてから再試行してください。';
+
+  @override
+  String get aiLocationUnavailable => '位置を確認できなかったため、写真のみ送信します。';
+
+  @override
+  String get aiUploadingPhoto => '写真を安全にアップロードしています';
+
+  @override
+  String get aiCheckingData => '公共観光データを確認しています';
+
+  @override
+  String aiPlaceSearchResult(String query) {
+    return '「$query」の検索結果';
+  }
+
+  @override
+  String aiSelectAnchor(String name) {
+    return '$nameを基準場所に選択';
+  }
+
+  @override
+  String aiScore(int score) {
+    return '$score点';
+  }
+
+  @override
+  String get aiViewPlace => '場所を見る';
+
+  @override
+  String get aiCreateActivity => '集まりを作る';
+
+  @override
+  String get aiViewActivity => '集まりを見る';
+
+  @override
+  String aiAttachmentRemove(int index) {
+    return '添付写真$indexを削除';
+  }
+
+  @override
+  String get aiShareCurrentLocation => '現在地も一緒に送る';
+
+  @override
+  String get aiShareLocationNotice => '選択した場合のみ位置が送信され、会話の保管期間中保存されます。';
+
+  @override
+  String get aiAttachPhoto => '写真を添付';
+
+  @override
+  String get aiComposerHint => '場所名、日付、旅行の好みを入力';
+
+  @override
+  String get aiSendMessage => 'AIメッセージを送信';
+
+  @override
+  String get aiPlaceDetailTitle => '場所の詳細';
+
+  @override
+  String get aiFavoriteAdd => '場所をお気に入りに追加';
+
+  @override
+  String get aiFavoriteRemove => '場所のお気に入りを解除';
+
+  @override
+  String get aiFavoriteFailed => '場所のお気に入りを変更できませんでした。';
+
+  @override
+  String get aiRecommendationPoint => 'MateYa AIおすすめポイント';
+
+  @override
+  String get aiAskAboutPlace => 'この場所についてAIに質問';
+
+  @override
+  String get aiEvidenceNotice =>
+      '根拠：韓国観光公社の関連観光地・訪問集中推移データとMateYaの場所データ。集中度はリアルタイム人数や絶対的な混雑度ではありません。';
+
+  @override
+  String get aiPlaceActivities => 'この場所の集まり';
+
+  @override
+  String get aiNoActivities => '募集中の集まりはまだありません。最初の集まりを作ってみましょう。';
+
+  @override
+  String get aiCreateAtPlace => 'この場所で集まりを作る';
+
+  @override
+  String get aiCreateNewActivity => '新しい集まりを作る';
+
+  @override
+  String get aiHomeGuideTitle => 'MateYa AIトラベルガイド';
+
+  @override
+  String get aiHomeHeadline => '有名観光地だけでなく\n自分に合う地域スポットを探そう';
+
+  @override
+  String get aiHomeAsk => 'AIに旅行を相談';
+
+  @override
+  String get aiHomeLocalTitle => 'AI地域分散おすすめ';
+
+  @override
+  String get aiHomeLocalDescription => '韓国観光公社の関連観光地データから似た魅力の地域を選びました。';
+
+  @override
+  String get aiHomeEmpty => '地域分散おすすめを準備しています。AIチャットでは基準場所を選んですぐ検索できます。';
+
+  @override
+  String get aiConversationListLoadFailed => 'AI会話一覧を読み込めませんでした。';
+
+  @override
+  String get aiConversationStartFailed => '新しい旅行プランを開始できませんでした。';
+
+  @override
+  String get aiConversationLoadFailed => 'AI会話を読み込めませんでした。';
+
+  @override
+  String get aiRecommendationLoadFailed => 'おすすめを読み込めませんでした。しばらくしてから再試行してください。';
+
+  @override
+  String aiPlaceLocalReason(String region) {
+    return '$regionでの地域体験を広げ、有名観光地への訪問集中を分散できる場所です。';
+  }
 }
