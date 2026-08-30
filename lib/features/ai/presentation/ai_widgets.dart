@@ -8,7 +8,8 @@ abstract final class AiColors {
   static const purple100 = Color(0xFFF0EEFF);
   static const purple200 = Color(0xFFE7E4FE);
   static const purple300 = Color(0xFFCFC9FD);
-  static const purple600 = Color(0xFF6759F1);
+  static const purple600 = Color(0xFF5141ED);
+  static const purple700 = Color(0xFF3F2FEB);
   static const purple800 = Color(0xFF3325C5);
 }
 
@@ -23,23 +24,13 @@ class AiRobotAvatar extends StatelessWidget {
       width: size,
       height: size,
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: <Color>[AiColors.purple600, AiColors.purple800],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(size * 0.32),
-        boxShadow: const <BoxShadow>[
-          BoxShadow(
-            color: Color(0x336759F1),
-            blurRadius: 14,
-            offset: Offset(0, 6),
-          ),
-        ],
+        color: AiColors.purple100,
+        shape: BoxShape.circle,
+        border: Border.all(color: AiColors.purple200),
       ),
       alignment: Alignment.center,
       child: Padding(
-        padding: EdgeInsets.all(size * 0.04),
+        padding: EdgeInsets.all(size * 0.02),
         child: SvgPicture.asset(
           'assets/images/mateya_ai_travel_guide.svg',
           width: size * 0.92,
@@ -70,7 +61,7 @@ class AiPrimaryButton extends StatelessWidget {
     final button = FilledButton.icon(
       onPressed: onPressed,
       style: FilledButton.styleFrom(
-        backgroundColor: AiColors.purple600,
+        backgroundColor: AiColors.purple700,
         foregroundColor: Colors.white,
         minimumSize: const Size(0, 48),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),

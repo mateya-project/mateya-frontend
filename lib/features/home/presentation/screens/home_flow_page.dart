@@ -368,6 +368,9 @@ class _HomeFlowPageState extends State<HomeFlowPage> with RouteAware {
         onPlusTap: _togglePlusOverlay,
         onProfileTap: _openProfileTab,
         onOpenAi: _openAiConversations,
+        onStartAi: () => _openAiConversations(
+          seed: const AiConversationSeed(entryPoint: 'CHAT_LIST'),
+        ),
       );
     }
     if (_controller.section == HomeSection.profile) {
@@ -411,7 +414,9 @@ class _HomeFlowPageState extends State<HomeFlowPage> with RouteAware {
                     onSearchTap: _openExploreAndFocus,
                     onActivityTap: _openActivityDetail,
                     aiRepository: _aiRepository,
-                    onAiTap: _openAiConversations,
+                    onAiTap: () => _openAiConversations(
+                      seed: const AiConversationSeed(entryPoint: 'HOME'),
+                    ),
                     onPlaceTap: _openAiPlaceDetail,
                   ),
                   HomeSection.explore => ExploreScreen(
@@ -543,6 +548,23 @@ class _HomeFlowPageState extends State<HomeFlowPage> with RouteAware {
           onCreateActivityTap: _openCreateFromAiPlaceId,
           onActivityTap: _openAiActivityDetail,
           onOpenNearbyMap: _openNearbyMapFromAi,
+          onHomeTap: () {
+            Navigator.of(context).pop();
+            _openHomeTab();
+          },
+          onExploreTap: () {
+            Navigator.of(context).pop();
+            _openExploreTab();
+          },
+          onPlusTap: () {
+            Navigator.of(context).pop();
+            _togglePlusOverlay();
+          },
+          onChatTap: () => Navigator.of(context).pop(),
+          onProfileTap: () {
+            Navigator.of(context).pop();
+            _openProfileTab();
+          },
         ),
       ),
     );

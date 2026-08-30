@@ -119,6 +119,7 @@ class MultilineField extends StatefulWidget {
     required this.maxLength,
     required this.errorText,
     required this.onChanged,
+    this.minLines = 6,
   });
 
   final TextEditingController controller;
@@ -126,6 +127,7 @@ class MultilineField extends StatefulWidget {
   final int maxLength;
   final String? errorText;
   final ValueChanged<String> onChanged;
+  final int minLines;
 
   @override
   State<MultilineField> createState() => _MultilineFieldState();
@@ -178,7 +180,7 @@ class _MultilineFieldState extends State<MultilineField> {
               TextField(
                 controller: widget.controller,
                 focusNode: _focusNode,
-                minLines: 6,
+                minLines: widget.minLines,
                 maxLines: 10,
                 maxLength: widget.maxLength,
                 onChanged: widget.onChanged,

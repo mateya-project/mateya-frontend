@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../shared/localization/mateya_localizations.dart';
 import '../../../shared/theme/app_tokens.dart';
+import '../../../shared/widgets/mateya_header.dart';
 import '../data/ai_repository.dart';
 import '../domain/ai_models.dart';
 import 'ai_widgets.dart';
@@ -69,7 +70,23 @@ class _AiPlaceDetailPageState extends State<AiPlaceDetailPage> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.white,
-        title: Text(context.l10n.aiPlaceDetailTitle),
+        toolbarHeight: 68,
+        centerTitle: true,
+        title: const _MateyaWordmark(),
+        leading: const BackButton(),
+        actions: const <Widget>[
+          Padding(
+            padding: EdgeInsets.only(right: 12),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                AiRobotAvatar(size: 28),
+                SizedBox(width: 6),
+                MateyaLanguageButton(),
+              ],
+            ),
+          ),
+        ],
       ),
       body: FutureBuilder<(AiPlaceDetail, List<AiPlaceActivity>)>(
         future: _data,
@@ -129,46 +146,77 @@ class _PlaceDetailContent extends StatelessWidget {
           child: ListView(
             padding: const EdgeInsets.only(bottom: 24),
             children: <Widget>[
-              SizedBox(
-                height: 250,
-                child: place.previewImageUrl == null
-                    ? const ColoredBox(
-                        color: AiColors.purple100,
-                        child: Icon(
-                          Icons.landscape_rounded,
-                          size: 72,
-                          color: AiColors.purple600,
-                        ),
-                      )
-                    : Image.network(
-                        place.previewImageUrl!,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, _, _) => const ColoredBox(
-                          color: AiColors.purple100,
-                          child: Icon(Icons.landscape_rounded, size: 72),
-                        ),
-                      ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 13),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: SizedBox(
+                    height: 200,
+                    width: double.infinity,
+                    child: place.previewImageUrl == null
+                        ? const ColoredBox(
+                            color: AiColors.purple100,
+                            child: Icon(
+                              Icons.landscape_rounded,
+                              size: 72,
+                              color: AiColors.purple600,
+                            ),
+                          )
+                        : Image.network(
+                            place.previewImageUrl!,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, _, _) => const ColoredBox(
+                              color: AiColors.purple100,
+                              child: Icon(Icons.landscape_rounded, size: 72),
+                            ),
+                          ),
+                  ),
+                ),
               ),
               Padding(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.fromLTRB(20, 22, 20, 20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    Text(
-                      place.categoryDetailName ?? place.category,
-                      style: const TextStyle(
-                        color: AiColors.purple800,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
                     Row(
                       children: <Widget>[
                         Expanded(
                           child: Text(
                             place.name,
                             style: Theme.of(context).textTheme.headlineMedium
-                                ?.copyWith(fontWeight: FontWeight.w900),
+                                ?.copyWith(
+                                  fontWeight: FontWeight.w900,
+                                  fontSize: 23,
+                                ),
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AiColors.purple50,
+                            borderRadius: BorderRadius.circular(999),
+                          ),
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: <Widget>[
+                              Icon(
+                                Icons.smart_toy_outlined,
+                                size: 12,
+                                color: AiColors.purple700,
+                              ),
+                              SizedBox(width: 3),
+                              Text(
+                                'MateYa AI 추천',
+                                style: TextStyle(
+                                  color: AiColors.purple700,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                         Semantics(
@@ -191,29 +239,29 @@ class _PlaceDetailContent extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 8),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    const SizedBox(height: 10),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 4,
                       children: <Widget>[
-                        const Icon(Icons.place_outlined, size: 18),
-                        const SizedBox(width: 6),
-                        Expanded(child: Text(place.address)),
+                        _MetadataLabel(
+                          icon: Icons.location_on_outlined,
+                          label: place.address,
+                        ),
+                        if ((place.categoryDetailName ?? place.category)
+                            .isNotEmpty)
+                          _MetadataLabel(
+                            icon: Icons.account_balance_outlined,
+                            label: place.categoryDetailName ?? place.category,
+                          ),
                       ],
                     ),
-                    if (place.description.isNotEmpty) ...<Widget>[
-                      const SizedBox(height: 18),
-                      Text(
-                        place.description,
-                        style: const TextStyle(height: 1.6),
-                      ),
-                    ],
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 18),
                     Container(
                       padding: const EdgeInsets.all(18),
                       decoration: BoxDecoration(
                         color: AiColors.purple50,
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: AiColors.purple200),
+                        borderRadius: BorderRadius.circular(12),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -223,9 +271,9 @@ class _PlaceDetailContent extends StatelessWidget {
                               const AiRobotAvatar(size: 40),
                               const SizedBox(width: 10),
                               Text(
-                                context.l10n.aiRecommendationPoint,
+                                '${place.name}과 비슷한 로컬 경험',
                                 style: const TextStyle(
-                                  color: AiColors.purple800,
+                                  color: AppColors.textPrimary,
                                   fontWeight: FontWeight.w800,
                                 ),
                               ),
@@ -238,16 +286,56 @@ class _PlaceDetailContent extends StatelessWidget {
                             ),
                             style: const TextStyle(height: 1.5),
                           ),
-                          const SizedBox(height: 14),
-                          AiPrimaryButton(
-                            label: context.l10n.aiAskAboutPlace,
-                            onPressed: onAskAi,
+                          const SizedBox(height: 12),
+                          const Wrap(
+                            spacing: 8,
+                            children: <Widget>[
+                              Chip(
+                                avatar: Icon(
+                                  Icons.auto_awesome_rounded,
+                                  size: 15,
+                                  color: AiColors.purple700,
+                                ),
+                                label: Text('비슷한 경험'),
+                              ),
+                              Chip(
+                                avatar: Icon(
+                                  Icons.hub_outlined,
+                                  size: 15,
+                                  color: AiColors.purple700,
+                                ),
+                                label: Text('지역 분산'),
+                              ),
+                            ],
                           ),
                         ],
                       ),
                     ),
                     const SizedBox(height: 16),
-                    AiEvidenceNotice(text: context.l10n.aiEvidenceNotice),
+                    Container(
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: AppColors.divider),
+                      ),
+                      child: Row(
+                        children: <Widget>[
+                          const Icon(
+                            Icons.bar_chart_rounded,
+                            color: AiColors.purple700,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              context.l10n.aiEvidenceNotice,
+                              style: const TextStyle(fontSize: 12, height: 1.4),
+                            ),
+                          ),
+                          const Icon(Icons.chevron_right_rounded),
+                        ],
+                      ),
+                    ),
                     const SizedBox(height: 28),
                     Text(
                       context.l10n.aiPlaceActivities,
@@ -265,16 +353,43 @@ class _PlaceDetailContent extends StatelessWidget {
                       )
                     else
                       for (final activity in activities)
-                        ListTile(
-                          onTap: () => onActivityTap(activity.id),
-                          contentPadding: EdgeInsets.zero,
-                          leading: const CircleAvatar(
-                            backgroundColor: AiColors.purple100,
-                            child: Icon(Icons.groups_rounded),
+                        Container(
+                          margin: const EdgeInsets.only(bottom: 10),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: AppColors.divider),
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                          title: Text(activity.title),
-                          subtitle: Text(activity.placeName),
+                          child: ListTile(
+                            onTap: () => onActivityTap(activity.id),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 5,
+                            ),
+                            leading: const CircleAvatar(
+                              backgroundColor: AiColors.purple100,
+                              child: Icon(Icons.groups_rounded),
+                            ),
+                            title: Text(activity.title),
+                            subtitle: Text(activity.placeName),
+                            trailing: const Icon(Icons.chevron_right_rounded),
+                          ),
                         ),
+                    const SizedBox(height: 4),
+                    OutlinedButton.icon(
+                      onPressed: onAskAi,
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppColors.brandGreen,
+                        side: const BorderSide(
+                          color: AppColors.softGreenBorder,
+                        ),
+                        minimumSize: const Size(double.infinity, 46),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      icon: const AiRobotAvatar(size: 24),
+                      label: const Text('다른 날짜와 장소를 AI에게 물어보기'),
+                    ),
                   ],
                 ),
               ),
@@ -287,13 +402,85 @@ class _PlaceDetailContent extends StatelessWidget {
             color: Colors.white,
             border: Border(top: BorderSide(color: AppColors.divider)),
           ),
-          child: AiPrimaryButton(
-            label: activities.isEmpty
-                ? context.l10n.aiCreateAtPlace
-                : context.l10n.aiCreateNewActivity,
-            icon: Icons.group_add_outlined,
-            onPressed: onCreateActivity,
+          child: Row(
+            children: <Widget>[
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: onCreateActivity,
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.brandGreen,
+                    side: const BorderSide(color: AppColors.brandGreen),
+                    minimumSize: const Size(0, 48),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: Text(context.l10n.aiCreateAtPlace),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: FilledButton(
+                  onPressed: activities.isEmpty
+                      ? onAskAi
+                      : () => onActivityTap(activities.first.id),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: AppColors.brandGreen,
+                    minimumSize: const Size(0, 48),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: Text(activities.isEmpty ? 'AI에게 물어보기' : '모임 참여하기'),
+                ),
+              ),
+            ],
           ),
+        ),
+      ],
+    );
+  }
+}
+
+class _MateyaWordmark extends StatelessWidget {
+  const _MateyaWordmark();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Text.rich(
+      TextSpan(
+        children: <InlineSpan>[
+          TextSpan(
+            text: 'Mate',
+            style: TextStyle(color: Colors.black),
+          ),
+          TextSpan(
+            text: 'Ya',
+            style: TextStyle(color: AppColors.brandGreen),
+          ),
+        ],
+      ),
+      style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900),
+    );
+  }
+}
+
+class _MetadataLabel extends StatelessWidget {
+  const _MetadataLabel({required this.icon, required this.label});
+
+  final IconData icon;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        Icon(icon, size: 14, color: AppColors.textSecondary),
+        const SizedBox(width: 3),
+        Text(
+          label,
+          style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
         ),
       ],
     );

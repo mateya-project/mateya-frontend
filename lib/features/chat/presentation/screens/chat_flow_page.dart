@@ -16,6 +16,7 @@ import '../../../../shared/widgets/mateya_header.dart';
 import '../../../../shared/widgets/mateya_motion.dart';
 import '../../../../shared/widgets/mateya_report_sheet.dart';
 import '../../../onboarding/domain/onboarding_flow.dart';
+import '../../../ai/presentation/ai_widgets.dart';
 import '../../application/chat_controller.dart';
 import '../../domain/chat_models.dart';
 import '../widgets/chat_composer_widgets.dart';
@@ -34,6 +35,7 @@ class ChatFlowPage extends StatefulWidget {
     required this.onPlusTap,
     required this.onProfileTap,
     this.onOpenAi,
+    this.onStartAi,
   });
 
   final ChatController controller;
@@ -43,6 +45,7 @@ class ChatFlowPage extends StatefulWidget {
   final VoidCallback onPlusTap;
   final VoidCallback onProfileTap;
   final VoidCallback? onOpenAi;
+  final VoidCallback? onStartAi;
 
   @override
   State<ChatFlowPage> createState() => _ChatFlowPageState();
@@ -581,7 +584,10 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
         SizedBox(height: sectionSpacing),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: _AiChatEntryCard(onTap: widget.onOpenAi ?? () {}),
+          child: _AiChatEntryCard(
+            onStart: widget.onStartAi ?? widget.onOpenAi ?? () {},
+            onContinue: widget.onOpenAi ?? () {},
+          ),
         ),
         SizedBox(height: sectionSpacing),
         Expanded(
@@ -775,52 +781,119 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
 }
 
 class _AiChatEntryCard extends StatelessWidget {
-  const _AiChatEntryCard({required this.onTap});
+  const _AiChatEntryCard({required this.onStart, required this.onContinue});
 
-  final VoidCallback onTap;
+  final VoidCallback onStart;
+  final VoidCallback onContinue;
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(18),
-      child: Container(
-        padding: const EdgeInsets.all(15),
-        decoration: BoxDecoration(
-          color: const Color(0xFFF8F7FF),
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: const Color(0xFFE7E4FE)),
-        ),
-        child: const Row(
-          children: <Widget>[
-            CircleAvatar(
-              radius: 23,
-              backgroundColor: Color(0xFF6759F1),
-              child: Icon(Icons.explore_rounded, color: Colors.white),
-            ),
-            SizedBox(width: 13),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text(
-                    'MateYa AI 여행 가이드',
-                    style: TextStyle(fontWeight: FontWeight.w800),
-                  ),
-                  SizedBox(height: 3),
-                  Text(
-                    '새 계획을 만들거나 지난 추천을 이어보세요.',
-                    style: TextStyle(
-                      color: AppColors.textSecondary,
-                      fontSize: 12,
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8F7FF),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.divider),
+      ),
+      child: Column(
+        children: <Widget>[
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              const AiRobotAvatar(size: 82),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Row(
+                      children: <Widget>[
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFEDEAFF),
+                            borderRadius: BorderRadius.circular(999),
+                          ),
+                          child: const Text(
+                            '✨ MateYa AI',
+                            style: TextStyle(
+                              color: Color(0xFF3F2FEB),
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                        const Spacer(),
+                        const Icon(
+                          Icons.push_pin_rounded,
+                          color: Color(0xFF8B80E8),
+                          size: 20,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 7),
+                    const Text(
+                      '로컬 여행 도우미',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    const Text(
+                      '붐비지 않는 로컬 여행을 찾아드려요',
+                      style: TextStyle(
+                        color: AppColors.textSecondary,
+                        fontSize: 11,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: <Widget>[
+              const SizedBox(width: 94),
+              Expanded(
+                child: FilledButton.icon(
+                  onPressed: onStart,
+                  style: FilledButton.styleFrom(
+                    backgroundColor: const Color(0xFF5E4DF3),
+                    minimumSize: const Size(0, 38),
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                ],
+                  icon: const Icon(Icons.auto_awesome_rounded, size: 15),
+                  label: const Text('새 여행 계획', style: TextStyle(fontSize: 11)),
+                ),
               ),
-            ),
-            Icon(Icons.chevron_right_rounded, color: Color(0xFF6759F1)),
-          ],
-        ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: onContinue,
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: const Color(0xFF5E4DF3),
+                    side: const BorderSide(color: Color(0xFFCFC9FD)),
+                    minimumSize: const Size(0, 38),
+                    padding: const EdgeInsets.symmetric(horizontal: 7),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  icon: const Icon(Icons.history_rounded, size: 15),
+                  label: const Text('이어서 하기', style: TextStyle(fontSize: 11)),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
