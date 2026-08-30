@@ -7,6 +7,8 @@ import 'package:intl/intl.dart';
 
 import '../../../shared/localization/mateya_localizations.dart';
 import '../../../shared/theme/app_tokens.dart';
+import '../../../shared/widgets/mateya_bottom_navigation.dart';
+import '../../../shared/widgets/mateya_header.dart';
 import '../../onboarding/domain/onboarding_flow.dart';
 import '../application/ai_conversation_controller.dart';
 import '../data/ai_repository.dart';
@@ -22,6 +24,11 @@ class AiConversationFlowPage extends StatefulWidget {
     this.onCreateActivityTap,
     this.onActivityTap,
     this.onOpenNearbyMap,
+    this.onHomeTap,
+    this.onExploreTap,
+    this.onPlusTap,
+    this.onChatTap,
+    this.onProfileTap,
   });
 
   final AiRepository repository;
@@ -30,6 +37,11 @@ class AiConversationFlowPage extends StatefulWidget {
   final ValueChanged<String>? onCreateActivityTap;
   final ValueChanged<String>? onActivityTap;
   final VoidCallback? onOpenNearbyMap;
+  final VoidCallback? onHomeTap;
+  final VoidCallback? onExploreTap;
+  final VoidCallback? onPlusTap;
+  final VoidCallback? onChatTap;
+  final VoidCallback? onProfileTap;
 
   @override
   State<AiConversationFlowPage> createState() => _AiConversationFlowPageState();
@@ -212,21 +224,28 @@ class _AiConversationFlowPageState extends State<AiConversationFlowPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.white,
+        foregroundColor: AppColors.textPrimary,
+        toolbarHeight: 84,
+        centerTitle: true,
         titleSpacing: 0,
         title: _controller.isRoomOpen
             ? const _AiHeaderTitle()
-            : Text(context.l10n.aiChatTitle),
+            : const _MateyaAiWordmark(),
         leading: IconButton(
           onPressed: _controller.isRoomOpen
               ? _controller.closeConversation
               : () => Navigator.of(context).pop(),
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
+          icon: const Icon(Icons.arrow_back_rounded),
         ),
         actions: <Widget>[
+          const Padding(
+            padding: EdgeInsets.only(right: 4),
+            child: MateyaLanguageButton(),
+          ),
           if (_controller.isRoomOpen)
             PopupMenuButton<String>(
               onSelected: (value) {
@@ -247,6 +266,18 @@ class _AiConversationFlowPageState extends State<AiConversationFlowPage> {
         top: false,
         child: _controller.isRoomOpen ? _buildRoom() : _buildList(),
       ),
+      bottomNavigationBar: MediaQuery.viewInsetsOf(context).bottom > 0
+          ? null
+          : MateyaBottomNavigation(
+              currentTab: MateyaBottomTab.chat,
+              onHomeTap: widget.onHomeTap ?? () => Navigator.of(context).pop(),
+              onExploreTap:
+                  widget.onExploreTap ?? () => Navigator.of(context).pop(),
+              onPlusTap: widget.onPlusTap ?? () {},
+              onChatTap: widget.onChatTap ?? () => Navigator.of(context).pop(),
+              onProfileTap:
+                  widget.onProfileTap ?? () => Navigator.of(context).pop(),
+            ),
     );
   }
 
@@ -417,6 +448,29 @@ class _AiHeaderTitle extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _MateyaAiWordmark extends StatelessWidget {
+  const _MateyaAiWordmark();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Text.rich(
+      TextSpan(
+        children: <InlineSpan>[
+          TextSpan(
+            text: 'Mate',
+            style: TextStyle(color: Colors.black),
+          ),
+          TextSpan(
+            text: 'Ya',
+            style: TextStyle(color: AppColors.brandGreen),
+          ),
+        ],
+      ),
+      style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900),
     );
   }
 }
@@ -624,7 +678,7 @@ class _MessageBubble extends StatelessWidget {
           constraints: const BoxConstraints(maxWidth: 280),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
-            color: AiColors.purple600,
+            color: AppColors.brandGreen,
             borderRadius: BorderRadius.circular(18),
           ),
           child: Column(

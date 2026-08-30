@@ -129,6 +129,86 @@ void main() {
     );
     expect(korean.items.single.categoryLabel, '관광지');
   });
+
+  test(
+    'home ignores cards missing required schedule instead of failing',
+    () async {
+      SharedPreferences.setMockInitialValues(<String, Object>{});
+      final sessionStore = AuthSessionStore.instance;
+      sessionStore.clear();
+      await sessionStore.flush();
+      sessionStore.save(
+        AuthSession(
+          accessToken: 'access-token',
+          refreshToken: 'refresh-token',
+          tokenType: 'Bearer',
+          expiresIn: 1800,
+          refreshExpiresIn: 1209600,
+          refreshExpiresAt: DateTime(2026, 7, 1),
+          user: AuthUserProfile(
+            id: 1,
+            phoneNumber: '01012345678',
+            displayName: '사용자',
+            role: 'USER',
+            primaryLanguage: 'ko',
+            primaryCountry: 'KR',
+            createdAt: DateTime(2026, 6, 14),
+          ),
+        ),
+      );
+      final repository = ApiHomeRepository(
+        apiClient: MateyaApiClient(
+          baseUrl: 'https://api.mateya.cloud',
+          sessionStore: sessionStore,
+          transport: _FakeHomeHttpTransport(),
+        ),
+        sessionStore: sessionStore,
+      );
+
+      final items = await repository.fetchHomeActivities();
+
+      expect(items, hasLength(1));
+      expect(items.single.id, '22');
+    },
+  );
+}
+
+class _FakeHomeHttpTransport implements HttpTransport {
+  @override
+  Future<HttpTransportResponse> send({
+    required String method,
+    required Uri uri,
+    Map<String, String> headers = const <String, String>{},
+    String? body,
+    List<int>? bodyBytes,
+  }) async {
+    final data = uri.path == '/api/v1/home/trending'
+        ? <String, Object?>{
+            'id': 21,
+            'title': '일정 없는 모임',
+            'startAt': null,
+            'endAt': null,
+          }
+        : <Map<String, Object?>>[
+            <String, Object?>{
+              'id': 21,
+              'title': '일정 없는 모임',
+              'startAt': null,
+              'endAt': null,
+            },
+            <String, Object?>{
+              'id': 22,
+              'category': 'TOURIST_ATTRACTION',
+              'title': '정상 모임',
+              'startAt': '2026-06-19T10:00:00.000Z',
+              'endAt': '2026-06-19T12:00:00.000Z',
+            },
+          ];
+    return HttpTransportResponse(
+      statusCode: 200,
+      body: jsonEncode(<String, Object?>{'success': true, 'data': data}),
+    );
+  }
 }
 
 class _FakeExploreHttpTransport implements HttpTransport {

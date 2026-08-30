@@ -31,15 +31,17 @@ class ApiHomeRepository implements HomeRepository {
       final seenIds = <String>{};
 
       if (trendingData != null) {
-        final item = _parseActivityCard(trendingData, isFeatured: true);
-        activities.add(item);
-        seenIds.add(item.id);
+        final item = _tryParseActivityCard(trendingData, isFeatured: true);
+        if (item != null) {
+          activities.add(item);
+          seenIds.add(item.id);
+        }
       }
 
       if (experiencesData is List<Object?>) {
         for (final entry in experiencesData) {
-          final item = _parseActivityCard(entry, isFeatured: false);
-          if (seenIds.add(item.id)) {
+          final item = _tryParseActivityCard(entry, isFeatured: false);
+          if (item != null && seenIds.add(item.id)) {
             activities.add(item);
           }
         }
@@ -221,6 +223,17 @@ class ApiHomeRepository implements HomeRepository {
       imageUrl: json['imageUrl'] as String?,
       isFeatured: isFeatured,
     );
+  }
+
+  ActivityItem? _tryParseActivityCard(
+    Object? value, {
+    required bool isFeatured,
+  }) {
+    final json = _asMap(value);
+    if (json['startAt'] is! String || json['endAt'] is! String) {
+      return null;
+    }
+    return _parseActivityCard(json, isFeatured: isFeatured);
   }
 
   Map<String, dynamic> _asMap(Object? value) {

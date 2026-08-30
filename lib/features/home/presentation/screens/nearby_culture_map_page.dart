@@ -105,7 +105,7 @@ class _NearbyCultureMapPageState extends State<NearbyCultureMapPage> {
               Positioned(
                 left: 16,
                 right: 16,
-                bottom: 178,
+                bottom: 14,
                 child: _AiMapActions(
                   onDetailTap: () => widget.onPlaceDetailTap(selectedPlace.id),
                   onAskAiTap: () => widget.onAskAiTap(selectedPlace),
@@ -175,24 +175,31 @@ class _AiMapActions extends StatelessWidget {
           ),
         ],
       ),
-      child: Row(
+      child: Column(
         children: <Widget>[
-          Expanded(
-            child: OutlinedButton.icon(
-              onPressed: onDetailTap,
-              icon: const Icon(Icons.place_outlined, size: 18),
-              label: const Text('장소 자세히'),
-            ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
+          SizedBox(
+            width: double.infinity,
             child: FilledButton.icon(
               onPressed: onAskAiTap,
               style: FilledButton.styleFrom(
-                backgroundColor: const Color(0xFF6759F1),
+                backgroundColor: AppColors.brandGreen,
               ),
               icon: const Icon(Icons.auto_awesome_rounded, size: 18),
-              label: const Text('AI에게 묻기'),
+              label: const Text('AI에게 대안 물어보기'),
+            ),
+          ),
+          const SizedBox(height: 7),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              onPressed: onDetailTap,
+              style: FilledButton.styleFrom(
+                foregroundColor: AppColors.brandGreen,
+                backgroundColor: Colors.white,
+                side: const BorderSide(color: AppColors.softGreenBorder),
+              ),
+              icon: const Icon(Icons.place_outlined, size: 18),
+              label: const Text('비슷한 로컬 장소 보기'),
             ),
           ),
         ],
@@ -257,66 +264,11 @@ class _NearbyCultureMapOverlayControls extends StatelessWidget {
             },
           ),
         ),
-        const SizedBox(height: 10),
-        Row(
-          children: <Widget>[
-            Flexible(
-              child: _OverlayBadge(
-                icon: Icons.near_me_rounded,
-                label: currentLocationLabel,
-              ),
-            ),
-            if (showError && errorMessage != null) ...<Widget>[
-              const SizedBox(width: 8),
-              Expanded(child: _OverlayErrorBadge(message: errorMessage!)),
-            ],
-          ],
-        ),
+        if (showError && errorMessage != null) ...<Widget>[
+          const SizedBox(height: 8),
+          _OverlayErrorBadge(message: errorMessage!),
+        ],
       ],
-    );
-  }
-}
-
-class _OverlayBadge extends StatelessWidget {
-  const _OverlayBadge({required this.icon, required this.label});
-
-  final IconData icon;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.96),
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: AppColors.divider),
-        boxShadow: const <BoxShadow>[
-          BoxShadow(
-            color: Color(0x12000000),
-            blurRadius: 12,
-            offset: Offset(0, 6),
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          Icon(icon, size: 16, color: AppColors.textPrimary),
-          const SizedBox(width: 6),
-          Flexible(
-            child: Text(
-              label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: AppColors.textPrimary,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }
@@ -381,7 +333,7 @@ class _NearbyCultureMapStage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const carouselBottomInset = 20.0;
+    const carouselBottomInset = 108.0;
     final buttonBottomInset = places.isEmpty ? 188.0 : 146.0;
     final mapUiBottomInset = places.isEmpty ? 112.0 : 84.0;
 
@@ -495,7 +447,7 @@ class _NearbyCultureMapCanvasState extends State<_NearbyCultureMapCanvas> {
   Widget build(BuildContext context) {
     final target = _targetLocation();
     return ClipRRect(
-      borderRadius: BorderRadius.circular(24),
+      borderRadius: BorderRadius.zero,
       child: Stack(
         fit: StackFit.expand,
         children: <Widget>[

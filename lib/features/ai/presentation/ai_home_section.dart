@@ -37,69 +37,91 @@ class _AiHomeSectionState extends State<AiHomeSection> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Container(
-          padding: const EdgeInsets.all(18),
+          height: 62,
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
           decoration: BoxDecoration(
             color: AiColors.purple50,
-            borderRadius: BorderRadius.circular(22),
+            borderRadius: BorderRadius.circular(8),
             border: Border.all(color: AiColors.purple200),
           ),
-          child: Column(
+          child: Row(
             children: <Widget>[
-              Row(
-                children: <Widget>[
-                  const AiRobotAvatar(size: 54),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Text(
-                          context.l10n.aiHomeGuideTitle,
-                          style: const TextStyle(
-                            color: AiColors.purple800,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          context.l10n.aiHomeHeadline,
-                          style: const TextStyle(
-                            height: 1.35,
-                            fontSize: 17,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                      ],
+              const AiRobotAvatar(size: 46),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    const Text(
+                      'MateYa AI',
+                      style: TextStyle(
+                        color: AiColors.purple700,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 2),
+                    Text(
+                      context.l10n.aiHomeHeadline,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              const SizedBox(height: 15),
-              AiPrimaryButton(
-                label: context.l10n.aiHomeAsk,
+              TextButton.icon(
                 onPressed: widget.onStartAi,
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  backgroundColor: AiColors.purple600,
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  minimumSize: const Size(0, 28),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                ),
+                icon: const Icon(Icons.auto_awesome_rounded, size: 12),
+                label: const Text(
+                  '시작하기',
+                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700),
+                ),
               ),
             ],
           ),
         ),
-        const SizedBox(height: 26),
-        Text(
-          context.l10n.aiHomeLocalTitle,
-          style: Theme.of(
-            context,
-          ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+        const SizedBox(height: 16),
+        Row(
+          children: <Widget>[
+            Text(
+              context.l10n.aiHomeLocalTitle,
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w800,
+                fontSize: 18,
+              ),
+            ),
+            const SizedBox(width: 4),
+            const Icon(
+              Icons.local_fire_department_rounded,
+              color: Colors.deepOrange,
+              size: 20,
+            ),
+          ],
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: 3),
         Text(
           context.l10n.aiHomeLocalDescription,
           style: Theme.of(
             context,
           ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
         ),
-        const SizedBox(height: 14),
+        const SizedBox(height: 10),
         SizedBox(
-          height: 220,
+          height: 190,
           child: FutureBuilder<List<AiHomeHighlight>>(
             future: _highlights,
             builder: (context, snapshot) {
@@ -139,22 +161,22 @@ class _HomeHighlightCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 230,
+      width: 158,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(8),
         child: Container(
           clipBehavior: Clip.antiAlias,
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: BorderRadius.circular(8),
             border: Border.all(color: AppColors.divider),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               SizedBox(
-                height: 100,
+                height: 116,
                 width: double.infinity,
                 child: item.imageUrl == null
                     ? const ColoredBox(
@@ -175,7 +197,7 @@ class _HomeHighlightCard extends StatelessWidget {
                       ),
               ),
               Padding(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.fromLTRB(8, 7, 8, 6),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
@@ -183,25 +205,30 @@ class _HomeHighlightCard extends StatelessWidget {
                       item.name,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontWeight: FontWeight.w800),
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 2),
                     Text(
                       '${item.anchorPlaceName}의 로컬 대안${item.distanceKm == null ? '' : ' · ${item.distanceKm!.toStringAsFixed(1)}km'}',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         color: AiColors.purple800,
-                        fontSize: 11,
+                        fontSize: 9,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 3),
                     Text(
                       item.reason,
-                      maxLines: 2,
+                      maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.bodySmall,
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodySmall?.copyWith(fontSize: 9),
                     ),
                   ],
                 ),

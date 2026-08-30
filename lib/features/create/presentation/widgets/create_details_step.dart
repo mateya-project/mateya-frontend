@@ -78,20 +78,20 @@ class DetailsStepView extends StatelessWidget {
     return ListView(
       key: const PageStorageKey<String>('create-details-scroll'),
       controller: scrollController,
-      padding: const EdgeInsets.fromLTRB(24, 8, 24, 0),
+      padding: const EdgeInsets.fromLTRB(23, 8, 23, 0),
       children: <Widget>[
         if (controller.aiPrefilled) ...<Widget>[
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
             decoration: BoxDecoration(
               color: AiColors.purple50,
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: AiColors.purple200),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AiColors.purple300),
             ),
             child: const Row(
               children: <Widget>[
-                AiRobotAvatar(size: 42),
-                SizedBox(width: 12),
+                AiRobotAvatar(size: 48),
+                SizedBox(width: 5),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -99,35 +99,43 @@ class DetailsStepView extends StatelessWidget {
                       Text(
                         'MateYa AI 추천 장소',
                         style: TextStyle(
-                          color: AiColors.purple800,
+                          color: AiColors.purple700,
+                          fontSize: 18,
                           fontWeight: FontWeight.w800,
                         ),
                       ),
-                      SizedBox(height: 3),
-                      Text('장소 정보가 미리 입력되었어요.'),
+                      Text('장소 정보가 미리 입력되었어요.', style: TextStyle(fontSize: 12)),
                     ],
                   ),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
         ],
         Text(
-          controller.flowType == CreateFlowType.group
+          controller.aiPrefilled && controller.flowType == CreateFlowType.group
+              ? '어떤 모임을 만들까요?'
+              : controller.flowType == CreateFlowType.group
               ? l10n.createGroupInfoTitle
               : l10n.createClassInfoTitle,
-          style: theme.textTheme.headlineMedium,
+          style: theme.textTheme.headlineMedium?.copyWith(
+            fontSize: 24,
+            fontWeight: FontWeight.w800,
+          ),
         ),
         const SizedBox(height: 10),
         Text(
-          l10n.createValidationIntro,
+          controller.aiPrefilled && controller.flowType == CreateFlowType.group
+              ? '참가자들이 모임을 이해할 수 있도록 정보를 입력해주세요'
+              : l10n.createValidationIntro,
           style: theme.textTheme.bodyMedium?.copyWith(
             color: AppColors.textSecondary,
           ),
         ),
         const SizedBox(height: 24),
-        if (controller.flowType == CreateFlowType.group) ...<Widget>[
+        if (!controller.aiPrefilled &&
+            controller.flowType == CreateFlowType.group) ...<Widget>[
           SummaryCard(
             title: l10n.createSelectedCategoryTitle,
             body: controller.availableCategories
@@ -140,7 +148,8 @@ class DetailsStepView extends StatelessWidget {
           ),
           const SizedBox(height: 12),
         ],
-        if (selectedPlace != null || manualSummary != null) ...<Widget>[
+        if (!controller.aiPrefilled &&
+            (selectedPlace != null || manualSummary != null)) ...<Widget>[
           SummaryCard(
             title: l10n.createSelectedPlaceTitle,
             body: selectedPlace != null
@@ -188,6 +197,7 @@ class DetailsStepView extends StatelessWidget {
                 controller: descriptionController,
                 hintText: l10n.createDescriptionHint,
                 maxLength: 3000,
+                minLines: controller.aiPrefilled ? 2 : 6,
                 errorText: controller.errorFor('description'),
                 onChanged: controller.updateDescription,
               ),

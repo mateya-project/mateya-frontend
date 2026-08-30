@@ -82,7 +82,7 @@ class _LogoHeader extends StatelessWidget {
           const Center(child: _MateyaTextLogo()),
           Align(
             alignment: Alignment.centerRight,
-            child: _LanguageButton(onTap: onLanguageTap),
+            child: MateyaLanguageButton(onTap: onLanguageTap),
           ),
         ],
       ),
@@ -198,7 +198,7 @@ class _HeaderTrailingActions extends StatelessWidget {
           _HeaderReportButton(onTap: onReportTap),
           const SizedBox(width: 8),
         ],
-        _LanguageButton(onTap: onLanguageTap),
+        MateyaLanguageButton(onTap: onLanguageTap),
       ],
     );
   }
@@ -290,8 +290,8 @@ class _MateyaTextLogo extends StatelessWidget {
   }
 }
 
-class _LanguageButton extends StatelessWidget {
-  const _LanguageButton({required this.onTap});
+class MateyaLanguageButton extends StatelessWidget {
+  const MateyaLanguageButton({super.key, this.onTap});
 
   final VoidCallback? onTap;
 
