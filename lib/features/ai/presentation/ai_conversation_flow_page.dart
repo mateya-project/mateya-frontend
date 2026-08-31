@@ -420,34 +420,40 @@ class _AiHeaderTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: <Widget>[
-        const AiRobotAvatar(size: 38),
-        const SizedBox(width: 10),
-        Flexible(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              const Text(
-                'MateYa AI',
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(fontWeight: FontWeight.w800),
-              ),
-              Text(
-                context.l10n.aiGuideSubtitle,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontSize: 11,
-                  color: AppColors.textSecondary,
+    return Padding(
+      // The text makes this lockup visually right-heavy even when AppBar
+      // centers its bounds. Add optical space on the right to center the mark.
+      padding: const EdgeInsets.only(right: 16),
+      child: Row(
+        key: const ValueKey<String>('ai-room-header-lockup'),
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          const AiRobotAvatar(size: 38),
+          const SizedBox(width: 10),
+          Flexible(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                const Text(
+                  'MateYa AI',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontWeight: FontWeight.w800),
                 ),
-              ),
-            ],
+                Text(
+                  context.l10n.aiGuideSubtitle,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -1119,6 +1125,7 @@ class _Composer extends StatelessWidget {
               ),
               Expanded(
                 child: TextField(
+                  key: const ValueKey<String>('ai-message-composer'),
                   controller: controller,
                   enabled: enabled,
                   maxLength: 500,
@@ -1127,6 +1134,8 @@ class _Composer extends StatelessWidget {
                   decoration: InputDecoration(
                     counterText: '',
                     hintText: context.l10n.aiComposerHint,
+                    hintMaxLines: 1,
+                    hintStyle: const TextStyle(fontSize: 14),
                     filled: true,
                     fillColor: AppColors.subtleBackground,
                     border: OutlineInputBorder(
