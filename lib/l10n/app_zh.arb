@@ -173,7 +173,7 @@
   "homeUnsupportedExploreLanguageFilter": "探索语言筛选目前仅支持韩语、英语、中文和日语。",
   "homeEndDateBeforeStartDateError": "结束日期不能早于开始日期。",
   "homeMaxPriceLessThanMinPriceError": "最高金额必须大于或等于最低金额。",
-  "homeTrendingTitle": "热门飙升 🔥",
+  "homeTrendingTitle": "热门飙升",
   "homeSharedExperiencesTitle": "可以一起参与的体验",
   "homeExploreSearchHint": "试着搜索名称或地点",
   "homeExploreError": "无法加载结果。",

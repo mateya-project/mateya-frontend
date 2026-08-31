@@ -114,9 +114,20 @@ class HomeContent extends StatelessWidget {
               onPlaceTap: onPlaceTap,
             ),
             const SizedBox(height: 28),
-            Text(
-              l10n.homeTrendingTitle,
-              style: Theme.of(context).textTheme.headlineLarge,
+            Row(
+              children: <Widget>[
+                Text(
+                  l10n.homeTrendingTitle,
+                  style: Theme.of(context).textTheme.headlineLarge,
+                ),
+                const SizedBox(width: 6),
+                const Icon(
+                  key: ValueKey<String>('home-trending-icon'),
+                  Icons.local_fire_department_rounded,
+                  color: Colors.deepOrange,
+                  size: 28,
+                ),
+              ],
             ),
             const SizedBox(height: 16),
             if (featured != null)

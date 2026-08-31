@@ -173,7 +173,7 @@
   "homeUnsupportedExploreLanguageFilter": "Explore language filters currently support only Korean, English, Chinese, and Japanese.",
   "homeEndDateBeforeStartDateError": "The end date cannot be earlier than the start date.",
   "homeMaxPriceLessThanMinPriceError": "The maximum price must be greater than or equal to the minimum price.",
-  "homeTrendingTitle": "Trending now 🔥",
+  "homeTrendingTitle": "Trending now",
   "homeSharedExperiencesTitle": "Experiences to share",
   "homeExploreSearchHint": "Search by name or place",
   "homeExploreError": "Failed to load results.",

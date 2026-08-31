@@ -173,7 +173,7 @@
   "homeUnsupportedExploreLanguageFilter": "探す言語フィルターは現在、韓国語・英語・中国語・日本語のみ対応しています。",
   "homeEndDateBeforeStartDateError": "終了日は開始日より前にできません。",
   "homeMaxPriceLessThanMinPriceError": "最大金額は最小金額以上である必要があります。",
-  "homeTrendingTitle": "急上昇中 🔥",
+  "homeTrendingTitle": "急上昇中",
   "homeSharedExperiencesTitle": "一緒に楽しめる体験",
   "homeExploreSearchHint": "名前や場所で検索してみてください",
   "homeExploreError": "結果を読み込めませんでした。",

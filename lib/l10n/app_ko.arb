@@ -173,7 +173,7 @@
   "homeUnsupportedExploreLanguageFilter": "둘러보기 언어 필터는 한국어, 영어, 중국어, 일본어만 지원합니다.",
   "homeEndDateBeforeStartDateError": "종료일은 시작일보다 빠를 수 없어요.",
   "homeMaxPriceLessThanMinPriceError": "최대 금액은 최소 금액보다 크거나 같아야 해요.",
-  "homeTrendingTitle": "인기 급상승 🔥",
+  "homeTrendingTitle": "인기 급상승",
   "homeSharedExperiencesTitle": "함께할 수 있는 경험",
   "homeExploreSearchHint": "이름, 장소를 검색해 보세요",
   "homeExploreError": "결과를 불러오지 못했어요.",

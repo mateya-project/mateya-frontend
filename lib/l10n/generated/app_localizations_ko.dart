@@ -382,7 +382,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get homeMaxPriceLessThanMinPriceError => '최대 금액은 최소 금액보다 크거나 같아야 해요.';
 
   @override
-  String get homeTrendingTitle => '인기 급상승 🔥';
+  String get homeTrendingTitle => '인기 급상승';
 
   @override
   String get homeSharedExperiencesTitle => '함께할 수 있는 경험';

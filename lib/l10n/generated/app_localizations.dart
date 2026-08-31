@@ -796,7 +796,7 @@ abstract class AppLocalizations {
   /// No description provided for @homeTrendingTitle.
   ///
   /// In ko, this message translates to:
-  /// **'인기 급상승 🔥'**
+  /// **'인기 급상승'**
   String get homeTrendingTitle;
 
   /// No description provided for @homeSharedExperiencesTitle.
