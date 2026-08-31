@@ -2664,6 +2664,35 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get aiViewScoreDetails => 'View recommendation score criteria';
+
+  @override
+  String get aiScoreDetailsTitle => 'Recommendation score criteria';
+
+  @override
+  String get aiScoreUserFit => 'Personal fit';
+
+  @override
+  String get aiScoreFeasibility => 'Travel and participation feasibility';
+
+  @override
+  String get aiScoreDispersal => 'Tourism dispersal contribution';
+
+  @override
+  String get aiScoreLanguageParticipation => 'Language and gathering fit';
+
+  @override
+  String get aiScoreDataConfidence => 'Data confidence';
+
+  @override
+  String get aiScoreNormalizationNotice =>
+      'When an item has no data, its weight is excluded and the available items are normalized to 100 points.';
+
+  @override
+  String get aiScoreDetailsUnavailable =>
+      'Itemized scores were not stored for this earlier recommendation. Request a new recommendation to see the breakdown.';
+
+  @override
   String get aiViewPlace => 'View place';
 
   @override

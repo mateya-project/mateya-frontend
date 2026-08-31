@@ -4585,6 +4585,60 @@ abstract class AppLocalizations {
   /// **'{score}점'**
   String aiScore(int score);
 
+  /// No description provided for @aiViewScoreDetails.
+  ///
+  /// In ko, this message translates to:
+  /// **'추천 점수 산정 기준 보기'**
+  String get aiViewScoreDetails;
+
+  /// No description provided for @aiScoreDetailsTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'추천 점수 산정 기준'**
+  String get aiScoreDetailsTitle;
+
+  /// No description provided for @aiScoreUserFit.
+  ///
+  /// In ko, this message translates to:
+  /// **'사용자 적합도'**
+  String get aiScoreUserFit;
+
+  /// No description provided for @aiScoreFeasibility.
+  ///
+  /// In ko, this message translates to:
+  /// **'이동·참여 가능성'**
+  String get aiScoreFeasibility;
+
+  /// No description provided for @aiScoreDispersal.
+  ///
+  /// In ko, this message translates to:
+  /// **'관광 분산 기여도'**
+  String get aiScoreDispersal;
+
+  /// No description provided for @aiScoreLanguageParticipation.
+  ///
+  /// In ko, this message translates to:
+  /// **'언어·모임 참여 적합도'**
+  String get aiScoreLanguageParticipation;
+
+  /// No description provided for @aiScoreDataConfidence.
+  ///
+  /// In ko, this message translates to:
+  /// **'데이터 신뢰도'**
+  String get aiScoreDataConfidence;
+
+  /// No description provided for @aiScoreNormalizationNotice.
+  ///
+  /// In ko, this message translates to:
+  /// **'항목 데이터가 없으면 해당 비중을 제외하고, 확인 가능한 항목을 기준으로 100점으로 환산해요.'**
+  String get aiScoreNormalizationNotice;
+
+  /// No description provided for @aiScoreDetailsUnavailable.
+  ///
+  /// In ko, this message translates to:
+  /// **'이전 추천에는 항목별 점수가 저장되지 않았어요. 새로 추천받으면 세부 점수를 확인할 수 있어요.'**
+  String get aiScoreDetailsUnavailable;
+
   /// No description provided for @aiViewPlace.
   ///
   /// In ko, this message translates to:

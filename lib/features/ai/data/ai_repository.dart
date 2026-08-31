@@ -296,7 +296,34 @@ class ApiAiRepository implements AiRepository {
 }
 
 class MockAiRepository implements AiRepository {
+  MockAiRepository({this.includeRecommendationOnCreate = false});
+
+  final bool includeRecommendationOnCreate;
   AiConversation? _conversation;
+
+  static const List<AiMessagePart> _recommendationParts = <AiMessagePart>[
+    AiPlaceRecommendationsPart(<AiPlaceRecommendation>[
+      AiPlaceRecommendation(
+        placeId: '2',
+        name: '서촌 골목',
+        regionSido: '서울특별시',
+        regionSigungu: '종로구',
+        distanceKm: 1.4,
+        imageUrl: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==',
+        score: 85,
+        scoreBreakdown: AiScoreBreakdown(
+          userFit: 30,
+          feasibility: 22,
+          dispersalContribution: 16,
+          languageParticipation: 8,
+          dataConfidence: 9,
+          total: 85,
+        ),
+        reason: '궁궐 산책의 분위기를 이어가며 방문을 분산해요.',
+        cta: 'CREATE_ACTIVITY',
+      ),
+    ]),
+  ];
 
   @override
   Future<List<AiConversationSummary>> fetchConversations() async =>
@@ -318,6 +345,7 @@ class MockAiRepository implements AiRepository {
 
   @override
   Future<AiConversation> createConversation(AiConversationSeed seed) async {
+    final now = DateTime.now();
     _conversation = AiConversation(
       id: 'mock-ai-conversation',
       title: '새 여행 계획',
@@ -325,8 +353,19 @@ class MockAiRepository implements AiRepository {
       anchorPlaceName: seed.anchorPlaceName,
       visitDate: seed.visitDate,
       radiusKm: seed.radiusKm,
-      updatedAt: DateTime.now(),
-      messages: const <AiMessage>[],
+      updatedAt: now,
+      messages: includeRecommendationOnCreate
+          ? <AiMessage>[
+              AiMessage(
+                id: 'mock-recommendation',
+                role: 'ASSISTANT',
+                status: 'COMPLETED',
+                text: '비슷한 매력을 가진 로컬 장소를 찾았어요.',
+                createdAt: now,
+                parts: _recommendationParts,
+              ),
+            ]
+          : const <AiMessage>[],
     );
     return _conversation!;
   }
@@ -372,15 +411,17 @@ class MockAiRepository implements AiRepository {
               ? '먼저 기준이 될 관광지를 골라 주세요.'
               : '비슷한 매력을 가진 로컬 장소를 찾았어요.',
           createdAt: now,
-          parts: const <AiMessagePart>[
-            AiQuickActionsPart(<AiQuickAction>[
-              AiQuickAction(
-                id: 'THIS_WEEKEND',
-                label: '이번 주말',
-                message: '이번 주말에 갈게',
-              ),
-            ]),
-          ],
+          parts: current.anchorPlaceId == null
+              ? const <AiMessagePart>[
+                  AiQuickActionsPart(<AiQuickAction>[
+                    AiQuickAction(
+                      id: 'THIS_WEEKEND',
+                      label: '이번 주말',
+                      message: '이번 주말에 갈게',
+                    ),
+                  ]),
+                ]
+              : _recommendationParts,
         ),
       ],
     );
@@ -550,10 +591,27 @@ AiPlaceRecommendation _parsePlaceRecommendation(Object? value) {
     regionSido: json['regionSido'] as String?,
     regionSigungu: json['regionSigungu'] as String?,
     distanceKm: (json['distanceKm'] as num?)?.toDouble(),
+    imageUrl: json['imageUrl'] as String?,
     score: (json['score'] as num?)?.toDouble() ?? 0,
+    scoreBreakdown: _parseScoreBreakdown(json['scoreBreakdown']),
     reason: json['reason'] as String? ?? '',
     cta: json['cta'] as String? ?? 'VIEW_PLACE',
     activityId: _stringOrNull(json['activityId']),
+  );
+}
+
+AiScoreBreakdown? _parseScoreBreakdown(Object? value) {
+  if (value is! Map) {
+    return null;
+  }
+  final json = _asMap(value);
+  return AiScoreBreakdown(
+    userFit: (json['userFit'] as num?)?.toDouble(),
+    feasibility: (json['feasibility'] as num?)?.toDouble(),
+    dispersalContribution: (json['dispersalContribution'] as num?)?.toDouble(),
+    languageParticipation: (json['languageParticipation'] as num?)?.toDouble(),
+    dataConfidence: (json['dataConfidence'] as num?)?.toDouble(),
+    total: (json['total'] as num?)?.toDouble() ?? 0,
   );
 }
 

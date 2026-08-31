@@ -2430,6 +2430,33 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String get aiViewScoreDetails => '查看推荐分数计算标准';
+
+  @override
+  String get aiScoreDetailsTitle => '推荐分数计算标准';
+
+  @override
+  String get aiScoreUserFit => '用户匹配度';
+
+  @override
+  String get aiScoreFeasibility => '出行与参与可行性';
+
+  @override
+  String get aiScoreDispersal => '旅游分流贡献度';
+
+  @override
+  String get aiScoreLanguageParticipation => '语言与活动匹配度';
+
+  @override
+  String get aiScoreDataConfidence => '数据可信度';
+
+  @override
+  String get aiScoreNormalizationNotice => '缺少某项数据时会排除该项权重，并将可用项目换算为100分。';
+
+  @override
+  String get aiScoreDetailsUnavailable => '早期推荐未保存分项得分。重新获取推荐后即可查看详细分数。';
+
+  @override
   String get aiViewPlace => '查看地点';
 
   @override
@@ -4952,6 +4979,33 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String aiScore(int score) {
     return '$score分';
   }
+
+  @override
+  String get aiViewScoreDetails => '查看推荐分数计算标准';
+
+  @override
+  String get aiScoreDetailsTitle => '推荐分数计算标准';
+
+  @override
+  String get aiScoreUserFit => '用户匹配度';
+
+  @override
+  String get aiScoreFeasibility => '出行与参与可行性';
+
+  @override
+  String get aiScoreDispersal => '旅游分流贡献度';
+
+  @override
+  String get aiScoreLanguageParticipation => '语言与活动匹配度';
+
+  @override
+  String get aiScoreDataConfidence => '数据可信度';
+
+  @override
+  String get aiScoreNormalizationNotice => '缺少某项数据时会排除该项权重，并将可用项目换算为100分。';
+
+  @override
+  String get aiScoreDetailsUnavailable => '早期推荐未保存分项得分。重新获取推荐后即可查看详细分数。';
 
   @override
   String get aiViewPlace => '查看地点';

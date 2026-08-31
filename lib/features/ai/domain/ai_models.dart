@@ -189,6 +189,8 @@ class AiPlaceRecommendation {
     required this.score,
     required this.reason,
     required this.cta,
+    this.imageUrl,
+    this.scoreBreakdown,
     this.regionSido,
     this.regionSigungu,
     this.distanceKm,
@@ -200,10 +202,30 @@ class AiPlaceRecommendation {
   final String? regionSido;
   final String? regionSigungu;
   final double? distanceKm;
+  final String? imageUrl;
   final double score;
+  final AiScoreBreakdown? scoreBreakdown;
   final String reason;
   final String cta;
   final String? activityId;
+}
+
+class AiScoreBreakdown {
+  const AiScoreBreakdown({
+    required this.total,
+    this.userFit,
+    this.feasibility,
+    this.dispersalContribution,
+    this.languageParticipation,
+    this.dataConfidence,
+  });
+
+  final double? userFit;
+  final double? feasibility;
+  final double? dispersalContribution;
+  final double? languageParticipation;
+  final double? dataConfidence;
+  final double total;
 }
 
 class AiQuickAction {
