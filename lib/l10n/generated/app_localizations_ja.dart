@@ -2509,6 +2509,35 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
+  String get aiViewScoreDetails => 'おすすめスコアの算定基準を見る';
+
+  @override
+  String get aiScoreDetailsTitle => 'おすすめスコアの算定基準';
+
+  @override
+  String get aiScoreUserFit => 'ユーザー適合度';
+
+  @override
+  String get aiScoreFeasibility => '移動・参加の実現性';
+
+  @override
+  String get aiScoreDispersal => '観光分散への貢献度';
+
+  @override
+  String get aiScoreLanguageParticipation => '言語・集まりへの適合度';
+
+  @override
+  String get aiScoreDataConfidence => 'データ信頼度';
+
+  @override
+  String get aiScoreNormalizationNotice =>
+      'データがない項目は配点から除外し、確認可能な項目を100点満点に換算します。';
+
+  @override
+  String get aiScoreDetailsUnavailable =>
+      '以前のおすすめには項目別スコアが保存されていません。新しくおすすめを依頼すると内訳を確認できます。';
+
+  @override
   String get aiViewPlace => '場所を見る';
 
   @override

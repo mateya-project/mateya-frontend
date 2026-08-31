@@ -2510,6 +2510,35 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
+  String get aiViewScoreDetails => '추천 점수 산정 기준 보기';
+
+  @override
+  String get aiScoreDetailsTitle => '추천 점수 산정 기준';
+
+  @override
+  String get aiScoreUserFit => '사용자 적합도';
+
+  @override
+  String get aiScoreFeasibility => '이동·참여 가능성';
+
+  @override
+  String get aiScoreDispersal => '관광 분산 기여도';
+
+  @override
+  String get aiScoreLanguageParticipation => '언어·모임 참여 적합도';
+
+  @override
+  String get aiScoreDataConfidence => '데이터 신뢰도';
+
+  @override
+  String get aiScoreNormalizationNotice =>
+      '항목 데이터가 없으면 해당 비중을 제외하고, 확인 가능한 항목을 기준으로 100점으로 환산해요.';
+
+  @override
+  String get aiScoreDetailsUnavailable =>
+      '이전 추천에는 항목별 점수가 저장되지 않았어요. 새로 추천받으면 세부 점수를 확인할 수 있어요.';
+
+  @override
   String get aiViewPlace => '장소 보기';
 
   @override

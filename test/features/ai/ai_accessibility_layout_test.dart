@@ -16,10 +16,11 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
+        locale: const Locale('ko'),
         localizationsDelegates: MateyaLocalizations.delegates,
         supportedLocales: MateyaLocalizations.supportedLocales,
         home: AiConversationFlowPage(
-          repository: MockAiRepository(),
+          repository: MockAiRepository(includeRecommendationOnCreate: true),
           seed: const AiConversationSeed(
             entryPoint: 'PLACE_DETAIL',
             anchorPlaceId: '1',
@@ -43,6 +44,16 @@ void main() {
           ?.hintMaxLines,
       1,
     );
+
+    expect(find.byType(Image), findsOneWidget);
+    final scoreDetails = find.text('85점');
+    expect(scoreDetails, findsOneWidget);
+    await tester.ensureVisible(scoreDetails);
+    await tester.tap(scoreDetails);
+    await tester.pumpAndSettle();
+    expect(find.text('추천 점수 산정 기준'), findsOneWidget);
+    expect(find.text('사용자 적합도'), findsOneWidget);
+    expect(find.text('관광 분산 기여도'), findsOneWidget);
   });
 
   testWidgets('AI room remains usable on a compact screen with large text', (

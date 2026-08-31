@@ -925,6 +925,27 @@ class _RecommendationCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
+          if (item.imageUrl?.trim().isNotEmpty ?? false) ...<Widget>[
+            ClipRRect(
+              borderRadius: BorderRadius.circular(13),
+              child: Image.network(
+                item.imageUrl!,
+                width: double.infinity,
+                height: 132,
+                fit: BoxFit.cover,
+                errorBuilder: (_, _, _) => Container(
+                  height: 132,
+                  color: AppColors.subtleBackground,
+                  alignment: Alignment.center,
+                  child: const Icon(
+                    Icons.image_not_supported_outlined,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+          ],
           Row(
             children: <Widget>[
               Expanded(
@@ -936,20 +957,9 @@ class _RecommendationCard extends StatelessWidget {
                   ),
                 ),
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: AiColors.purple100,
-                  borderRadius: BorderRadius.circular(999),
-                ),
-                child: Text(
-                  context.l10n.aiScore(item.score.round()),
-                  style: const TextStyle(
-                    color: AiColors.purple800,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
+              _ScoreBadge(
+                score: item.score,
+                onTap: () => _showScoreBreakdown(context, item),
               ),
             ],
           ),
@@ -995,6 +1005,166 @@ class _RecommendationCard extends StatelessWidget {
       ),
     );
   }
+
+  void _showScoreBreakdown(BuildContext context, AiPlaceRecommendation item) {
+    showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      isScrollControlled: true,
+      builder: (_) => _ScoreBreakdownSheet(item: item),
+    );
+  }
+}
+
+class _ScoreBadge extends StatelessWidget {
+  const _ScoreBadge({required this.score, required this.onTap});
+
+  final double score;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      label: context.l10n.aiViewScoreDetails,
+      child: Material(
+        color: AiColors.purple100,
+        borderRadius: BorderRadius.circular(999),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(999),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Text(
+                  context.l10n.aiScore(score.round()),
+                  style: const TextStyle(
+                    color: AiColors.purple800,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(width: 3),
+                const Icon(
+                  Icons.info_outline_rounded,
+                  size: 13,
+                  color: AiColors.purple800,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ScoreBreakdownSheet extends StatelessWidget {
+  const _ScoreBreakdownSheet({required this.item});
+
+  final AiPlaceRecommendation item;
+
+  @override
+  Widget build(BuildContext context) {
+    final breakdown = item.scoreBreakdown;
+    final axes = <_ScoreAxis>[
+      _ScoreAxis(context.l10n.aiScoreUserFit, breakdown?.userFit, 35),
+      _ScoreAxis(context.l10n.aiScoreFeasibility, breakdown?.feasibility, 25),
+      _ScoreAxis(
+        context.l10n.aiScoreDispersal,
+        breakdown?.dispersalContribution,
+        20,
+      ),
+      _ScoreAxis(
+        context.l10n.aiScoreLanguageParticipation,
+        breakdown?.languageParticipation,
+        10,
+      ),
+      _ScoreAxis(
+        context.l10n.aiScoreDataConfidence,
+        breakdown?.dataConfidence,
+        10,
+      ),
+    ];
+    return SafeArea(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(24, 4, 24, 28),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Text(
+              context.l10n.aiScoreDetailsTitle,
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              '${item.name} · ${context.l10n.aiScore(item.score.round())}',
+              style: const TextStyle(color: AppColors.textSecondary),
+            ),
+            const SizedBox(height: 20),
+            for (final axis in axes) ...<Widget>[
+              Row(
+                children: <Widget>[
+                  Expanded(
+                    child: Text(
+                      axis.label,
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                  Text(
+                    axis.value == null
+                        ? '— / ${axis.maximum}'
+                        : '${axis.value!.toStringAsFixed(1)} / ${axis.maximum}',
+                    style: const TextStyle(
+                      color: AiColors.purple800,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              LinearProgressIndicator(
+                value: axis.value == null ? 0 : axis.value! / axis.maximum,
+                minHeight: 7,
+                borderRadius: BorderRadius.circular(999),
+                backgroundColor: AiColors.purple100,
+                color: AiColors.purple600,
+              ),
+              const SizedBox(height: 16),
+            ],
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: AppColors.subtleBackground,
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Text(
+                breakdown == null
+                    ? context.l10n.aiScoreDetailsUnavailable
+                    : context.l10n.aiScoreNormalizationNotice,
+                style: const TextStyle(
+                  color: AppColors.textSecondary,
+                  height: 1.4,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ScoreAxis {
+  const _ScoreAxis(this.label, this.value, this.maximum);
+
+  final String label;
+  final double? value;
+  final int maximum;
 }
 
 class _Composer extends StatelessWidget {
