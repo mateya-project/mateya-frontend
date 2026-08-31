@@ -379,7 +379,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get homeMaxPriceLessThanMinPriceError => '最高金额必须大于或等于最低金额。';
 
   @override
-  String get homeTrendingTitle => '热门飙升 🔥';
+  String get homeTrendingTitle => '热门飙升';
 
   @override
   String get homeSharedExperiencesTitle => '可以一起参与的体验';
@@ -2903,7 +2903,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get homeMaxPriceLessThanMinPriceError => '最高金额必须大于或等于最低金额。';
 
   @override
-  String get homeTrendingTitle => '热门飙升 🔥';
+  String get homeTrendingTitle => '热门飙升';
 
   @override
   String get homeSharedExperiencesTitle => '可以一起参与的体验';

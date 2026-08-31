@@ -401,7 +401,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'The maximum price must be greater than or equal to the minimum price.';
 
   @override
-  String get homeTrendingTitle => 'Trending now 🔥';
+  String get homeTrendingTitle => 'Trending now';
 
   @override
   String get homeSharedExperiencesTitle => 'Experiences to share';

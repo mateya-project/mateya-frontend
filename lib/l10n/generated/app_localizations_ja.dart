@@ -382,7 +382,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get homeMaxPriceLessThanMinPriceError => '最大金額は最小金額以上である必要があります。';
 
   @override
-  String get homeTrendingTitle => '急上昇中 🔥';
+  String get homeTrendingTitle => '急上昇中';
 
   @override
   String get homeSharedExperiencesTitle => '一緒に楽しめる体験';
