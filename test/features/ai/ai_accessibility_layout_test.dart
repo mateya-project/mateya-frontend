@@ -6,6 +6,45 @@ import 'package:mateya_app/features/ai/presentation/ai_conversation_flow_page.da
 import 'package:mateya_app/shared/localization/mateya_localizations.dart';
 
 void main() {
+  testWidgets('AI room header is optically centered and hint stays one line', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(402, 874);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        localizationsDelegates: MateyaLocalizations.delegates,
+        supportedLocales: MateyaLocalizations.supportedLocales,
+        home: AiConversationFlowPage(
+          repository: MockAiRepository(),
+          seed: const AiConversationSeed(
+            entryPoint: 'PLACE_DETAIL',
+            anchorPlaceId: '1',
+            anchorPlaceName: '경복궁',
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final headerRect = tester.getRect(
+      find.byKey(const ValueKey<String>('ai-room-header-lockup')),
+    );
+    expect(headerRect.center.dx, lessThan(tester.view.physicalSize.width / 2));
+    expect(
+      tester
+          .widget<TextField>(
+            find.byKey(const ValueKey<String>('ai-message-composer')),
+          )
+          .decoration
+          ?.hintMaxLines,
+      1,
+    );
+  });
+
   testWidgets('AI room remains usable on a compact screen with large text', (
     tester,
   ) async {
