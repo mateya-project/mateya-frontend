@@ -544,19 +544,22 @@ class _ChatFlowPageState extends State<ChatFlowPage> {
     return AnimatedBuilder(
       animation: widget.controller,
       builder: (context, _) {
-        return ColoredBox(
-          color: widget.controller.isDetailOpen
-              ? AppColors.appSurface
-              : AppColors.background,
-          child: MateyaFadeSlideSwitcher(
-            duration: const Duration(milliseconds: 220),
-            child: KeyedSubtree(
-              key: ValueKey<String>(
-                widget.controller.isDetailOpen ? 'chat-detail' : 'chat-list',
+        return SafeArea(
+          bottom: false,
+          child: ColoredBox(
+            color: widget.controller.isDetailOpen
+                ? AppColors.appSurface
+                : AppColors.background,
+            child: MateyaFadeSlideSwitcher(
+              duration: const Duration(milliseconds: 220),
+              child: KeyedSubtree(
+                key: ValueKey<String>(
+                  widget.controller.isDetailOpen ? 'chat-detail' : 'chat-list',
+                ),
+                child: widget.controller.isDetailOpen
+                    ? _buildDetailScreen(context)
+                    : _buildListScreen(context),
               ),
-              child: widget.controller.isDetailOpen
-                  ? _buildDetailScreen(context)
-                  : _buildListScreen(context),
             ),
           ),
         );
