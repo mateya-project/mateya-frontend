@@ -119,9 +119,10 @@ class ChatRoomTile extends StatelessWidget {
           NetworkAvatar(imageUrl: room.imageUrl, label: room.title, size: 54),
           const SizedBox(width: 15),
           Expanded(
-            child: SizedBox(
-              height: 66,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 66),
               child: Column(
+                mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
@@ -136,7 +137,7 @@ class ChatRoomTile extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     room.lastMessagePreview,
-                    maxLines: 2,
+                    maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: AppColors.fieldBorder,

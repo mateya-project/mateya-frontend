@@ -270,11 +270,13 @@ class _PlaceDetailContent extends StatelessWidget {
                             children: <Widget>[
                               const AiRobotAvatar(size: 40),
                               const SizedBox(width: 10),
-                              Text(
-                                '${place.name}과 비슷한 로컬 경험',
-                                style: const TextStyle(
-                                  color: AppColors.textPrimary,
-                                  fontWeight: FontWeight.w800,
+                              Expanded(
+                                child: Text(
+                                  '${place.name}과 비슷한 로컬 경험',
+                                  style: const TextStyle(
+                                    color: AppColors.textPrimary,
+                                    fontWeight: FontWeight.w800,
+                                  ),
                                 ),
                               ),
                             ],
