@@ -105,6 +105,35 @@ void main() {
     controller.closeRoom();
     await tester.pumpWidget(const SizedBox.shrink());
   });
+
+  testWidgets('chat detail header stays below the top safe area', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    tester.view.viewPadding = const FakeViewPadding(top: 59, bottom: 34);
+    tester.view.padding = const FakeViewPadding(top: 59, bottom: 34);
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    addTearDown(tester.view.resetViewPadding);
+    addTearDown(tester.view.resetPadding);
+
+    final controller = ChatController(repository: _TestChatRepository());
+    addTearDown(controller.dispose);
+
+    await controller.initialize();
+    await controller.openRoom('direct-room');
+    await pumpChatPage(tester, controller: controller);
+    await tester.pumpAndSettle();
+
+    expect(
+      tester.getTopLeft(find.text('Nicolas')).dy,
+      greaterThanOrEqualTo(59),
+    );
+
+    controller.closeRoom();
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
 }
 
 class _TestChatRepository implements ChatRepository {
