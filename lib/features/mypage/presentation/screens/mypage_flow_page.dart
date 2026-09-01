@@ -58,6 +58,7 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
   int _lastBadgeCelebrationVersion = 0;
   bool _hasShownProfileImagePermissionNotice = false;
   bool _withdrawalAgreement = false;
+  bool _isSyncingFormValues = false;
 
   @override
   void initState() {
@@ -89,7 +90,7 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
   }
 
   void _handleLocalFieldChanged() {
-    if (mounted) {
+    if (mounted && !_isSyncingFormValues) {
       setState(() {});
     }
   }
@@ -394,10 +395,17 @@ class _MyPageFlowPageState extends State<MyPageFlowPage> {
     final businessIntroduction =
         widget.controller.businessPage?.profile.oneLineIntroduction ?? '';
     if (_businessIntroductionController.text != businessIntroduction) {
-      _businessIntroductionController.value = TextEditingValue(
-        text: businessIntroduction,
-        selection: TextSelection.collapsed(offset: businessIntroduction.length),
-      );
+      _isSyncingFormValues = true;
+      try {
+        _businessIntroductionController.value = TextEditingValue(
+          text: businessIntroduction,
+          selection: TextSelection.collapsed(
+            offset: businessIntroduction.length,
+          ),
+        );
+      } finally {
+        _isSyncingFormValues = false;
+      }
     }
   }
 

@@ -188,24 +188,29 @@ class DetailBody extends StatelessWidget {
               children: <Widget>[
                 Row(
                   children: <Widget>[
-                    Text(
-                      l10n.detailsParticipantsJoined(
-                        detail.activity.participantCount,
+                    Expanded(
+                      child: Text(
+                        l10n.detailsParticipantsJoined(
+                          detail.activity.participantCount,
+                        ),
+                        style: Theme.of(
+                          context,
+                        ).textTheme.titleLarge?.copyWith(fontSize: 18),
                       ),
-                      style: Theme.of(
-                        context,
-                      ).textTheme.titleLarge?.copyWith(fontSize: 18),
                     ),
-                    const Spacer(),
-                    Text(
-                      remaining > 0
-                          ? l10n.detailsParticipantsRemaining(remaining)
-                          : l10n.detailsRecruitmentClosed,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: remaining > 0
-                            ? AppColors.brandGreen
-                            : AppColors.error,
-                        fontWeight: FontWeight.w600,
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: Text(
+                        remaining > 0
+                            ? l10n.detailsParticipantsRemaining(remaining)
+                            : l10n.detailsRecruitmentClosed,
+                        textAlign: TextAlign.right,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: remaining > 0
+                              ? AppColors.brandGreen
+                              : AppColors.error,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 6),

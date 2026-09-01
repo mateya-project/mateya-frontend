@@ -240,6 +240,9 @@ class _CreateStepTracker extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final currentIndex = steps.indexOf(currentStep);
+    final textScale = MediaQuery.textScalerOf(context).scale(1);
+    final trackerHeight =
+        78.0 + (textScale - 1).clamp(0.0, 1.0).toDouble() * 32;
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -259,7 +262,7 @@ class _CreateStepTracker extends StatelessWidget {
             : (currentIndex + 0.5) / (stepCount - 1);
 
         return SizedBox(
-          height: 78,
+          height: trackerHeight,
           child: Stack(
             children: <Widget>[
               if (stepCount > 1)
@@ -372,6 +375,8 @@ class _CreateStepTrackerItem extends StatelessWidget {
         const SizedBox(height: 2),
         Text(
           label,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
           style: theme.textTheme.bodyMedium?.copyWith(
             color: isCurrent ? AppColors.textPrimary : AppColors.textSecondary,
             fontWeight: isCurrent ? FontWeight.w700 : FontWeight.w500,
