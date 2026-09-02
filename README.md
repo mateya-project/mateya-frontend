@@ -1,195 +1,122 @@
 # Mateya Frontend
 
-Mateya는 외국인과 로컬 사용자가 한국의 문화, 여행, 액티비티를 함께 경험할 수 있도록 연결하는 Flutter 기반 소셜 액티비티 앱입니다. 이 저장소는 온보딩, 장소 탐색, 활동 생성·참여, 다국어 채팅, 마이페이지까지 실제 사용자 앱 경험을 담당합니다.
+Mateya는 한국을 여행하거나 생활하는 외국인과 로컬을 연결하는 관광·문화 동행 앱입니다. 공공 관광데이터와 AI 추천으로 붐비는 유명 관광지 대신 비슷한 경험의 로컬 장소를 발견하고, 해당 장소의 모임에 참여하거나 직접 만들 수 있습니다.
 
-## 서비스 주소
+이 저장소는 Flutter 기반 iOS·Android 앱의 온보딩, AI 홈, 장소 탐색, 모임 생성·참여, 다국어 채팅과 마이페이지 경험을 담당합니다.
 
-- https://apps.apple.com/kr/app/mateya/id6782392321
+- App Store: [Mateya](https://apps.apple.com/kr/app/mateya/id6782392321)
+- API 문서: [api.mateya.cloud/swagger](https://api.mateya.cloud/swagger)
 
-## 서비스 개요
+## 주요 화면
 
-- 공공데이터와 위치 기반 탐색으로 한국 문화 장소를 찾을 수 있습니다.
-- 게스트와 호스트가 각각의 온보딩 흐름으로 가입할 수 있습니다.
-- 사용자는 모임·클래스를 만들거나 참여를 신청할 수 있습니다.
-- 채팅에서 번역과 원문 보기를 함께 제공해 다국어 소통을 보조합니다.
-- 앱 전반에서 `ko`, `en`, `ja`, `zh-Hans` 로케일을 지원합니다.
-
-## 앱 화면
-
-온보딩, 탐색, 예약, 호스트/마이페이지 흐름 기준으로 주요 화면을 정리했습니다.
-
-### 온보딩
-
-<table align="center">
+<table>
   <tr>
-    <td align="center"><img src="https://raw.githubusercontent.com/mateya-project/.github/main/images/app/start_screen.png" width="220" alt="Mateya start screen" /><br /><sub>앱 첫 진입 화면에서 서비스 성격과 시작 동선을 안내합니다.</sub></td>
-    <td align="center"><img src="https://raw.githubusercontent.com/mateya-project/.github/main/images/app/register_verification%20phone.png" width="220" alt="Mateya phone verification screen" /><br /><sub>전화번호 인증으로 가입 절차를 완료하는 단계입니다.</sub></td>
+    <td align="center"><img src="docs/images/app/02-ai-home.jpg" width="210" alt="AI 홈 화면"><br><sub>AI 여행 메이트 홈</sub></td>
+    <td align="center"><img src="docs/images/app/03-ai-local-recommendation.jpg" width="210" alt="로컬 분산 추천 화면"><br><sub>로컬 분산 추천</sub></td>
+    <td align="center"><img src="docs/images/app/04-score-breakdown.jpg" width="210" alt="추천 점수 상세 화면"><br><sub>추천 근거와 점수</sub></td>
   </tr>
   <tr>
-    <td align="center"><img src="https://raw.githubusercontent.com/mateya-project/.github/main/images/app/register_location%20info.png" width="220" alt="Mateya location registration screen" /><br /><sub>동네와 활동 지역 정보를 설정해 추천 정확도를 높입니다.</sub></td>
-    <td align="center"><img src="https://raw.githubusercontent.com/mateya-project/.github/main/images/app/language-change.png" width="220" alt="Mateya language change screen" /><br /><sub>지원 언어를 즉시 바꿔 다국어 UI를 사용할 수 있습니다.</sub></td>
+    <td align="center"><img src="docs/images/app/06-nearby-local-map.jpg" width="210" alt="주변 관광지 지도 화면"><br><sub>주변 로컬 지도</sub></td>
+    <td align="center"><img src="docs/images/app/07-ai-create-meeting.jpg" width="210" alt="AI 모임 생성 화면"><br><sub>AI 모임 만들기</sub></td>
+    <td align="center"><img src="docs/images/app/10-user-chat-detail.jpg" width="210" alt="사용자 다국어 채팅 화면"><br><sub>사용자 다국어 채팅</sub></td>
   </tr>
 </table>
 
-### 탐색과 지도
+나머지 앱 화면은 [`docs/images/app`](docs/images/app)에서 확인할 수 있습니다.
 
-<table align="center">
-  <tr>
-    <td align="center"><img src="https://raw.githubusercontent.com/mateya-project/.github/main/images/app/search%20filter%20screen.png" width="220" alt="Mateya search filter screen" /><br /><sub>카테고리와 조건으로 원하는 문화 활동을 빠르게 찾습니다.</sub></td>
-    <td align="center"><img src="https://raw.githubusercontent.com/mateya-project/.github/main/images/app/near_traditional_info.png" width="220" alt="Mateya nearby culture map" /><br /><sub>주변 전통·문화 장소를 지도 기반으로 탐색할 수 있습니다.</sub></td>
-  </tr>
-  <tr>
-    <td align="center"><img src="https://raw.githubusercontent.com/mateya-project/.github/main/images/app/near_traditional_info_list.png" width="220" alt="Mateya nearby culture list screen" /><br /><sub>지도와 함께 장소 목록을 비교하며 탐색할 수 있습니다.</sub></td>
-    <td align="center"><img src="https://raw.githubusercontent.com/mateya-project/.github/main/images/app/multilingual-screen.png" width="220" alt="Mateya multilingual chat screen" /><br /><sub>번역과 원문 보기를 통해 여러 언어 사용자와 소통합니다.</sub></td>
-  </tr>
-</table>
+## 사용자 흐름
 
-### 예약과 참여
-
-<table align="center">
-  <tr>
-    <td align="center"><img src="https://raw.githubusercontent.com/mateya-project/.github/main/images/app/reservation-home.png" width="220" alt="Mateya reservation home" /><br /><sub>예약과 참여 흐름의 진입 화면에서 전체 상태를 확인합니다.</sub></td>
-    <td align="center"><img src="https://raw.githubusercontent.com/mateya-project/.github/main/images/app/make%20reservation%20-%20step%201.png" width="220" alt="Mateya make reservation step 1" /><br /><sub>활동 예약 생성의 첫 단계에서 기본 정보를 입력합니다.</sub></td>
-  </tr>
-  <tr>
-    <td align="center"><img src="https://raw.githubusercontent.com/mateya-project/.github/main/images/app/make%20reservation%20-%20step%202.png" width="220" alt="Mateya make reservation step 2" /><br /><sub>일정, 언어, 인원 같은 참여 조건을 구체화합니다.</sub></td>
-    <td align="center"><img src="https://raw.githubusercontent.com/mateya-project/.github/main/images/app/make%20reservation%20-%20step%203.png" width="220" alt="Mateya make reservation step 3" /><br /><sub>입력 내용을 확인하고 예약 생성을 마무리합니다.</sub></td>
-  </tr>
-  <tr>
-    <td align="center"><img src="https://raw.githubusercontent.com/mateya-project/.github/main/images/app/reservation-list.png" width="220" alt="Mateya reservation list" /><br /><sub>내가 신청하거나 운영 중인 예약 목록을 한 번에 확인합니다.</sub></td>
-    <td align="center"><img src="https://raw.githubusercontent.com/mateya-project/.github/main/images/app/reservation%20-%20detail.png" width="220" alt="Mateya reservation detail" /><br /><sub>예약 상세에서 일정, 소개, 참여 상태를 확인합니다.</sub></td>
-  </tr>
-</table>
-
-### 호스트와 마이페이지
-
-<table align="center">
-  <tr>
-    <td align="center"><img src="https://raw.githubusercontent.com/mateya-project/.github/main/images/app/host%20verification%20screen.png" width="220" alt="Mateya host verification screen" /><br /><sub>호스트 등록과 검증 절차를 통해 운영 권한을 신청합니다.</sub></td>
-    <td align="center"><img src="https://raw.githubusercontent.com/mateya-project/.github/main/images/app/host%20mypage.png" width="220" alt="Mateya host mypage" /><br /><sub>호스트 전용 마이페이지에서 운영 기능을 관리합니다.</sub></td>
-  </tr>
-  <tr>
-    <td align="center"><img src="https://raw.githubusercontent.com/mateya-project/.github/main/images/app/user%20mypage.png" width="220" alt="Mateya user mypage" /><br /><sub>일반 사용자 마이페이지에서 활동 이력과 설정을 관리합니다.</sub></td>
-    <td align="center"></td>
-  </tr>
-</table>
-
-## 기술 스택
-
-| 영역 | 사용 기술 |
-| --- | --- |
-| App | Flutter, Dart |
-| 지도 | `flutter_naver_map`, `geolocator`, `geocoding` |
-| 인증/저장 | `flutter_secure_storage`, `shared_preferences` |
-| 실시간 | `stomp_dart_client` |
-| 관측성 | Firebase Crashlytics |
-| UI | `google_fonts`, `flutter_svg` |
-| 다국어 | `flutter_localizations`, `intl` |
-
+```text
+온보딩·로그인
+  → AI 홈에서 유명 관광지 또는 여행 조건 입력
+  → 혼잡도·유사 경험·이동성을 반영한 로컬 대안 확인
+  → 추천 근거와 장소 상세 확인
+  → 기존 모임 참여 또는 AI 도움으로 새 모임 생성
+  → AI 여행 대화와 참여자 간 다국어 채팅
+```
 
 ## 핵심 기능
 
-### 1. 온보딩과 회원 진입
+### AI 로컬 분산 추천
 
-- 게스트/호스트 시작 분기
-- 약관 동의, 이름·사업자 정보 입력
-- 전화번호 인증 기반 가입 완료
-- 동네 설정과 초기 프로필 구성
-- 세션 유무에 따라 홈 또는 온보딩 플로우 자동 분기
+- 유명 관광지를 기준으로 덜 붐비는 로컬 대안 장소 탐색
+- 추천 점수와 혼잡도, 이동 거리, 경험 유사성 등 근거 표시
+- 대화형 여행 조건 보완과 추천 이력 관리
+- 장소 상세, 주변 지도, 모임 참여·생성 CTA 연결
 
-관련 코드:
+### 장소와 모임
 
-- `lib/main.dart`
-- `lib/app/app.dart`
-- `lib/features/onboarding/`
+- 공공데이터 기반 관광지·문화시설·전통시장·행사 등 탐색
+- 지도와 목록을 오가는 주변 장소 검색 및 카테고리 필터
+- 장소 상세와 모임 상세를 분리한 탐색 흐름
+- 일정, 인원, 언어, 소개를 포함한 모임·클래스 생성과 참여 관리
 
-### 2. 장소 탐색과 주변 문화 지도
+### 다국어 소통
 
-- 공공데이터 기반 장소/행사/전통 정보 탐색
-- 현재 위치 주변 문화 장소 목록·지도 통합 화면
-- 카테고리 필터와 장소 상세 정보 제공
-- 네이버 지도 SDK 기반 지도 렌더링
+- 한국어, 영어, 일본어, 중국어 간 앱 UI 전환
+- REST + STOMP WebSocket 기반 AI 대화·모임 채팅·1:1 채팅
+- 최초 요청 시 저장된 번역과 원문 보기 지원
+- 신고, 차단, 참여자 관리 등 사용자 안전 기능
 
-관련 코드:
+## 기술 스택
 
-- `lib/features/home/`
-- `lib/shared/maps/`
-- `lib/shared/activity_categories/`
+| 영역 | 기술 |
+| --- | --- |
+| 앱 | Flutter, Dart 3.12 |
+| 상태·구조 | Feature-first, Application/Data/Domain/Presentation 분리 |
+| 지도·위치 | Naver Map, Geolocator, Geocoding |
+| 실시간 | STOMP WebSocket |
+| 로컬 저장 | Flutter Secure Storage, SharedPreferences |
+| 다국어 | Flutter Localizations, Intl |
+| 관측성 | Firebase Crashlytics |
 
-### 3. 활동 생성과 참여 흐름
-
-- 장소를 기반으로 모임 또는 클래스 생성
-- 일정, 소개, 언어, 인원 등 세부 조건 입력
-- 참여 신청, 예약 목록, 상세 확인 흐름 제공
-- 호스트 승인/운영 시나리오 대응
-
-관련 코드:
-
-- `lib/features/create/`
-- `lib/features/details/`
-
-### 4. 다국어 채팅과 사용자 안전
-
-- REST + WebSocket 기반 채팅
-- 번역 결과와 원문 보기 토글 제공
-- 신고 시트, 차단 사용자 관리, 마이페이지 설정 연동
-- 선택한 언어를 로컬 저장소와 서버 프로필에 함께 동기화
-
-관련 코드:
-
-- `lib/features/chat/`
-- `lib/features/mypage/`
-- `lib/shared/localization/`
-- `lib/shared/report/`
-
-## 앱 구조
+## 프로젝트 구조
 
 ```text
 lib/
-  app/          앱 부팅, 라우팅, 초기 플로우 분기
-  features/     onboarding, home, create, details, chat, mypage
-  shared/       auth, localization, maps, network, widgets, theme
-  l10n/         다국어 리소스와 생성 코드
-test/
-  app/          앱 초기화와 플로우 분기 테스트
-  features/     기능별 위젯/컨트롤러/저장소 테스트
-  shared/       공통 모듈 테스트
+├── app/                 # 앱 부팅, 설정, 라우팅
+├── features/
+│   ├── ai/              # AI 홈, 추천, 대화
+│   ├── chat/            # 모임·1:1 채팅
+│   ├── create/          # 모임·클래스 생성
+│   ├── details/         # 장소·모임 상세
+│   ├── home/            # 홈과 탐색
+│   ├── mypage/          # 프로필과 활동 이력
+│   └── onboarding/      # 가입과 초기 설정
+├── shared/              # 인증, 네트워크, 지도, 테마, 공통 위젯
+└── l10n/                # 다국어 리소스
+test/                    # 기능·공통 모듈 테스트
+docs/images/app/          # README와 스토어용 앱 화면
 ```
 
-현재 테스트는 온보딩, 홈, 생성, 상세, 채팅, 마이페이지, 로케일/세션/네트워크 공통 모듈까지 분리되어 있습니다.
+## 로컬 실행
 
-## 실행 방법
-
-사전 확인:
+Flutter SDK와 Xcode 또는 Android Studio가 필요합니다.
 
 ```bash
 flutter doctor
-```
-
-의존성 설치와 실행:
-
-```bash
 flutter pub get
 flutter run
 ```
 
-플랫폼 지정 실행:
+다른 API 서버를 사용할 때는 빌드 환경값으로 주입합니다.
 
 ```bash
-flutter run -d ios
-flutter run -d android
-flutter run -d chrome
+flutter run --dart-define=MATEYA_API_BASE_URL=http://localhost:8080
 ```
 
-품질 확인:
+Naver Map Client ID 등 환경별 값은 저장소에 시크릿으로 추가하지 말고 플랫폼 설정 또는 `--dart-define`으로 관리합니다.
+
+## 품질 확인
 
 ```bash
-dart format lib test
+dart format --output=none --set-exit-if-changed lib test
 flutter analyze
 flutter test
 ```
 
-## 함께 보는 저장소
+## 관련 저장소
 
-- Backend: [mateya-project/backend](https://github.com/mateya-project/backend)
-- Organization Profile: [mateya-project/.github](https://github.com/mateya-project/.github)
+- [Backend](https://github.com/mateya-project/backend)
+- [AI Server](https://github.com/mateya-project/mateya-aiserver)
+- [Infrastructure](https://github.com/mateya-project/infra)
