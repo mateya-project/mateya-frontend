@@ -9,20 +9,36 @@ Mateya는 한국을 여행하거나 생활하는 외국인과 로컬을 연결�
 
 ## 주요 화면
 
+### 시작과 AI 추천
+
 <table>
   <tr>
+    <td align="center"><img src="docs/images/app/01-onboarding.jpg" width="210" alt="Mateya 온보딩 화면"><br><sub>온보딩</sub></td>
     <td align="center"><img src="docs/images/app/02-ai-home.jpg" width="210" alt="AI 홈 화면"><br><sub>AI 여행 메이트 홈</sub></td>
     <td align="center"><img src="docs/images/app/03-ai-local-recommendation.jpg" width="210" alt="로컬 분산 추천 화면"><br><sub>로컬 분산 추천</sub></td>
     <td align="center"><img src="docs/images/app/04-score-breakdown.jpg" width="210" alt="추천 점수 상세 화면"><br><sub>추천 근거와 점수</sub></td>
   </tr>
+</table>
+
+### 장소 탐색과 모임 생성
+
+<table>
   <tr>
+    <td align="center"><img src="docs/images/app/05-place-detail.jpg" width="210" alt="장소 상세 화면"><br><sub>장소 상세</sub></td>
     <td align="center"><img src="docs/images/app/06-nearby-local-map.jpg" width="210" alt="주변 관광지 지도 화면"><br><sub>주변 로컬 지도</sub></td>
     <td align="center"><img src="docs/images/app/07-ai-create-meeting.jpg" width="210" alt="AI 모임 생성 화면"><br><sub>AI 모임 만들기</sub></td>
-    <td align="center"><img src="docs/images/app/10-user-chat-detail.jpg" width="210" alt="사용자 다국어 채팅 화면"><br><sub>사용자 다국어 채팅</sub></td>
   </tr>
 </table>
 
-나머지 앱 화면은 [`docs/images/app`](docs/images/app)에서 확인할 수 있습니다.
+### AI와 사용자 채팅
+
+<table>
+  <tr>
+    <td align="center"><img src="docs/images/app/08-ai-chat-list.jpg" width="210" alt="AI 채팅 목록 화면"><br><sub>AI 채팅 목록</sub></td>
+    <td align="center"><img src="docs/images/app/09-user-chat-list.jpg" width="210" alt="사용자 채팅 목록 화면"><br><sub>사용자 채팅 목록</sub></td>
+    <td align="center"><img src="docs/images/app/10-user-chat-detail.jpg" width="210" alt="사용자 다국어 채팅 화면"><br><sub>사용자 다국어 채팅</sub></td>
+  </tr>
+</table>
 
 ## 사용자 흐름
 
