@@ -61,6 +61,8 @@ class OnboardingController extends ChangeNotifier {
   String _name = '';
   String _phoneNumber = '';
   String _verificationCode = '';
+  String _reviewLoginId = '';
+  String _reviewPassword = '';
   String _manualNeighborhoodQuery = '';
   String _businessName = '';
   String _businessOwner = '';
@@ -83,6 +85,8 @@ class OnboardingController extends ChangeNotifier {
   String get name => _name;
   String get phoneNumber => _phoneNumber;
   String get verificationCode => _verificationCode;
+  String get reviewLoginId => _reviewLoginId;
+  String get reviewPassword => _reviewPassword;
   int get remainingSeconds => _remainingSeconds;
   int get resendCount => _resendCount;
   String? get debugVerificationCode =>
@@ -109,6 +113,8 @@ class OnboardingController extends ChangeNotifier {
   bool get hasSentVerificationCode =>
       _smsCodeExpiresAt?.isAfter(DateTime.now()) ?? false;
   bool get canSubmitVerificationCode => _verificationCode.length == 6;
+  bool get canSubmitReviewerLogin =>
+      _reviewLoginId.trim().isNotEmpty && _reviewPassword.length >= 8;
   bool get canCompleteNeighborhood => _selectedNeighborhood != null;
   bool get canCompleteBusiness =>
       _businessName.trim().isNotEmpty &&
@@ -182,6 +188,22 @@ class OnboardingController extends ChangeNotifier {
   void startGuestFlow() => _startGuestFlow(this);
 
   void startHostFlow() => _startHostFlow(this);
+
+  void startReviewerLogin() => _startReviewerLogin(this);
+
+  void updateReviewLoginId(String value) {
+    _reviewLoginId = value;
+    _clearError('reviewCredentials');
+    _notifyChanged();
+  }
+
+  void updateReviewPassword(String value) {
+    _reviewPassword = value;
+    _clearError('reviewCredentials');
+    _notifyChanged();
+  }
+
+  Future<void> submitReviewerLogin() => _submitReviewerLogin(this);
 
   void toggleAllAgreements(bool value) => _toggleAllAgreements(this, value);
 

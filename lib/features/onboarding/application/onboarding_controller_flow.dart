@@ -18,6 +18,16 @@ void _startHostFlow(OnboardingController controller) {
   controller._notifyChanged();
 }
 
+void _startReviewerLogin(OnboardingController controller) {
+  controller._flowKind = FlowKind.guest;
+  controller._completionMode = AuthCompletionMode.login;
+  controller._fieldErrors = <String, String?>{};
+  controller._reviewLoginId = '';
+  controller._reviewPassword = '';
+  controller._step = OnboardingStep.reviewerLogin;
+  controller._notifyChanged();
+}
+
 void _toggleAllAgreements(OnboardingController controller, bool value) {
   controller._agreementState = controller._agreementState.toggleAll(value);
   controller._notifyChanged();
@@ -101,6 +111,8 @@ void _restartOnboarding(OnboardingController controller) {
   controller._name = '';
   controller._phoneNumber = '';
   controller._verificationCode = '';
+  controller._reviewLoginId = '';
+  controller._reviewPassword = '';
   controller._manualNeighborhoodQuery = '';
   controller._businessName = '';
   controller._businessOwner = '';
@@ -114,6 +126,7 @@ void _restartOnboarding(OnboardingController controller) {
 void _goBack(OnboardingController controller) {
   controller._step = switch (controller._step) {
     OnboardingStep.welcome => OnboardingStep.welcome,
+    OnboardingStep.reviewerLogin => OnboardingStep.welcome,
     OnboardingStep.guestConsent ||
     OnboardingStep.hostConsent => OnboardingStep.welcome,
     OnboardingStep.guestName => OnboardingStep.guestConsent,

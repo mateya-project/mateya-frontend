@@ -111,6 +111,11 @@ class _OnboardingFlowPageState extends State<OnboardingFlowPage> {
         key: const ValueKey<String>('welcome'),
         onGuestTap: controller.startGuestFlow,
         onHostTap: controller.startHostFlow,
+        onReviewerLoginTap: controller.startReviewerLogin,
+      ),
+      OnboardingStep.reviewerLogin => ReviewerLoginStepView(
+        key: const ValueKey<String>('reviewer-login'),
+        controller: controller,
       ),
       OnboardingStep.guestConsent => ConsentOverlayStepView(
         key: const ValueKey<String>('guest-consent'),

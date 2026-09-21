@@ -301,6 +301,60 @@ abstract class AppLocalizations {
   /// **'호스트로 시작하기'**
   String get onboardingStartAsHost;
 
+  /// No description provided for @onboardingReviewerLoginCta.
+  ///
+  /// In ko, this message translates to:
+  /// **'심사용 계정으로 로그인'**
+  String get onboardingReviewerLoginCta;
+
+  /// No description provided for @onboardingReviewerLoginTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'심사용 계정 로그인'**
+  String get onboardingReviewerLoginTitle;
+
+  /// No description provided for @onboardingReviewerLoginDescription.
+  ///
+  /// In ko, this message translates to:
+  /// **'제출 안내에 제공된 테스트 계정 정보를 입력해 주세요.'**
+  String get onboardingReviewerLoginDescription;
+
+  /// No description provided for @onboardingReviewerIdLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'아이디'**
+  String get onboardingReviewerIdLabel;
+
+  /// No description provided for @onboardingReviewerIdHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'심사용 아이디'**
+  String get onboardingReviewerIdHint;
+
+  /// No description provided for @onboardingReviewerPasswordLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'비밀번호'**
+  String get onboardingReviewerPasswordLabel;
+
+  /// No description provided for @onboardingReviewerPasswordHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'심사용 비밀번호'**
+  String get onboardingReviewerPasswordHint;
+
+  /// No description provided for @onboardingReviewerLoginSubmit.
+  ///
+  /// In ko, this message translates to:
+  /// **'로그인'**
+  String get onboardingReviewerLoginSubmit;
+
+  /// No description provided for @onboardingReviewerCredentialsRequired.
+  ///
+  /// In ko, this message translates to:
+  /// **'아이디와 비밀번호를 모두 입력해 주세요.'**
+  String get onboardingReviewerCredentialsRequired;
+
   /// No description provided for @onboardingConsentTitle.
   ///
   /// In ko, this message translates to:

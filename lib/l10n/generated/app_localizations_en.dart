@@ -110,6 +110,35 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboardingStartAsHost => 'Start as a host';
 
   @override
+  String get onboardingReviewerLoginCta => 'Sign in with a review account';
+
+  @override
+  String get onboardingReviewerLoginTitle => 'Review account sign-in';
+
+  @override
+  String get onboardingReviewerLoginDescription =>
+      'Enter the test account credentials provided with the submission.';
+
+  @override
+  String get onboardingReviewerIdLabel => 'ID';
+
+  @override
+  String get onboardingReviewerIdHint => 'Review account ID';
+
+  @override
+  String get onboardingReviewerPasswordLabel => 'Password';
+
+  @override
+  String get onboardingReviewerPasswordHint => 'Review account password';
+
+  @override
+  String get onboardingReviewerLoginSubmit => 'Sign in';
+
+  @override
+  String get onboardingReviewerCredentialsRequired =>
+      'Enter both the ID and password.';
+
+  @override
   String get onboardingConsentTitle => 'You need to agree before using MateYa.';
 
   @override

@@ -14,6 +14,7 @@ class MateyaTextField extends StatefulWidget {
     this.readOnly = false,
     this.maxLength,
     this.autofocus = false,
+    this.obscureText = false,
     this.onTap,
     this.onChanged,
     this.onSubmitted,
@@ -32,6 +33,7 @@ class MateyaTextField extends StatefulWidget {
   final bool readOnly;
   final int? maxLength;
   final bool autofocus;
+  final bool obscureText;
   final VoidCallback? onTap;
   final ValueChanged<String>? onChanged;
   final ValueChanged<String>? onSubmitted;
@@ -99,6 +101,7 @@ class _MateyaTextFieldState extends State<MateyaTextField> {
           controller: widget.controller,
           focusNode: _focusNode,
           autofocus: widget.autofocus,
+          obscureText: widget.obscureText,
           readOnly: widget.readOnly,
           maxLength: widget.maxLength,
           keyboardType: widget.keyboardType,

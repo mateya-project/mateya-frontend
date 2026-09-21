@@ -225,7 +225,11 @@ void main() {
       tester,
       Scaffold(
         body: SafeArea(
-          child: WelcomeStepView(onGuestTap: _noop, onHostTap: _noop),
+          child: WelcomeStepView(
+            onGuestTap: _noop,
+            onHostTap: _noop,
+            onReviewerLoginTap: _noop,
+          ),
         ),
       ),
     );
