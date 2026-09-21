@@ -25,6 +25,27 @@ void main() {
 
   group('OnboardingController', () {
     test(
+      'reviewer credentials login stores session and completes login',
+      () async {
+        AuthSessionStore.instance.clear();
+        final controller = OnboardingController(
+          locationRepository: _FakeLocationRepository.success(),
+          authRepository: _FakeOnboardingAuthRepository.existingUser(),
+          authSessionStore: AuthSessionStore.instance,
+        );
+
+        controller.startReviewerLogin();
+        controller.updateReviewLoginId('openapi');
+        controller.updateReviewPassword('review-password-for-tests');
+        await controller.submitReviewerLogin();
+
+        expect(controller.step, OnboardingStep.completed);
+        expect(controller.completionMode, AuthCompletionMode.login);
+        expect(AuthSessionStore.instance.session?.user.displayName, '기존회원');
+      },
+    );
+
+    test(
       'existing guest moves to neighborhood verification after sms verification',
       () async {
         AuthSessionStore.instance.clear();
@@ -612,6 +633,22 @@ class _FakeOnboardingAuthRepository implements OnboardingAuthRepository {
       message: '회원을 찾을 수 없습니다.',
       code: 'not-found',
       statusCode: 404,
+    );
+  }
+
+  @override
+  Future<AuthSession> loginReviewer({
+    required String loginId,
+    required String password,
+  }) async {
+    if (loginSession != null) {
+      return loginSession!;
+    }
+    throw const MateyaApiException(
+      type: ApiFailureType.unauthorized,
+      message: '심사용 계정 정보를 확인하세요.',
+      code: 'unauthorized',
+      statusCode: 401,
     );
   }
 

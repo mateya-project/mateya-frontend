@@ -108,6 +108,34 @@ class AppLocalizationsJa extends AppLocalizations {
   String get onboardingStartAsHost => 'ホストとして始める';
 
   @override
+  String get onboardingReviewerLoginCta => '審査用アカウントでログイン';
+
+  @override
+  String get onboardingReviewerLoginTitle => '審査用アカウントログイン';
+
+  @override
+  String get onboardingReviewerLoginDescription =>
+      '提出案内に記載されたテストアカウント情報を入力してください。';
+
+  @override
+  String get onboardingReviewerIdLabel => 'ID';
+
+  @override
+  String get onboardingReviewerIdHint => '審査用ID';
+
+  @override
+  String get onboardingReviewerPasswordLabel => 'パスワード';
+
+  @override
+  String get onboardingReviewerPasswordHint => '審査用パスワード';
+
+  @override
+  String get onboardingReviewerLoginSubmit => 'ログイン';
+
+  @override
+  String get onboardingReviewerCredentialsRequired => 'IDとパスワードを入力してください。';
+
+  @override
   String get onboardingConsentTitle => 'MateYa を利用するには同意が必要です。';
 
   @override

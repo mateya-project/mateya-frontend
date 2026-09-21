@@ -17,7 +17,11 @@ void main() {
         supportedLocales: MateyaLocalizations.supportedLocales,
         localizationsDelegates: MateyaLocalizations.delegates,
         home: Scaffold(
-          body: WelcomeStepView(onGuestTap: () {}, onHostTap: () {}),
+          body: WelcomeStepView(
+            onGuestTap: () {},
+            onHostTap: () {},
+            onReviewerLoginTap: () {},
+          ),
         ),
       ),
     );

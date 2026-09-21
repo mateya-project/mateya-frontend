@@ -18,10 +18,12 @@ class WelcomeStepView extends StatelessWidget {
     super.key,
     required this.onGuestTap,
     required this.onHostTap,
+    required this.onReviewerLoginTap,
   });
 
   final VoidCallback onGuestTap;
   final VoidCallback onHostTap;
+  final VoidCallback onReviewerLoginTap;
 
   @override
   Widget build(BuildContext context) {
@@ -94,6 +96,20 @@ class WelcomeStepView extends StatelessWidget {
                                   textAlign: TextAlign.center,
                                 ),
                               ),
+                              const SizedBox(height: 14),
+                              MateyaPressable(
+                                onTap: onReviewerLoginTap,
+                                borderRadius: BorderRadius.circular(10),
+                                splashColor: Colors.transparent,
+                                highlightColor: Colors.transparent,
+                                child: Text(
+                                  l10n.onboardingReviewerLoginCta,
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    color: AppColors.textSecondary,
+                                    decoration: TextDecoration.underline,
+                                  ),
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -103,6 +119,117 @@ class WelcomeStepView extends StatelessWidget {
                 ),
               );
             },
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class ReviewerLoginStepView extends StatefulWidget {
+  const ReviewerLoginStepView({super.key, required this.controller});
+
+  final OnboardingController controller;
+
+  @override
+  State<ReviewerLoginStepView> createState() => _ReviewerLoginStepViewState();
+}
+
+class _ReviewerLoginStepViewState extends State<ReviewerLoginStepView> {
+  late final TextEditingController _loginIdController;
+  late final TextEditingController _passwordController;
+
+  @override
+  void initState() {
+    super.initState();
+    _loginIdController = TextEditingController(
+      text: widget.controller.reviewLoginId,
+    );
+    _passwordController = TextEditingController(
+      text: widget.controller.reviewPassword,
+    );
+  }
+
+  @override
+  void dispose() {
+    _loginIdController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final theme = Theme.of(context);
+    final controller = widget.controller;
+    return Column(
+      children: <Widget>[
+        MateyaHeader.backArrow(onBack: controller.goBack),
+        Expanded(
+          child: SingleChildScrollView(
+            padding: EdgeInsets.symmetric(
+              horizontal: AppResponsive.horizontalPadding(context),
+            ),
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                const SizedBox(height: 46),
+                Text(
+                  l10n.onboardingReviewerLoginTitle,
+                  style: theme.textTheme.headlineLarge,
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  l10n.onboardingReviewerLoginDescription,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: 32),
+                Text(
+                  l10n.onboardingReviewerIdLabel,
+                  style: theme.textTheme.titleLarge,
+                ),
+                const SizedBox(height: 12),
+                MateyaTextField(
+                  controller: _loginIdController,
+                  hintText: l10n.onboardingReviewerIdHint,
+                  textInputAction: TextInputAction.next,
+                  onChanged: controller.updateReviewLoginId,
+                ),
+                const SizedBox(height: 24),
+                Text(
+                  l10n.onboardingReviewerPasswordLabel,
+                  style: theme.textTheme.titleLarge,
+                ),
+                const SizedBox(height: 12),
+                MateyaTextField(
+                  controller: _passwordController,
+                  hintText: l10n.onboardingReviewerPasswordHint,
+                  obscureText: true,
+                  errorText: controller.errorFor('reviewCredentials'),
+                  textInputAction: TextInputAction.done,
+                  onChanged: controller.updateReviewPassword,
+                  onSubmitted: (_) => controller.canSubmitReviewerLogin
+                      ? controller.submitReviewerLogin()
+                      : null,
+                ),
+                const SizedBox(height: 24),
+                MateyaButton(
+                  label: controller.isAuthLoading
+                      ? l10n.commonProcessing
+                      : l10n.onboardingReviewerLoginSubmit,
+                  enabled:
+                      !controller.isAuthLoading &&
+                      controller.canSubmitReviewerLogin,
+                  onPressed: controller.submitReviewerLogin,
+                ),
+                SizedBox(
+                  height: AppResponsive.keyboardAwareBottomPadding(context),
+                ),
+              ],
+            ),
           ),
         ),
       ],

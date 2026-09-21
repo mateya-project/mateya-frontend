@@ -108,6 +108,34 @@ class AppLocalizationsKo extends AppLocalizations {
   String get onboardingStartAsHost => '호스트로 시작하기';
 
   @override
+  String get onboardingReviewerLoginCta => '심사용 계정으로 로그인';
+
+  @override
+  String get onboardingReviewerLoginTitle => '심사용 계정 로그인';
+
+  @override
+  String get onboardingReviewerLoginDescription =>
+      '제출 안내에 제공된 테스트 계정 정보를 입력해 주세요.';
+
+  @override
+  String get onboardingReviewerIdLabel => '아이디';
+
+  @override
+  String get onboardingReviewerIdHint => '심사용 아이디';
+
+  @override
+  String get onboardingReviewerPasswordLabel => '비밀번호';
+
+  @override
+  String get onboardingReviewerPasswordHint => '심사용 비밀번호';
+
+  @override
+  String get onboardingReviewerLoginSubmit => '로그인';
+
+  @override
+  String get onboardingReviewerCredentialsRequired => '아이디와 비밀번호를 모두 입력해 주세요.';
+
+  @override
   String get onboardingConsentTitle => '메이트야 이용시 동의가 필요합니다.';
 
   @override

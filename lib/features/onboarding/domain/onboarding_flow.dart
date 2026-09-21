@@ -2,6 +2,7 @@ enum FlowKind { guest, host }
 
 enum OnboardingStep {
   welcome,
+  reviewerLogin,
   guestConsent,
   guestName,
   guestPhone,

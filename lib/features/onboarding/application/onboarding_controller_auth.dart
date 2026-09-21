@@ -4,6 +4,33 @@ Future<void> _sendVerificationCode(OnboardingController controller) async {
   await _requestVerificationCode(controller, isResend: false);
 }
 
+Future<void> _submitReviewerLogin(OnboardingController controller) async {
+  if (!controller.canSubmitReviewerLogin) {
+    controller._fieldErrors['reviewCredentials'] =
+        MateyaLocalizations.current.onboardingReviewerCredentialsRequired;
+    controller._notifyChanged();
+    return;
+  }
+
+  controller._authPhase = AsyncPhase.loading;
+  controller._fieldErrors.remove('reviewCredentials');
+  controller._notifyChanged();
+
+  try {
+    final session = await controller._authRepository.loginReviewer(
+      loginId: controller._reviewLoginId.trim(),
+      password: controller._reviewPassword,
+    );
+    controller._authSessionStore.save(session);
+    controller._completionMode = AuthCompletionMode.login;
+    controller._authPhase = AsyncPhase.success;
+    controller._step = OnboardingStep.completed;
+  } on MateyaApiException catch (error) {
+    _applyApiError(controller, error, preferredField: 'reviewCredentials');
+  }
+  controller._notifyChanged();
+}
+
 Future<void> _requestVerificationCode(
   OnboardingController controller, {
   required bool isResend,

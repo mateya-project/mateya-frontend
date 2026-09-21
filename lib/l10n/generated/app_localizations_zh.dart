@@ -108,6 +108,33 @@ class AppLocalizationsZh extends AppLocalizations {
   String get onboardingStartAsHost => '以主办方身份开始';
 
   @override
+  String get onboardingReviewerLoginCta => '使用审核账号登录';
+
+  @override
+  String get onboardingReviewerLoginTitle => '审核账号登录';
+
+  @override
+  String get onboardingReviewerLoginDescription => '请输入提交说明中提供的测试账号信息。';
+
+  @override
+  String get onboardingReviewerIdLabel => '账号';
+
+  @override
+  String get onboardingReviewerIdHint => '审核账号';
+
+  @override
+  String get onboardingReviewerPasswordLabel => '密码';
+
+  @override
+  String get onboardingReviewerPasswordHint => '审核账号密码';
+
+  @override
+  String get onboardingReviewerLoginSubmit => '登录';
+
+  @override
+  String get onboardingReviewerCredentialsRequired => '请输入账号和密码。';
+
+  @override
   String get onboardingConsentTitle => '使用 MateYa 前需要先同意。';
 
   @override
@@ -2657,6 +2684,33 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get onboardingStartAsHost => '以主办方身份开始';
+
+  @override
+  String get onboardingReviewerLoginCta => '使用审核账号登录';
+
+  @override
+  String get onboardingReviewerLoginTitle => '审核账号登录';
+
+  @override
+  String get onboardingReviewerLoginDescription => '请输入提交说明中提供的测试账号信息。';
+
+  @override
+  String get onboardingReviewerIdLabel => '账号';
+
+  @override
+  String get onboardingReviewerIdHint => '审核账号';
+
+  @override
+  String get onboardingReviewerPasswordLabel => '密码';
+
+  @override
+  String get onboardingReviewerPasswordHint => '审核账号密码';
+
+  @override
+  String get onboardingReviewerLoginSubmit => '登录';
+
+  @override
+  String get onboardingReviewerCredentialsRequired => '请输入账号和密码。';
 
   @override
   String get onboardingConsentTitle => '使用 MateYa 前需要先同意。';

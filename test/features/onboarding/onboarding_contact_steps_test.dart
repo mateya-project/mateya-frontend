@@ -117,6 +117,14 @@ class _WidgetFakeOnboardingAuthRepository implements OnboardingAuthRepository {
   }
 
   @override
+  Future<AuthSession> loginReviewer({
+    required String loginId,
+    required String password,
+  }) {
+    throw UnimplementedError();
+  }
+
+  @override
   Future<AuthSession> signupGuest({
     required String verificationToken,
     required String displayName,
